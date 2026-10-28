@@ -77,11 +77,11 @@ Keep modules and firmware outside every checkout, including ignored folders:
 
 ```sh
 python ../open-xy/sdk.py compile --machine . --profiling on --out /external/private/granular-module-001
-python ../open-xy/sdk.py build --machine . --profiling on --stock-os /external/private/stock-1.2.0/os.ldr --out /external/private/granular-dev-001
+python ../open-xy/sdk.py build --machine . --profiling on --stock-os /external/private/stock-1.2.1/os.ldr --out /external/private/granular-dev-001
 ```
 
 The first command produces a module, which cannot be installed as an OS. The
-second needs the SDK's exact, untouched stock OS 1.2.0 from the user's device.
+second needs the SDK's exact, untouched stock OS 1.2.1 from the user's device.
 Carry a previous build's `--layout` and collection forward when preserving
 other custom machines. Engine 36 is this standalone build's requested number;
 project identity follows the build's layout.

@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "sdk": "1.2",
+  "kind": "effect",
+  "description": "Clouds-derived stereo granular processing, freeze and diffusion in fixed point.",
+  "identity": {
+    "effect": 8,
+    "page": 21
+  },
+  "dryParameter": "dry",
+  "icon": "M6 17h3v3H6z M13 10h3v3h-3z M20 15h3v3h-3z M27 9h3v3h-3z M11 27h3v3h-3z M20 25h3v3h-3z M29 23h3v3h-3z"
+}

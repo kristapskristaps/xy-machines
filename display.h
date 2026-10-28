@@ -1,7 +1,7 @@
 #pragma once
 #include <opxy/draw.hpp>
 namespace matter {
-using Frame=opxy::draw::Frame<0,0,145,0,8>;
+using Frame=opxy::draw::Frame<0,0,31,1,8>;
 struct DisplayState {
     opxy::draw::NoteTracker notes;
     opxy::u32 phase,serial,track,initialized;

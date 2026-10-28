@@ -39,7 +39,7 @@ int main() {
     }
     std::printf("Modal coefficient maximum absolute error: %.9f\n",worst);
     if(worst>.00003){std::printf("case %.1f %d %d %d mode %u\n",worst_hz,worst_geometry,worst_brightness,worst_damping,worst_mode);return 1;}
-    // Pickup position uses the original recurrence, bounded over all 52 modes.
+    // Pickup position uses the original recurrence, bounded over all modes.
     for(int position=0;position<32768;position+=31) {
         const opxy::i32 coefficient=matter::position_coefficient(position);
         opxy::i32 y0=536870912,y1=coefficient/2;
@@ -48,5 +48,5 @@ int main() {
             if(y0<-537000000||y0>537000000)return 1;
         }
     }
-    std::puts("PASS: 29,952 double-reference modal coefficient sets and pickup recurrence");
+    std::puts("PASS: 13,824 double-reference modal coefficient sets and pickup recurrence");
 }

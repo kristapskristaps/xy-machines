@@ -175,18 +175,18 @@
     }
   },
   "resources": {
-    "voiceBytes": 1596,
+    "voiceBytes": 924,
     "voiceAlignment": 4,
-    "voiceCapacity": 8,
-    "sharedBytes": 131140,
+    "voiceCapacity": 2,
+    "sharedBytes": 32788,
     "outputPeakQ31": 536870912,
     "display": {
       "stateBytes": 36,
       "stateAlignment": 4,
       "paths": 0,
       "points": 0,
-      "nodes": 145,
-      "texts": 0,
+      "nodes": 31,
+      "texts": 1,
       "palette": 8
     }
   }

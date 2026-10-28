@@ -3,7 +3,8 @@
 #include <opxy/lease_pool.hpp>
 #include "vendor/numeric.h"
 namespace matter {
-const unsigned mode_count=52;
+const unsigned mode_count=24;
+const unsigned bow_capacity=2;
 struct Filter { opxy::i32 s1,s2,a1,a2,a3,gain; };
 struct BowFilter { opxy::i32 s1,s2,a1,a2,a3,normalization; };
 struct BowDelay { opxy::i16 samples[8][1024]; };
@@ -18,7 +19,7 @@ struct Voice {
     opxy::i32 bow_signal,bow_velocity,limiter;
     opxy::i32 key[5],position;
 };
-struct Shared { opxy::LeasePool<BowDelay,8> bows; };
+struct Shared { opxy::LeasePool<BowDelay,bow_capacity> bows; };
 void initialize(Voice&,Shared&,opxy::u32);
 void start(Voice&,Shared&,opxy::u32);
 void destroy(Voice&,Shared&,opxy::u32);

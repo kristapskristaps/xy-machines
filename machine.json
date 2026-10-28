@@ -2,7 +2,7 @@
   "schema": 1,
   "sdk": "1.2",
   "kind": "synth",
-  "description": "Elements-derived physical modeling: six exciters, 52 resonant modes and an animated material mesh.",
+  "description": "Elements-derived physical modeling: six exciters, 24 resonant modes and a material mesh.",
   "identity": {
     "engine": 41,
     "page": 89

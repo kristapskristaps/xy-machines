@@ -1,7 +1,7 @@
 # Weave
 
-Fifteen Plaits-derived synthesis models for OP-XY OS 1.2.1, with a red and silver
-flux loom. Built with the [Open-XY SDK](https://github.com/etcetc000/open-xy).
+Fifteen Plaits-derived synthesis models for OP-XY OS 1.2.1, with a miniature animated
+industrial room. Built with the [Open-XY SDK](https://github.com/etcetc000/open-xy).
 
 The model bank contains waveshaping, two-operator FM, filtered noise, particles,
 kick, snare, hi-hat, grain formants, chords, swarm, wavetable, virtual analog,
@@ -24,21 +24,25 @@ render blocks. Changing model retriggers it. The XY's stock amp envelope,
 filter and mixing remain downstream. Percussive models supply their own decay;
 use a sufficiently long stock amp envelope to hear their full tails.
 
-The display follows controls and per-track note gates. Four interlocking strands
-form a different knot for each model: dust and noise become a dense mesh, strings
-flatten into a resonant band, and FM models fold into multiple loops. Harmonic
-changes tension and orientation, Timbre spreads the strands and changes travel
-speed, Morph opens the projection, and Output turns the red thread through it.
-A note starts a short expanding ring and brightens the moving signal beads.
-Held notes keep the loom turning; release and control changes settle in about
-0.18 seconds. Idle geometry stays still. Track changes establish a fresh baseline,
-and reduced motion shows a static pose with an accurate gate indicator.
+The display is a cutaway machine room. A belt-driven flywheel powers a cabinet,
+with a hanging light, pressure gauge, conveyor and a small maintenance robot.
+Each model swaps the physical cartridge inside the cabinet: meshing operators
+for FM, a grain hopper for noise, drums and cymbals for percussion, organ pipes
+for chords, and bars or strings for the resonant models.
 
-The retained artwork uses nineteen transformable elements, four 64-point outlines,
-two native text slots and nine palette colors. Shared trigonometry and cached poses
-limit geometry updates to about 20 Hz while held; note starts respond immediately.
-Regenerate the fragment with `python tools/generate_art.py`. Update the firmware
-and `content/display/weave.svg` together when installing this display revision.
+Harmonic changes the mechanism's size and gear ratios. Timbre changes drive
+speed and the conveyor load; Morph changes pressure and the press stroke;
+Output turns the routing valve. Notes drive the motor, press, fan, parcels,
+steam and the robot's wrench. Motion follows controls and per-track note gates.
+Release settles in about 0.18 seconds, idle poses remain still, and reduced
+motion keeps the room static while preserving the control positions and lamp.
+
+The retained artwork uses 42 actors, two 32-point outlines, two native text slots
+and nine palette colors. Most room detail is static. Mutable geometry is cached
+at about 20 Hz while the motor runs, with immediate note-start updates; moving
+parts follow display frames. Regenerate the fragment and `art.h` with
+`python tools/generate_art.py`. Update the firmware and
+`content/display/weave.svg` together when installing this display revision.
 
 ## Port fidelity
 

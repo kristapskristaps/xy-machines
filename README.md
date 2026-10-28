@@ -1,6 +1,6 @@
 # Vapour
 
-A Clouds-derived stereo granular send for OP-XY OS 1.2.0. It records incoming
+A Clouds-derived stereo granular send for OP-XY OS 1.2.1. It records incoming
 audio, overlaps up to 32 grains, transposes them, freezes the recording buffer,
 and adds diffusion. It uses the [Open-XY SDK](https://github.com/etcetc000/open-xy).
 
@@ -16,6 +16,9 @@ and adds diffusion. It uses the [Open-XY SDK](https://github.com/etcetc000/open-
 | Feedback | Returns the granular signal to the recording, up to 95% |
 | Freeze | Stops recording while grains continue playing |
 | Dry | Source dry level through the stock send mixer; the effect itself returns wet audio only |
+
+On the native send page, press an encoder to alternate its control: Position /
+Texture, Size / Feedback, Pitch / Freeze, and Density / Dry.
 
 The rolling recording holds 65,536 stereo 16-bit frames, about 1.49 seconds.
 Stereo spread is fixed at 75%. The send borrows 282,624 bytes of scratch memory;

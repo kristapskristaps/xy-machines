@@ -77,7 +77,7 @@ i32 position_coefficient(i32 position) {
     return sign*8*frequency*(32768-2*frequency);
 }
 
-i32 filter(i32& s1,i32& s2,i32 a1,i32 a2,i32 a3,i32 input,bool lowpass=false) {
+inline i32 filter(i32& s1,i32& s2,i32 a1,i32 a2,i32 a3,i32 input,bool lowpass=false) {
     const i32 v3=input-s2;
     const i32 bp=clamp(fmac2(a1,s1,a2,v3),-536870912,536870912);
     const i32 lp=clamp(add(s2,fmac2(a2,s1,a3,v3)),-536870912,536870912);

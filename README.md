@@ -26,6 +26,22 @@ Use a sustained amp envelope when playing long textures. The stock loader's
 | Width | 0–100% | 50% | Random grain panning; zero preserves centered stereo playback |
 | Level | 0–100% | 80% | Output level before the stock instrument's envelope and mixer |
 
+The parameter-editor SDK build exposes these through the stock selector:
+
+| Encoder | Click | Shift + click |
+| --- | --- | --- |
+| 1 | Position | Scan |
+| 2 | Size | Spread |
+| 3 | Density | Width |
+| 4 | Spray | Level |
+
+Choose a value, then click the left or white encoder to apply it. Back cancels.
+Values are shown in the control's units. Continuous controls offer 101 points
+across their range; accepting the original row keeps its exact saved value.
+These are base parameters, stored with projects and presets. Ordinary encoder
+turns still perform sample editing. The installed prototype without the SDK
+parameter-editor change does not have this editor.
+
 The SDK exposes all eight parameters as LFO destinations. Controls are applied
 each 64-frame block; size, position, spread, width and note pitch are captured
 when each grain starts. Existing grains finish their windows. Density changes

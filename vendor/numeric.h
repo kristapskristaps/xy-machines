@@ -30,7 +30,6 @@ namespace matter_dsp {
 using int32_t=opxy::i32;
 using uint32_t=opxy::u32;
 inline int32_t product_hi(int32_t a, int32_t b) {
-    if (a == (-2147483647 - 1) && b == (-2147483647 - 1)) return (-2147483647 - 1);
     return opxy::q31::multiply(a, b);
 }
 inline int32_t fmac2(int32_t a, int32_t x, int32_t b, int32_t y) {

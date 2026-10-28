@@ -6,8 +6,8 @@
   "adaptation": true,
   "files": {
     "LICENSE": "f28be5c8f7cc615e2a047199a7f24c12fa36f6c92c4894c8e6bdc20308d85502",
-    "VENDOR.md": "b5af697df2c8f552f518984eb96c7292b0396824e58131f33f0c646893120fe2",
-    "numeric.h": "7ff7c475254fbe53f78255fac456803e555f7de3d41d9c466a2bb0e209108739",
+    "VENDOR.md": "1ebb579a941b2e1a7f6c67e5386c15d28c6605dda536c13a08ebcbce5e69179c",
+    "numeric.h": "a1fcd847cc86e9b416721deea09699009de6e8bd9e007e9f99c2c7076bc24a18",
     "resources.h": "208e6cebf6ec8f768f56316da15526c7617b69aef2e5911bf1475217729c03c7"
   },
   "integer_source": {

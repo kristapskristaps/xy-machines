@@ -11,9 +11,10 @@ u32 control(i32 x) { return x<0?0u:static_cast<u32>(x)>>16; }
 i32 q15(i32 a,i32 b) { return (a>>15)*b+((a&32767)*b>>15); }
 u32 random(Voice& voice) { return voice.random=voice.random*1664525u+1013904223u; }
 
-void coefficients(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping,bool bowed=false) {
-    if (voice.key[0]==static_cast<i32>(increment) && voice.key[1]==geometry && voice.key[2]==bright && voice.key[3]==damping && voice.key[4]==bowed) return;
-    voice.key[0]=static_cast<i32>(increment);voice.key[1]=geometry;voice.key[2]=bright;voice.key[3]=damping;voice.key[4]=bowed;
+template<bool Bowed>
+void configure(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping) {
+    if (voice.key[0]==static_cast<i32>(increment) && voice.key[1]==geometry && voice.key[2]==bright && voice.key[3]==damping && voice.key[4]==Bowed) return;
+    voice.key[0]=static_cast<i32>(increment);voice.key[1]=geometry;voice.key[2]=bright;voice.key[3]=damping;voice.key[4]=Bowed;
     voice.position=-1;
     voice.active_modes[0]=voice.active_modes[1]=0;
     const unsigned at=static_cast<unsigned>(geometry)>>7;
@@ -34,7 +35,7 @@ void coefficients(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping
     uf harmonic=f0;
     uf q=uf_mul(uf_semis(damping*255+(damping*4080>>15)),uf_q(500,0));
     i32 stretch=1<<24;
-    for (unsigned i=0;i<(bowed?8:mode_count);++i) {
+    for (unsigned i=0;i<(Bowed?8:mode_count);++i) {
         const uf frequency=uf_mul(harmonic,uf_q(static_cast<u32>(stretch),24));
         const u32 raw=uf_to(frequency,32);
         const u32 f=raw>2104533975u?2104533975u:raw;
@@ -43,7 +44,7 @@ void coefficients(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping
         if(raw<2104533975u) voice.active_modes[i/32] |= 1u<<(i%32);
         Filter& mode=voice.modes[i];
         mode.a1=c.a1;mode.a2=c.a2;mode.a3=c.a3;
-        if(bowed && i<8) {
+        if(Bowed && i<8) {
             svf_hq(&c,tan_fast(f),uf_add(one,uf_mul(uf_q(f,32),uf_q(1500,0))));
             BowFilter& bow=voice.bowed[i];
             bow.a1=c.a1;bow.a2=c.a2;bow.a3=c.a3;
@@ -62,6 +63,10 @@ void coefficients(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping
         qloss+=fmac1t(qrate,2147483647-qloss);
         q=uf_mul(q,uf_q(static_cast<u32>(qloss),31));
     }
+}
+
+void coefficients(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping) {
+    configure<false>(voice,increment,geometry,bright,damping);
 }
 
 // The original approximate cosine recurrence weights the pickup position.
@@ -195,23 +200,29 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
     if(voice.trigger && bowed) voice.lease=shared.bows.acquire(owner,voice.lease);
     BowDelay* delays=bowed ? shared.bows.get(owner,voice.lease) : nullptr;
     const u32 increment=pitch[0]?pitch[0]:1;
-    coefficients(voice,increment,geometry,brightness,damping,bowed);
+    if(bowed) configure<true>(voice,increment,geometry,brightness,damping);
+    else coefficients(voice,increment,geometry,brightness,damping);
     i32 excitation[opxy::block_frames];
     excite(voice,model,contour,timbre,excitation);
     i32 mixed[opxy::block_frames]={};
-    const bool move_pickup=voice.position!=position;
-    const i32 coefficient=move_pickup?position_coefficient(position):0;
+    const i32 coefficient=position_coefficient(position);
+    i32 targets[mode_count];
     i32 y0=536870912,y1=coefficient/2;
-    for(unsigned mode_index=0;mode_index<(bowed?8:mode_count);++mode_index) {
-        Filter& mode=voice.modes[mode_index];
+    for(unsigned mode_index=0;mode_index<mode_count;++mode_index) {
         const i32 cosine=y0;
-        if(move_pickup) {y0=fmac1(coefficient,y0)*4-y1;y1=cosine;}
-        const bool active=(voice.active_modes[mode_index/32]>>(mode_index%32))&1u;
-        const i32 target=active ? (move_pickup?clamp(cosine+536870912,0,1073741823)*2:mode.gain) : 0;
-        if(!active) {mode.s1=mode.s2=mode.gain=0;continue;}
-        if(voice.position<0) mode.gain=target;
-        const i32 gain_step=(target-mode.gain)/64;
-        if(!bowed) {
+        y0=fmac1(coefficient,y0)*4-y1;y1=cosine;
+        targets[mode_index]=(voice.active_modes[mode_index/32]>>(mode_index%32))&1u
+            ? clamp(cosine+536870912,0,1073741823)*2 : 0;
+    }
+    if(voice.position<0)
+        for(unsigned i=0;i<mode_count;++i)voice.modes[i].gain=targets[i];
+    if(!bowed) {
+        for(unsigned mode_index=0;mode_index<mode_count;++mode_index) {
+            Filter& mode=voice.modes[mode_index];
+            if(!((voice.active_modes[mode_index/32]>>(mode_index%32))&1u)) {
+                mode.s1=mode.s2=mode.gain=0;continue;
+            }
+            const i32 target=targets[mode_index],gain_step=(target-mode.gain)/64;
             i32 gain=mode.gain,s1=mode.s1,s2=mode.s2;
             const i32 a1=mode.a1,a2=mode.a2,a3=mode.a3;
             for(unsigned i=0;i<opxy::block_frames;++i) {
@@ -220,14 +231,15 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
                 // Scaling before the sum keeps the resonator bank below overflow.
                 mixed[i]+=opxy::q31::multiply(bp,gain)/32;
             }
-            mode.s1=s1;mode.s2=s2;
+            mode.s1=s1;mode.s2=s2;mode.gain=target;
         }
-        mode.gain=target;
+    } else {
+        for(unsigned i=0;i<8;++i)voice.modes[i].gain=targets[i];
     }
     voice.position=position;
     if(delays) {
         for(unsigned i=0;i<opxy::block_frames;++i) {
-            const i32 desired=model==3 ? contour*512 : 0;
+            const i32 desired=contour*512;
             voice.bow_velocity+=(desired-voice.bow_velocity)/1024;
             i32 bow_sum=0,bow_output=0;
             const i32 input=excitation[i]+voice.bow_signal;

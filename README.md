@@ -45,13 +45,24 @@ the note length. The default Pure Force is clean, with Punch, Drive and Click of
 
 ## Display
 
-A faceted helmet sits between clean and harmonic waveform diagrams. Notes
-illuminate its red visor and send a short impact through the reactor arcs.
-Drive opens the twelve grille vents and raises the harmonic indicators. Turns
-give a brief mechanical response. Motion settles within 0.2 seconds; idle is
-stationary, reduced motion snaps to the static feedback, and switching tracks
-establishes a fresh note baseline. The diagrams explain the selected character;
-they are not audio meters or a live oscilloscope.
+The helmet is traced from the supplied reference in `artwork/mask-reference.png`.
+Its dome, flared sides, eye shapes and triangular grille retain that mask's
+silhouette; the source's badge and checkerboard are excluded. Every part is
+native SVG geometry, with no embedded bitmap or browser animation.
+
+Each note recoils the complete helmet, flashes its eyes and sweeps a highlight
+across the visor. Three broken reactor rings rotate outward, sparks scatter
+around the mask and small energy packets connect it to the waveform diagrams.
+Four recent note impacts can overlap, so fast retriggers keep their own rings.
+The grille charges from the centre outward with Drive and note activity; turns
+move the targeting brackets and ease the indicators to their new positions.
+
+Motion settles within 0.2 seconds; idle and held resting poses are stationary.
+Release closes the visor, reduced motion snaps to static note feedback, and
+switching tracks establishes a fresh note baseline. The diagrams explain the
+selected character; they are not audio meters or a live oscilloscope.
+Regenerate the mask and panel with `python tools/generate_panel.py` (Pillow and
+NumPy), which preserves the SDK header in `artwork/header.svg.fragment`.
 
 ## Design references
 

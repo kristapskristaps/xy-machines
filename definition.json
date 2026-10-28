@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "id": "weave",
+  "name": "Weave",
+  "parameters": [
+    {
+      "id": "model",
+      "label": "Model",
+      "default": 0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "shape",
+          "fm",
+          "noise",
+          "particle",
+          "kick",
+          "snare",
+          "hihat",
+          "grain",
+          "chord",
+          "swarm",
+          "wavetable",
+          "analog",
+          "modal",
+          "string",
+          "six op"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "harmonics",
+      "label": "Harmonic",
+      "default": 0.4,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "timbre",
+      "label": "Timbre",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "morph",
+      "label": "Morph",
+      "default": 0.4,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "output",
+      "label": "Output",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 0
+    }
+  ],
+  "presets": {
+    "Folded silk": {
+      "model": 0.013333333333333334,
+      "harmonics": 0.45,
+      "timbre": 0.55,
+      "morph": 0.45,
+      "output": 0
+    },
+    "Glass choir": {
+      "model": 0.5466666666666666,
+      "harmonics": 0.4,
+      "timbre": 0.5,
+      "morph": 0.55,
+      "output": 0
+    },
+    "Dust bells": {
+      "model": 0.8133333333333332,
+      "harmonics": 0.62,
+      "timbre": 0.5,
+      "morph": 0.62,
+      "output": 0
+    },
+    "Soft strings": {
+      "model": 0.88,
+      "harmonics": 0.4,
+      "timbre": 0.5,
+      "morph": 0.5,
+      "output": 0
+    },
+    "Digital keys": {
+      "model": 0.9466666666666667,
+      "harmonics": 0.2,
+      "timbre": 0.5,
+      "morph": 0.55,
+      "output": 0
+    },
+    "Grain voice": {
+      "model": 0.48000000000000004,
+      "harmonics": 0.6,
+      "timbre": 0.55,
+      "morph": 0.4,
+      "output": 0
+    },
+    "Warm analog": {
+      "model": 0.7466666666666666,
+      "harmonics": 0.15,
+      "timbre": 0.3,
+      "morph": 0.4,
+      "output": 0
+    },
+    "Metal rain": {
+      "model": 0.21333333333333335,
+      "harmonics": 0.55,
+      "timbre": 0.45,
+      "morph": 0.7,
+      "output": 0
+    },
+    "Deep kick": {
+      "model": 0.28,
+      "harmonics": 0.3,
+      "timbre": 0.4,
+      "morph": 0.55,
+      "output": 0
+    }
+  },
+  "resources": {
+    "voiceBytes": 15812,
+    "voiceAlignment": 4,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 536870912,
+    "display": {
+      "stateBytes": 32,
+      "stateAlignment": 4,
+      "paths": 4,
+      "points": 64,
+      "nodes": 89,
+      "texts": 0,
+      "palette": 8
+    }
+  }
+}

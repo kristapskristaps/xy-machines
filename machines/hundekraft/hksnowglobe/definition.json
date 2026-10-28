@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "id": "hksnowglobe",
+  "name": "HK Snowglobe",
+  "parameters": [
+    {
+      "id": "decay",
+      "label": "Decay",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "shimmer",
+      "label": "Shimmer",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "freeze",
+      "label": "Freeze",
+      "default": 0.0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "On"
+        ]
+      },
+      "display": "enum"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "decay": 0.500015259254738,
+      "shimmer": 0.500015259254738,
+      "size": 0.500015259254738,
+      "dry": 1,
+      "freeze": 0.0
+    }
+  },
+  "resources": {
+    "bufferBytes": 99136
+  }
+}

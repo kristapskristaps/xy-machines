@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "id": "hkreverb",
+  "name": "HK Reverb",
+  "parameters": [
+    {
+      "id": "time",
+      "label": "Time",
+      "default": 0.4882961516159551,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "tone",
+      "label": "Tone",
+      "default": 0.6103701895199438,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "diffuse",
+      "label": "Diffuse",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "time": 0.4882961516159551,
+      "tone": 0.6103701895199438,
+      "diffuse": 0.500015259254738,
+      "dry": 1
+    }
+  },
+  "resources": {
+    "bufferBytes": 353616
+  }
+}

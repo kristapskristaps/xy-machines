@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "sdk": "1.3",
+  "kind": "synth",
+  "description": "Hundekraft Supersaw DSP port for private OP-XY testing.",
+  "identity": {
+    "engine": 40,
+    "page": 88
+  }
+}

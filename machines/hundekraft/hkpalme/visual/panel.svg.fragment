@@ -1,0 +1,162 @@
+<g id="hkpalme_panel">
+<path id="hkpalme_node_0" d="M-22.7 69.1L-34 65.4L-42.8 61.6L-49.9 57.7L-55.8 53.6L-60.7 49.4L-64.6 45.1L-67.7 40.9L-70 36.7L-71.5 32.6L-72.3 28.7L-72.4 25.1L-71.9 21.7L-70.7 18.7L-68.9 16L-69.4 11.4L-69.6 6.7L-69.4 2L-68.9 -2.6L-68 -7.2L-66.9 -11.7L-65.4 -16.1L-63.6 -20.3L-61.5 -24.5L-59.1 -28.4L-56.4 -32.2L-53.5 -35.8L-50.4 -39.3L-47 -42.4L-43.4 -45.4L-39.6 -48.1L-35.7 -50.6L-31.6 -52.8L-27.3 -54.7L-23 -56.3L-18.5 -58L-14.1 -60.5L-9.6 -63.2L-4.9 -66.1L0 -69.1L4.9 -66.1L9.6 -63.2L14.1 -60.5L18.5 -58L23 -56.3L27.3 -54.7L31.6 -52.8L35.7 -50.6L39.6 -48.1L43.4 -45.4L47 -42.4L50.4 -39.3L53.5 -35.8L56.4 -32.2L59.1 -28.4L61.5 -24.5L63.6 -20.3L65.4 -16.1L66.9 -11.7L68 -7.2L68.9 -2.6L69.4 2L69.6 6.7L69.4 11.4L68.9 16L70.7 18.7L71.9 21.7L72.4 25.1L72.3 28.7L71.5 32.6L70 36.7L67.7 40.9L64.6 45.1L60.7 49.4L55.8 53.6L49.9 57.7L42.8 61.6L34 65.4L22.7 69.1" fill="none" stroke="#b0b0b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 122.41)"/>
+<path id="hkpalme_node_1" d="M0 61.5L0 -61.5" fill="none" stroke="#404040" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 123.95)"/>
+<path id="hkpalme_node_2" d="M-18.2 4.85L-17.3 3.65L-16.3 2.45L-15.3 1.35L-14.1 0.25L-12.9 -0.65L-11.7 -1.55L-10.3 -2.25L-8.9 -2.95L-7.5 -3.55L-6.1 -3.95L-4.6 -4.35L-3.1 -4.65L-1.5 -4.75L0 -4.85L1.5 -4.75L3.1 -4.65L4.6 -4.35L6.1 -3.95L7.5 -3.55L8.9 -2.95L10.3 -2.25L11.7 -1.55L12.9 -0.65L14.1 0.25L15.3 1.35L16.3 2.45L17.3 3.65L18.2 4.85" fill="none" stroke="#eeeeee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 184.84)"/>
+<path id="hkpalme_node_3" d="M9 0L8.69 2.33L7.79 4.5L6.36 6.36L4.5 7.79L2.33 8.69L0 9L-2.33 8.69L-4.5 7.79L-6.36 6.36L-7.79 4.5L-8.69 2.33L-9 0L-8.69 -2.33L-7.79 -4.5L-6.36 -6.36L-4.5 -7.79L-2.33 -8.69L0 -9L2.33 -8.69L4.5 -7.79L6.36 -6.36L7.79 -4.5L8.69 -2.33Z" fill="#000000" stroke="#b0b0b0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 203.7)"/>
+<path id="hkpalme_node_4" d="M-61.5 36.25L-61.54 36.59L-61.67 36.9L-61.88 37.17L-62.15 37.38L-62.46 37.51L-62.8 37.55L-63.14 37.51L-63.45 37.38L-63.72 37.17L-63.93 36.9L-64.06 36.59L-64.1 36.25L-64.06 35.91L-63.93 35.6L-63.72 35.33L-63.45 35.12L-63.14 34.99L-62.8 34.95L-62.46 34.99L-62.15 35.12L-61.88 35.33L-61.67 35.6L-61.54 35.91ZM-61.9 15.95L-61.94 16.29L-62.07 16.6L-62.28 16.87L-62.55 17.08L-62.86 17.21L-63.2 17.25L-63.54 17.21L-63.85 17.08L-64.12 16.87L-64.33 16.6L-64.46 16.29L-64.5 15.95L-64.46 15.61L-64.33 15.3L-64.12 15.03L-63.85 14.82L-63.54 14.69L-63.2 14.65L-62.86 14.69L-62.55 14.82L-62.28 15.03L-62.07 15.3L-61.94 15.61ZM-55.7 -2.95L-55.74 -2.61L-55.87 -2.3L-56.08 -2.03L-56.35 -1.82L-56.66 -1.69L-57 -1.65L-57.34 -1.69L-57.65 -1.82L-57.92 -2.03L-58.13 -2.3L-58.26 -2.61L-58.3 -2.95L-58.26 -3.29L-58.13 -3.6L-57.92 -3.87L-57.65 -4.08L-57.34 -4.21L-57 -4.25L-56.66 -4.21L-56.35 -4.08L-56.08 -3.87L-55.87 -3.6L-55.74 -3.29ZM-43.9 -18.85L-43.94 -18.51L-44.07 -18.2L-44.28 -17.93L-44.55 -17.72L-44.86 -17.59L-45.2 -17.55L-45.54 -17.59L-45.85 -17.72L-46.12 -17.93L-46.33 -18.2L-46.46 -18.51L-46.5 -18.85L-46.46 -19.19L-46.33 -19.5L-46.12 -19.77L-45.85 -19.98L-45.54 -20.11L-45.2 -20.15L-44.86 -20.11L-44.55 -19.98L-44.28 -19.77L-44.07 -19.5L-43.94 -19.19ZM-27.6 -30.35L-27.64 -30.01L-27.77 -29.7L-27.98 -29.43L-28.25 -29.22L-28.56 -29.09L-28.9 -29.05L-29.24 -29.09L-29.55 -29.22L-29.82 -29.43L-30.03 -29.7L-30.16 -30.01L-30.2 -30.35L-30.16 -30.69L-30.03 -31L-29.82 -31.27L-29.55 -31.48L-29.24 -31.61L-28.9 -31.65L-28.56 -31.61L-28.25 -31.48L-27.98 -31.27L-27.77 -31L-27.64 -30.69ZM-8.7 -36.25L-8.74 -35.91L-8.87 -35.6L-9.08 -35.33L-9.35 -35.12L-9.66 -34.99L-10 -34.95L-10.34 -34.99L-10.65 -35.12L-10.92 -35.33L-11.13 -35.6L-11.26 -35.91L-11.3 -36.25L-11.26 -36.59L-11.13 -36.9L-10.92 -37.17L-10.65 -37.38L-10.34 -37.51L-10 -37.55L-9.66 -37.51L-9.35 -37.38L-9.08 -37.17L-8.87 -36.9L-8.74 -36.59ZM11.3 -36.25L11.26 -35.91L11.13 -35.6L10.92 -35.33L10.65 -35.12L10.34 -34.99L10 -34.95L9.66 -34.99L9.35 -35.12L9.08 -35.33L8.87 -35.6L8.74 -35.91L8.7 -36.25L8.74 -36.59L8.87 -36.9L9.08 -37.17L9.35 -37.38L9.66 -37.51L10 -37.55L10.34 -37.51L10.65 -37.38L10.92 -37.17L11.13 -36.9L11.26 -36.59ZM30.2 -30.35L30.16 -30.01L30.03 -29.7L29.82 -29.43L29.55 -29.22L29.24 -29.09L28.9 -29.05L28.56 -29.09L28.25 -29.22L27.98 -29.43L27.77 -29.7L27.64 -30.01L27.6 -30.35L27.64 -30.69L27.77 -31L27.98 -31.27L28.25 -31.48L28.56 -31.61L28.9 -31.65L29.24 -31.61L29.55 -31.48L29.82 -31.27L30.03 -31L30.16 -30.69ZM46.5 -18.85L46.46 -18.51L46.33 -18.2L46.12 -17.93L45.85 -17.72L45.54 -17.59L45.2 -17.55L44.86 -17.59L44.55 -17.72L44.28 -17.93L44.07 -18.2L43.94 -18.51L43.9 -18.85L43.94 -19.19L44.07 -19.5L44.28 -19.77L44.55 -19.98L44.86 -20.11L45.2 -20.15L45.54 -20.11L45.85 -19.98L46.12 -19.77L46.33 -19.5L46.46 -19.19ZM58.3 -2.95L58.26 -2.61L58.13 -2.3L57.92 -2.03L57.65 -1.82L57.34 -1.69L57 -1.65L56.66 -1.69L56.35 -1.82L56.08 -2.03L55.87 -2.3L55.74 -2.61L55.7 -2.95L55.74 -3.29L55.87 -3.6L56.08 -3.87L56.35 -4.08L56.66 -4.21L57 -4.25L57.34 -4.21L57.65 -4.08L57.92 -3.87L58.13 -3.6L58.26 -3.29ZM64.5 15.95L64.46 16.29L64.33 16.6L64.12 16.87L63.85 17.08L63.54 17.21L63.2 17.25L62.86 17.21L62.55 17.08L62.28 16.87L62.07 16.6L61.94 16.29L61.9 15.95L61.94 15.61L62.07 15.3L62.28 15.03L62.55 14.82L62.86 14.69L63.2 14.65L63.54 14.69L63.85 14.82L64.12 15.03L64.33 15.3L64.46 15.61ZM64.1 36.25L64.06 36.59L63.93 36.9L63.72 37.17L63.45 37.38L63.14 37.51L62.8 37.55L62.46 37.51L62.15 37.38L61.88 37.17L61.67 36.9L61.54 36.59L61.5 36.25L61.54 35.91L61.67 35.6L61.88 35.33L62.15 35.12L62.46 34.99L62.8 34.95L63.14 34.99L63.45 35.12L63.72 35.33L63.93 35.6L64.06 35.91Z" fill="#707070" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 105.86)"/>
+<path id="hkpalme_node_5" d="M-26.8 -21.3L-28.2 -19.9M-19 -40.1L-19 -42.1M-11.2 -21.3L-9.8 -19.9M11.2 -21.3L9.8 -19.9M19 -40.1L19 -42.1M26.8 -21.3L28.2 -19.9M-26.8 40.7L-28.2 42.1M-19 21.9L-19 19.9M-11.2 40.7L-9.8 42.1M11.2 40.7L9.8 42.1M19 21.9L19 19.9M26.8 40.7L28.2 42.1" fill="none" stroke="#707070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 370.9 107.01)"/>
+<path id="hkpalme_node_6" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="#eeeeee" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 350 75)"/>
+<path id="hkpalme_node_7" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="#d0d0d0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 391.8 75)"/>
+<path id="hkpalme_node_8" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="#eeeeee" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 350 143.2)"/>
+<path id="hkpalme_node_9" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="#e0e0e0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 391.8 143.2)"/>
+<path id="hkpalme_node_10" d="M0 4.5L0 -4.5" fill="none" stroke="#eeeeee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 350 70.05)"/>
+<path id="hkpalme_node_11" d="M0 4.5L0 -4.5" fill="none" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 391.8 70.05)"/>
+<path id="hkpalme_node_12" d="M0 4.5L0 -4.5" fill="none" stroke="#eeeeee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 350 138.25)"/>
+<path id="hkpalme_node_13" d="M0 4.5L0 -4.5" fill="none" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 391.8 138.25)"/>
+<path id="hkpalme_node_14" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_15" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_16" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_17" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_18" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_19" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_20" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_21" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_22" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_23" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_24" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_25" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_26" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_27" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_28" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_29" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_30" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_31" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_32" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_33" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_34" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_35" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_36" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_37" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_38" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_39" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_40" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_41" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_42" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_43" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_44" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_45" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_46" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_47" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_48" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_49" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_50" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_51" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_52" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_53" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_54" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_55" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_56" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_57" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_58" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_59" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_60" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_61" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_62" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_63" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_64" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_65" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_66" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_67" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_68" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_69" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_70" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_71" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_72" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_73" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_74" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_75" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_76" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_77" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_78" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_79" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_80" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_81" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_82" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_83" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_84" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_85" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_86" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_87" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_88" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_89" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_90" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_91" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_92" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_93" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_94" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_95" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_96" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_97" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_98" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_99" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_100" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_101" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_102" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_103" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_104" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_105" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_106" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_107" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_108" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_109" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_110" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_111" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_112" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_113" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_114" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_115" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_116" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_117" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_118" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_119" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_120" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_121" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_122" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkpalme_node_123" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_124" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_125" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_126" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_127" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_128" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_129" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_130" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_131" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_132" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_133" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_134" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_135" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_136" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_137" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_138" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_139" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_140" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_141" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_142" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_node_143" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_palette_0" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkpalme_palette_1" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="2"/>
+<circle id="hkpalme_palette_2" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="4"/>
+<circle id="hkpalme_palette_3" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="8"/>
+<circle id="hkpalme_palette_4" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="16"/>
+<circle id="hkpalme_palette_5" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+<circle id="hkpalme_palette_6" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="4"/>
+<circle id="hkpalme_palette_7" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="1"/>
+<circle id="hkpalme_palette_8" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="4"/>
+<circle id="hkpalme_palette_9" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="16"/>
+<circle id="hkpalme_palette_10" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="1"/>
+<circle id="hkpalme_palette_11" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="4"/>
+<circle id="hkpalme_palette_12" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="16"/>
+<circle id="hkpalme_palette_13" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="1"/>
+<circle id="hkpalme_palette_14" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="4"/>
+<circle id="hkpalme_palette_15" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="16"/>
+</g>

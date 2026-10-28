@@ -1,0 +1,118 @@
+<g id="hkfather_panel">
+<path id="hkfather_node_0" d="M-152 -74L-56 -21M-56 37L-145 74M-130.29 -74L-49 -21M-49 37L-124.29 74M-108.57 -74L-42 -21M-42 37L-103.57 74M-86.86 -74L-35 -21M-35 37L-82.86 74M-65.14 -74L-28 -21M-28 37L-62.14 74M-43.43 -74L-21 -21M-21 37L-41.43 74M-21.71 -74L-14 -21M-14 37L-20.71 74M0 -74L-7 -21M-7 37L0 74M21.71 -74L0 -21M0 37L20.71 74M43.43 -74L7 -21M7 37L41.43 74M65.14 -74L14 -21M14 37L62.14 74M86.86 -74L21 -21M21 37L82.86 74M108.57 -74L28 -21M28 37L103.57 74M130.29 -74L35 -21M35 37L124.29 74M152 -74L42 -21M42 37L145 74M-152 -74L152 -74M-56 37L42 37M-129.92 -61.81L126.7 -61.81M-76.47 45.51L65.69 45.51M-111.68 -51.74L105.8 -51.74M-93.38 52.54L85.26 52.54M-96.32 -43.26L88.2 -43.26M-107.62 58.46L101.74 58.46M-82.88 -35.84L72.8 -35.84M-120.08 63.64L116.16 63.64M-72.32 -30.01L60.7 -30.01M-129.87 67.71L127.49 67.71M-63.68 -25.24L50.8 -25.24M-137.88 71.04L136.76 71.04M-56 -21L42 -21M-145 74L145 74M-56 -21L-56 37M-46 -21L-46 37M-36 -21L-36 37M-26 -21L-26 37M-16 -21L-16 37M-6 -21L-6 37M4 -21L4 37M14 -21L14 37M24 -21L24 37M34 -21L34 37M-56 -21L42 -21M-56 -11L42 -11M-56 -1L42 -1M-56 9L42 9M-56 19L42 19M-56 29L42 29" fill="none" stroke="#606060" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 119)"/>
+<path id="hkfather_node_1" d="M4.5 -17.5L4.41 -16.33L4.16 -15.2L3.74 -14.17L3.18 -13.26L2.5 -12.51L1.72 -11.96L0.88 -11.62L0 -11.5L-0.88 -11.62L-1.72 -11.96L-2.5 -12.51L-3.18 -13.26L-3.74 -14.17L-4.16 -15.2L-4.41 -16.33L-4.5 -17.5L-4.41 -18.67L-4.16 -19.8L-3.74 -20.83L-3.18 -21.74L-2.5 -22.49L-1.72 -23.04L-0.88 -23.38L0 -23.5L0.88 -23.38L1.72 -23.04L2.5 -22.49L3.18 -21.74L3.74 -20.83L4.16 -19.8L4.41 -18.67ZM-4 -10.5L-9 -6.5L-10 8.5L-7 8.5L-6 23.5L-1 23.5L1 23.5L6 23.5L7 8.5L10 8.5L9 -6.5L4 -10.5Z" fill="#000000" stroke="#d0d0d0" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 178.4 132.75)"/>
+<path id="hkfather_node_2" d="M-21.5 -17.5L21.5 -17.5L21.5 17.5L-21.5 17.5Z" fill="#000000" stroke="#c0c0c0" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 104.15 140.45)"/>
+<path id="hkfather_node_3" d="M-19 -21L18 -21L18 8L-19 8ZM-14 -8L12 -8L14 0L-16 0ZM-7 -4L-7.23 -2.85L-7.88 -1.88L-8.85 -1.23L-10 -1L-11.15 -1.23L-12.12 -1.88L-12.77 -2.85L-13 -4L-12.77 -5.15L-12.12 -6.12L-11.15 -6.77L-10 -7L-8.85 -6.77L-7.88 -6.12L-7.23 -5.15ZM11 -4L10.77 -2.85L10.12 -1.88L9.15 -1.23L8 -1L6.85 -1.23L5.88 -1.88L5.23 -2.85L5 -4L5.23 -5.15L5.88 -6.12L6.85 -6.77L8 -7L9.15 -6.77L10.12 -6.12L10.77 -5.15ZM-14 4L12 4M-15 -19L-13.4 -19M-11 -19L-9.4 -19M-7 -19L-5.4 -19M-3 -19L-1.4 -19M1 -19L2.6 -19M5 -19L6.6 -19M9 -19L10.6 -19M13 -19L14.6 -19M-16 8L-16.08 8.38L-16.29 8.71L-16.62 8.92L-17 9L-17.38 8.92L-17.71 8.71L-17.92 8.38L-18 8L-17.92 7.62L-17.71 7.29L-17.38 7.08L-17 7L-16.62 7.08L-16.29 7.29L-16.08 7.62ZM-10 8L-10.08 8.38L-10.29 8.71L-10.62 8.92L-11 9L-11.38 8.92L-11.71 8.71L-11.92 8.38L-12 8L-11.92 7.62L-11.71 7.29L-11.38 7.08L-11 7L-10.62 7.08L-10.29 7.29L-10.08 7.62ZM11 8L10.92 8.38L10.71 8.71L10.38 8.92L10 9L9.62 8.92L9.29 8.71L9.08 8.38L9 8L9.08 7.62L9.29 7.29L9.62 7.08L10 7L10.38 7.08L10.71 7.29L10.92 7.62ZM17 8L16.92 8.38L16.71 8.71L16.38 8.92L16 9L15.62 8.92L15.29 8.71L15.08 8.38L15 8L15.08 7.62L15.29 7.29L15.62 7.08L16 7L16.38 7.08L16.71 7.29L16.92 7.62ZM0.1 5L0.02 5.42L-0.22 5.78L-0.58 6.02L-1 6.1L-1.42 6.02L-1.78 5.78L-2.02 5.42L-2.1 5L-2.02 4.58L-1.78 4.22L-1.42 3.98L-1 3.9L-0.58 3.98L-0.22 4.22L0.02 4.58ZM-19 12L-15 16L-8 16L-5 13L2 14L6 18L13 17L19 19M-19 14L-17 19L-11 20L-6 16L0 17L5 21L12 19L19 20" fill="none" stroke="#c0c0c0" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 104.7 147.6)"/>
+<path id="hkfather_node_4" d="M22 0L21.99 1.19L21.95 2.38L21.88 3.57L21.78 4.76L21.66 5.94L21.51 7.11L21.34 8.27L21.14 9.42L20.91 10.56L20.66 11.69L20.38 12.8L20.08 13.9L19.75 14.98L19.4 16.04L19.02 17.09L18.62 18.11L18.2 19.11L17.75 20.08L17.29 21.03L16.8 21.96L16.29 22.85L15.76 23.72L15.21 24.56L14.64 25.37L14.06 26.15L13.46 26.9L12.84 27.61L12.2 28.29L11.55 28.94L10.89 29.54L10.21 30.12L9.52 30.65L8.82 31.15L8.11 31.61L7.38 32.03L6.65 32.41L5.91 32.75L5.16 33.05L4.41 33.31L3.65 33.53L2.89 33.71L2.12 33.84L1.35 33.94L0.58 33.99L-0.19 34L-0.96 33.97L-1.74 33.89L-2.5 33.78L-3.27 33.62L-4.03 33.42L-4.79 33.19L-5.54 32.9L-6.28 32.58L-7.02 32.22L-7.75 31.82L-8.46 31.38L-9.17 30.9L-9.87 30.39L-10.55 29.83L-11.22 29.24L-11.88 28.62L-12.52 27.96L-13.15 27.26L-13.76 26.53L-14.35 25.77L-14.93 24.97L-15.49 24.15L-16.03 23.29L-16.55 22.41L-17.04 21.5L-17.52 20.56L-17.98 19.6L-18.41 18.61L-18.82 17.6L-19.21 16.57L-19.58 15.52L-19.92 14.44L-20.23 13.36L-20.52 12.25L-20.79 11.13L-21.03 9.99L-21.24 8.85L-21.43 7.69L-21.59 6.52L-21.73 5.35L-21.83 4.17L-21.92 2.98L-21.97 1.79L-22 0.6L-22 -0.6L-21.97 -1.79L-21.92 -2.98L-21.83 -4.17L-21.73 -5.35L-21.59 -6.52L-21.43 -7.69L-21.24 -8.85L-21.03 -9.99L-20.79 -11.13L-20.52 -12.25L-20.23 -13.36L-19.92 -14.44L-19.58 -15.52L-19.21 -16.57L-18.82 -17.6L-18.41 -18.61L-17.98 -19.6L-17.52 -20.56L-17.04 -21.5L-16.55 -22.41L-16.03 -23.29L-15.49 -24.15L-14.93 -24.97L-14.35 -25.77L-13.76 -26.53L-13.15 -27.26L-12.52 -27.96L-11.88 -28.62L-11.22 -29.24L-10.55 -29.83L-9.87 -30.39L-9.17 -30.9L-8.46 -31.38L-7.75 -31.82L-7.02 -32.22L-6.28 -32.58L-5.54 -32.9L-4.79 -33.19L-4.03 -33.42L-3.27 -33.62L-2.5 -33.78L-1.74 -33.89L-0.96 -33.97L-0.19 -34L0.58 -33.99L1.35 -33.94L2.12 -33.84L2.89 -33.71L3.65 -33.53L4.41 -33.31L5.16 -33.05L5.91 -32.75L6.65 -32.41L7.38 -32.03L8.11 -31.61L8.82 -31.15L9.52 -30.65L10.21 -30.12L10.89 -29.54L11.55 -28.94L12.2 -28.29L12.84 -27.61L13.46 -26.9L14.06 -26.15L14.64 -25.37L15.21 -24.56L15.76 -23.72L16.29 -22.85L16.8 -21.96L17.29 -21.03L17.75 -20.08L18.2 -19.11L18.62 -18.11L19.02 -17.09L19.4 -16.04L19.75 -14.98L20.08 -13.9L20.38 -12.8L20.66 -11.69L20.91 -10.56L21.14 -9.42L21.34 -8.27L21.51 -7.11L21.66 -5.94L21.78 -4.76L21.88 -3.57L21.95 -2.38L21.99 -1.19Z" fill="none" stroke="#c0c0c0" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 235.6 112.4)"/>
+<path id="hkfather_node_5" d="M-22 -6.5L-20 3.5L-15 6.5L-7 6.5L-3 3.5L-3 -5.5L-20 -5.5ZM3 -5.5L3 3.5L7 6.5L17 6.5L21 3.5L22 -6.5Z" fill="#000000" stroke="#000000" stroke-width="0.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 235.6 111.85)"/>
+<path id="hkfather_node_6" d="M-22 -38.25L-21.45 -39.16L-20.74 -40.01L-19.88 -40.8L-18.88 -41.53L-17.75 -42.21L-16.51 -42.82L-15.16 -43.38L-13.72 -43.87L-12.19 -44.31L-10.59 -44.7L-7.2 -45.28L-3.64 -45.63L0 -45.75L3.64 -45.63L7.2 -45.28L10.59 -44.7L12.19 -44.31L13.72 -43.87L15.16 -43.38L16.51 -42.82L17.75 -42.21L18.88 -41.53L19.88 -40.8L20.74 -40.01L21.45 -39.16L22 -38.25M-22 -36.25L22 -36.25M-22 -35.25L-20 -25.25L-15 -22.25L-7 -22.25L-3 -25.25L-3 -34.25L-20 -34.25M3 -34.25L3 -25.25L7 -22.25L17 -22.25L21 -25.25L22 -35.25L3 -34.25M-3 -32.25L3 -32.25M-16 -30.25L-12 -30.25M8 -30.25L12 -30.25M-26 -34.25L-21 -34.25M21 -34.25L26 -34.25M-22 -30.25L-26 -29.25L-26 -21.25L-21 -17.25M22 -30.25L26 -29.25L26 -21.25L21 -17.25M-11 1.75L-11 11.75L-17 14.75L-46 18.75L-57 25.75L-61 35.75L-61 45.75M11 1.75L11 11.75L17 14.75L46 18.75L57 25.75L61 35.75L61 45.75" fill="none" stroke="#c0c0c0" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 235.6 143.48)"/>
+<path id="hkfather_node_7" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_8" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_9" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_10" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_11" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_12" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_13" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_14" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_15" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_16" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_17" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_18" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_19" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_20" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_21" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_22" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_23" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_24" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_25" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_26" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_27" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_28" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_29" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_30" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_31" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_32" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_33" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_34" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_35" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_36" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_37" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_38" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_39" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_40" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_41" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_42" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_43" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_44" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_45" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_46" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_47" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_48" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_49" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_50" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_51" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_52" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_53" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_54" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_55" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_56" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_57" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_58" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_59" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_60" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_61" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_62" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_63" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_64" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_65" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_66" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_67" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_68" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_69" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_70" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_71" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_72" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_73" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_74" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_75" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_76" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_77" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_78" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_79" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_80" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_81" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_82" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_83" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_84" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_85" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_86" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_87" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_88" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_89" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_90" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfather_node_91" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkfather_palette_0" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkfather_palette_1" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="2"/>
+<circle id="hkfather_palette_2" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="4"/>
+<circle id="hkfather_palette_3" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="8"/>
+<circle id="hkfather_palette_4" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="16"/>
+<circle id="hkfather_palette_5" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+<circle id="hkfather_palette_6" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="4"/>
+<circle id="hkfather_palette_7" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="1"/>
+<circle id="hkfather_palette_8" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="4"/>
+<circle id="hkfather_palette_9" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="16"/>
+<circle id="hkfather_palette_10" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="1"/>
+<circle id="hkfather_palette_11" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="4"/>
+<circle id="hkfather_palette_12" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="16"/>
+<circle id="hkfather_palette_13" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="1"/>
+<circle id="hkfather_palette_14" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="4"/>
+<circle id="hkfather_palette_15" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="16"/>
+<text id="hkfather_text_0" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkfather_text_1" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkfather_text_2" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkfather_text_3" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkfather_text_4" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkfather_text_5" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkfather_text_6" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkfather_text_7" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+</g>

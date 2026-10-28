@@ -1,0 +1,194 @@
+<g id="hkcrush_panel">
+<path id="hkcrush_node_0" d="M-69 -74L-68 -74L-68 -66L-69 -66ZM68 -74L69 -74L69 -66L68 -66ZM-68 -74L-67 -74L-67 -67L-68 -67ZM67 -74L68 -74L68 -67L67 -67ZM-67 -67L-63 -67L-63 -65L-67 -65ZM-61 -67L-55 -67L-55 -65L-61 -65ZM-53 -67L53 -67L53 -65L-53 -65ZM55 -67L61 -67L61 -65L55 -65ZM63 -67L67 -67L67 -65L63 -65ZM-68 -66L-67 -66L-67 -65L-68 -65ZM67 -66L68 -66L68 -65L67 -65ZM-68 53L-63 53L-63 54L-68 54ZM-61 53L-55 53L-55 55L-61 55ZM-53 53L53 53L53 55L-53 55ZM55 53L61 53L61 55L55 55ZM63 53L67 53L67 55L63 55ZM67 53L68 53L68 54L67 54ZM-69 54L-68 54L-68 66L-69 66ZM-67 54L-63 54L-63 55L-67 55ZM68 54L69 54L69 66L68 66ZM-68 55L-67 55L-67 65L-68 65ZM67 55L68 55L68 65L67 65ZM-67 65L-15 65L-15 67L-67 67ZM15 65L67 65L67 67L15 67ZM-68 66L-67 66L-67 67L-68 67ZM67 66L68 66L68 67L67 67ZM-15 67L-13 67L-13 73L-15 73ZM13 67L15 67L15 73L13 73ZM-15 73L-14 73L-14 74L-15 74ZM-13 73L13 73L13 74L-13 74ZM14 73L15 73L15 74L14 74Z" fill="#b0b0b0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 123.4)"/>
+<path id="hkcrush_node_1" d="M-68 -70.5L-67 -70.5L-67 -69.5L-68 -69.5ZM67 -70.5L68 -70.5L68 -69.5L67 -69.5ZM-68 50.5L-67 50.5L-67 51.5L-68 51.5ZM67 50.5L68 50.5L68 51.5L67 51.5ZM-68 61.5L-67 61.5L-67 62.5L-68 62.5ZM-15 61.5L-14 61.5L-14 62.5L-15 62.5ZM14 61.5L15 61.5L15 62.5L14 62.5ZM67 61.5L68 61.5L68 62.5L67 62.5ZM-14 69.5L-13 69.5L-13 70.5L-14 70.5ZM13 69.5L14 69.5L14 70.5L13 70.5Z" fill="#c0c0c0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 127.25)"/>
+<path id="hkcrush_node_2" d="M-63 -61L-61 -61L-61 -60L-63 -60ZM-55 -61L-53 -61L-53 -60L-55 -60ZM53 -61L55 -61L55 -60L53 -60ZM61 -61L63 -61L63 -60L61 -60ZM-63 60L-61 60L-61 61L-63 61ZM-55 60L-53 60L-53 61L-55 61ZM53 60L55 60L55 61L53 61ZM61 60L63 60L63 61L61 61Z" fill="#a0a0a0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 116.8)"/>
+<path id="hkcrush_node_3" d="M-69 -66.5L-68 -66.5L-68 -65.5L-69 -65.5ZM68 -66.5L69 -66.5L69 -65.5L68 -65.5ZM-69 52.5L-68 52.5L-68 53.5L-69 53.5ZM68 52.5L69 52.5L69 53.5L68 53.5ZM-69 65.5L-68 65.5L-68 66.5L-69 66.5ZM68 65.5L69 65.5L69 66.5L68 66.5Z" fill="#606060" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 123.95)"/>
+<path id="hkcrush_node_4" d="M-63 -60L-61 -60L-61 -59L-63 -59ZM-55 -60L-53 -60L-53 -59L-55 -59ZM53 -60L55 -60L55 -59L53 -59ZM61 -60L63 -60L63 -59L61 -59ZM-63 59L-61 59L-61 60L-63 60ZM-55 59L-53 59L-53 60L-55 60ZM53 59L55 59L55 60L53 60ZM61 59L63 59L63 60L61 60Z" fill="#909090" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 116.8)"/>
+<path id="hkcrush_node_5" d="M-63 -59L-62 -59L-62 59L-63 59ZM-62 -59L-61 -59L-61 -53L-62 -53ZM-55 -59L-53 -59L-53 -53L-55 -53ZM53 -59L54 -59L54 59L53 59ZM54 -59L55 -59L55 -53L54 -53ZM61 -59L63 -59L63 -53L61 -53ZM-61 -53L-55 -53L-55 -51L-61 -51ZM-54 -53L-53 -53L-53 59L-54 59ZM55 -53L61 -53L61 -51L55 -51ZM62 -53L63 -53L63 59L62 59ZM-62 -51L-61 -51L-61 -37L-62 -37ZM-55 -51L-54 -51L-54 -37L-55 -37ZM54 -51L55 -51L55 -37L54 -37ZM61 -51L62 -51L62 -37L61 -37ZM-61 -37L-55 -37L-55 -35L-61 -35ZM55 -37L61 -37L61 -35L55 -35ZM-62 -35L-61 -35L-61 -21L-62 -21ZM-55 -35L-54 -35L-54 -21L-55 -21ZM54 -35L55 -35L55 -21L54 -21ZM61 -35L62 -35L62 -21L61 -21ZM-61 -21L-55 -21L-55 -19L-61 -19ZM55 -21L61 -21L61 -19L55 -19ZM-62 -19L-61 -19L-61 -5L-62 -5ZM-55 -19L-54 -19L-54 -5L-55 -5ZM54 -19L55 -19L55 -5L54 -5ZM61 -19L62 -19L62 -5L61 -5ZM-61 -5L-55 -5L-55 -3L-61 -3ZM55 -5L61 -5L61 -3L55 -3ZM-62 -3L-61 -3L-61 11L-62 11ZM-55 -3L-54 -3L-54 11L-55 11ZM54 -3L55 -3L55 11L54 11ZM61 -3L62 -3L62 11L61 11ZM-61 11L-55 11L-55 13L-61 13ZM55 11L61 11L61 13L55 13ZM-62 13L-61 13L-61 27L-62 27ZM-55 13L-54 13L-54 27L-55 27ZM54 13L55 13L55 27L54 27ZM61 13L62 13L62 27L61 27ZM-61 27L-55 27L-55 29L-61 29ZM55 27L61 27L61 29L55 29ZM-62 29L-61 29L-61 43L-62 43ZM-55 29L-54 29L-54 43L-55 43ZM54 29L55 29L55 43L54 43ZM61 29L62 29L62 43L61 43ZM-61 43L-55 43L-55 45L-61 45ZM55 43L61 43L61 45L55 45ZM-62 45L-61 45L-61 59L-62 59ZM-55 45L-54 45L-54 59L-55 59ZM54 45L55 45L55 59L54 59ZM61 45L62 45L62 59L61 59Z" fill="#707070" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 116.8)"/>
+<path id="hkcrush_node_6" d="M-62 -49L-61 -49L-61 -47L-62 -47ZM-55 -49L-54 -49L-54 -47L-55 -47ZM54 -49L55 -49L55 -47L54 -47ZM61 -49L62 -49L62 -47L61 -47ZM-62 -33L-61 -33L-61 -31L-62 -31ZM-55 -33L-54 -33L-54 -31L-55 -31ZM54 -33L55 -33L55 -31L54 -31ZM61 -33L62 -33L62 -31L61 -31ZM-62 -17L-61 -17L-61 -15L-62 -15ZM-55 -17L-54 -17L-54 -15L-55 -15ZM54 -17L55 -17L55 -15L54 -15ZM61 -17L62 -17L62 -15L61 -15ZM-62 -1L-61 -1L-61 1L-62 1ZM-55 -1L-54 -1L-54 1L-55 1ZM54 -1L55 -1L55 1L54 1ZM61 -1L62 -1L62 1L61 1ZM-62 15L-61 15L-61 17L-62 17ZM-55 15L-54 15L-54 17L-55 17ZM54 15L55 15L55 17L54 17ZM61 15L62 15L62 17L61 17ZM-62 31L-61 31L-61 33L-62 33ZM-55 31L-54 31L-54 33L-55 33ZM54 31L55 31L55 33L54 33ZM61 31L62 31L62 33L61 33ZM-62 47L-61 47L-61 49L-62 49ZM-55 47L-54 47L-54 49L-55 49ZM54 47L55 47L55 49L54 49ZM61 47L62 47L62 49L61 49Z" fill="#808080" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 112.4)"/>
+<path id="hkcrush_node_7" d="M-14 -1L14 -1L14 0L-14 0ZM-15 0L-14 0L-14 1L-15 1ZM-14 0L-13 0L-13 1L-14 1ZM-13 0L13 0L13 1L-13 1ZM13 0L14 0L14 1L13 1ZM14 0L15 0L15 1L14 1Z" fill="#d0d0d0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 196)"/>
+<path id="hkcrush_node_8" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_9" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_10" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_11" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_12" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_13" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_14" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_15" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_16" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_17" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_18" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_19" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_20" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_21" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_22" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_23" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_24" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_25" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_26" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_27" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_28" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_29" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_30" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_31" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_32" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_33" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_34" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_35" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_36" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_37" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_38" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_39" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_40" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_41" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_42" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_43" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_44" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_45" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_46" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_47" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_48" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_49" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_50" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_51" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_52" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_53" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_54" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_55" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_56" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_57" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_58" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_59" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_60" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_61" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_62" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_63" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_64" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_65" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_66" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_67" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_68" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_69" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_70" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_71" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_72" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_73" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_74" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_75" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_76" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_77" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_78" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_79" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_80" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_81" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_82" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_83" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_84" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_85" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_86" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_87" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_88" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_89" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_90" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_91" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_92" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_93" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_94" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_95" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_96" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_97" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_98" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_99" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_100" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_101" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_102" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_103" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_104" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_105" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_106" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_107" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_108" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_109" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_110" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_111" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_112" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_113" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_114" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_115" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_116" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_117" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_118" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_119" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_120" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_121" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_122" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_123" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_124" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_125" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_126" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_127" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_128" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_129" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_130" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_131" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_132" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_133" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_134" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_135" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_136" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_137" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_138" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_139" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_140" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_141" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_142" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_143" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_144" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_145" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_146" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_147" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_148" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_149" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_150" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_151" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_152" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_153" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_154" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_155" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_156" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_157" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_158" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_159" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_160" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_161" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_162" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_163" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_164" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_165" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_166" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkcrush_node_167" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkcrush_palette_0" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkcrush_palette_1" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="2"/>
+<circle id="hkcrush_palette_2" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="4"/>
+<circle id="hkcrush_palette_3" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="8"/>
+<circle id="hkcrush_palette_4" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="16"/>
+<circle id="hkcrush_palette_5" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+<circle id="hkcrush_palette_6" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="4"/>
+<circle id="hkcrush_palette_7" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="1"/>
+<circle id="hkcrush_palette_8" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="4"/>
+<circle id="hkcrush_palette_9" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="16"/>
+<circle id="hkcrush_palette_10" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="1"/>
+<circle id="hkcrush_palette_11" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="4"/>
+<circle id="hkcrush_palette_12" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="16"/>
+<circle id="hkcrush_palette_13" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="1"/>
+<circle id="hkcrush_palette_14" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="4"/>
+<circle id="hkcrush_palette_15" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="16"/>
+<text id="hkcrush_text_0" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkcrush_text_1" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkcrush_text_2" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkcrush_text_3" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkcrush_text_4" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkcrush_text_5" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkcrush_text_6" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkcrush_text_7" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+</g>

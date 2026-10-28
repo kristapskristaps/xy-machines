@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "sdk": "1.2",
+  "kind": "effect",
+  "description": "Hundekraft Crush DSP port for private OP-XY testing.",
+  "identity": {
+    "effect": 11,
+    "page": 21
+  },
+  "dryParameter": "dry"
+}

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "id": "hkplate",
+  "name": "HK Plate",
+  "parameters": [
+    {
+      "id": "decay",
+      "label": "Decay",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "tone",
+      "label": "Tone",
+      "default": 0.6000244148075808,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "predelay",
+      "label": "Predelay",
+      "default": 0.32798242133854183,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "decay": 0.500015259254738,
+      "tone": 0.6000244148075808,
+      "predelay": 0.32798242133854183,
+      "dry": 1
+    }
+  },
+  "resources": {
+    "bufferBytes": 176544
+  }
+}

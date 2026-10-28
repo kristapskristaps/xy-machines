@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "id": "hkpalme",
+  "name": "HK Palme",
+  "parameters": [
+    {
+      "id": "tuning",
+      "label": "Tuning",
+      "default": 0.34723960081789607,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "sustain",
+      "label": "Sustain",
+      "default": 0.6103701895199438,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "excite",
+      "label": "Excite",
+      "default": 0.4882961516159551,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "metal",
+      "label": "Metal",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "damping",
+      "label": "Damping",
+      "default": 0.4882961516159551,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "spread",
+      "label": "Spread",
+      "default": 0.09155552842799158,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "latch",
+      "label": "Latch",
+      "default": 0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "On"
+        ]
+      },
+      "display": "enum"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "tuning": 0.34723960081789607,
+      "sustain": 0.6103701895199438,
+      "excite": 0.4882961516159551,
+      "dry": 1,
+      "metal": 0.0,
+      "damping": 0.4882961516159551,
+      "spread": 0.09155552842799158,
+      "latch": 0
+    }
+  },
+  "resources": {
+    "bufferBytes": 360368
+  }
+}

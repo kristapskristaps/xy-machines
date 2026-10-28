@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "id": "hkclouds",
+  "name": "HK Clouds",
+  "parameters": [
+    {
+      "id": "position",
+      "label": "Position",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "density",
+      "label": "Density",
+      "default": 0.750022888882107,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "texture",
+      "label": "Texture",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "space",
+      "label": "Space",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "freeze",
+      "label": "Freeze",
+      "default": 0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "On"
+        ]
+      },
+      "display": "enum"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "position": 0.500015259254738,
+      "size": 0.500015259254738,
+      "density": 0.750022888882107,
+      "texture": 0.500015259254738,
+      "pitch": 0.500015259254738,
+      "dry": 1,
+      "space": 0.0,
+      "freeze": 0
+    }
+  },
+  "resources": {
+    "bufferBytes": 365984
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "hksid",
+  "name": "HK SID",
+  "kind": "synth",
+  "display": {
+    "stateBytes": 184,
+    "stateAlignment": 4,
+    "paths": 0,
+    "points": 0,
+    "nodes": 4,
+    "texts": 8,
+    "palette": 16
+  },
+  "nodes": [
+    "hksid_node_0",
+    "hksid_node_1",
+    "hksid_node_2",
+    "hksid_node_3"
+  ],
+  "texts": [
+    "hksid_text_0",
+    "hksid_text_1",
+    "hksid_text_2",
+    "hksid_text_3",
+    "hksid_text_4",
+    "hksid_text_5",
+    "hksid_text_6",
+    "hksid_text_7"
+  ],
+  "palette": [
+    "hksid_palette_0",
+    "hksid_palette_1",
+    "hksid_palette_2",
+    "hksid_palette_3",
+    "hksid_palette_4",
+    "hksid_palette_5",
+    "hksid_palette_6",
+    "hksid_palette_7",
+    "hksid_palette_8",
+    "hksid_palette_9",
+    "hksid_palette_10",
+    "hksid_palette_11",
+    "hksid_palette_12",
+    "hksid_palette_13",
+    "hksid_palette_14",
+    "hksid_palette_15"
+  ],
+  "paths": 0,
+  "points": 0,
+  "source": "plugins/sid/sid.svg",
+  "source_sha256": "64bee3ac3a3cc909e28df9a2187caa62525a5e93dde0d4a1517222cdc58ed5b9",
+  "native": true
+}

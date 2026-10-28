@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "id": "hkfather",
+  "name": "HK Father",
+  "parameters": [
+    {
+      "id": "size",
+      "label": "Size",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "gate",
+      "label": "Gate",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "tone",
+      "label": "Tone",
+      "default": 0.5500045777764214,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "size": 0.500015259254738,
+      "gate": 0.0,
+      "tone": 0.5500045777764214,
+      "dry": 1
+    }
+  },
+  "resources": {
+    "bufferBytes": 176648
+  }
+}

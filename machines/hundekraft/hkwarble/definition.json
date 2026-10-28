@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "id": "hkwarble",
+  "name": "HK Warble",
+  "parameters": [
+    {
+      "id": "rate",
+      "label": "Rate",
+      "default": 0.5230262153996399,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "depth",
+      "label": "Depth",
+      "default": 0.5740226447340312,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "tone",
+      "label": "Tone",
+      "default": 0.7999816888943144,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "rate": 0.5230262153996399,
+      "depth": 0.5740226447340312,
+      "tone": 0.7999816888943144,
+      "dry": 1
+    }
+  },
+  "resources": {
+    "bufferBytes": 176528
+  }
+}

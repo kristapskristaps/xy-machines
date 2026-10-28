@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "id": "hkeva",
+  "name": "HK EVA",
+  "parameters": [
+    {
+      "id": "pressure",
+      "label": "Pressure",
+      "default": 0.6103701895199438,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "vowel",
+      "label": "Vowel",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "oxygen",
+      "label": "Oxygen",
+      "default": 0.36622211371196634,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "com",
+      "label": "Com",
+      "default": 0.09155552842799158,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "octave",
+      "label": "Octave",
+      "default": 0.5,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Low",
+          "Middle",
+          "High"
+        ]
+      },
+      "display": "enum",
+      "control": 3
+    }
+  ],
+  "presets": {
+    "Init": {
+      "pressure": 0.6103701895199438,
+      "vowel": 0.500015259254738,
+      "oxygen": 0.36622211371196634,
+      "com": 0.09155552842799158,
+      "octave": 0.5
+    }
+  },
+  "resources": {
+    "voiceBytes": 3184,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 56,
+      "texts": 16,
+      "palette": 16
+    }
+  },
+  "press": "page"
+}

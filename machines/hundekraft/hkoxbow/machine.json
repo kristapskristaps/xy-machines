@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "sdk": "1.4",
+  "kind": "synth",
+  "description": "Hundekraft Oxbow DSP port for private OP-XY testing.",
+  "identity": {
+    "engine": 44,
+    "page": 92
+  }
+}

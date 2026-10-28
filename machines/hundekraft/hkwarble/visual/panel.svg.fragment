@@ -1,0 +1,152 @@
+<g id="hkwarble_panel">
+<path id="hkwarble_node_0" d="M-73 -49L-72 -49L-72 -48L-73 -48ZM72 -49L73 -49L73 -48L72 -48ZM-77 -45L-76 -45L-76 -44L-77 -44ZM76 -45L77 -45L77 -44L76 -44ZM-45 -21L-44 -21L-44 -20L-45 -20ZM44 -21L45 -21L45 -20L44 -20ZM-45 2L-44 2L-44 3L-45 3ZM44 2L45 2L45 3L44 3ZM-11 33L-10 33L-10 34L-11 34ZM10 33L11 33L11 34L10 34ZM-11 42L-10 42L-10 43L-11 43ZM10 42L11 42L11 43L10 43ZM-77 44L-76 44L-76 45L-77 45ZM76 44L77 44L77 45L76 45ZM-73 48L-72 48L-72 49L-73 49ZM72 48L73 48L73 49L72 49Z" fill="#404040" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 105.8)"/>
+<path id="hkwarble_node_1" d="M-72 -64L-71 -64L-71 -63L-72 -63ZM71 -64L72 -64L72 -63L71 -63ZM-73 -62L-72 -62L-72 -61L-73 -61ZM72 -62L73 -62L73 -61L72 -61ZM-75 -60L-74 -60L-74 -59L-75 -59ZM74 -60L75 -60L75 -59L74 -59ZM-77 -59L-76 -59L-76 -58L-77 -58ZM76 -59L77 -59L77 -58L76 -58ZM-65 -56L-64 -56L-64 -55L-65 -55ZM64 -56L65 -56L65 -55L64 -55ZM-67 -54L-66 -54L-66 -53L-67 -53ZM66 -54L67 -54L67 -53L66 -53ZM-67 -3L-66 -3L-66 -2L-67 -2ZM66 -3L67 -3L67 -2L66 -2ZM-65 -1L-64 -1L-64 0L-65 0ZM64 -1L65 -1L65 0L64 0ZM-45 12L-44 12L-44 13L-45 13ZM44 12L45 12L45 13L44 13ZM-36 19L-35 19L-35 20L-36 20ZM-33 19L-32 19L-32 20L-33 20ZM32 19L33 19L33 20L32 20ZM35 19L36 19L36 20L35 20ZM-38 21L-37 21L-37 22L-38 22ZM-31 21L-30 21L-30 22L-31 22ZM30 21L31 21L31 22L30 22ZM37 21L38 21L38 22L37 22ZM-38 24L-37 24L-37 25L-38 25ZM-31 24L-30 24L-30 25L-31 25ZM30 24L31 24L31 25L30 25ZM37 24L38 24L38 25L37 25ZM-36 26L-35 26L-35 27L-36 27ZM-33 26L-32 26L-32 27L-33 27ZM32 26L33 26L33 27L32 27ZM35 26L36 26L36 27L35 27ZM-77 28L-76 28L-76 29L-77 29ZM76 28L77 28L77 29L76 29ZM-75 29L-74 29L-74 30L-75 30ZM74 29L75 29L75 30L74 30ZM-73 31L-72 31L-72 32L-73 32ZM72 31L73 31L73 32L72 32ZM-72 33L-71 33L-71 34L-72 34ZM71 33L72 33L72 34L71 34ZM-9 56L-8 56L-8 57L-9 57ZM8 56L9 56L9 57L8 57ZM-9 63L-8 63L-8 64L-9 64ZM8 63L9 63L9 64L8 64Z" fill="#606060" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 122.3)"/>
+<path id="hkwarble_node_2" d="M-71 -49L-70 -49L-70 -48L-71 -48ZM70 -49L71 -49L71 -48L70 -48ZM-74 -48L-73 -48L-73 -47L-74 -47ZM73 -48L74 -48L74 -47L73 -47ZM-76 -46L-75 -46L-75 -45L-76 -45ZM75 -46L76 -46L76 -45L75 -45ZM-71 -45L-69 -45L-69 -44L-71 -44ZM69 -45L71 -45L71 -44L69 -44ZM-77 -43L-76 -43L-76 -42L-77 -42ZM-73 -43L-72 -43L-72 -41L-73 -41ZM-68 -43L-67 -43L-67 -41L-68 -41ZM67 -43L68 -43L68 -41L67 -41ZM72 -43L73 -43L73 -41L72 -41ZM76 -43L77 -43L77 -42L76 -42ZM-64 -41L-63 -41L-63 -40L-64 -40ZM63 -41L64 -41L64 -40L63 -40ZM-71 -40L-69 -40L-69 -39L-71 -39ZM69 -40L71 -40L71 -39L69 -39ZM-67 -38L-66 -38L-66 -37L-67 -37ZM66 -38L67 -38L67 -37L66 -37ZM-67 11L-66 11L-66 12L-67 12ZM66 11L67 11L67 12L66 12ZM-64 14L-63 14L-63 15L-64 15ZM63 14L64 14L64 15L63 15ZM-71 39L-69 39L-69 40L-71 40ZM69 39L71 39L71 40L69 40ZM-73 41L-72 41L-72 43L-73 43ZM-68 41L-67 41L-67 43L-68 43ZM67 41L68 41L68 43L67 43ZM72 41L73 41L73 43L72 43ZM-77 42L-76 42L-76 43L-77 43ZM76 42L77 42L77 43L76 43ZM-71 44L-69 44L-69 45L-71 45ZM69 44L71 44L71 45L69 45ZM-76 45L-75 45L-75 46L-76 46ZM75 45L76 45L76 46L75 46ZM-74 47L-73 47L-73 48L-74 48ZM73 47L74 47L74 48L73 48ZM-71 48L-70 48L-70 49L-71 49ZM70 48L71 48L71 49L70 49Z" fill="#909090" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 105.8)"/>
+<path id="hkwarble_node_3" d="M-70 -65L70 -65L70 -63L-70 -63ZM-77 -58L-75 -58L-75 26L-77 26ZM75 -58L77 -58L77 26L75 26ZM-63 -57L63 -57L63 -55L-63 -55ZM-67 -53L-65 -53L-65 -5L-67 -5ZM65 -53L67 -53L67 -5L65 -5ZM-63 -3L63 -3L63 -1L-63 -1ZM-44 11L44 11L44 12L-44 12ZM-43 12L43 12L43 13L-43 13ZM-46 14L-44 14L-44 15L-46 15ZM44 14L46 14L46 15L44 15ZM-48 19L-46 19L-46 20L-48 20ZM46 19L48 19L48 20L46 20ZM-50 24L-48 24L-48 25L-50 25ZM48 24L50 24L50 25L48 25ZM-52 29L-50 29L-50 30L-52 30ZM50 29L52 29L52 30L50 30ZM-70 31L-53 31L-53 33L-70 33ZM-51 31L-50 31L-50 32L-51 32ZM-50 31L50 31L50 33L-50 33ZM50 31L51 31L51 32L50 32ZM53 31L70 31L70 33L53 33ZM-51 32L-50 32L-50 33L-51 33ZM50 32L51 32L51 33L50 33ZM-8 53L-7 53L-7 54L-8 54ZM7 53L8 53L8 54L7 54ZM-11 56L-10 56L-10 57L-11 57ZM10 56L11 56L11 57L10 57ZM-11 61L-10 61L-10 62L-11 62ZM10 61L11 61L11 62L10 62ZM-8 64L-7 64L-7 65L-8 65ZM7 64L8 64L8 65L7 65Z" fill="#b0b0b0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 123.4)"/>
+<path id="hkwarble_node_4" d="M-75 -48L-74 -48L-74 -47L-75 -47ZM74 -48L75 -48L75 -47L74 -47ZM-76 -47L-75 -47L-75 -46L-76 -46ZM-72 -47L-71 -47L-71 -46L-72 -46ZM71 -47L72 -47L72 -46L71 -46ZM75 -47L76 -47L76 -46L75 -46ZM-71 -46L-69 -46L-69 -45L-71 -45ZM69 -46L71 -46L71 -45L69 -45ZM-73 -45L-72 -45L-72 -44L-73 -44ZM-68 -45L-67 -45L-67 -44L-68 -44ZM67 -45L68 -45L68 -44L67 -44ZM72 -45L73 -45L73 -44L72 -44ZM-75 -44L-74 -44L-74 -43L-75 -43ZM74 -44L75 -44L75 -43L74 -43ZM-74 -43L-73 -43L-73 -41L-74 -41ZM-67 -43L-66 -43L-66 -41L-67 -41ZM66 -43L67 -43L67 -41L66 -41ZM73 -43L74 -43L74 -41L73 -41ZM-73 -40L-72 -40L-72 -39L-73 -39ZM-68 -40L-67 -40L-67 -39L-68 -39ZM67 -40L68 -40L68 -39L67 -39ZM72 -40L73 -40L73 -39L72 -39ZM-71 -39L-69 -39L-69 -38L-71 -38ZM69 -39L71 -39L71 -38L69 -38ZM-46 28L-45 28L-45 29L-46 29ZM45 28L46 28L46 29L45 29ZM-45 32L-44 32L-44 33L-45 33ZM44 32L45 32L45 33L44 33ZM-48 33L-47 33L-47 34L-48 34ZM47 33L48 33L48 34L47 34ZM-37 34L-36 34L-36 35L-37 35ZM-32 34L-31 34L-31 35L-32 35ZM31 34L32 34L32 35L31 35ZM36 34L37 34L37 35L36 35ZM-38 35L-37 35L-37 36L-38 36ZM-31 35L-30 35L-30 36L-31 36ZM30 35L31 35L31 36L30 36ZM37 35L38 35L38 36L37 36ZM-47 37L-46 37L-46 38L-47 38ZM46 37L47 37L47 38L46 38ZM-71 38L-69 38L-69 39L-71 39ZM-50 38L-49 38L-49 39L-50 39ZM49 38L50 38L50 39L49 39ZM69 38L71 38L71 39L69 39ZM-73 39L-72 39L-72 40L-73 40ZM-68 39L-67 39L-67 40L-68 40ZM67 39L68 39L68 40L67 40ZM72 39L73 39L73 40L72 40ZM-38 40L-37 40L-37 41L-38 41ZM-31 40L-30 40L-30 41L-31 41ZM30 40L31 40L31 41L30 41ZM37 40L38 40L38 41L37 41ZM-74 41L-73 41L-73 43L-74 43ZM-67 41L-66 41L-66 43L-67 43ZM-37 41L-36 41L-36 42L-37 42ZM-32 41L-31 41L-31 42L-32 42ZM31 41L32 41L32 42L31 42ZM36 41L37 41L37 42L36 42ZM66 41L67 41L67 43L66 43ZM73 41L74 41L74 43L73 43ZM-49 42L-48 42L-48 43L-49 43ZM48 42L49 42L49 43L48 43ZM-75 43L-74 43L-74 44L-75 44ZM-52 43L-51 43L-51 44L-52 44ZM51 43L52 43L52 44L51 44ZM74 43L75 43L75 44L74 44ZM-73 44L-72 44L-72 45L-73 45ZM-68 44L-67 44L-67 45L-68 45ZM67 44L68 44L68 45L67 45ZM72 44L73 44L73 45L72 45ZM-71 45L-69 45L-69 46L-71 46ZM69 45L71 45L71 46L69 46ZM-76 46L-75 46L-75 47L-76 47ZM-72 46L-71 46L-71 47L-72 47ZM71 46L72 46L72 47L71 47ZM75 46L76 46L76 47L75 47ZM-75 47L-74 47L-74 48L-75 48ZM74 47L75 47L75 48L74 48Z" fill="#282828" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 105.8)"/>
+<path id="hkwarble_node_5" d="M-73 -67L-71 -67L-71 -66L-73 -66ZM71 -67L73 -67L73 -66L71 -66ZM-76 -64L-75 -64L-75 -62L-76 -62ZM75 -64L76 -64L76 -62L75 -62ZM-65 -59L-64 -59L-64 -58L-65 -58ZM64 -59L65 -59L65 -58L64 -58ZM-66 -58L-65 -58L-65 -57L-66 -57ZM65 -58L66 -58L66 -57L65 -57ZM-66 -7L-65 -7L-65 -6L-66 -6ZM65 -7L66 -7L66 -6L65 -6ZM-65 -6L-64 -6L-64 -5L-65 -5ZM64 -6L65 -6L65 -5L64 -5ZM-45 10L-44 10L-44 11L-45 11ZM44 10L45 10L45 11L44 11ZM-46 12L-45 12L-45 13L-46 13ZM45 12L46 12L46 13L45 13ZM-47 15L-46 15L-46 16L-47 16ZM46 15L47 15L47 16L46 16ZM-36 16L-35 16L-35 17L-36 17ZM-33 16L-32 16L-32 17L-33 17ZM32 16L33 16L33 17L32 17ZM35 16L36 16L36 17L35 17ZM-48 17L-47 17L-47 18L-48 18ZM-37 17L-36 17L-36 18L-37 18ZM-32 17L-31 17L-31 18L-32 18ZM31 17L32 17L32 18L31 18ZM36 17L37 17L37 18L36 18ZM47 17L48 17L48 18L47 18ZM-49 20L-48 20L-48 21L-49 21ZM-37 20L-36 20L-36 21L-37 21ZM-32 20L-31 20L-31 21L-32 21ZM31 20L32 20L32 21L31 21ZM36 20L37 20L37 21L36 21ZM48 20L49 20L49 21L48 21ZM-36 21L-35 21L-35 22L-36 22ZM-33 21L-32 21L-32 22L-33 22ZM32 21L33 21L33 22L32 22ZM35 21L36 21L36 22L35 22ZM-50 22L-49 22L-49 23L-50 23ZM49 22L50 22L50 23L49 23ZM-76 24L-75 24L-75 26L-76 26ZM75 24L76 24L76 26L75 26ZM-51 25L-50 25L-50 26L-51 26ZM50 25L51 25L51 26L50 26ZM-52 27L-51 27L-51 28L-52 28ZM51 27L52 27L52 28L51 28ZM-73 28L-71 28L-71 29L-73 29ZM-52 28L-51 28L-51 29L-52 29ZM51 28L52 28L52 29L51 29ZM71 28L73 28L73 29L71 29ZM-7 50L7 50L7 52L-7 52ZM-11 54L-9 54L-9 58L-11 58ZM9 54L11 54L11 58L9 58ZM-7 60L7 60L7 61L-7 61ZM-7 61L-1 61L-1 62L-7 62ZM1 61L7 61L7 62L1 62ZM-1 62L1 62L1 67L-1 67Z" fill="#d0d0d0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 126.7)"/>
+<path id="hkwarble_node_6" d="M-71 -64L-70 -64L-70 -63L-71 -63ZM70 -64L71 -64L71 -63L70 -63ZM-75 -63L-74 -63L-74 -62L-75 -62ZM-74 -63L-73 -63L-73 -62L-74 -62ZM73 -63L74 -63L74 -62L73 -62ZM74 -63L75 -63L75 -62L74 -62ZM-75 -62L-74 -62L-74 -61L-75 -61ZM74 -62L75 -62L75 -61L74 -61ZM-76 -59L-75 -59L-75 -58L-76 -58ZM75 -59L76 -59L76 -58L75 -58ZM-64 -56L-63 -56L-63 -55L-64 -55ZM63 -56L64 -56L64 -55L63 -55ZM-66 -54L-65 -54L-65 -53L-66 -53ZM65 -54L66 -54L66 -53L65 -53ZM-66 -5L-65 -5L-65 -4L-66 -4ZM65 -5L66 -5L66 -4L65 -4ZM-64 -3L-63 -3L-63 -2L-64 -2ZM63 -3L64 -3L64 -2L63 -2ZM-45 12L-44 12L-44 13L-45 13ZM-44 12L-43 12L-43 13L-44 13ZM43 12L44 12L44 13L43 13ZM44 12L45 12L45 13L44 13ZM-46 16L-45 16L-45 17L-46 17ZM45 16L46 16L46 17L45 17ZM-47 17L-46 17L-46 18L-47 18ZM46 17L47 17L47 18L46 18ZM-35 19L-33 19L-33 20L-35 20ZM33 19L35 19L35 20L33 20ZM-48 21L-47 21L-47 22L-48 22ZM-37 21L-36 21L-36 23L-37 23ZM-32 21L-31 21L-31 23L-32 23ZM31 21L32 21L32 23L31 23ZM36 21L37 21L37 23L36 23ZM47 21L48 21L48 22L47 22ZM-49 22L-48 22L-48 23L-49 23ZM48 22L49 22L49 23L48 23ZM-35 24L-33 24L-33 25L-35 25ZM33 24L35 24L35 25L33 25ZM-76 26L-75 26L-75 27L-76 27ZM-50 26L-49 26L-49 27L-50 27ZM49 26L50 26L50 27L49 27ZM75 26L76 26L76 27L75 27ZM-51 27L-50 27L-50 28L-51 28ZM50 27L51 27L51 28L50 28ZM-75 29L-74 29L-74 30L-75 30ZM74 29L75 29L75 30L74 30ZM-75 30L-74 30L-74 31L-75 31ZM-74 30L-73 30L-73 31L-74 31ZM73 30L74 30L74 31L73 31ZM74 30L75 30L75 31L74 31ZM-71 31L-70 31L-70 32L-71 32ZM-53 31L-52 31L-52 32L-53 32ZM52 31L53 31L53 32L52 32ZM70 31L71 31L71 32L70 32ZM-53 32L-51 32L-51 33L-53 33ZM51 32L53 32L53 33L51 33ZM-10 54L-9 54L-9 55L-10 55ZM9 54L10 54L10 55L9 55ZM-10 63L-9 63L-9 64L-10 64ZM9 63L10 63L10 64L9 64Z" fill="#c0c0c0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 123.4)"/>
+<path id="hkwarble_node_7" d="M-74 -46.5L-73 -46.5L-73 -45.5L-74 -45.5ZM73 -46.5L74 -46.5L74 -45.5L73 -45.5ZM-71 -44.5L-69 -44.5L-69 -43.5L-71 -43.5ZM69 -44.5L71 -44.5L71 -43.5L69 -43.5ZM-72 -43.5L-71 -43.5L-71 -41.5L-72 -41.5ZM-69 -43.5L-68 -43.5L-68 -41.5L-69 -41.5ZM68 -43.5L69 -43.5L69 -41.5L68 -41.5ZM71 -43.5L72 -43.5L72 -41.5L71 -41.5ZM-71 -41.5L-69 -41.5L-69 -40.5L-71 -40.5ZM69 -41.5L71 -41.5L71 -40.5L69 -40.5ZM-59 -33.5L-58 -33.5L-58 -31.5L-59 -31.5ZM58 -33.5L59 -33.5L59 -31.5L58 -31.5ZM-59 -27.5L-58 -27.5L-58 -25.5L-59 -25.5ZM58 -27.5L59 -27.5L59 -25.5L58 -25.5ZM-59 6.5L-58 6.5L-58 8.5L-59 8.5ZM58 6.5L59 6.5L59 8.5L58 8.5ZM-44 28.5L-43 28.5L-43 29.5L-44 29.5ZM43 28.5L44 28.5L44 29.5L43 29.5ZM-47 30.5L-46 30.5L-46 31.5L-47 31.5ZM46 30.5L47 30.5L47 31.5L46 31.5ZM-46 33.5L-45 33.5L-45 34.5L-46 34.5ZM45 33.5L46 33.5L46 34.5L45 34.5ZM-49 35.5L-48 35.5L-48 36.5L-49 36.5ZM48 35.5L49 35.5L49 36.5L48 36.5ZM-48 38.5L-47 38.5L-47 39.5L-48 39.5ZM47 38.5L48 38.5L48 39.5L47 39.5ZM-71 39.5L-69 39.5L-69 40.5L-71 40.5ZM69 39.5L71 39.5L71 40.5L69 40.5ZM-72 40.5L-71 40.5L-71 42.5L-72 42.5ZM-69 40.5L-68 40.5L-68 42.5L-69 42.5ZM-51 40.5L-50 40.5L-50 41.5L-51 41.5ZM50 40.5L51 40.5L51 41.5L50 41.5ZM68 40.5L69 40.5L69 42.5L68 42.5ZM71 40.5L72 40.5L72 42.5L71 42.5ZM-71 42.5L-69 42.5L-69 43.5L-71 43.5ZM69 42.5L71 42.5L71 43.5L69 43.5ZM-50 43.5L-49 43.5L-49 44.5L-50 44.5ZM49 43.5L50 43.5L50 44.5L49 44.5ZM-74 44.5L-73 44.5L-73 45.5L-74 45.5ZM73 44.5L74 44.5L74 45.5L73 45.5ZM-53 45.5L-52 45.5L-52 46.5L-53 46.5ZM52 45.5L53 45.5L53 46.5L52 46.5Z" fill="#303030" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 106.35)"/>
+<path id="hkwarble_node_8" d="M-72 -45L-71 -45L-71 -43L-72 -43ZM-69 -45L-68 -45L-68 -43L-69 -43ZM68 -45L69 -45L69 -43L68 -43ZM71 -45L72 -45L72 -43L71 -43ZM-73 -44L-72 -44L-72 -43L-73 -43ZM-68 -44L-67 -44L-67 -43L-68 -43ZM67 -44L68 -44L68 -43L67 -43ZM72 -44L73 -44L73 -43L72 -43ZM-73 -41L-71 -41L-71 -40L-73 -40ZM-69 -41L-68 -41L-68 -39L-69 -39ZM-68 -41L-67 -41L-67 -40L-68 -40ZM67 -41L69 -41L69 -40L67 -40ZM71 -41L72 -41L72 -39L71 -39ZM72 -41L73 -41L73 -40L72 -40ZM-72 -40L-71 -40L-71 -39L-72 -39ZM68 -40L69 -40L69 -39L68 -39ZM-44 -20L-43 -20L-43 -19L-44 -19ZM43 -20L44 -20L44 -19L43 -19ZM-44 1L-43 1L-43 2L-44 2ZM43 1L44 1L44 2L43 2ZM-47 32L-46 32L-46 33L-47 33ZM46 32L47 32L47 33L46 33ZM-46 33L-45 33L-45 34L-46 34ZM45 33L46 33L46 34L45 34ZM-10 34L-9 34L-9 35L-10 35ZM9 34L10 34L10 35L9 35ZM-49 37L-48 37L-48 38L-49 38ZM48 37L49 37L49 38L48 38ZM-48 38L-47 38L-47 39L-48 39ZM47 38L48 38L48 39L47 39ZM-72 39L-71 39L-71 41L-72 41ZM-69 39L-68 39L-68 41L-69 41ZM68 39L69 39L69 41L68 41ZM71 39L72 39L72 41L71 41ZM-73 40L-72 40L-72 41L-73 41ZM-68 40L-67 40L-67 41L-68 41ZM67 40L68 40L68 41L67 41ZM72 40L73 40L73 41L72 41ZM-10 41L-9 41L-9 42L-10 42ZM9 41L10 41L10 42L9 42ZM-51 42L-50 42L-50 43L-51 43ZM50 42L51 42L51 43L50 43ZM-73 43L-71 43L-71 44L-73 44ZM-69 43L-68 43L-68 45L-69 45ZM-68 43L-67 43L-67 44L-68 44ZM-50 43L-49 43L-49 44L-50 44ZM49 43L50 43L50 44L49 44ZM67 43L69 43L69 44L67 44ZM71 43L72 43L72 45L71 45ZM72 43L73 43L73 44L72 44ZM-72 44L-71 44L-71 45L-72 45ZM68 44L69 44L69 45L68 45Z" fill="#808080" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 105.8)"/>
+<path id="hkwarble_node_9" d="M-66 -41L-65 -41L-65 -40L-66 -40ZM65 -41L66 -41L66 -40L65 -40ZM-66 12L-65 12L-65 13L-66 13ZM65 12L66 12L66 13L65 13ZM-35 33L-33 33L-33 34L-35 34ZM33 33L35 33L35 34L33 34ZM-37 34L-36 34L-36 35L-37 35ZM-32 34L-31 34L-31 35L-32 35ZM31 34L32 34L32 35L31 35ZM36 34L37 34L37 35L36 35ZM-38 36L-37 36L-37 38L-38 38ZM-31 36L-30 36L-30 38L-31 38ZM30 36L31 36L31 38L30 38ZM37 36L38 36L38 38L37 38ZM-37 39L-36 39L-36 40L-37 40ZM-32 39L-31 39L-31 40L-32 40ZM31 39L32 39L32 40L31 40ZM36 39L37 39L37 40L36 40ZM-35 40L-33 40L-33 41L-35 41ZM33 40L35 40L35 41L33 41Z" fill="#a0a0a0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 106.9)"/>
+<path id="hkwarble_node_10" d="M-65 -43L-64 -43L-64 -42L-65 -42ZM64 -43L65 -43L65 -42L64 -42ZM-58 -37L58 -37L58 -35L-58 -35ZM-58 -31L58 -31L58 -29L-58 -29ZM-58 3L58 3L58 5L-58 5ZM-65 8L-64 8L-64 9L-65 9ZM64 8L65 8L65 9L64 9ZM-46 25L-45 25L-45 26L-46 26ZM45 25L46 25L46 26L45 26ZM-45 27L-44 27L-44 28L-45 28ZM44 27L45 27L45 28L44 28ZM-48 30L-47 30L-47 31L-48 31ZM47 30L48 30L48 31L47 31ZM-47 32L-46 32L-46 33L-47 33ZM-36 32L-35 32L-35 33L-36 33ZM-33 32L-32 32L-32 33L-33 33ZM32 32L33 32L33 33L32 33ZM35 32L36 32L36 33L35 33ZM46 32L47 32L47 33L46 33ZM-50 35L-49 35L-49 36L-50 36ZM-36 35L-35 35L-35 36L-36 36ZM-33 35L-32 35L-32 36L-33 36ZM32 35L33 35L33 36L32 36ZM35 35L36 35L36 36L35 36ZM49 35L50 35L50 36L49 36ZM-49 37L-48 37L-48 38L-49 38ZM48 37L49 37L49 38L48 38ZM-52 40L-51 40L-51 41L-52 41ZM51 40L52 40L52 41L51 41ZM-51 42L-50 42L-50 43L-51 43ZM50 42L51 42L51 43L50 43Z" fill="#505050" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 110.2)"/>
+<path id="hkwarble_node_11" d="M-44 -54L44 -54L44 -53L-44 -53ZM-45 -53L-44 -53L-44 -31L-45 -31ZM-43 -53L43 -53L43 -52L-43 -52ZM44 -53L45 -53L45 -31L44 -31ZM-44 -52L-43 -52L-43 -32L-44 -32ZM43 -52L44 -52L44 -32L43 -32ZM-43 -32L43 -32L43 -30L-43 -30ZM-44 -31L-43 -31L-43 -30L-44 -30ZM43 -31L44 -31L44 -30L43 -30ZM-10 0L10 0L10 1L-10 1ZM-11 1L-10 1L-10 9L-11 9ZM-9 1L9 1L9 2L-9 2ZM10 1L11 1L11 9L10 9ZM-10 2L-9 2L-9 8L-10 8ZM9 2L10 2L10 8L9 8ZM-9 8L9 8L9 10L-9 10ZM-10 9L-9 9L-9 10L-10 10ZM9 9L10 9L10 10L9 10ZM-9 36L-8 36L-8 37L-9 37ZM8 36L9 36L9 37L8 37ZM-11 38L-10 38L-10 39L-11 39ZM10 38L11 38L11 39L10 39ZM-11 45L-10 45L-10 46L-11 46ZM10 45L11 45L11 46L10 46ZM-9 47L-8 47L-8 48L-9 48ZM8 47L9 47L9 48L8 48ZM-1 53L1 53L1 54L-1 54Z" fill="#707070" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 142.1)"/>
+<path id="hkwarble_node_12" d="M-9 -5.5L-8 -5.5L-8 -4.5L-9 -4.5ZM8 -5.5L9 -5.5L9 -4.5L8 -4.5ZM-10 -4.5L-9 -4.5L-9 -3.5L-10 -3.5ZM9 -4.5L10 -4.5L10 -3.5L9 -3.5ZM-10 2.5L-9 2.5L-9 3.5L-10 3.5ZM9 2.5L10 2.5L10 3.5L9 3.5ZM-9 3.5L-8 3.5L-8 4.5L-9 4.5ZM8 3.5L9 3.5L9 4.5L8 4.5ZM-1 4.5L1 4.5L1 5.5L-1 5.5Z" fill="#eeeeee" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 188.85)"/>
+<path id="hkwarble_node_13" d="M-8 -5L-7 -5L-7 -4L-8 -4ZM7 -5L8 -5L8 -4L7 -4ZM-10 -3L-9 -3L-9 -2L-10 -2ZM9 -3L10 -3L10 -2L9 -2ZM-10 2L-9 2L-9 3L-10 3ZM9 2L10 2L10 3L9 3ZM-8 4L-7 4L-7 5L-8 5ZM7 4L8 4L8 5L7 5Z" fill="#e0e0e0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 188.3)"/>
+<path id="hkwarble_node_14" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_15" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_16" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_17" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_18" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_19" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_20" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_21" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_22" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_23" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_24" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_25" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_26" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_27" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_28" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_29" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_30" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_31" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_32" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_33" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_34" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_35" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_36" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_37" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_38" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_39" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_40" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_41" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_42" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_43" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_44" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_45" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_46" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_47" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_48" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_49" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_50" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_51" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_52" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_53" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_54" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_55" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_56" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_57" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_58" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_59" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_60" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_61" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_62" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_63" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_64" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_65" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_66" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_67" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_68" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_69" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_70" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_71" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_72" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_73" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_74" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_75" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_76" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_77" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_78" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_79" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_80" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_81" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_82" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_83" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_84" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_85" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_86" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_87" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_88" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_89" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_90" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_91" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_92" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_93" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_94" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_95" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_96" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_97" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_98" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_99" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_100" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_101" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_102" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_103" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_104" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_105" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_106" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_107" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_108" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_109" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_110" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_111" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_112" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwarble_node_113" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_114" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_115" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_116" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_117" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_118" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_119" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_120" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_121" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_122" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_123" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_124" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_node_125" cx="0" cy="0" r="16" fill="#000000" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_palette_0" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwarble_palette_1" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="2"/>
+<circle id="hkwarble_palette_2" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="4"/>
+<circle id="hkwarble_palette_3" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="8"/>
+<circle id="hkwarble_palette_4" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="16"/>
+<circle id="hkwarble_palette_5" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+<circle id="hkwarble_palette_6" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="4"/>
+<circle id="hkwarble_palette_7" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="1"/>
+<circle id="hkwarble_palette_8" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="4"/>
+<circle id="hkwarble_palette_9" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="16"/>
+<circle id="hkwarble_palette_10" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="1"/>
+<circle id="hkwarble_palette_11" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="4"/>
+<circle id="hkwarble_palette_12" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="16"/>
+<circle id="hkwarble_palette_13" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="1"/>
+<circle id="hkwarble_palette_14" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="4"/>
+<circle id="hkwarble_palette_15" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="16"/>
+<text id="hkwarble_text_0" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkwarble_text_1" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkwarble_text_2" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkwarble_text_3" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkwarble_text_4" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkwarble_text_5" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkwarble_text_6" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+<text id="hkwarble_text_7" transform="matrix(1 0 0 1 640 320)" fill="#dddddd" stroke="none" font-family="UniversNextPro-Light" font-size="13"> </text>
+</g>

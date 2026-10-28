@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "id": "hkmixtur",
+  "name": "HK Mixtur",
+  "parameters": [
+    {
+      "id": "divider1",
+      "label": "Divider1",
+      "default": 0.06,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "divider2",
+      "label": "Divider2",
+      "default": 0.1,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "divider3",
+      "label": "Divider3",
+      "default": 0.14,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "divider4",
+      "label": "Divider4",
+      "default": 0.18,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "formant1",
+      "label": "Formant1",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 0
+    },
+    {
+      "id": "formant2",
+      "label": "Formant2",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 1
+    },
+    {
+      "id": "reso",
+      "label": "Reso",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 2
+    }
+  ],
+  "presets": {
+    "Init": {
+      "divider1": 0.06,
+      "divider2": 0.1,
+      "divider3": 0.14,
+      "divider4": 0.18,
+      "formant1": 0.0,
+      "formant2": 0.0,
+      "reso": 0.0
+    }
+  },
+  "resources": {
+    "voiceBytes": 872,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 163,
+      "texts": 16,
+      "palette": 16
+    }
+  },
+  "press": "page"
+}

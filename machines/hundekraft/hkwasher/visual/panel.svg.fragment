@@ -1,0 +1,133 @@
+<g id="hkwasher_panel">
+<path id="hkwasher_node_0" d="M61 0L58.92 15.79L52.83 30.5L43.13 43.13L30.5 52.83L15.79 58.92L0 61L-15.79 58.92L-30.5 52.83L-43.13 43.13L-52.83 30.5L-58.92 15.79L-61 0L-58.92 -15.79L-52.83 -30.5L-43.13 -43.13L-30.5 -52.83L-15.79 -58.92L0 -61L15.79 -58.92L30.5 -52.83L43.13 -43.13L52.83 -30.5L58.92 -15.79ZM54 0L52.16 13.98L46.77 27L38.18 38.18L27 46.77L13.98 52.16L0 54L-13.98 52.16L-27 46.77L-38.18 38.18L-46.77 27L-52.16 13.98L-54 0L-52.16 -13.98L-46.77 -27L-38.18 -38.18L-27 -46.77L-13.98 -52.16L0 -54L13.98 -52.16L27 -46.77L38.18 -38.18L46.77 -27L52.16 -13.98Z" fill="none" stroke="#eeeeee" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 174 125.6)"/>
+<path id="hkwasher_node_1" d="M-3.25 -13.8L3.25 -13.8L3.25 13.8L-3.25 13.8" fill="none" stroke="#eeeeee" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 237.53 123.95)"/>
+<path id="hkwasher_node_2" d="M-67.4 14.9L-68.8 5L-68.8 -5L-67.4 -14.9L-64.5 -24.5L-60.3 -33.6L-54.7 -42L-48.1 -49.5L-40.4 -55.9L-31.9 -61.2M-43.1 -48.7L-31.9 -61.2M-48.4 -54.7L-31.9 -61.2M67.4 -14.9L68.8 -5L68.8 5L67.4 14.9L64.5 24.5L60.3 33.6L54.7 42L48.1 49.5L40.4 55.9L31.9 61.2M43.1 48.7L31.9 61.2M48.4 54.7L31.9 61.2" fill="none" stroke="#eeeeee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 174 125.6)"/>
+<path id="hkwasher_node_3" d="M-35.05 0.5L-32.95 -1.2L-30.85 -2.9L-28.75 -4.4L-26.55 -5.4L-24.45 -5.9L-22.35 -5.9L-20.15 -5.4L-18.05 -4.4L-15.95 -3L-13.85 -1.3L-11.75 0.5L-9.55 2.2L-7.45 3.8L-5.35 5L-3.15 5.8L-1.05 6L1.05 5.7L3.15 4.9L5.25 3.7L7.45 2.1L9.55 0.3L11.65 -1.5L13.85 -3.1L15.95 -4.5L18.05 -5.5L20.15 -6L22.25 -5.9L24.45 -5.3L26.55 -4.2L28.65 -2.8L30.85 -1.1L32.95 0.7L35.05 2.4" fill="none" stroke="#d0d0d0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 172.85 158.6)"/>
+<path id="hkwasher_node_4" d="M4.3 0L4.15 1.11L3.72 2.15L3.04 3.04L2.15 3.72L1.11 4.15L0 4.3L-1.11 4.15L-2.15 3.72L-3.04 3.04L-3.72 2.15L-4.15 1.11L-4.3 0L-4.15 -1.11L-3.72 -2.15L-3.04 -3.04L-2.15 -3.72L-1.11 -4.15L0 -4.3L1.11 -4.15L2.15 -3.72L3.04 -3.04L3.72 -2.15L4.15 -1.11Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 203.04 83.36)"/>
+<path id="hkwasher_node_5" d="M4.3 0L4.15 1.11L3.72 2.15L3.04 3.04L2.15 3.72L1.11 4.15L0 4.3L-1.11 4.15L-2.15 3.72L-3.04 3.04L-3.72 2.15L-4.15 1.11L-4.3 0L-4.15 -1.11L-3.72 -2.15L-3.04 -3.04L-2.15 -3.72L-1.11 -4.15L0 -4.3L1.11 -4.15L2.15 -3.72L3.04 -3.04L3.72 -2.15L4.15 -1.11Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 213.38 95.13)"/>
+<path id="hkwasher_node_6" d="M4 0L3.86 1.04L3.46 2L2.83 2.83L2 3.46L1.04 3.86L0 4L-1.04 3.86L-2 3.46L-2.83 2.83L-3.46 2L-3.86 1.04L-4 0L-3.86 -1.04L-3.46 -2L-2.83 -2.83L-2 -3.46L-1.04 -3.86L0 -4L1.04 -3.86L2 -3.46L2.83 -2.83L3.46 -2L3.86 -1.04Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 131.76 142.21)"/>
+<path id="hkwasher_node_7" d="M1.8 0L1.74 0.47L1.56 0.9L1.27 1.27L0.9 1.56L0.47 1.74L0 1.8L-0.47 1.74L-0.9 1.56L-1.27 1.27L-1.56 0.9L-1.74 0.47L-1.8 0L-1.74 -0.47L-1.56 -0.9L-1.27 -1.27L-0.9 -1.56L-0.47 -1.74L0 -1.8L0.47 -1.74L0.9 -1.56L1.27 -1.27L1.56 -0.9L1.74 -0.47Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 140.34 149.36)"/>
+<path id="hkwasher_node_8" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 221.41 140.78)"/>
+<path id="hkwasher_node_9" d="M3.8 0L3.67 0.98L3.29 1.9L2.69 2.69L1.9 3.29L0.98 3.67L0 3.8L-0.98 3.67L-1.9 3.29L-2.69 2.69L-3.29 1.9L-3.67 0.98L-3.8 0L-3.67 -0.98L-3.29 -1.9L-2.69 -2.69L-1.9 -3.29L-0.98 -3.67L0 -3.8L0.98 -3.67L1.9 -3.29L2.69 -2.69L3.29 -1.9L3.67 -0.98Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 218.22 149.36)"/>
+<path id="hkwasher_node_10" d="M3.8 0L3.67 0.98L3.29 1.9L2.69 2.69L1.9 3.29L0.98 3.67L0 3.8L-0.98 3.67L-1.9 3.29L-2.69 2.69L-3.29 1.9L-3.67 0.98L-3.8 0L-3.67 -0.98L-3.29 -1.9L-2.69 -2.69L-1.9 -3.29L-0.98 -3.67L0 -3.8L0.98 -3.67L1.9 -3.29L2.69 -2.69L3.29 -1.9L3.67 -0.98Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 152.33 166.41)"/>
+<path id="hkwasher_node_11" d="M2.3 0L2.22 0.6L1.99 1.15L1.63 1.63L1.15 1.99L0.6 2.22L0 2.3L-0.6 2.22L-1.15 1.99L-1.63 1.63L-1.99 1.15L-2.22 0.6L-2.3 0L-2.22 -0.6L-1.99 -1.15L-1.63 -1.63L-1.15 -1.99L-0.6 -2.22L0 -2.3L0.6 -2.22L1.15 -1.99L1.63 -1.63L1.99 -1.15L2.22 -0.6Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 162.89 173.78)"/>
+<path id="hkwasher_node_12" d="M4.3 0L4.15 1.11L3.72 2.15L3.04 3.04L2.15 3.72L1.11 4.15L0 4.3L-1.11 4.15L-2.15 3.72L-3.04 3.04L-3.72 2.15L-4.15 1.11L-4.3 0L-4.15 -1.11L-3.72 -2.15L-3.04 -3.04L-2.15 -3.72L-1.11 -4.15L0 -4.3L1.11 -4.15L2.15 -3.72L3.04 -3.04L3.72 -2.15L4.15 -1.11Z" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 192.04 171.58)"/>
+<path id="hkwasher_node_13" d="M-11.65 -18L9.45 -23.6L17.75 7.5L17.85 12.2L15.35 16.5L11.25 18.8L-6.55 23.5L-11.25 23.6L-15.55 21.2L-17.85 17L-17.85 12.3L-15.45 8L-11.25 5.7L-5.75 4.3Z" fill="#000000" stroke="#eeeeee" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 145.56 106.02)"/>
+<path id="hkwasher_node_14" d="M-10.55 2.8L10.55 -2.8" fill="none" stroke="#eeeeee" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 146.56 91.72)"/>
+<path id="hkwasher_node_15" d="M-8.65 -19.95L-6.55 -12.25M-3.05 -21.45L-1.05 -13.75M2.45 -22.95L4.55 -15.15M13.75 1.35L7.95 6.55L8.75 18.25M-13.75 5.15L-8.05 13.15L-9.05 22.95" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 148.31 106.62)"/>
+<path id="hkwasher_node_16" d="M-11.65 -18L9.45 -23.6L17.75 7.5L17.85 12.2L15.35 16.5L11.25 18.8L-6.55 23.5L-11.25 23.6L-15.55 21.2L-17.85 17L-17.85 12.3L-15.45 8L-11.25 5.7L-5.75 4.3Z" fill="#000000" stroke="#d0d0d0" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 169.77 118.12)"/>
+<path id="hkwasher_node_17" d="M-10.55 2.8L10.55 -2.8" fill="none" stroke="#d0d0d0" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 170.75 103.82)"/>
+<path id="hkwasher_node_18" d="M-8.65 -19.95L-6.55 -12.25M-3.05 -21.45L-1.05 -13.75M2.45 -22.95L4.55 -15.15M13.75 1.35L7.95 6.55L8.75 18.25M-13.75 5.15L-8.05 13.15L-9.05 22.95" fill="none" stroke="#d0d0d0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 172.52 118.73)"/>
+<path id="hkwasher_node_19" d="M-11.65 -18L9.45 -23.6L17.75 7.5L17.85 12.2L15.35 16.5L11.25 18.8L-6.55 23.5L-11.25 23.6L-15.55 21.2L-17.85 17L-17.85 12.3L-15.45 8L-11.25 5.7L-5.75 4.3Z" fill="#000000" stroke="#eeeeee" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 193.97 130.22)"/>
+<path id="hkwasher_node_20" d="M-10.55 2.8L10.55 -2.8" fill="none" stroke="#eeeeee" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 194.96 115.92)"/>
+<path id="hkwasher_node_21" d="M-8.65 -19.95L-6.55 -12.25M-3.05 -21.45L-1.05 -13.75M2.45 -22.95L4.55 -15.15M13.75 1.35L7.95 6.55L8.75 18.25M-13.75 5.15L-8.05 13.15L-9.05 22.95" fill="none" stroke="#eeeeee" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 196.72 130.82)"/>
+<path id="hkwasher_node_22" d="M7.45 -32.25L36.05 -17.05L13.65 24.95L8.95 30.15L2.05 32.25L-4.75 30.55L-28.75 17.75L-33.95 13.05L-36.05 6.15L-34.35 -0.65L-29.65 -5.85L-22.75 -7.95L-15.95 -6.25L-8.45 -2.25Z" fill="#000000" stroke="#e0e0e0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 335.21 138.86)"/>
+<path id="hkwasher_node_23" d="M-14.25 -7.6L14.25 7.6" fill="none" stroke="#e0e0e0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 353.03 123.29)"/>
+<path id="hkwasher_node_24" d="M14.4 -29.4L8.8 -18.9M21.9 -25.4L16.3 -14.9M29.4 -21.4L23.8 -10.9M17 16.3L5.6 16L-5.4 29.4M-16.6 -7.4L-18.5 7L-29.4 16.6" fill="none" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 335.92 140.12)"/>
+<path id="hkwasher_node_25" d="M-7.5 -10.5L-0.5 -17.5M-2.5 1.5L7.5 -0.5M-3.5 13.5L6.5 17.5" fill="none" stroke="#e0e0e0" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 380.25 126.15)"/>
+<path id="hkwasher_node_26" d="M0.5 0L0.48 0.13L0.43 0.25L0.35 0.35L0.25 0.43L0.13 0.48L0 0.5L-0.13 0.48L-0.25 0.43L-0.35 0.35L-0.43 0.25L-0.48 0.13L-0.5 0L-0.48 -0.13L-0.43 -0.25L-0.35 -0.35L-0.25 -0.43L-0.13 -0.48L0 -0.5L0.13 -0.48L0.25 -0.43L0.35 -0.35L0.43 -0.25L0.48 -0.13Z" fill="#000000" stroke="#000000" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 65.65 44.2)"/>
+<path id="hkwasher_node_27" d="M0.5 0L0.48 0.13L0.43 0.25L0.35 0.35L0.25 0.43L0.13 0.48L0 0.5L-0.13 0.48L-0.25 0.43L-0.35 0.35L-0.43 0.25L-0.48 0.13L-0.5 0L-0.48 -0.13L-0.43 -0.25L-0.35 -0.35L-0.25 -0.43L-0.13 -0.48L0 -0.5L0.13 -0.48L0.25 -0.43L0.35 -0.35L0.43 -0.25L0.48 -0.13Z" fill="#000000" stroke="#000000" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 67.85 44.2)"/>
+<path id="hkwasher_node_28" d="M0.5 0L0.48 0.13L0.43 0.25L0.35 0.35L0.25 0.43L0.13 0.48L0 0.5L-0.13 0.48L-0.25 0.43L-0.35 0.35L-0.43 0.25L-0.48 0.13L-0.5 0L-0.48 -0.13L-0.43 -0.25L-0.35 -0.35L-0.25 -0.43L-0.13 -0.48L0 -0.5L0.13 -0.48L0.25 -0.43L0.35 -0.35L0.43 -0.25L0.48 -0.13Z" fill="#000000" stroke="#000000" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 70.05 44.2)"/>
+<path id="hkwasher_node_29" d="M0.5 0L0.48 0.13L0.43 0.25L0.35 0.35L0.25 0.43L0.13 0.48L0 0.5L-0.13 0.48L-0.25 0.43L-0.35 0.35L-0.43 0.25L-0.48 0.13L-0.5 0L-0.48 -0.13L-0.43 -0.25L-0.35 -0.35L-0.25 -0.43L-0.13 -0.48L0 -0.5L0.13 -0.48L0.25 -0.43L0.35 -0.35L0.43 -0.25L0.48 -0.13Z" fill="#000000" stroke="#000000" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 72.25 44.2)"/>
+<path id="hkwasher_node_30" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_31" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_32" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_33" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_34" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_35" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_36" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_37" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_38" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_39" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_40" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_41" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_42" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_43" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_44" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_45" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_46" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_47" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_48" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_49" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_50" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_51" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_52" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_53" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_54" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_55" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_56" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_57" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_58" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_59" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_60" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_61" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_62" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_63" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_64" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_65" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_66" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_67" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_68" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_69" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_70" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_71" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_72" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_73" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_74" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_75" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_76" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_77" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_78" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_79" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_80" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_81" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_82" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_83" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_84" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_85" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_86" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_87" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_88" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_89" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_90" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_91" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_92" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_93" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_94" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_95" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_96" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_97" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_98" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_99" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_100" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_101" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_102" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_103" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_104" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_105" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_106" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_107" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_108" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_109" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_110" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_111" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_112" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_113" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkwasher_node_114" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwasher_palette_0" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkwasher_palette_1" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="2"/>
+<circle id="hkwasher_palette_2" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="4"/>
+<circle id="hkwasher_palette_3" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="8"/>
+<circle id="hkwasher_palette_4" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="16"/>
+<circle id="hkwasher_palette_5" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+<circle id="hkwasher_palette_6" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="4"/>
+<circle id="hkwasher_palette_7" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="1"/>
+<circle id="hkwasher_palette_8" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="4"/>
+<circle id="hkwasher_palette_9" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="16"/>
+<circle id="hkwasher_palette_10" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="1"/>
+<circle id="hkwasher_palette_11" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="4"/>
+<circle id="hkwasher_palette_12" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="16"/>
+<circle id="hkwasher_palette_13" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="1"/>
+<circle id="hkwasher_palette_14" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="4"/>
+<circle id="hkwasher_palette_15" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="16"/>
+</g>

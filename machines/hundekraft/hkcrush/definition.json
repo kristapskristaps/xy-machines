@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "id": "hkcrush",
+  "name": "HK Crush",
+  "parameters": [
+    {
+      "id": "bits",
+      "label": "Bits",
+      "default": 0.33332316049684135,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "rate",
+      "label": "Rate",
+      "default": 0.6481826227607044,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "drive",
+      "label": "Drive",
+      "default": 0.250007629627369,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "bits": 0.33332316049684135,
+      "rate": 0.6481826227607044,
+      "drive": 0.250007629627369,
+      "dry": 1
+    }
+  },
+  "resources": {
+    "bufferBytes": 136
+  }
+}

@@ -1,0 +1,95 @@
+<g id="hkfmbell_panel">
+<path id="hkfmbell_node_0" d="M4 -42L3.86 -40.96L3.46 -40L2.83 -39.17L2 -38.54L1.04 -38.14L0 -38L-1.04 -38.14L-2 -38.54L-2.83 -39.17L-3.46 -40L-3.86 -40.96L-4 -42L-3.86 -43.04L-3.46 -44L-2.83 -44.83L-2 -45.46L-1.04 -45.86L0 -46L1.04 -45.86L2 -45.46L2.83 -44.83L3.46 -44L3.86 -43.04ZM-14 -23C-14 -32 -8 -38 0 -38C8 -38 14 -32 14 -23L16 9C17 24 26 32 40 36L40 41L-40 41L-40 36C-26 32 -17 24 -16 9ZM-32 46L32 46" fill="none" stroke="#eeeeee" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 117.9)"/>
+<path id="hkfmbell_node_1" d="M-15 0L15 0" fill="none" stroke="#707070" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 105.8)"/>
+<path id="hkfmbell_node_2" d="M0 -26L0 26" fill="none" stroke="#d0d0d0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 121.2)"/>
+<path id="hkfmbell_node_3" d="M3.5 0L3.38 0.91L3.03 1.75L2.47 2.47L1.75 3.03L0.91 3.38L0 3.5L-0.91 3.38L-1.75 3.03L-2.47 2.47L-3.03 1.75L-3.38 0.91L-3.5 0L-3.38 -0.91L-3.03 -1.75L-2.47 -2.47L-1.75 -3.03L-0.91 -3.38L0 -3.5L0.91 -3.38L1.75 -3.03L2.47 -2.47L3.03 -1.75L3.38 -0.91Z" fill="#d0d0d0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 154.2)"/>
+<path id="hkfmbell_node_4" d="M-131.8 -38.3L-133.2 -36.9M-124 -57.1L-124 -59.1M-116.2 -38.3L-114.8 -36.9M116.2 -38.3L114.8 -36.9M124 -57.1L124 -59.1M131.8 -38.3L133.2 -36.9M-131.8 57.7L-133.2 59.1M-124 38.9L-124 36.9M-116.2 57.7L-114.8 59.1M116.2 57.7L114.8 59.1M124 38.9L124 36.9M131.8 57.7L133.2 59.1" fill="none" stroke="#707070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 240 127.91)"/>
+<path id="hkfmbell_node_5" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="#eeeeee" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 103.6 77.2)"/>
+<path id="hkfmbell_node_6" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="#d0d0d0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 376.4 77.2)"/>
+<path id="hkfmbell_node_7" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="#eeeeee" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 103.6 182.8)"/>
+<path id="hkfmbell_node_8" d="M2.8 0L2.7 0.72L2.42 1.4L1.98 1.98L1.4 2.42L0.72 2.7L0 2.8L-0.72 2.7L-1.4 2.42L-1.98 1.98L-2.42 1.4L-2.7 0.72L-2.8 0L-2.7 -0.72L-2.42 -1.4L-1.98 -1.98L-1.4 -2.42L-0.72 -2.7L0 -2.8L0.72 -2.7L1.4 -2.42L1.98 -1.98L2.42 -1.4L2.7 -0.72Z" fill="#e0e0e0" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 376.4 182.8)"/>
+<path id="hkfmbell_node_9" d="M0 4.5L0 -4.5" fill="none" stroke="#eeeeee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 103.6 72.25)"/>
+<path id="hkfmbell_node_10" d="M0 4.5L0 -4.5" fill="none" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 376.4 72.25)"/>
+<path id="hkfmbell_node_11" d="M0 4.5L0 -4.5" fill="none" stroke="#eeeeee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 103.6 177.85)"/>
+<path id="hkfmbell_node_12" d="M0 4.5L0 -4.5" fill="none" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="matrix(1 0 0 1 376.4 177.85)"/>
+<path id="hkfmbell_node_13" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_14" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_15" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_16" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_17" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_18" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_19" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_20" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_21" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_22" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_23" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_24" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_25" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_26" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_27" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_28" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_29" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_30" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_31" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_32" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_33" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_34" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_35" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_36" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_37" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_38" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_39" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_40" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_41" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_42" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_43" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_44" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_45" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_46" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_47" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_48" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_49" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_50" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_51" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_52" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_53" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_54" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_55" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_56" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_57" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_58" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_59" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_60" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_61" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_62" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_63" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_64" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_65" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_66" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_67" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_68" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_69" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_70" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_71" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_72" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_73" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_74" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_75" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<path id="hkfmbell_node_76" d="M0 0L32 0" fill="none" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkfmbell_palette_0" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+<circle id="hkfmbell_palette_1" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="2"/>
+<circle id="hkfmbell_palette_2" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="4"/>
+<circle id="hkfmbell_palette_3" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="8"/>
+<circle id="hkfmbell_palette_4" cx="640" cy="320" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="16"/>
+<circle id="hkfmbell_palette_5" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+<circle id="hkfmbell_palette_6" cx="640" cy="320" r="1" fill="#666666" stroke="#666666" stroke-width="4"/>
+<circle id="hkfmbell_palette_7" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="1"/>
+<circle id="hkfmbell_palette_8" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="4"/>
+<circle id="hkfmbell_palette_9" cx="640" cy="320" r="1" fill="#6495df" stroke="#6495df" stroke-width="16"/>
+<circle id="hkfmbell_palette_10" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="1"/>
+<circle id="hkfmbell_palette_11" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="4"/>
+<circle id="hkfmbell_palette_12" cx="640" cy="320" r="1" fill="#df584c" stroke="#df584c" stroke-width="16"/>
+<circle id="hkfmbell_palette_13" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="1"/>
+<circle id="hkfmbell_palette_14" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="4"/>
+<circle id="hkfmbell_palette_15" cx="640" cy="320" r="1" fill="#e89a54" stroke="#e89a54" stroke-width="16"/>
+</g>

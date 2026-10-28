@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "id": "hkpew",
+  "name": "HK PEW",
+  "parameters": [
+    {
+      "id": "low",
+      "label": "Low",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "middle",
+      "label": "Middle",
+      "default": 0.250007629627369,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "high",
+      "label": "High",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "rotor",
+      "label": "Rotor",
+      "default": 0.250007629627369,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "low": 0.500015259254738,
+      "middle": 0.250007629627369,
+      "high": 0.0,
+      "rotor": 0.250007629627369
+    }
+  },
+  "resources": {
+    "voiceBytes": 896,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 125,
+      "texts": 0,
+      "palette": 16
+    }
+  }
+}

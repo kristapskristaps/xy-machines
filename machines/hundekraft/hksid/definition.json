@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "id": "hksid",
+  "name": "HK SID",
+  "parameters": [
+    {
+      "id": "wave",
+      "label": "Wave",
+      "default": 0.25,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Triangle",
+          "Saw",
+          "Pulse",
+          "Noise",
+          "Sync",
+          "Ring"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "color",
+      "label": "Color",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "cutoff",
+      "label": "Cutoff",
+      "default": 0.9807428205206458,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "reso",
+      "label": "Reso",
+      "default": 0.250007629627369,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "wave": 0.25,
+      "color": 0.500015259254738,
+      "cutoff": 0.9807428205206458,
+      "reso": 0.250007629627369
+    }
+  },
+  "resources": {
+    "voiceBytes": 984,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 4,
+      "texts": 8,
+      "palette": 16
+    }
+  }
+}

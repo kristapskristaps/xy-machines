@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "id": "hktape",
+  "name": "HK Tape",
+  "parameters": [
+    {
+      "id": "age",
+      "label": "Age",
+      "default": 0.36622211371196634,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "feedback",
+      "label": "Feedback",
+      "default": 0.4272591326639607,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "time",
+      "label": "Time",
+      "default": 0.36622211371196634,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "flutter",
+      "label": "Flutter",
+      "default": 0.18311105685598317,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "age": 0.36622211371196634,
+      "feedback": 0.4272591326639607,
+      "time": 0.36622211371196634,
+      "flutter": 0.18311105685598317,
+      "dry": 1
+    }
+  },
+  "resources": {
+    "bufferBytes": 353312
+  }
+}

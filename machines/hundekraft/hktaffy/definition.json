@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "id": "hktaffy",
+  "name": "HK Taffy",
+  "parameters": [
+    {
+      "id": "wave",
+      "label": "Wave",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "bend",
+      "label": "Bend",
+      "default": 0.250007629627369,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "envelope",
+      "label": "Envelope",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "reso",
+      "label": "Reso",
+      "default": 0.250007629627369,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "wave": 0.500015259254738,
+      "bend": 0.250007629627369,
+      "envelope": 0.0,
+      "reso": 0.250007629627369
+    }
+  },
+  "resources": {
+    "voiceBytes": 880,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 170,
+      "texts": 0,
+      "palette": 16
+    }
+  }
+}

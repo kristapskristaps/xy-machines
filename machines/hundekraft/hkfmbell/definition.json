@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "id": "hkfmbell",
+  "name": "HK FM Bell",
+  "parameters": [
+    {
+      "id": "ratio",
+      "label": "Ratio",
+      "default": 0.28125,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "0.5",
+          "1.0",
+          "1.5",
+          "2.0",
+          "2.5",
+          "3.0",
+          "3.5",
+          "4.0",
+          "4.5",
+          "5.0",
+          "5.5",
+          "6.0",
+          "6.5",
+          "7.0",
+          "7.5",
+          "8.0"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "index",
+      "label": "Index",
+      "default": 0.4882961516159551,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "decay",
+      "label": "Decay",
+      "default": 0.24414807580797754,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "feedback",
+      "label": "Feedback",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "ratio": 0.28125,
+      "index": 0.4882961516159551,
+      "decay": 0.24414807580797754,
+      "feedback": 0.0
+    }
+  },
+  "resources": {
+    "voiceBytes": 848,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 77,
+      "texts": 0,
+      "palette": 16
+    }
+  }
+}

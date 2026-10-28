@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "id": "hkelg",
+  "name": "HK Elg",
+  "parameters": [
+    {
+      "id": "interval",
+      "label": "Interval",
+      "default": 0.5,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Unison",
+          "Fifth",
+          "Octave",
+          "Oct 5th",
+          "Two oct"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "detune",
+      "label": "Detune",
+      "default": 0.250007629627369,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "timbre",
+      "label": "Timbre",
+      "default": 0.55,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "motion",
+      "label": "Motion",
+      "default": 0.250007629627369,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "interval": 0.5,
+      "detune": 0.250007629627369,
+      "timbre": 0.55,
+      "motion": 0.250007629627369
+    }
+  },
+  "resources": {
+    "voiceBytes": 912,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 49,
+      "texts": 0,
+      "palette": 16
+    }
+  }
+}

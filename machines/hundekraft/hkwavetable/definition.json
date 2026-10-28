@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "id": "hkwavetable",
+  "name": "HK Wavetable",
+  "parameters": [
+    {
+      "id": "wave",
+      "label": "Wave",
+      "default": 0.25,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "detune",
+      "label": "Detune",
+      "default": 0.12,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "cutoff",
+      "label": "Cutoff",
+      "default": 0.65,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "reso",
+      "label": "Reso",
+      "default": 0.2,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "wave": 0.25,
+      "detune": 0.12,
+      "cutoff": 0.65,
+      "reso": 0.2
+    }
+  },
+  "resources": {
+    "voiceBytes": 896,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 81,
+      "texts": 0,
+      "palette": 16
+    }
+  }
+}

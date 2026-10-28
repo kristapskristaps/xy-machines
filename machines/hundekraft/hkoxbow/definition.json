@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "id": "hkoxbow",
+  "name": "HK Oxbow",
+  "parameters": [
+    {
+      "id": "cutoff",
+      "label": "Cutoff",
+      "default": 0.36222418897061065,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "reso",
+      "label": "Reso",
+      "default": 0.17325357829523605,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "envelope",
+      "label": "Envelope",
+      "default": 0.7244483779412213,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "detune",
+      "label": "Detune",
+      "default": 0.07812738425855281,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "wave",
+      "label": "Wave",
+      "default": 0.08333333333333333,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Saw",
+          "Pulse",
+          "Both",
+          "Sync",
+          "XMod",
+          "Fifth"
+        ]
+      },
+      "display": "enum",
+      "control": 0
+    },
+    {
+      "id": "filter",
+      "label": "Filter",
+      "default": 0.08333333333333333,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "LP12",
+          "HP12",
+          "BP12",
+          "Notch",
+          "LP24",
+          "SEM"
+        ]
+      },
+      "display": "enum",
+      "control": 1
+    },
+    {
+      "id": "drive",
+      "label": "Drive",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 2
+    }
+  ],
+  "presets": {
+    "Init": {
+      "cutoff": 0.36222418897061065,
+      "reso": 0.17325357829523605,
+      "envelope": 0.7244483779412213,
+      "detune": 0.07812738425855281,
+      "wave": 0.08333333333333333,
+      "filter": 0.08333333333333333,
+      "drive": 0.0
+    }
+  },
+  "resources": {
+    "voiceBytes": 2152,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 52,
+      "texts": 16,
+      "palette": 16
+    }
+  },
+  "press": "page"
+}

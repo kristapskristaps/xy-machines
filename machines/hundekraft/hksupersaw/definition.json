@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "id": "hksupersaw",
+  "name": "HK Supersaw",
+  "parameters": [
+    {
+      "id": "detune",
+      "label": "Detune",
+      "default": 0.24414807580797754,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "morph",
+      "label": "Morph",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "sub",
+      "label": "Sub",
+      "default": 0.36622211371196634,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "drive",
+      "label": "Drive",
+      "default": 0.18311105685598317,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "detune": 0.24414807580797754,
+      "morph": 0.0,
+      "sub": 0.36622211371196634,
+      "drive": 0.18311105685598317
+    }
+  },
+  "resources": {
+    "voiceBytes": 856,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 173,
+      "texts": 0,
+      "palette": 16
+    }
+  }
+}

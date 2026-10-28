@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "id": "hkinaroom",
+  "name": "HK In a room",
+  "parameters": [
+    {
+      "id": "size",
+      "label": "Size",
+      "default": 0.8819849238563189,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "shape",
+      "label": "Shape",
+      "default": 0.875,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Cube",
+          "Golden",
+          "Bolt",
+          "Lucier"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "erosion",
+      "label": "Erosion",
+      "default": 0.3967406231879635,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "default": 0.24719992675557725,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "absorb",
+      "label": "Absorb",
+      "default": 0.18311105685598317,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "fade",
+      "label": "Fade",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "capture",
+      "label": "Capture",
+      "default": 0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "On"
+        ]
+      },
+      "display": "enum"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "size": 0.8819849238563189,
+      "shape": 0.875,
+      "erosion": 0.3967406231879635,
+      "dry": 1,
+      "length": 0.24719992675557725,
+      "absorb": 0.18311105685598317,
+      "fade": 0.0,
+      "capture": 0
+    }
+  },
+  "resources": {
+    "bufferBytes": 358128,
+    "transport": 1
+  }
+}

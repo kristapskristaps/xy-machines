@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "machines": [
+    {
+      "path": "hkarc"
+    },
+    {
+      "path": "hkclouds"
+    },
+    {
+      "path": "hkcrush"
+    },
+    {
+      "path": "hkelg"
+    },
+    {
+      "path": "hkeva"
+    },
+    {
+      "path": "hkfather"
+    },
+    {
+      "path": "hkfmbell"
+    },
+    {
+      "path": "hkgranular"
+    },
+    {
+      "path": "hkhail"
+    },
+    {
+      "path": "hkinaroom"
+    },
+    {
+      "path": "hkmbira"
+    },
+    {
+      "path": "hkmixtur"
+    },
+    {
+      "path": "hkoxbow"
+    },
+    {
+      "path": "hkpalme"
+    },
+    {
+      "path": "hkpew"
+    },
+    {
+      "path": "hkplate"
+    },
+    {
+      "path": "hkreverb"
+    },
+    {
+      "path": "hksid"
+    },
+    {
+      "path": "hksnowglobe"
+    },
+    {
+      "path": "hkstutter"
+    },
+    {
+      "path": "hksupersaw"
+    },
+    {
+      "path": "hktaffy"
+    },
+    {
+      "path": "hktape"
+    },
+    {
+      "path": "hkwarble"
+    },
+    {
+      "path": "hkwasher"
+    },
+    {
+      "path": "hkwavetable"
+    }
+  ]
+}

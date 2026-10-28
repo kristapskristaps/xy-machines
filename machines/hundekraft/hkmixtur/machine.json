@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "sdk": "1.4",
+  "kind": "synth",
+  "description": "Hundekraft Mixtur DSP port for private OP-XY testing.",
+  "identity": {
+    "engine": 47,
+    "page": 95
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "id": "hkwasher",
+  "name": "HK Washer",
+  "parameters": [
+    {
+      "id": "speed",
+      "label": "Speed",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "depth",
+      "label": "Depth",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "foam",
+      "label": "Foam",
+      "default": 0.500015259254738,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "speed": 0.500015259254738,
+      "depth": 0.500015259254738,
+      "foam": 0.500015259254738,
+      "dry": 1
+    }
+  },
+  "resources": {
+    "bufferBytes": 8368
+  }
+}

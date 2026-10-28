@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "id": "hkstutter",
+  "name": "HK Stutter",
+  "parameters": [
+    {
+      "id": "rate",
+      "label": "Rate",
+      "default": 0.5234534745323038,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "mode",
+      "label": "Mode",
+      "default": 0.07031464583269753,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "shape",
+      "label": "Shape",
+      "default": 0.24414807580797754,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "chance",
+      "label": "Chance",
+      "default": 0.36622211371196634,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "repeats",
+      "label": "Repeats",
+      "default": 0.4166666666666667,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "2",
+          "3",
+          "4",
+          "6",
+          "8",
+          "16"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "freeze",
+      "label": "Freeze",
+      "default": 0.0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "On"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "dry",
+      "label": "Dry",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Init": {
+      "rate": 0.5234534745323038,
+      "mode": 0.07031464583269753,
+      "shape": 0.24414807580797754,
+      "chance": 0.36622211371196634,
+      "repeats": 0.4166666666666667,
+      "freeze": 0.0,
+      "dry": 1
+    }
+  },
+  "resources": {
+    "bufferBytes": 353568,
+    "transport": 1
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "id": "hkarc",
+  "name": "HK Arc",
+  "parameters": [
+    {
+      "id": "current",
+      "label": "Current",
+      "default": 0.36622211371196634,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "carbon",
+      "label": "Carbon",
+      "default": 0.18311105685598317,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "hiss",
+      "label": "Hiss",
+      "default": 0.15259254737998595,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "strike",
+      "label": "Strike",
+      "default": 0.27466658528397475,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "ratio",
+      "label": "Ratio",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 0
+    },
+    {
+      "id": "coupling",
+      "label": "Coupling",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 1
+    },
+    {
+      "id": "bright",
+      "label": "Bright",
+      "default": 0.0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 2
+    }
+  ],
+  "presets": {
+    "Init": {
+      "current": 0.36622211371196634,
+      "carbon": 0.18311105685598317,
+      "hiss": 0.15259254737998595,
+      "strike": 0.27466658528397475,
+      "ratio": 0.0,
+      "coupling": 0.0,
+      "bright": 0.0
+    }
+  },
+  "resources": {
+    "voiceBytes": 9320,
+    "voiceAlignment": 8,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 184,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 168,
+      "texts": 16,
+      "palette": 16
+    }
+  },
+  "press": "page"
+}

@@ -1,10 +1,11 @@
 #pragma once
-#include <opxy/draw.hpp>
+#include <opxy/page_header.hpp>
 #include "art.h"
 namespace weave {
-using Frame = opxy::draw::Frame<2, 32, art::node_count, 2, 9>;
+using Frame = opxy::draw::Frame<2, 32, art::node_count, 16, 9>;
 struct DisplayState {
     opxy::draw::NoteTracker notes;
+    opxy::draw::PageHeader header;
     opxy::u32 initialized, track, serial, model, phase, travel;
     opxy::i32 controls[4], from[4], target[4];
     opxy::i32 control_age, swap_age, pulse_age, quiet_age, energy, sample_age;

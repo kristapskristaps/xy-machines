@@ -86,8 +86,33 @@
 <path id="weave_node_19" transform="matrix(1 0 0 1 84 151)" d="M-3 -7 L3 -7 L3 -5 L-3 -5 Z" fill="#f0443a" stroke="#f0443a" stroke-width="0.4" stroke-linejoin="round" stroke-linecap="round"/>
 <path id="weave_node_20" transform="matrix(1 0 0 1 98 147)" d="M-1 5 L2 -4 L0 -7 L2 -10 L3 -6 L5 -9 L6 -5 L4 -2 L2 6 Z" fill="#888b8e" stroke="#b6b9bd" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
 <path d="M169 178 L177 175 L180 177 M173 179 L174 184 M424 167 L429 166 L430 170" fill="none" stroke="#63666b" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"/>
-<text id="weave_text_0" fill="#e7e8e5" font-family="UniversNextPro-Light" font-size="8px">shaper</text>
-<text id="weave_text_1" fill="#888b8e" font-family="UniversNextPro-Light" font-size="7px">01</text>
+<text transform="matrix(1 0 0 1 211 162)" fill="#e7e8e5" font-family="UniversNextPro-Light" font-size="8px">ENGINE</text>
+<text transform="matrix(1 0 0 1 266 98)" fill="#888b8e" font-family="UniversNextPro-Light" font-size="7px">XY</text>
+<path d="M0 0 L480 0 L480 38 L0 38 Z" fill="#000000"/>
+<path id="weave_node_42" transform="matrix(1 0 0 1 0 0)" d="M0 0 L60 0 L60 20 L0 20 Z" fill="#000000" stroke="#000000" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_node_43" transform="matrix(1 0 0 1 60 0)" d="M0 0 L60 0 L60 20 L0 20 Z" fill="#323232" stroke="#323232" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_node_44" transform="matrix(1 0 0 1 120 0)" d="M0 0 L60 0 L60 20 L0 20 Z" fill="#4B4B4B" stroke="#4B4B4B" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_node_45" transform="matrix(1 0 0 1 180 0)" d="M0 0 L60 0 L60 20 L0 20 Z" fill="#646464" stroke="#646464" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_node_46" transform="matrix(1 0 0 1 240 0)" d="M0 0 L60 0 L60 20 L0 20 Z" fill="#7D7D7D" stroke="#7D7D7D" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_node_47" transform="matrix(1 0 0 1 300 0)" d="M0 0 L60 0 L60 20 L0 20 Z" fill="#969696" stroke="#969696" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_node_48" transform="matrix(1 0 0 1 360 0)" d="M0 0 L60 0 L60 20 L0 20 Z" fill="#AFAFAF" stroke="#AFAFAF" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_node_49" transform="matrix(1 0 0 1 420 0)" d="M0 0 L60 0 L60 20 L0 20 Z" fill="#CDCDCD" stroke="#CDCDCD" stroke-width="0.5" stroke-linejoin="round" stroke-linecap="round"/>
+<text id="weave_text_0" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="weave_text_1" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="weave_text_2" fill="#000000" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="weave_text_3" fill="#000000" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="weave_text_4" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="weave_text_5" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="weave_text_6" fill="#000000" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="weave_text_7" fill="#000000" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="weave_text_8" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="weave_text_9" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="weave_text_10" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="weave_text_11" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="weave_text_12" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="weave_text_13" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="weave_text_14" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="weave_text_15" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
 <circle id="weave_palette_0" cx="640" cy="320" r="1" fill="#000000" stroke="#000000" stroke-width="0.7"/>
 <circle id="weave_palette_1" cx="640" cy="320" r="1" fill="#181a1d" stroke="#181a1d" stroke-width="0.7"/>
 <circle id="weave_palette_2" cx="640" cy="320" r="1" fill="#34363a" stroke="#34363a" stroke-width="0.7"/>

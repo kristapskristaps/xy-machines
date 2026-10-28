@@ -34,6 +34,21 @@ constexpr int32_t defined_shift(int32_t value, unsigned bits) {
 #include "macro_tables.h"
 #include "macro_division.h"
 
+// Excitation presets. Slot zero preserves every original fixed coefficient.
+static int32_t strike_level(int32_t stock, unsigned strike) {
+    static const int32_t gains[4] = {32768, 8192, 20480, 36864};
+    return strike == 0 ? stock : static_cast<int32_t>(
+        (static_cast<uint32_t>(stock) >> 15) * static_cast<uint32_t>(gains[strike]) +
+        ((static_cast<uint32_t>(stock) & 32767u) * static_cast<uint32_t>(gains[strike]) >> 15));
+}
+static int32_t strike_lift(int32_t room, unsigned strike) {
+    if (!strike) return room / 5;
+    static const int32_t lifts[4] = {0, 1638, 4096, 9830}; // .05, .125, .30
+    return static_cast<int32_t>((static_cast<uint32_t>(room) >> 15) * static_cast<uint32_t>(lifts[strike]) +
+        ((static_cast<uint32_t>(room) & 32767u) * static_cast<uint32_t>(lifts[strike]) >> 15));
+}
+
+
 /* code run once a block or less (coefficients, starts): built for size, the mod's RAM is short */
 #define COLD
 
@@ -1205,8 +1220,10 @@ static void bd_init(struct macro_bd *d)
 
 #define BD_EVERY 7                                    /* the resonator's pitch: every 8 samples after the attack */
 static void bd_analog(struct macro_bd *__restrict d, int32_t harm, int32_t timb, int32_t morph, uint32_t inc, int32_t *__restrict out,
-                      int n)
+                      int n, unsigned strike)
 {
+    const int32_t hit = strike_level(Q24(8.6), strike);
+    const int32_t last = strike_level(Q24(7.6), strike);
     int32_t f0 = (int32_t)(inc >> 1), lf0 = log2_q16(inc) - 32 * 65536, afm27, sfm31, q8, scale, tone_f, leak, i;
     struct svf_c c;
     /* HARMONICS: attack FM 1.7 min(4h, 1) (Q27), self FM 0.08 clamp(4h - 1, 0, 1) (Q31) */
@@ -1252,7 +1269,7 @@ static void bd_analog(struct macro_bd *__restrict d, int32_t harm, int32_t timb,
                 int32_t pulse, fm_pulse = 0;
                 if (pl) {
                     pl--;
-                    pulse = pl ? Q24(8.6) : Q24(7.6);          /* 3 + 7 accent, accent 0.8 */
+                    pulse = pl ? hit : last;          /* 3 + 7 accent, accent 0.8 */
                     pu = pulse;
                 } else {
                     pu = fmac1t(pu, Q31(1.0 - 1.0 / 9.6));
@@ -1338,7 +1355,7 @@ static int32_t distorted_sine(uint32_t phase, int32_t pnoise, int32_t dirt31)
 }
 
 static void bd_synthetic(struct macro_bd *__restrict d, uint32_t *__restrict rng, int32_t harm, int32_t timb, int32_t morph, uint32_t inc,
-                         int32_t *__restrict aux, int n)
+                         int32_t *__restrict aux, int n, unsigned strike)
 {
     int32_t f0 = (int32_t)(inc >> 1), lf0 = log2_q16(inc) - 32 * 65536, m2, dirt31, fm_amt, fmd, fm_decay, body_decay;
     int32_t tone_f, tone15, i, df;
@@ -1360,7 +1377,7 @@ static void bd_synthetic(struct macro_bd *__restrict d, uint32_t *__restrict rng
     tone15 = defined_shift(timb, 15);                                                      /* transient level, Q31 */
     if (d->trig) {
         d->fm = 0x7fffff00 >> 7;
-        d->body = d->trans = Q24(0.86);
+        d->body = d->trans = strike_level(Q24(0.86), strike);
         d->body_pw = 48;
         d->fm_pw = 62;
     }
@@ -1446,7 +1463,7 @@ static void bd_render(struct macro_voice *m, const uint8_t *p, uint32_t inc, int
             for (i = 0; i < n; i++)
                 out[i] = 0;
         else {
-            bd_analog(d, harm, timb, morph, inc, out, n);
+            bd_analog(d, harm, timb, morph, inc, out, n, p[MACRO_P_STRIKE]);
             bd_overdrive(harm, inc, out, n);
             for (i = 0; i < n; i++)
                 out[i] >>= 9;                               /* Q15 */
@@ -1459,7 +1476,7 @@ static void bd_render(struct macro_voice *m, const uint8_t *p, uint32_t inc, int
             for (i = 0; i < n; i++)
                 aux[i] = 0;
         else {
-            bd_synthetic(d, &m->rng, harm, timb, morph, inc, aux, n);
+            bd_synthetic(d, &m->rng, harm, timb, morph, inc, aux, n, p[MACRO_P_STRIKE]);
             for (i = 0; i < n; i++)
                 aux[i] >>= 9;
             d->idle[1] = !d->body_pw && TINY(d->body) && TINY(d->body_lp) && TINY(d->trans_lp) && TINY(d->tone_lp2);
@@ -1485,8 +1502,10 @@ static void sd_init(struct macro_sd *d)
 static const int32_t sd_ratio28[5] = {268435456, 536870912, 853624750, 1116691497, 1508608262};   /* 1, 2, 3.18, 4.16, 5.62 */
 
 static void sd_analog(struct macro_sd *__restrict d, uint32_t *__restrict rng, int32_t harm, int32_t timb, int32_t morph, uint32_t inc,
-                      int32_t *__restrict out, int n)
+                      int32_t *__restrict out, int n, unsigned strike)
 {
+    const int32_t hit = strike_level(Q24(8.6), strike);
+    const int32_t last = strike_level(Q24(7.6), strike);
     int32_t f0 = (int32_t)(inc >> 1), dxt, snappy, leak31, gain28[5], one_minus_snappy, ned, i, j, nm;
     /* decay_xt = d (1 + d (d - 1)), Q16 */
     dxt = (int32_t)(((uint32_t)morph * (uint32_t)(65536 + (int32_t)(((uint32_t)morph * (uint32_t)morph) >> 16) - morph)) >> 16);
@@ -1541,7 +1560,7 @@ static void sd_analog(struct macro_sd *__restrict d, uint32_t *__restrict rng, i
     }
     if (d->trig) {
         d->pulse_left = 48;
-        d->noise_env = Q24(2.0);
+        d->noise_env = strike_level(Q24(2.0), strike);
     }
     /* the excitation (while the trigger pulse and its tail last) */
     {
@@ -1554,7 +1573,7 @@ static void sd_analog(struct macro_sd *__restrict d, uint32_t *__restrict rng, i
                 int32_t pulse;
                 if (pl) {
                     pl--;
-                    pulse = pl ? Q24(8.6) : Q24(7.6);
+                    pulse = pl ? hit : last;
                     pu = pulse;
                 } else {
                     pu = fmac1t(pu, Q31(1.0 - 1.0 / 4.8));
@@ -1637,7 +1656,7 @@ static inline int32_t sd_dsine(int32_t p28)
 }
 
 static void sd_synthetic(struct macro_sd *__restrict d, uint32_t *__restrict rng, int32_t harm, int32_t timb, int32_t morph, uint32_t inc,
-                         int32_t *__restrict aux, int n)
+                         int32_t *__restrict aux, int n, unsigned strike)
 {
     int32_t f0 = (int32_t)(inc >> 1), dxt, fm2, drum_decay, snare_decay, sn, drum_level, snare_level, rna, i;
     int32_t g_hp, g_dlp, f, fmin, fmax, a1, a2, a3, k31, f28, fm4;
@@ -1675,7 +1694,7 @@ static void sd_synthetic(struct macro_sd *__restrict d, uint32_t *__restrict rng
     c.a3 = a3;
     fm4 = defined_shift(fm2, 13);                                                       /* 4 fm^2, Q27 */
     if (d->trig) {
-        d->snare_amp = d->drum_amp = Q24(0.86);
+        d->snare_amp = d->drum_amp = strike_level(Q24(0.86), strike);
         d->fm = 0x7fffff00 >> 7;
         d->ph0 = d->ph1 = 0;
         d->hold = 1920 + ((1440 * morph) >> 16);
@@ -1735,7 +1754,7 @@ static void sd_render(struct macro_voice *m, const uint8_t *p, uint32_t inc, int
                 out[i] = 0;
         else {
             int j, q = 1;
-            sd_analog(d, &m->rng, harm, timb, morph, inc, out, n);
+            sd_analog(d, &m->rng, harm, timb, morph, inc, out, n, p[MACRO_P_STRIKE]);
             for (i = 0; i < n; i++)
                 out[i] >>= 9;
             for (j = 0; j < 5; j++)
@@ -1749,7 +1768,7 @@ static void sd_render(struct macro_voice *m, const uint8_t *p, uint32_t inc, int
             for (i = 0; i < n; i++)
                 aux[i] = 0;
         else {
-            sd_synthetic(d, &m->rng, harm, timb, morph, inc, aux, n);
+            sd_synthetic(d, &m->rng, harm, timb, morph, inc, aux, n, p[MACRO_P_STRIKE]);
             for (i = 0; i < n; i++)
                 aux[i] >>= 9;
             d->idle[1] = !d->hold && TINY(d->drum_amp) && TINY(d->snare_amp) && TINY(d->fm) && TINY(d->drum_lp);
@@ -1828,7 +1847,7 @@ static void hh_render(struct macro_voice *__restrict m, const uint8_t *p, uint32
             continue;
         }
         if (d->trig)                                       /* (1.5 + 0.5 (1 - MORPH)) x 0.86 */
-            d->env[h] = Q24(0.86 * 2.0) - (fmac1(defined_shift(morph, 15), Q31(0.43)) >> 7);
+            d->env[h] = strike_level(Q24(0.86 * 2.0) - (fmac1(defined_shift(morph, 15), Q31(0.43)) >> 7), p[MACRO_P_STRIKE]);
         if (h == 0) {                                      /* SquareNoise at 2 f0 */
             uint32_t sinc[6];
             for (j = 0; j < 6; j++) {
@@ -2479,9 +2498,10 @@ static COLD void swarm_init(struct macro_swarm *s)
 }
 
 /* GrainEnvelope::Step (rate Q30), burst mode (the trigger is patched) */
-static void genv_step(struct macro_genv *e, uint32_t *rng, int32_t rate, int start)
+static void genv_step(struct macro_genv *e, uint32_t *rng, int32_t rate, int start, int hold)
 {
     int randomize = 0;
+    if (hold) e->fm = defined_shift(1, 30);
     if (start) {
         e->phase = defined_shift(1, 27);
         e->fm = defined_shift(1, 30);                                /* 16 */
@@ -2496,7 +2516,8 @@ static void genv_step(struct macro_genv *e, uint32_t *rng, int32_t rate, int sta
     if (randomize) {
         e->from += e->interval;
         e->interval = (int32_t)(rnd32(rng) >> 2) - e->from;
-        e->fm = fmac1(e->fm, (int32_t)(1717986918u + ((rnd32(rng) >> 2) / 5u * 2u)));   /* x (0.8 + 0.2 r), Q31 */
+        const uint32_t random = rnd32(rng);
+        e->fm = hold ? defined_shift(1, 30) : fmac1(e->fm, (int32_t)(1717986918u + ((random >> 2) / 5u * 2u)));   /* x (0.8 + 0.2 r), Q31 */
     }
 }
 
@@ -2632,7 +2653,7 @@ static void swarm_render(struct macro_voice *m, const uint8_t *p, uint32_t inc, 
         struct macro_genv *e = &s->env[k];
         int32_t amp, expo, oct;
         uint32_t f;
-        genv_step(e, &m->rng, rate, start);
+        genv_step(e, &m->rng, rate, start, p[MACRO_P_MODE]);
         amp = genv_amp(e, sr);                                   /* / 4 below */
         expo = genv_freq(e, sr);
         oct = ((fmac1(expo, spread) >> 13) * (4 * (2*k - 3))) / 3;       /* 4 expo spread rank, octaves Q16 */
@@ -3374,8 +3395,8 @@ static void modal_render(struct macro_modal *__restrict md, const uint8_t *p, ui
     }
     s = (md->harm_lp + 128) >> 8;                                 /* structure, Q16 */
     /* ModalVoice: accent 0.8 */
-    bright = timb + (65536 - timb) / 5;
-    damp = morph + (65536 - morph) / 5;
+    bright = timb + strike_lift(65536 - timb, p[MACRO_P_STRIKE]);
+    damp = morph + strike_lift(65536 - morph, p[MACRO_P_STRIKE]);
     bright = bright > 65535 ? 65535 : bright;
     damp = damp > 65535 ? 65535 : damp;
     bb = (int32_t)(((uint32_t)bright * (uint32_t)(131072 - bright)) >> 16);
@@ -3398,7 +3419,9 @@ static void modal_render(struct macro_modal *__restrict md, const uint8_t *p, ui
         i = 0;
         if (md->trig) {                                            /* (0.12 + 0.08 accent) (1 - damping / 2) 2^(24 c^2) / c */
             int32_t imp, v3;
-            struct uf a = uf_mul(uf_q((uint32_t)(65536 - (damp >> 1)), 16), uf_q(395136630u, 31));   /* 0.184 */
+            struct uf a = uf_mul(uf_q((uint32_t)(65536 - (damp >> 1)), 16), uf_q(p[MACRO_P_STRIKE] == 0 ? 395136630u :
+                p[MACRO_P_STRIKE] == 1 ? 171798692u :
+                p[MACRO_P_STRIKE] == 2 ? 300647711u : 429496730u, 31));   /* 0.184 */
             a = uf_mul(uf_mul(a, uf_semis((int32_t)(mulhi(cut, cut) >> 16) * 24)), uf_recip(uf_q(cut, 32)));
             imp = (int32_t)uf_to(a, 18);                            /* Q18 */
             imp = imp < 0 ? 0x7fffffff : imp;
@@ -3542,7 +3565,7 @@ static inline int32_t dl_hermite(const int32_t *line, int32_t wp, int32_t d)
 
 /* one string over the block: StringVoice::Render (no sustain) and String::Process */
 static void string_one(struct macro_strv *__restrict v, uint32_t *rng, int trig, int32_t structure, int32_t b30,
-                       int32_t damp, int32_t *__restrict out, int32_t *__restrict aux, int n)
+                       int32_t damp, int32_t *__restrict out, int32_t *__restrict aux, int n, unsigned strike)
 {
     int32_t tmp[32], i, nl, curved, dc, ratio, delay, target, comp, sp, sc, na, nf, bc, apg, dinc, bb, bright, d30;
     int32_t wp = v->wp, steps = 0;
@@ -3550,8 +3573,8 @@ static void string_one(struct macro_strv *__restrict v, uint32_t *rng, int trig,
     struct macro_svf ef = v->exc, lf = v->damp;
     struct svf_c c;
     /* accent 0.8: brightness (TIMBRE^2) and damping in Q30, then Q16 for what needs no more */
-    b30 += (0x40000000 - b30) / 5;
-    d30 = (defined_shift(damp, 14)) + (0x40000000 - (defined_shift(damp, 14))) / 5;
+    b30 += strike_lift(0x40000000 - b30, strike);
+    d30 = (defined_shift(damp, 14)) + strike_lift(0x40000000 - (defined_shift(damp, 14)), strike);
     bright = b30 >> 14;
     damp = d30 >> 14;
     if (trig) {                                                     /* the burst: one period of noise, filtered */
@@ -3564,8 +3587,9 @@ static void string_one(struct macro_strv *__restrict v, uint32_t *rng, int trig,
     }
     for (i = 0; i < n; i++)
         tmp[i] = 0;
+    const unsigned noise_shift = strike == 1 ? 9u : strike == 2 ? 8u : 7u;
     for (i = 0; i < n && v->remaining > 0; i++, v->remaining--)
-        tmp[i] = (int32_t)(rnd32(rng) - 0x80000000u) >> 7;          /* 2 GetFloat() - 1, Q24 */
+        tmp[i] = (int32_t)(rnd32(rng) - 0x80000000u) >> noise_shift;          /* 2 GetFloat() - 1, Q24 */
     c.a1 = v->exc_c[0];
     c.a2 = v->exc_c[1];
     c.a3 = v->exc_c[2];
@@ -3708,7 +3732,7 @@ static void string_render(struct macro_string *__restrict st, uint32_t *rng, con
         out[i] = aux[i] = 0;
     for (i = 0; i < MACRO_STRINGS; i++)
         string_one(&st->s[i], rng, trig && i == st->active, harm, (int32_t)(((uint32_t)timb * (uint32_t)timb) >> 2), morph,
-                   out, aux, n);
+                   out, aux, n, p[MACRO_P_STRIKE]);
     for (i = 0; i < n; i++) {
         out[i] = (out[i] + 64) >> 7;                                /* Q17, for the limiter */
         aux[i] = (aux[i] + 256) >> 9;                               /* Q15 */
@@ -4188,7 +4212,7 @@ static void sixop_render(struct macro_sixop *__restrict x, uint32_t *rng, const 
         x->gate = DX7_GATE_BLOCKS;
     }
     act = &x->v[x->active];
-    gate = x->gate > 0;
+    gate = p[MACRO_P_MODE] || x->gate > 0;
     if (x->gate > 0)
         x->gate--;
     act->inc = inc;

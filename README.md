@@ -11,18 +11,47 @@ the complete 24-model module.
 
 ## Controls
 
-| Encoder | Primary | Press to select alternate |
+Press any encoder to switch all four controls between two pages. Shift + turn
+retains the XY's fine adjustment. Both rows stay visible above the room.
+
+| Encoder | Page 1 | Page 2 |
 | --- | --- | --- |
 | 1 | Model | Output: main through a crossfade to auxiliary |
-| 2 | Harmonic | — |
-| 3 | Timbre | — |
-| 4 | Morph | — |
+| 2 | Harmonic | Strike: stock, soft, mid, hard |
+| 3 | Timbre | Mode: normal, hold |
+| 4 | Morph | Seed: free, 1–127 |
+
+Strike changes the excitation of Kick, Snare, Hi-hat, Modal and String. Drum
+settings scale the initial shell/noise excitation; Modal changes the click and
+brightness/damping, and String changes its pluck noise and brightness/damping.
+Stock preserves the previous fixed excitation exactly. Soft, mid and hard are
+three additional strength presets, not a second volume control.
+
+Hold keeps Swarm's grain/glissando density evolving instead of slowing after
+its initial burst. In 6-op it keeps the active FM patch's internal gate open
+while the XY voice runs; the stock amp envelope still shapes the final sound.
+Normal retains the previous behaviour. Hold can keep DSP active for longer,
+but adds no voices, oscillators or sample-rate stages.
+
+Seed 0 (`free`) retains the owner-specific evolving random stream. Values
+1–127 restart a fixed random sequence at each note or model retrigger, useful
+for Noise, Dust, drum noise, Swarm, String and random 6-op LFOs. Turning Seed
+takes effect on the next trigger. It does not clear oscillator/filter/resonator
+history, so a ringing retrigger is not promised to repeat an entire waveform.
+Its effect depends on the output and, for FM, the patch's LFO type. Controls
+that do not apply to the selected model show `--`.
+
+The three added slots default to zero and zero preserves old sounds. Existing
+parameter order, mappings and presets are retained. Strike/Mode changes run at
+block or excitation rate; Seed only changes random state at a trigger. The
+string's existing noise shift selects its excitation strength without another
+per-sample processing stage. No new audio state or voice capacity is required.
 
 Harmonic, Timbre and Morph follow each model's original meanings. The underlying
 integer port accepts 128 steps for these controls and interpolates within its
 render blocks. Changing model retriggers it. The XY's stock amp envelope,
 filter and mixing remain downstream. Percussive models supply their own decay;
-use a sufficiently long stock amp envelope to hear their full tails.
+use a sufficiently long stock amp envelope to hear their full tails. The two-page header requires SDK 1.4.
 
 The display is a cutaway machine room. A belt-driven flywheel powers a cabinet,
 with a hanging light, pressure gauge, conveyor and a small maintenance robot.
@@ -37,7 +66,7 @@ steam and the robot's wrench. Motion follows controls and per-track note gates.
 Release settles in about 0.18 seconds, idle poses remain still, and reduced
 motion keeps the room static while preserving the control positions and lamp.
 
-The retained artwork uses 42 actors, two 32-point outlines, two native text slots
+The retained artwork uses 50 actors (including eight header steps), two 32-point outlines, sixteen native text slots
 and nine palette colors. Most room detail is static. Mutable geometry is cached
 at about 20 Hz while the motor runs, with immediate note-start updates; moving
 parts follow display frames. Regenerate the fragment and `art.h` with
@@ -80,7 +109,7 @@ python ../open-xy/tools/serve_harness.py --preview ../previews/weave-001
 
 Tests cover all models and both outputs, deterministic voice ownership, moving
 controls, fractional arithmetic, 41 original/corrected reference renders plus 19 bounded-quality fixtures, exhaustive divisor checks, cubic interpolation error bounds, sample-rate
-conversion, and regressions for wavetable bank bounds and the FM sine LFO.
+conversion, and regressions for wavetable bank bounds and the FM sine LFO. Additional checks cover excitation on all five supported models, free/fixed random streams, held Swarm/FM, live mode changes, all eight moving controls, and the two-page header.
 
 [Hardware profiling](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md)
 remains required before catalog submission. Host CPU estimates are not measured

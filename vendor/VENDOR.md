@@ -10,3 +10,12 @@ Changes for Open-XY: portable C++11 types and namespace; SDK fractional multiply
 The surrounding engine owns per-voice state, maps XY controls, runs the DSP at 48 kHz and resamples to 44.1 kHz with a fixed-point 24-tap polyphase converter. Visuals, integration and resampler are new code. No Teenage Engineering firmware or stock artwork is included.
 
 VENDOR.json records SHA-256 hashes of the adapted vendor files, rather than claiming they are unmodified upstream copies.
+
+Secondary controls added by Open-XY: zero-compatible stock/soft/mid/hard
+excitation presets for drums, Modal and String; held Swarm density and held
+six-op gate. Excitation work is at block/note rate, except selecting the shift
+in String's existing pluck-noise generator. Swarm's held envelope reuses its
+existing block-rate work. The surrounding engine optionally reseeds the
+existing RNG at note/model triggers; it does not reset ringing DSP history.
+All sixty existing vendor fixtures retain their previous expected output with
+the new slots at zero. No LPG or additional audio processing stage is added.

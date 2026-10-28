@@ -44,6 +44,14 @@ enum Node : unsigned {
     operator_3 = 39,
     operator_4 = 40,
     operator_5 = 41,
-    node_count = 42
+    bar_0 = 42,
+    bar_1 = 43,
+    bar_2 = 44,
+    bar_3 = 45,
+    bar_4 = 46,
+    bar_5 = 47,
+    bar_6 = 48,
+    bar_7 = 49,
+    node_count = 50
 };
 }}

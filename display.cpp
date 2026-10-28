@@ -162,11 +162,26 @@ void display(DisplayState& state,const opxy::draw::Input& input,Frame& frame) {
             turn(frame,art::operator_0+i,rotation(phase*static_cast<i32>(i+1)*(1+harmonic/10923)*(i&1?-1:1)));
         }
     }
-    text(frame,0,211*unit,162*unit,unit,names[selected]);
-    char number[3]={static_cast<char>('0'+(selected+1)/10),static_cast<char>('0'+(selected+1)%10),0};
-    text(frame,1,266*unit,98*unit,unit,number);
-    for(unsigned i=0;i<4;++i)header(frame,i,"");
-    if(input.shown[0]==0)header(frame,0,codes[selected]);
+    const char* const titles[8]={"Model","Harmonic","Timbre","Morph","Output","Strike","Mode","Seed"};
+    const char* const strikes[4]={"stock","soft","mid","hard"};
+    char values[8][header_capacity];
+    for(unsigned i=0;i<8;++i)header_amount(values[i],header_capacity,input.slots[i]);
+    copy(values[0],header_capacity,codes[selected]);
+    const bool excitation=(selected>=4 && selected<=6) || selected==12 || selected==13;
+    copy(values[5],header_capacity,excitation?strikes[static_cast<unsigned>(amount(input.slots[5]))*4u>>15]:"--");
+    copy(values[6],header_capacity,selected==9 || selected==14?(amount(input.slots[6])>=16384?"hold":"norm"):"--");
+    const unsigned seed=static_cast<unsigned>(amount(input.slots[7]))>>8;
+    const bool stochastic=(selected>=2 && selected<=6) || selected==9 || selected==13 || selected==14;
+    if(!stochastic)copy(values[7],header_capacity,"--");
+    else if(!seed)copy(values[7],header_capacity,"free");
+    else {
+        char number[4];unsigned at=0;
+        if(seed>=100)number[at++]='1';
+        if(seed>=10)number[at++]=static_cast<char>('0'+seed/10%10);
+        number[at++]=static_cast<char>('0'+seed%10);number[at]=0;
+        copy(values[7],header_capacity,number);
+    }
+    page_header(state.header,input,frame,titles,values,art::bar_0);
     state.initialized=1;state.track=input.track;state.serial=input.note_serial;
 }
 }

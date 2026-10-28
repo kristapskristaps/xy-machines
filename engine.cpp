@@ -32,7 +32,13 @@ void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
     for (unsigned i = 1; i < 4; ++i)
         controls[i] = static_cast<opxy::u8>(normalized(parameters[i]) >> 8);
     controls[4] = static_cast<opxy::u8>(normalized(parameters[4]) >> 8);
+    controls[5] = static_cast<opxy::u8>(normalized(parameters[5]) * 4u >> 15);
+    controls[6] = static_cast<opxy::u8>(normalized(parameters[6]) >> 14);
     if (trigger) {
+        // Zero keeps the owner-specific evolving stream used by older sounds.
+        // Fixed seeds restart the random sequence, without clearing resonator tails.
+        const unsigned seed = normalized(parameters[7]) >> 8;
+        if (seed) voice.oscillator.rng = 0x9e3779b9u * seed + 1u;
         weave_dsp::macro_trig(&voice.oscillator);
         voice.cache_read=32;
     }

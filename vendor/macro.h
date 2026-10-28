@@ -41,6 +41,8 @@ enum {
     MACRO_P_TIMB   = 2,     /* D  TIMB  Plaits' TIMBRE                                             */
     MACRO_P_MORPH  = 3,     /* E  MORP  Plaits' MORPH                                              */
     MACRO_P_AUX    = 4,     /* F  AUX   0 = Plaits' OUT .. 127 = its AUX, a crossfade              */
+    MACRO_P_STRIKE = 5,     /* 0 stock; 1 soft, 2 medium, 3 hard excitation */
+    MACRO_P_MODE = 6,       /* 0 normal; 1 hold (swarm and six-op) */
     MACRO_PARAMS   = 7
 };
 

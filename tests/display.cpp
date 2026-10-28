@@ -54,7 +54,7 @@ int main() {
     for(unsigned model=0;model<15;++model) {
         in.slots[0]=static_cast<opxy::i32>((2*model+1)*2147483647LL/30);
         for(unsigned i=0;i<7;++i)weave::display(state,in,frame);
-        if(!check(frame) || std::strcmp(frame.texts[0].chars,weave::names[model]))return 1;
+        if(!check(frame) || std::strcmp(frame.header[0],weave::codes[model]))return 1;
         for(unsigned other=0;other<15;++other)if(hidden(frame,weave::art::model_shaper+other)!=(other!=model))return 1;
         const unsigned count=model==1?2:model==14?6:0;
         for(unsigned i=0;i<6;++i)if(hidden(frame,weave::art::operator_0+i)!=(i>=count))return 1;
@@ -71,7 +71,7 @@ int main() {
     if(prior.nodes[weave::art::gauge].cos==frame.nodes[weave::art::gauge].cos && prior.nodes[weave::art::gauge].sin==frame.nodes[weave::art::gauge].sin)return 1;
     prior=frame;in.slots[4]=2147483647;weave::display(state,in,frame);
     if(prior.nodes[weave::art::valve].cos==frame.nodes[weave::art::valve].cos && prior.nodes[weave::art::valve].sin==frame.nodes[weave::art::valve].sin)return 1;
-    in.shown[0]=4;weave::display(state,in,frame);if(frame.header[0][0])return 1;
+    in.shown[0]=4;weave::display(state,in,frame);if(std::strcmp(frame.header[0],"100"))return 1;
     in.shown[0]=0;weave::display(state,in,frame);if(std::strcmp(frame.header[0],"6OP"))return 1;
     in.held_notes=1;weave::display(state,in,frame);prior=frame;
     for(unsigned i=0;i<30;++i){++in.note_serial;weave::display(state,in,frame);}
@@ -85,5 +85,19 @@ int main() {
         if(prior.nodes[weave::art::flywheel].cos!=frame.nodes[weave::art::flywheel].cos || prior.nodes[weave::art::flywheel].sin!=frame.nodes[weave::art::flywheel].sin)++rotations;
     }
     if(outlines<45 || outlines>62 || rotations<160)return 1;
+    // Both parameter rows stay in place, switch together, and report applicability.
+    in.reduced_motion=1;in.slots[0]=2147483647;
+    for(unsigned i=0;i<4;++i)in.shown[i]=i+4;
+    in.slots[5]=in.slots[6]=in.slots[7]=2147483647;
+    weave::display(state,in,frame);
+    if(state.header.page!=1 || std::strcmp(frame.header[1],"--") ||
+       std::strcmp(frame.header[2],"hold") || std::strcmp(frame.header[3],"127") ||
+       std::strcmp(frame.texts[0].chars,"output") || std::strcmp(frame.texts[8].chars,"model"))return 1;
+    for(unsigned i=0;i<4;++i)if(hidden(frame,weave::art::bar_0+i))return 1;
+    in.slots[0]=static_cast<opxy::i32>(25*2147483647LL/30); // modal
+    in.slots[5]=0x20000000;
+    weave::display(state,in,frame);
+    if(std::strcmp(frame.header[1],"soft") || std::strcmp(frame.header[2],"--") ||
+       std::strcmp(frame.header[3],"--"))return 1;
     std::printf("PASS: state %zu, frame %zu, %u actors; native bounds/area, 15 cartridges, operator visibility, notes/track baselines, finite settling, control mapping, idle cache and reduced motion; %u geometry / %u motor updates\n",sizeof(state),sizeof(frame),weave::Frame::node_count,outlines,rotations);
 }

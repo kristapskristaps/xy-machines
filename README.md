@@ -30,7 +30,9 @@ The track's send controls how much enters Halo. Time follows transport at
 echo is three seconds. The browser tempo control spans 40–240 BPM.
 
 The wet network runs at 22.05 kHz behind 31-tap halfband filters; the callback
-runs at 44.1 kHz. This deliberately suits a warm, diffuse tail. The long stereo
+runs at 44.1 kHz. This deliberately suits a warm, diffuse tail. The symmetric conversion filters share mirrored histories and paired taps.
+Control-dependent tone, room and feedback coefficients update once per block;
+the modulated audio network still runs per wet sample. The long stereo
 echo uses packed 16-bit samples with error feedback. Plate, diffusion, pre-delay
 and shimmer storage use Q24 words. Each send borrows 458,752 bytes (448 KiB)
 of scratch memory and has its own 236-byte state. Reset cannot expose previous
@@ -86,10 +88,8 @@ python ../open-xy/sdk.py compile --machine . --machine ../open-xy-plaits \
   --profiling on --out "$HOME/Library/Application Support/OPXY-SDK/private/halo-module-001"
 ```
 
-The current host estimate is about 46,100 instructions per effect block, above
-the SDK's 30,000 target. Host estimates are development guidance, not measured
-hardware cost. Device CPU,
-normal project playback and installation remain unvalidated. A full package
+Host comparisons are development guidance; hardware CPU timing for this
+revision and normal project playback remain unvalidated. A full package
 requires an authenticated stock OS 1.2.1 from the user's device. Follow the
 SDK's [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md)
 and [profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).

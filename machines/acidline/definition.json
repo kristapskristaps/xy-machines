@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "id": "acidline",
+  "name": "Acidline",
+  "parameters": [
+    {
+      "id": "cutoff",
+      "label": "Cutoff",
+      "default": 0.34,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "resonance",
+      "label": "Reso",
+      "default": 0.76,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "drive",
+      "label": "Distort",
+      "default": 0.36,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "env",
+      "label": "Env Amt",
+      "default": 0.72,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "decay",
+      "label": "Decay",
+      "default": 0.35,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 0
+    },
+    {
+      "id": "wave",
+      "label": "Wave",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 1
+    }
+  ],
+  "presets": {
+    "Silver Acid": {
+      "cutoff": 0.34,
+      "resonance": 0.76,
+      "drive": 0.0,
+      "env": 0.72,
+      "decay": 0.35,
+      "wave": 0
+    },
+    "Warehouse": {
+      "cutoff": 0.29,
+      "resonance": 0.88,
+      "drive": 0.55,
+      "env": 0.86,
+      "decay": 0.31,
+      "wave": 0
+    },
+    "Corroded": {
+      "cutoff": 0.43,
+      "resonance": 0.91,
+      "drive": 0.91,
+      "env": 0.75,
+      "decay": 0.42,
+      "wave": 0.12
+    },
+    "Rubber Pulse": {
+      "cutoff": 0.28,
+      "resonance": 0.72,
+      "drive": 0.32,
+      "env": 0.66,
+      "decay": 0.44,
+      "wave": 1
+    },
+    "Sewer Bass": {
+      "cutoff": 0.19,
+      "resonance": 0.64,
+      "drive": 0.72,
+      "env": 0.56,
+      "decay": 0.52,
+      "wave": 0
+    }
+  },
+  "resources": {
+    "voiceBytes": 180,
+    "voiceAlignment": 4,
+    "voiceCapacity": 16,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 24,
+      "stateAlignment": 4,
+      "paths": 1,
+      "points": 64,
+      "nodes": 18,
+      "texts": 0,
+      "palette": 16
+    }
+  }
+}

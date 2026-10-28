@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "sdk": "1.2",
+  "kind": "synth",
+  "description": "Acid voice with a resonant four-pole filter, pluck envelope, saw/pulse and distortion; uses stock pitch and velocity.",
+  "identity": {
+    "engine": 36,
+    "page": 84
+  }
+}

@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Acidline — acid bass machine</title><link rel="stylesheet" href="/acidline/style.css"><script type="module" src="/acidline/app.mjs"></script></head>
+<body><main>
+<header><div><p class="eyebrow">OPEN-XY / EXPERIMENT 02</p><h1>ACIDLINE<span>•</span></h1><p class="subtitle">Acid voice. XY supplies portamento, velocity, and sequencing.</p></div><div class="engine-label">VOICE AUDITION<br>2× DSP / 44.1 kHz</div></header>
+<section class="instrument" aria-label="Acidline synthesizer">
+<div class="transport"><button id="play" class="play">Play</button><label>Tempo<input id="tempo" type="number" min="60" max="200" value="132"><span>BPM</span></label><label class="preset-label">Sound<select id="preset" aria-label="Sound preset"></select></label><label class="monitor-label">Monitor<input id="monitor" aria-label="Monitor" type="range" min="0" max="1" step="0.01" value="0.4"></label></div>
+<div id="controls" class="controls"></div>
+<div class="scope-row"><canvas id="scope" width="1000" height="80" aria-label="Live audio waveform"></canvas><span id="activity">READY</span></div>
+</section>
+<section class="sequencer" aria-label="16-step acid sequencer"><div class="sequence-heading"><div><p class="eyebrow">PATTERN / 16 STEPS</p><h2>Make it move.</h2></div><div class="pattern-tools"><label>Pattern<select id="pattern" aria-label="Pattern"></select></label><label>Gate length<input id="gate-length" aria-label="Gate length" type="range" min="0.2" max="0.95" step="0.01" value="0.6"></label><button id="mutate">Mutate</button><button id="reset">Reset</button></div></div><div id="steps" class="steps"></div><p class="legend"><span>G</span> gate <span>A</span> accent <span>S</span> slide into next note <span class="legend-note">Edit while playing. Space starts / stops.</span></p></section>
+<footer><p id="status" role="status">Ready. Press Play to enable audio.</p><p>Optional browser test pattern · native hardware validation pending</p></footer>
+</main></body></html>

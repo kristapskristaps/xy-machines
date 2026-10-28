@@ -1,0 +1,42 @@
+<g id="acidline_panel">
+<text x="28" y="62" fill="#ffffff" font-family="monospace" font-size="29">ACIDLINE</text>
+<text x="365" y="52" fill="#888888" font-family="monospace" font-size="10">MONO</text>
+<text x="30" y="78" fill="#777777" font-family="monospace" font-size="8">SAW / PULSE     RESONANT LP     OVERDRIVE</text>
+<text x="30" y="208" fill="#999999" font-family="monospace" font-size="8">CLEAN</text>
+<text x="218" y="208" fill="#999999" font-family="monospace" font-size="8">CLIP</text>
+<text x="413" y="208" fill="#999999" font-family="monospace" font-size="8">FOLD</text>
+<path id="acidline_node_0" d="M -62.0000 0 L -60.0317 1 L -58.0635 0 L -56.0952 1 L -54.1270 0 L -52.1587 1 L -50.1905 0 L -48.2222 1 L -46.2540 0 L -44.2857 1 L -42.3175 0 L -40.3492 1 L -38.3810 0 L -36.4127 1 L -34.4444 0 L -32.4762 1 L -30.5079 0 L -28.5397 1 L -26.5714 0 L -24.6032 1 L -22.6349 0 L -20.6667 1 L -18.6984 0 L -16.7302 1 L -14.7619 0 L -12.7937 1 L -10.8254 0 L -8.8571 1 L -6.8889 0 L -4.9206 1 L -2.9524 0 L -0.9841 1 L 0.9841 0 L 2.9524 1 L 4.9206 0 L 6.8889 1 L 8.8571 0 L 10.8254 1 L 12.7937 0 L 14.7619 1 L 16.7302 0 L 18.6984 1 L 20.6667 0 L 22.6349 1 L 24.6032 0 L 26.5714 1 L 28.5397 0 L 30.5079 1 L 32.4762 0 L 34.4444 1 L 36.4127 0 L 38.3810 1 L 40.3492 0 L 42.3175 1 L 44.2857 0 L 46.2540 1 L 48.2222 0 L 50.1905 1 L 52.1587 0 L 54.1270 1 L 56.0952 0 L 58.0635 1 L 60.0317 0 L 62.0000 1 Z" fill="none" stroke="#ffffff" stroke-width="0.8"/>
+<path id="acidline_node_1" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_2" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_3" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_4" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_5" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_6" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_7" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_8" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_9" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_10" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_11" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_12" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_13" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_14" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_15" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<path id="acidline_node_16" d="M -4 -3 L 4 -3 L 4 3 L -4 3 Z" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="acidline_node_17" cx="0" cy="0" r="3" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="acidline_palette_0" cx="640" cy="0" r="1" fill="#000000" stroke="#000000" stroke-width="1"/>
+<circle id="acidline_palette_1" cx="640" cy="0" r="1" fill="#111111" stroke="#111111" stroke-width="1"/>
+<circle id="acidline_palette_2" cx="640" cy="0" r="1" fill="#222222" stroke="#222222" stroke-width="1"/>
+<circle id="acidline_palette_3" cx="640" cy="0" r="1" fill="#333333" stroke="#333333" stroke-width="1"/>
+<circle id="acidline_palette_4" cx="640" cy="0" r="1" fill="#444444" stroke="#444444" stroke-width="1"/>
+<circle id="acidline_palette_5" cx="640" cy="0" r="1" fill="#555555" stroke="#555555" stroke-width="1"/>
+<circle id="acidline_palette_6" cx="640" cy="0" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+<circle id="acidline_palette_7" cx="640" cy="0" r="1" fill="#777777" stroke="#777777" stroke-width="1"/>
+<circle id="acidline_palette_8" cx="640" cy="0" r="1" fill="#888888" stroke="#888888" stroke-width="1"/>
+<circle id="acidline_palette_9" cx="640" cy="0" r="1" fill="#999999" stroke="#999999" stroke-width="1"/>
+<circle id="acidline_palette_10" cx="640" cy="0" r="1" fill="#aaaaaa" stroke="#aaaaaa" stroke-width="1"/>
+<circle id="acidline_palette_11" cx="640" cy="0" r="1" fill="#bbbbbb" stroke="#bbbbbb" stroke-width="1"/>
+<circle id="acidline_palette_12" cx="640" cy="0" r="1" fill="#cccccc" stroke="#cccccc" stroke-width="1"/>
+<circle id="acidline_palette_13" cx="640" cy="0" r="1" fill="#dddddd" stroke="#dddddd" stroke-width="1"/>
+<circle id="acidline_palette_14" cx="640" cy="0" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+<circle id="acidline_palette_15" cx="640" cy="0" r="1" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+</g>

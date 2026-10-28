@@ -1,6 +1,6 @@
 # Halo
 
-A stereo bloom, echo and shimmer send for OP-XY OS 1.2.0. Halo combines one
+A stereo bloom, echo and shimmer send for OP-XY OS 1.2.1. Halo combines one
 modulated plate network with softened tempo echoes, an octave-up feedback layer
 and Hold. Three presets start at different points in that connected space:
 **Soft Space**, **Cloud Echo** and **Silver Air**.
@@ -21,6 +21,9 @@ See [PROVENANCE.md](PROVENANCE.md) and [LICENSE](LICENSE).
 | Time | Stock tempo divisions, from 1/32 through 1/2; dotted divisions included. |
 | Hold | Cuts new input and pitched recirculation, while maintaining the unpitched plate. Release returns to the selected decay. |
 | Dry | Original-signal level in the stock mixer; never added inside the wet callback. |
+
+On the native send page, press an encoder to alternate its control: Distance /
+Color, Bloom / Time, Echo / Hold, and Shimmer / Dry.
 
 The track's send controls how much enters Halo. Time follows transport at
 40–300 BPM, using 120 BPM when no tempo is available. At 40 BPM the longest
@@ -87,7 +90,7 @@ The current host estimate is about 46,100 instructions per effect block, above
 the SDK's 30,000 target. Host estimates are development guidance, not measured
 hardware cost. Device CPU,
 normal project playback and installation remain unvalidated. A full package
-requires an authenticated stock OS 1.2.0 from the user's device. Follow the
+requires an authenticated stock OS 1.2.1 from the user's device. Follow the
 SDK's [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md)
 and [profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
 Device operations require separate authorization. No firmware is included.

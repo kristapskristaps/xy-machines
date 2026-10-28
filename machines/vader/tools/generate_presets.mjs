@@ -4,7 +4,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const sdk = resolve(process.argv[2] || '../open-xy');
+const sdk = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(new URL('../../../../open-xy/', import.meta.url));
 const {presetFiles} = await import(pathToFileURL(resolve(sdk, 'builder/core.mjs')));
 const definition = JSON.parse(readFileSync(resolve(root, 'definition.json'), 'utf8'));
 const machine = JSON.parse(readFileSync(resolve(root, 'machine.json'), 'utf8'));

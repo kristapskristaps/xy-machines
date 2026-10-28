@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "machines": [
+    {
+      "id": "acidline",
+      "name": "Acidline",
+      "kind": "synth",
+      "path": "machines/acidline"
+    },
+    {
+      "id": "granular",
+      "name": "Granular",
+      "kind": "sample",
+      "path": "machines/granular"
+    },
+    {
+      "id": "halo",
+      "name": "Halo",
+      "kind": "effect",
+      "path": "machines/halo"
+    },
+    {
+      "id": "hkarc",
+      "name": "HK Arc",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkarc"
+    },
+    {
+      "id": "hkclouds",
+      "name": "HK Clouds",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkclouds"
+    },
+    {
+      "id": "hkcrush",
+      "name": "HK Crush",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkcrush"
+    },
+    {
+      "id": "hkelg",
+      "name": "HK Elg",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkelg"
+    },
+    {
+      "id": "hkeva",
+      "name": "HK EVA",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkeva"
+    },
+    {
+      "id": "hkfather",
+      "name": "HK Father",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkfather"
+    },
+    {
+      "id": "hkfmbell",
+      "name": "HK FM Bell",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkfmbell"
+    },
+    {
+      "id": "hkgranular",
+      "name": "HK Granular",
+      "kind": "sample",
+      "path": "machines/hundekraft/hkgranular"
+    },
+    {
+      "id": "hkhail",
+      "name": "HK HAIL",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkhail"
+    },
+    {
+      "id": "hkinaroom",
+      "name": "HK In a room",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkinaroom"
+    },
+    {
+      "id": "hkmbira",
+      "name": "HK MBIRA",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkmbira"
+    },
+    {
+      "id": "hkmixtur",
+      "name": "HK Mixtur",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkmixtur"
+    },
+    {
+      "id": "hkoxbow",
+      "name": "HK Oxbow",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkoxbow"
+    },
+    {
+      "id": "hkpalme",
+      "name": "HK Palme",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkpalme"
+    },
+    {
+      "id": "hkpew",
+      "name": "HK PEW",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkpew"
+    },
+    {
+      "id": "hkplate",
+      "name": "HK Plate",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkplate"
+    },
+    {
+      "id": "hkreverb",
+      "name": "HK Reverb",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkreverb"
+    },
+    {
+      "id": "hksid",
+      "name": "HK SID",
+      "kind": "synth",
+      "path": "machines/hundekraft/hksid"
+    },
+    {
+      "id": "hksnowglobe",
+      "name": "HK Snowglobe",
+      "kind": "effect",
+      "path": "machines/hundekraft/hksnowglobe"
+    },
+    {
+      "id": "hkstutter",
+      "name": "HK Stutter",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkstutter"
+    },
+    {
+      "id": "hksupersaw",
+      "name": "HK Supersaw",
+      "kind": "synth",
+      "path": "machines/hundekraft/hksupersaw"
+    },
+    {
+      "id": "hktaffy",
+      "name": "HK Taffy",
+      "kind": "synth",
+      "path": "machines/hundekraft/hktaffy"
+    },
+    {
+      "id": "hktape",
+      "name": "HK Tape",
+      "kind": "effect",
+      "path": "machines/hundekraft/hktape"
+    },
+    {
+      "id": "hkwarble",
+      "name": "HK Warble",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkwarble"
+    },
+    {
+      "id": "hkwasher",
+      "name": "HK Washer",
+      "kind": "effect",
+      "path": "machines/hundekraft/hkwasher"
+    },
+    {
+      "id": "hkwavetable",
+      "name": "HK Wavetable",
+      "kind": "synth",
+      "path": "machines/hundekraft/hkwavetable"
+    },
+    {
+      "id": "matter",
+      "name": "Matter",
+      "kind": "synth",
+      "path": "machines/matter"
+    },
+    {
+      "id": "subvista",
+      "name": "Subvista",
+      "kind": "synth",
+      "path": "machines/subvista"
+    },
+    {
+      "id": "vader",
+      "name": "Vader",
+      "kind": "synth",
+      "path": "machines/vader"
+    },
+    {
+      "id": "vapour",
+      "name": "Vapour",
+      "kind": "effect",
+      "path": "machines/vapour"
+    },
+    {
+      "id": "weave",
+      "name": "Weave",
+      "kind": "synth",
+      "path": "machines/weave"
+    },
+    {
+      "id": "westfold",
+      "name": "Westfold",
+      "kind": "synth",
+      "path": "machines/westfold"
+    }
+  ]
+}

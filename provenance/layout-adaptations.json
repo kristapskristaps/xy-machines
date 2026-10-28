@@ -1,0 +1,430 @@
+{
+  "schema": 1,
+  "files": {
+    "machines/acidline/AGENTS.md": {
+      "before_sha256": "334b681d6c8b458676f3020480d07b9608423e4184ac8965129506a6759dbdaf",
+      "after_sha256": "8c6fe35a06ef09df8f5a93765682c7fc99a95b8d978f8c1f5fac7833b3efd3d4",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/acidline/README.md": {
+      "before_sha256": "c687d6463a433103da15a98435eca904401c420473c1fbbc869807ae16400a8b",
+      "after_sha256": "ce760ecf25a8cd002765a2f6f7f224e3f54136866d0b8b1c260ccd8cf0f59d00",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/granular/AGENTS.md": {
+      "before_sha256": "1635b7f1ef40617173527a2e2e2c0220dd2c1c219c665c4052eff24660cb6000",
+      "after_sha256": "e5d4e5e15463448384255ac271c4cc129dacfdbc4bb2806e53f86b5afa343647",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/granular/README.md": {
+      "before_sha256": "4cde3d729fb739c5834b538786897eec757605355bc5b57235615345577b6ca6",
+      "after_sha256": "6db467d8d18da8788a6d4a29777dcb36b0c024002a94287a762ba0e5b5aa22be",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/halo/AGENTS.md": {
+      "before_sha256": "779aa1fdf9605018519b3dafc14bf21b22a9402a204cb92e19a5550b172e0f71",
+      "after_sha256": "dc1b3119223fab46d8e723d96ef45709bc46fe5adc4eee69ff4c693f8eecb6f0",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/halo/README.md": {
+      "before_sha256": "51245902e985d93ab738a9e7da1c09dac2014eea92ccf70b20221d3614f06375",
+      "after_sha256": "6edf8fb3f731315a0571e9ba8808cb74583bb9b8ad93c43065d52707ce78d817",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkarc/AGENTS.md": {
+      "before_sha256": "b68ddca1961bccb1a267bff5ddef02c3532b5ed8c1e1c2c7fcd7013397bf8c0b",
+      "after_sha256": "06d9e81279d40d559a98652668c1534027d6594cca885138abb06daa6d9f5a4c",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkarc/README.md": {
+      "before_sha256": "0c24be772ba9013bd707aa59a42eeaaecb4b8a3040b191775b5e18b7eee0a5e9",
+      "after_sha256": "3458755f9a9013b08975bc27e8d1ef40f5f7b70cdf903ae110e1e6678d71830f",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkclouds/AGENTS.md": {
+      "before_sha256": "23519582b6accea0b736e0778189cb850f802c7c209759b4ab7463525623cd80",
+      "after_sha256": "83ea9f91d34f483e1049ddc9a60eecd836fdb54697f7df6c33bb8c9369f09a26",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkclouds/README.md": {
+      "before_sha256": "3c236b7d84877ca48427c28521ec3fd86e937b258e493b916e41b99fab81a6b7",
+      "after_sha256": "cec5b8bd5d6fafffa00c991fedd8fefe664958d8bc5323fafdcafa8b8da05b1c",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkcrush/AGENTS.md": {
+      "before_sha256": "06fff629ed43e2b9de4c4c6f7555a216ece296a0cf42ef4278d68406429ecd01",
+      "after_sha256": "714dd20887e0594d38801feed148a4a712f7c4e683f18adbe48f5e4909d2c3f3",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkcrush/README.md": {
+      "before_sha256": "aa4a8f8f1b5759523e3a4e221eeea18b9924779a9eefedce2e7da6477299f614",
+      "after_sha256": "be73b5b62d01b28fe5021f5e49098abae6e3963ce3348de4777283cfa8ea782f",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkelg/AGENTS.md": {
+      "before_sha256": "90532c9e405d62fde41a881deb257b0ca9bc150622e98baa7732c7a5220315fb",
+      "after_sha256": "226c41112d7b78c882515d565c486a25c6b7a6901a97552b0404f93e3d8e9a80",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkelg/README.md": {
+      "before_sha256": "2becd517955b67f5d5fedef70c5132b131071396214d1fcab467bb6a36975048",
+      "after_sha256": "9dd6963627be39a435fd5ba477c8dc8622d8f936a3022db2f7789e9d2e1761a4",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkeva/AGENTS.md": {
+      "before_sha256": "6cd0eda901847f6df0c42ede7c255ddb3d6c6760be1032daba6d2f729ef861f2",
+      "after_sha256": "072b6a496e55d6b0a1934f8b4ad1be97a9334742cf206deb4a7319a39152f1c9",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkeva/README.md": {
+      "before_sha256": "ece3efbf411fa9aceb1f0ba3c7094e9a977968df10cae80410f3aed62b04c015",
+      "after_sha256": "04a72f2b4aaab33a5947df8f2f09afe754161e4031ebfc552e907b259259ec78",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkfather/AGENTS.md": {
+      "before_sha256": "c9c26a3866f26ffdb4997232bc7c9150f19db65bfdcd42bf299417721d0de1d4",
+      "after_sha256": "3da23e389d251aa053257ad00aa250df98ef06ed268cecde16f7a5aa5abb6251",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkfather/README.md": {
+      "before_sha256": "a2500cae61092aae42fe477b9b612ab17de787f42898e98f273d714944451f57",
+      "after_sha256": "7cd60e58d286b93f1157695f37450d07c8877bfa0c760f108978bbcbef88612f",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkfmbell/AGENTS.md": {
+      "before_sha256": "610e440df92b9ba335bbc6b412e33e92c1c5c077b6ca3556d0410eb40b21527c",
+      "after_sha256": "b2c9ebfeb7f6749033f0a755f7d634158b3161737795be8701ae70f4f3604514",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkfmbell/README.md": {
+      "before_sha256": "1949b38c98ef3ac5a83c83dc3ad8d50cc08f4eb9e87ffdb048f9867453e51b39",
+      "after_sha256": "1dac0159fb916fa2d83066cc9186a99502699106fc3dec2722ebf4645511fb2e",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkgranular/AGENTS.md": {
+      "before_sha256": "30922b6784568e0a81be0e44a490b952a1279bac8cf65c2393a1bb920099f988",
+      "after_sha256": "b3b36f2035db121605298d8b2b8ae0e8e7e7505940fb8f6d4865dff01de7622a",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkgranular/README.md": {
+      "before_sha256": "7cf1fc26d5aa9498d160101349012ca26dd9ca101d4f738f431cc5d4be616214",
+      "after_sha256": "326b921a0e2e1a0c5215ca2d70bb5059f6edb4170e4fbf1c49e3bcd6fd28d216",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkhail/AGENTS.md": {
+      "before_sha256": "59322a37e86a1306849e930795d84144939a7cfdc8e5020461a053257e90a8c2",
+      "after_sha256": "1c71f861ea5714ea050caff0ee6540840cb804f93a9bf6d23f144de5268a677e",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkhail/README.md": {
+      "before_sha256": "847bd8747857aa050c83f1c07daab9f81749c95792d735abbac74b614dd49ae6",
+      "after_sha256": "464a970f3775279e8619cc4024ee781b5e4a4befe5b0d29aea5df57d3bf0b1b6",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkinaroom/AGENTS.md": {
+      "before_sha256": "aa8f670c05dadd82264a2dc3b457e165b604ac66921f1f53bbb942f52ba01cb8",
+      "after_sha256": "79bac77313c759055ce1aec57a9cb449ab313bc69eeb5b3465bb964cbcd398e5",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkinaroom/README.md": {
+      "before_sha256": "50cf94279201c72452d6cd2cdd0a2e658f7f594bf54665a40445a1c7c53d05fd",
+      "after_sha256": "42d97fcb8fec9112d8939d9150f1895a6c5c30e6d9997c8e92328e6399fd6361",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkmbira/AGENTS.md": {
+      "before_sha256": "3dfc5263c2f4cbb23b3dff69f1e2bcca53ae097308eaea43ffe82aa24d6cb2a2",
+      "after_sha256": "51baadd0fd4c7baa9c185faaa1ba6d3a9bcaf737cbec2bc8718cbea39cf18f9e",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkmbira/README.md": {
+      "before_sha256": "9921d3e990bd2e7819b4d4f9b660a5097fcbf754ba7ce2a2ab32fdd6f66b501c",
+      "after_sha256": "554385bdca384a2d5bb600a74550a097a4c48491954685cde1cc43d41abf2248",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkmixtur/AGENTS.md": {
+      "before_sha256": "4fd264e9ec032413a6242a0d05594c75ab20361c1468641b9a8b544de89f232c",
+      "after_sha256": "c67e08a349cef8c8a8309bb49770d9a5a890ddba4c839da60b49785686a4c95c",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkmixtur/README.md": {
+      "before_sha256": "56c0de5d2030f2bc9266a7a67aeb33b09ff305de823acfeabf46e82a5a3fe5f3",
+      "after_sha256": "5a77c48362707bb1d6de354206e884d6a402175538d23b1f3bb96c9e3e0d01c7",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkoxbow/AGENTS.md": {
+      "before_sha256": "629ce57cc2485e02e2fccf619672f526b021063bcf5769ceed1ed3b81386b032",
+      "after_sha256": "c1f667d45a32314f62cde2cb8e3a7a10d3c7d0158ea00a638b9d7fb58873fd07",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkoxbow/README.md": {
+      "before_sha256": "2db30d41ba8c505abdc5d119d65eeffee31a655bb7ca774e260e6d741f92f085",
+      "after_sha256": "95058c022fcfa5a8bc306e144ff409ff9b8e2bf2f89d1dc56b78d5aa18689697",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkpalme/AGENTS.md": {
+      "before_sha256": "681b9b65041afcc3a90b8b7d1046546311c46c2cb9d33e8a78fcb727a5192a6c",
+      "after_sha256": "41a11d30b779744c7d8024ca431f177b045a82e17cf9f769f7a0fbc5ce402dac",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkpalme/README.md": {
+      "before_sha256": "105ee12ad894028345850c467eea00974b41e8942d3aa79f2279fc062b4fec9e",
+      "after_sha256": "ee1626aa6879a6f6a7edd4f53e5ad89e72e430a87ef8d0bffedcaf3503d4eac9",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkpew/AGENTS.md": {
+      "before_sha256": "f8559b806f36037d53f6394095cb754b08363661c37b3d9b3e7f17f4e0f349b8",
+      "after_sha256": "1e0f2f66a997f8b05e6e634365a474795b7eea2c28248afa725a2d2cdda36656",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkpew/README.md": {
+      "before_sha256": "6eabe693071924f7d81aafd0991f72aab7b80c835fd0362b36d148f48cb53c4b",
+      "after_sha256": "d8d901ceb9500cd90ab908cdb61c97df84c89cc716d83adf013dcbd8ea4581d1",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkplate/AGENTS.md": {
+      "before_sha256": "e349407b9e14d06cc5babcfdd71911fa6bb8b4e82e0e7f9aef92e3361a19f9ae",
+      "after_sha256": "b311d7aba832f73d3a7967db487a7447af04ef58d8691fe652372ee6da6bcc77",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkplate/README.md": {
+      "before_sha256": "a185920765bee55310128cb1253d3e448f3ed69777ee7c8dfd20941f03e3d767",
+      "after_sha256": "b476a8f5a5df4890550ec2bd2bc805eb8db8f2608193c5d5d8e8390bb9c4aa73",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkreverb/AGENTS.md": {
+      "before_sha256": "9e3c0773fe3432fd67768f574f63ddbb51253528695ff3b6b70863a979edaf00",
+      "after_sha256": "0c4bb2e65f45d4d5c38bdc68d50fec094f67f61aba7496751eb2bbf595cb3684",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkreverb/README.md": {
+      "before_sha256": "8e000aa260c07ead828914c998b8a72a34690eca11213765f2e8c7ed8ad06f56",
+      "after_sha256": "5b7fc8a396eba0edd4d1f3dd0ffb8b946f3af19c7a73d5f56850f2987b788e2b",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hksid/AGENTS.md": {
+      "before_sha256": "c1019d1533f91c1f39a2387b481f73d005654779cec7fd2ce58beb093e550245",
+      "after_sha256": "0a4bf86e29ad6ed0eaf2fdfe23707f7464086b4f182c8e4e0004e0be91c30284",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hksid/README.md": {
+      "before_sha256": "90de2d01bab26c6affbae9a2fa44879eb0f0ed3f86ab275f3f8278f267b735c3",
+      "after_sha256": "e151f20def5c63d3923d213e6f5a9ab9b5fc4d57c2a3d4d5c53e88317df72c87",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hksnowglobe/AGENTS.md": {
+      "before_sha256": "e72718d6d4fc439b986c6e56835e31ed6bf22a1bb6ab3cba8323a70a285662fd",
+      "after_sha256": "c8ff90fd579fe2b1ecc439e94e9de29570303707371ff52dd56204b29a4712a2",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hksnowglobe/README.md": {
+      "before_sha256": "b5894a9b50fd5827fb36dfc75ecc661419a8f44d6100bf588e3cce5feb2e558d",
+      "after_sha256": "860e3142db20fd63ba3009f33c1b032f788796266853d3f705384b3a6d70ed05",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkstutter/AGENTS.md": {
+      "before_sha256": "04d71c79adcfa5c615257bfe0d188dee32f148732278bd92d17259dddae9e4ff",
+      "after_sha256": "85333ae3c222468fd0033eab866766e1437791c729588deb81487276418eac30",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkstutter/README.md": {
+      "before_sha256": "ce23681e2605e96eeb7d32ffe4e78ed826aa57b5927ea6ddf16a004d810a72e9",
+      "after_sha256": "a72bf352b5443de4296aa14bf5b0693c57aea7a668098412fd01e7e96bcdfb4e",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hksupersaw/AGENTS.md": {
+      "before_sha256": "de7b19222b443f15ba248f9b1a4ac608a5a7e80c0d31d2d59e3bb57fdbd4e801",
+      "after_sha256": "b542c9a3e19b7a94494593fcc0c45d934f4616535283de6eee97128a8e5bef96",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hksupersaw/README.md": {
+      "before_sha256": "170d27c0e4ab34638d6283242477e33ce78b06fed168176006d174833d233de2",
+      "after_sha256": "0187d3e2e60270ed272c0d8917375822a81e228959b94599f8503b332f7111f5",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hktaffy/AGENTS.md": {
+      "before_sha256": "ed841fb4e842b94ccf134b508ef04d1c8a3d0f038cdd93fae9a271b6260696b4",
+      "after_sha256": "3747846ca26350a3d56a0c1464875c362b54f21099bbc9df723c3f9400007403",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hktaffy/README.md": {
+      "before_sha256": "9ab3b62a739375cb3d5f1dd7f3db31a8c2886affae69a1788673d5afea0346ee",
+      "after_sha256": "87ca83f44086a5e5e4e1bd7f814e56194be0df5f265f7d298700056350f7f57d",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hktape/AGENTS.md": {
+      "before_sha256": "527d18404da0254b2f3d22554b7acbab42b3085ff9098f2f0288d556eddc8c3d",
+      "after_sha256": "e52240cf8fe487cef73ed2ceb0c2939789099657067fbdaaa66bd9065ffffff0",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hktape/README.md": {
+      "before_sha256": "f6db9887c938c633697932c7582258b1a07221e16c1aeaea3bcd7dc3fd4deff2",
+      "after_sha256": "13c4ab5f2e98e41faeb8b5634b64007c0467218c40bc21a3830501a734f5ae95",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkwarble/AGENTS.md": {
+      "before_sha256": "aac8ba77d20e2f914ee694263024a062e92ba04c07708df2576dd5dea86c473e",
+      "after_sha256": "407c8ba25394e79a1eff6ae1ca8205f2c34a93372e4e08197d12ff7aba0f9fd1",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkwarble/README.md": {
+      "before_sha256": "e9dd2c77fda132f57f1e6a35c9f2e5f182631127259a0aec5b93c8b9b2fd5b4b",
+      "after_sha256": "5e945dd529b637362fc7daa98f72d403b21f3cda4b58bd51934a6755422ab313",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkwasher/AGENTS.md": {
+      "before_sha256": "7d6733b77f32a7c7c43ac55bd86fb46c07f320255bd1d88f3b7a1bcef0e720ed",
+      "after_sha256": "dbf15ebfe8aa4734e08d9c76b1043d3a7151ab7d583ee9a9fbb4eb489565528c",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkwasher/README.md": {
+      "before_sha256": "8845dc078684aed360cb07153f393463de0e47cf417543f42ce05c85b8537671",
+      "after_sha256": "f61725c9e7d2350217729b4eba58ad5ff1f22422584239f8aa903db9837c6ba3",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkwavetable/AGENTS.md": {
+      "before_sha256": "c42ab8ceea64c7316e6ce25df1593b5371040b52789d5d01d6652506cdad7c93",
+      "after_sha256": "f4ec80d209f8adfb6ebdd536894dd606901ac81094a9a123d982d346bd022e46",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/hkwavetable/README.md": {
+      "before_sha256": "9380994d62d6333e23994bcea3d4ffc97b0fc415908c53ca0372ec0d1dc7e7ce",
+      "after_sha256": "2c642ff57d8d79b61d3c86e3cc19fae730535f7675c94d99a42de419aa1b63a6",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/matter/AGENTS.md": {
+      "before_sha256": "efdcbcfda07308054a0aa8e20f9685c3e6acbd72c29dcb35f55bf7fd5d59cd8d",
+      "after_sha256": "da0e1a10d805327b9bc50a0cdaf8f904f3e9f66cf14e85a23325975a842c59e0",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/matter/README.md": {
+      "before_sha256": "8f5e41ee7f372c1bca598731f1f137a493a74ce4d346035b64616f5fbaf68547",
+      "after_sha256": "fd770c05d8c228e3766e79a8441478166bebb78f745b7d8a8b89025f0b9c3bdf",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/subvista/AGENTS.md": {
+      "before_sha256": "a567561f7e15bf18c97058487350da538e6607c50342733c7528e7fdcd4098c4",
+      "after_sha256": "7f47b2e9d924748f884434f927f7eec80019511779173d4932c8bcf9510fad92",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/subvista/README.md": {
+      "before_sha256": "f6d7ea70a8f93787d57ee4827b2458f661c10516f6c2e78f290c5e307b418b52",
+      "after_sha256": "c01117ddab173d8e6458a9b09927046adab8f35e1e5952555378633b10a3533b",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/vader/AGENTS.md": {
+      "before_sha256": "8f842b757c2b9eadd49228c12ef046424cc17311d280bbd00831e6bb255a74dc",
+      "after_sha256": "fd991035fa3e44d64d7d451531504d591633efbdd3232abe73c6e3d16bb371e5",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/vader/README.md": {
+      "before_sha256": "6ad1b9f01bc506822724bc98199fc1f8b5673670eb9925ef8cf40ab85f43d3c4",
+      "after_sha256": "4193b228e3fdf84072c793b60dbaf2bf74169715b22272bce73cbcac8e9817cf",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/vapour/AGENTS.md": {
+      "before_sha256": "46af072bd40c1c4d87e74ccd775af9ebed7b72b7578aaca2536520bc7efe7353",
+      "after_sha256": "11ba99fe713bd643bf0867ebb7cb722b87fbba7d21bbdf413c91692932508fc8",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/vapour/README.md": {
+      "before_sha256": "e6ad8402d4be1330225af3ea525e672e4ea6f2f35a1a004483975cf0b1b31d87",
+      "after_sha256": "7f8183c8272a6dbf119b9865dba9dc08b019ec6faf19fdc53fe60ba3367b14fa",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/weave/AGENTS.md": {
+      "before_sha256": "71e86958b67cee0d790e7381b05f31769e5e91416155f5725dc8fb2021b8750d",
+      "after_sha256": "f80fb0c1d0f300b7324c16fd9a97b9253ce807047cb66d7f4a359c433fee7053",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/weave/README.md": {
+      "before_sha256": "ff8a406f5fc6b9a31ec496d7e8826bf8ee3a0ba9c9dae0020180ef02b4704983",
+      "after_sha256": "f902c5026aa9970339a59c9d08e2b1ce98e5be62afa0289f6a9bbc039d15cb96",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/westfold/AGENTS.md": {
+      "before_sha256": "5ebf10c193f8d07ff14ff201cf4fa8bbbbb269184131ce67d572a00faebbff1c",
+      "after_sha256": "8277d65139137f81d5d790469553ebdd1a33c29f0d268036504d1d8e4af50da2",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/westfold/README.md": {
+      "before_sha256": "1c6d44c56d6d0bf1f82557f62411c7f97a189beed35abfe12f1274b0983fb623",
+      "after_sha256": "8d35d2e0cc05232b1cb4b7c0e3883588d9fe24c3025eafb2390234c0a08b58ef",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/README.md": {
+      "before_sha256": "3b042732696f058b898beb47045a7639dfae338d15b18fae4ac097402dd95854",
+      "after_sha256": "e885cefecd985643e9fd2b0bd0f49a241080d4ed92e82795e55a4ba3192b8d73",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/granular/tools/audition.py": {
+      "before_sha256": "cd75c54088c59e46f5a7ded1b826367efb71dfc9f5bf6e846273ca981e77c967",
+      "after_sha256": "23665cff4ff4d68b460115320038d384241d0aafb4fcd7aa99fcfb600c0a8b7e",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/acidline/audition/serve.py": {
+      "before_sha256": "9b636a9a7aa29603357c3441d85f7f8f9e210dff2610a11f199175c3fd7ebc5a",
+      "after_sha256": "be0e16876a24e85f78cc4d94a5dad72e8fa0f65e2f1e5afa27f17a2e65ada21e",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/halo/tools/audition.py": {
+      "before_sha256": "8d229c8016bf99b14907fb63d9cf2d09c94effa051f6e085d4f592af5ffb597d",
+      "after_sha256": "e7f29210228fe0c72eb5ac7eb5c405244e0d9d34e0cd95daf1379f2021bc5cbd",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/westfold/resources/render_demo.py": {
+      "before_sha256": "f9967e3e795dfcb97cdb5a6904398c198976b10df0f720233a02d5c2536637ef",
+      "after_sha256": "babffa46c5905b558e9bd709417cfbc9c71af723ec00752e32881967cb6b691c",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/port_workshop.py": {
+      "before_sha256": "878a6e1d1bef5f943669678384b1dc0cc46bda165d6eb0c71a2ceec4fa04b893",
+      "after_sha256": "48ceaee32c6f99fc5776a9d25bcec8a48ac7782f20c412553777dd6be5f137b9",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/visual_previews.py": {
+      "before_sha256": "a53b438af95b18e52bb7e643d269962e0b77aac6e55508be310c56631368f8cf",
+      "after_sha256": "5a6b0164753a3d6245f3bd97c6d85cc01b07f0fd741db018d0c1ae62781d8437",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/live_effects.py": {
+      "before_sha256": "5ea06dea5b99c5feebf0c0cd3d8589c23d4fd1c470854b7e6d9d2cc244334238",
+      "after_sha256": "9a6979cdbb58a11f4c04e1790a83c5895970928ef6bf68214b7ec72373d46ea4",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/check_visuals.py": {
+      "before_sha256": "a5f7b9b3afd3e82188b8d280e9bf8a254dc8ca5452b88df6048ed3419fed2aeb",
+      "after_sha256": "b237abff4a68ac1a93052e3f101dec26ddc6ba2a2f36223f0da1e3c4149c2b46",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/validate_ports.py": {
+      "before_sha256": "8b08122edc9028d8bf440410dcdb277c55d89c14fca84a90651e75777c867bf1",
+      "after_sha256": "eab7d5e82ce1d1ee99a8cd804dd0cb08dc4b24c1cd57ace387ce68cfcbcfedd6",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/check_visuals_native.py": {
+      "before_sha256": "7724c2cbcf15180a5ca3c89c8f231c4e84a10631367242f98aa49a80aa6bdbcd",
+      "after_sha256": "8a049f2d84cccc9d1bf5d9bc29c0f1bf51cae20ff84e1ef040b24cffe124774b",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/audition.py": {
+      "before_sha256": "03a09f0cd5c39a58780b7b6ae0de6dedabc68dc0051a6aa1957edade08fa83da",
+      "after_sha256": "146c31cd0f90b5aad176709c5dd3b2bbbbc4b9e898db5e513415415f7d4c76f7",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/serve_audition.py": {
+      "before_sha256": "a633481c3af944adf14b228111d86c0e2fc24a05ad686f17250e33f673e5c575",
+      "after_sha256": "a75b3c7f5799a4e9a806bc3d9566aafd2e8c6c0ca17262ef62a68b8512bf16fb",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/hundekraft/tools/visuals.py": {
+      "before_sha256": "50bbc62eede7176c9d939e94cbbad0c8eb3ce97ea2e600526ab558489f50dede",
+      "after_sha256": "c93df50e095610876b5ab19cefca595f539092d94649f6a69f1e6e7f62b6f47a",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    },
+    "machines/vader/tools/generate_presets.mjs": {
+      "before_sha256": "a5e9847f32a4ab3d6f17b247067ca9b7d2ca5ea05ec052b41681b941d292a3f2",
+      "after_sha256": "d0dc6ff813f2ab9fb6381eec65facbab7020cb2c7bee79ef8f47fffd3c4596bd",
+      "reason": "Adapt documentation/tooling paths for the source collection; no DSP changes."
+    }
+  }
+}

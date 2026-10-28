@@ -53,12 +53,12 @@ a keyboard, send/dry mixing, tempo, Hold, tail clearing and dry/effect compariso
 Files never leave the browser. The demo sources and monitor belong to the
 workbench; only the wet DSP is the machine callback.
 
-Keep the SDK beside this repository as `../open-xy`. With Python 3.11+, Node,
+Keep the SDK beside this repository as `../../../open-xy`. With Python 3.11+, Node,
 and Clang/wasm-ld available:
 
 ```sh
-python tools/audition.py --out ../open-xy/local/halo-audition-001
-python tools/audition.py --serve ../open-xy/local/halo-audition-001 --port 8977
+python tools/audition.py --out ../../../open-xy/local/halo-audition-001
+python tools/audition.py --serve ../../../open-xy/local/halo-audition-001 --port 8977
 ```
 
 Open http://127.0.0.1:8977, enable audio, choose a preset, then play a phrase or
@@ -69,7 +69,7 @@ source/output hashes and exposes only five generated files, never the checkout.
 ## Validation and native development
 
 ```sh
-python ../open-xy/sdk.py test --machine . --host-cxx clang++
+python ../../../open-xy/sdk.py test --machine . --host-cxx clang++
 ```
 
 Tests cover dirty scratch/reset, stereo indexing, audible late tails, rapid
@@ -79,15 +79,15 @@ and undefined-behavior sanitizers for the C++ tests. To compare host/Wasm and
 exercise the real browser worklet without a browser:
 
 ```sh
-clang++ -std=c++11 -O2 -I ../open-xy/sdk/include tests/parity.cpp -o /tmp/halo-parity
-node tools/check_audition.mjs ../open-xy/local/halo-audition-001 "$(/tmp/halo-parity)"
+clang++ -std=c++11 -O2 -I ../../../open-xy/sdk/include tests/parity.cpp -o /tmp/halo-parity
+node tools/check_audition.mjs ../../../open-xy/local/halo-audition-001 "$(/tmp/halo-parity)"
 ```
 
 The SDK needs a synth in a native collection. Compile alongside a sibling
 instrument or the core 2op FM example, with output outside every checkout:
 
 ```sh
-python ../open-xy/sdk.py compile --machine . --machine ../open-xy-plaits \
+python ../../../open-xy/sdk.py compile --machine . --machine ../../../open-xy-plaits \
   --profiling on --out "$HOME/Library/Application Support/OPXY-SDK/private/halo-module-001"
 ```
 

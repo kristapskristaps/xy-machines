@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor,as_completed
 from pathlib import Path
 import subprocess
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parent/'open-xy'
+SDK=ROOT.parents[2] / 'open-xy'
 OUT=ROOT/'local/visual-tests'
 OUT.mkdir(exist_ok=True)
 def check(test):

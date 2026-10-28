@@ -47,14 +47,14 @@ Clouds; interpolation and envelope tests compare against independent
 floating-point formulas. There is no floating-point arithmetic in audio callbacks.
 
 ```sh
-python ../open-xy/sdk.py test --machine .
+python ../../../open-xy/sdk.py test --machine .
 ```
 
 The SDK currently needs a synth in a native collection. Compile Vapour alongside
 an instrument, for example a sibling Weave repository:
 
 ```sh
-python ../open-xy/sdk.py compile --machine . --machine ../open-xy-plaits \
+python ../../../open-xy/sdk.py compile --machine . --machine ../../../open-xy-plaits \
   --out "$HOME/Library/Application Support/OPXY-SDK/private/vapour-module-001"
 ```
 

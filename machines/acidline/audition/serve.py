@@ -5,7 +5,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
-parser.add_argument('--sdk', type=Path, default=ROOT.parent / 'open-xy')
+parser.add_argument('--sdk', type=Path, default=ROOT.parents[2] / 'open-xy')
 parser.add_argument('--preview', type=Path, required=True)
 parser.add_argument('--port', type=int, default=8947)
 args = parser.parse_args()

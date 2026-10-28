@@ -38,7 +38,7 @@ def serve(args):
  http.server.ThreadingHTTPServer(('127.0.0.1',args.port),Handler).serve_forever()
 p=argparse.ArgumentParser(description=__doc__)
 g=p.add_mutually_exclusive_group(required=True);g.add_argument('--out',type=Path);g.add_argument('--serve',type=Path)
-p.add_argument('--sdk',type=Path,default=ROOT.parent/'open-xy');p.add_argument('--cxx',default='clang++');p.add_argument('--port',type=int,default=8977)
+p.add_argument('--sdk',type=Path,default=ROOT.parents[2] / 'open-xy');p.add_argument('--cxx',default='clang++');p.add_argument('--port',type=int,default=8977)
 a=p.parse_args()
 try:
  if a.out:build(a)

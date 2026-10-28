@@ -13,7 +13,7 @@ from urllib.parse import unquote,urlsplit
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parent/'open-xy'
+SDK=ROOT.parents[2] / 'open-xy'
 sys.path.insert(0,str(SDK))
 from tooling.preview import preview_bundle
 spec=importlib.util.spec_from_file_location('sdk_preview_server',SDK/'tools/serve_harness.py')

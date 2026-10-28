@@ -42,7 +42,7 @@ firmware build or hardware validation has been performed.
 The existing Apple Clang has wasm32 support. A local copy of the Homebrew LLD
 linker and its runtime libraries is in the SDK's ignored `local/wasm-tools/`;
 the full LLVM installation failed due to low disk space. The SDK itself is
-unchanged. From `../open-xy`:
+unchanged. From `../../../open-xy`:
 
 ```sh
 export PATH="$PWD/local/wasm-tools/lld/23.1.4/bin:$PATH"
@@ -59,7 +59,7 @@ Use a fresh output directory on each rebuild. The current served snapshot is
 ## Develop
 
 Keep the [SDK](https://github.com/etcetc000/open-xy) beside this repository as
-`../open-xy`, on `staging`; adjust the commands if yours is elsewhere. The
+`../../../open-xy`, on `staging`; adjust the commands if yours is elsewhere. The
 [first-machine guide](https://github.com/etcetc000/open-xy/blob/staging/docs/first-machine.md)
 covers prerequisites. Read the
 [core machines](https://github.com/etcetc000/open-xy-core-machines) as worked
@@ -69,12 +69,12 @@ for the supported interfaces. Agent instructions are in [AGENTS.md](AGENTS.md).
 Build and audition the synth in the browser:
 
 ```sh
-python ../open-xy/sdk.py preview --machine . --out ../previews/subvista-001
-python ../open-xy/tools/serve_harness.py --preview ../previews/subvista-001
+python ../../../open-xy/sdk.py preview --machine . --out ../previews/subvista-001
+python ../../../open-xy/tools/serve_harness.py --preview ../previews/subvista-001
 ```
 
 ```sh
-python ../open-xy/sdk.py test --machine . --cxx clang++ --host-cxx g++
+python ../../../open-xy/sdk.py test --machine . --cxx clang++ --host-cxx g++
 ```
 
 Extend `tests/` as the machine's behavior grows. This is a prototype, not a

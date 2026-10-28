@@ -138,7 +138,7 @@ No expected hashes or authentication checks were changed.
 Once the user's matching stock file is available, build with the sibling SDK:
 
 ```sh
-python ../open-xy/sdk.py build --collection collection.json --profiling on --stock-os /external/private/stock-1.2.1/os.ldr --out /external/private/hundekraft-dev-001
+python ../../../open-xy/sdk.py build --collection collection.json --profiling on --stock-os /external/private/stock-1.2.1/os.ldr --out /external/private/hundekraft-dev-001
 ```
 
 For an existing custom firmware, carry its layout forward with `--layout` and

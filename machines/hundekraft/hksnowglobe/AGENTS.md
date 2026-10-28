@@ -1,8 +1,8 @@
 # Machine development
 
-This repository holds HK Snowglobe (`hksnowglobe`). The machine is at the repository root.
+This folder holds HK Snowglobe (`hksnowglobe`). The machine is in this folder within XY Machines.
 Read README.md and use the [Open-XY SDK](https://github.com/etcetc000/open-xy)
-on `staging`, normally checked out beside this repository as `../../open-xy`.
+on `staging`, normally checked out beside XY Machines, reachable from this folder as `../../../../open-xy`.
 Adjust that path if the user already has the SDK elsewhere.
 
 1. Read the [machine API](https://github.com/etcetc000/open-xy/blob/staging/docs/api.md)
@@ -16,7 +16,7 @@ Adjust that path if the user already has the SDK elsewhere.
    Contributor code has no assembly, raw firmware addresses, OS headers or
    platform conditionals. Audio callbacks must not allocate, block, log, do I/O
    or call graphics.
-3. Run `python ../../open-xy/sdk.py test --machine .` and extend `tests/` for the
+3. Run `python ../../../../open-xy/sdk.py test --machine .` and extend `tests/` for the
    machine's promised sound and behavior. Offer browser audition where supported.
    Use the host CPU estimate to guide iteration; it is not a hardware measurement.
 4. After local testing and audition, propose hardware validation. Follow the SDK's

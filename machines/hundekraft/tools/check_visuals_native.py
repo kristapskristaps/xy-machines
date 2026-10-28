@@ -4,7 +4,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor,as_completed
 import argparse,json,sys
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parent/'open-xy'
+SDK=ROOT.parents[2] / 'open-xy'
 sys.path.insert(0,str(SDK))
 from tooling.native import compile_cxx,compiler_paths
 from tooling.pipeline import tool_paths

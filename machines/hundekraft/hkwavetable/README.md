@@ -18,7 +18,7 @@ Machine kind: `synth`. ID: `hkwavetable`. Source and component terms: [UPSTREAM.
 From this machine folder, using Python 3.11+ and a Clang with WebAssembly support:
 
 ```sh
-python ../../open-xy/sdk.py test --machine . --cxx /opt/homebrew/opt/llvm/bin/clang++
+python ../../../../open-xy/sdk.py test --machine . --cxx /opt/homebrew/opt/llvm/bin/clang++
 ```
 
 Native module compilation and host checks pass; hardware CPU and acceptance remain pending.

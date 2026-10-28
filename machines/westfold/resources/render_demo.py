@@ -43,7 +43,7 @@ def save(path, data):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path,required=True)
-    parser.add_argument('--sdk',type=Path,default=ROOT.parent/'open-xy')
+    parser.add_argument('--sdk',type=Path,default=ROOT.parents[2] / 'open-xy')
     parser.add_argument('--cxx',default='c++')
     args=parser.parse_args()
     out=args.out.resolve()

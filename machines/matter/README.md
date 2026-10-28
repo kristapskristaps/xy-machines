@@ -45,12 +45,12 @@ The stock XY envelope supplies the overall gate and release.
 
 ## Develop and audition
 
-Keep the SDK beside this repository as `../open-xy`:
+Keep the SDK beside this repository as `../../../open-xy`:
 
 ```sh
-python ../open-xy/sdk.py test --machine . --cxx clang++ --firmware
-python ../open-xy/sdk.py preview --machine . --cxx clang++ --out ../previews/matter-001
-python ../open-xy/tools/serve_harness.py --preview ../previews/matter-001
+python ../../../open-xy/sdk.py test --machine . --cxx clang++ --firmware
+python ../../../open-xy/sdk.py preview --machine . --cxx clang++ --out ../previews/matter-001
+python ../../../open-xy/tools/serve_harness.py --preview ../previews/matter-001
 ```
 
 Sound tests exercise the six exciters, pitch/control motion, output bounds and

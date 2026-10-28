@@ -13,7 +13,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SDK = ROOT.parent / 'open-xy'
+SDK = ROOT.parents[2] / 'open-xy'
 SOURCE = Path('/tmp/openxy-hundekraft-3.0.3-port-source/ext/kennel')
 PLUGINS = SOURCE / 'synth_sdk/plugins'
 PYTHON = '/Users/tapsy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3'
@@ -457,7 +457,7 @@ def write_machine(spec,index,shim):
             notices.extend([p.name,'',comments[0] if p.suffix=='.c' and comments else s,''])
     notices+=['Private development only. Hardware acceptance and author clarification of the OP-XY firmware exception remain pending.']
     (folder/'UPSTREAM.md').write_text('\n'.join(notices)+'\n')
-    ag=re.sub(r'(?:\.\./)+open-xy','../../open-xy',(folder/'AGENTS.md').read_text());(folder/'AGENTS.md').write_text(ag)
+    ag=re.sub(r'(?:\.\./)+open-xy','../../../../open-xy',(folder/'AGENTS.md').read_text());(folder/'AGENTS.md').write_text(ag)
     return dict(id=ident,name=name,kind=kind,title=title,path=str(folder),labels=labels)
 
 def main():

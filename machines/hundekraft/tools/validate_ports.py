@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parent/'open-xy'
+SDK=ROOT.parents[2] / 'open-xy'
 PYTHON='/Users/tapsy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3'
 CXX='/opt/homebrew/opt/llvm/bin/clang++'
 

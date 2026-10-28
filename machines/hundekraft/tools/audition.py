@@ -10,7 +10,7 @@ import wave
 import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parent/'open-xy'
+SDK=ROOT.parents[2] / 'open-xy'
 CXX='/opt/homebrew/opt/llvm/bin/clang++'
 
 def ports():

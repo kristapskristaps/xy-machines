@@ -4,7 +4,7 @@ from pathlib import Path
 import argparse, hashlib, itertools, json, math, re, subprocess, sys, xml.etree.ElementTree as ET
 
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parent/'open-xy'
+SDK=ROOT.parents[2] / 'open-xy'
 UPSTREAM=Path('/tmp/openxy-hundekraft-3.0.3-port-source/ext/kennel/synth_sdk/plugins')
 sys.path.insert(0,str(SDK))
 from tooling.custom_preview import page_header_artwork

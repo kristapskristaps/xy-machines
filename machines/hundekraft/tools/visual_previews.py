@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor,as_completed
 from pathlib import Path
 import hashlib,json,shutil,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parent/'open-xy'
+SDK=ROOT.parents[2] / 'open-xy'
 CXX='/opt/homebrew/opt/llvm/bin/clang++'
 EXPORTS=['abi','state_bytes','input_bytes','frame_bytes','state','input','frame','reset','render','valid']
 def main():

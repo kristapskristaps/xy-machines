@@ -1,0 +1,56 @@
+name: Collection checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+env:
+  OPEN_XY_REF: fbc62e3bfa30fb2be865b5106572c280723d712f
+  OPEN_XY_REPOSITORY: kristapskristaps/open-xy
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: xy-machines
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.OPEN_XY_REPOSITORY }}
+          ref: ${{ env.OPEN_XY_REF }}
+          path: open-xy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+      - name: Preview tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang lld
+          python -m pip install numpy==2.3.5
+      - name: Source history audit
+        working-directory: xy-machines
+        run: python tools/check_private_files.py --history --all-objects
+      - name: All 35 machine previews and host tests
+        working-directory: xy-machines
+        run: python tools/check.py --sdk ../open-xy --cxx clang++ --host-cxx g++
+  native:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: xy-machines
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.OPEN_XY_REPOSITORY }}
+          ref: ${{ env.OPEN_XY_REF }}
+          path: open-xy
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pinned Blackfin toolchain
+        working-directory: open-xy
+        run: python sdk.py toolchain fetch
+      - name: Compile each of the 35 machines
+        working-directory: xy-machines
+        run: python tools/check.py --sdk ../open-xy --native-only

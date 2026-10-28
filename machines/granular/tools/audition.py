@@ -22,7 +22,7 @@ def write_wav(path, audio, rate=44100):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', required=True, type=Path)
-    parser.add_argument('--sdk', type=Path, default=ROOT.parent / 'open-xy')
+    parser.add_argument('--sdk', type=Path, default=ROOT.parents[2] / 'open-xy')
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--sample', type=Path, help='Optional 16-bit PCM mono/stereo WAV, at most 882000 frames')
     args = parser.parse_args()

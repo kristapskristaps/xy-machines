@@ -1,7 +1,7 @@
 # Vapour
 
 A Clouds-derived stereo granular send for OP-XY OS 1.2.1. It records incoming
-audio, overlaps up to 32 grains, transposes them, freezes the recording buffer,
+audio, overlaps up to 16 grains, transposes them, freezes the recording buffer,
 and adds diffusion. It uses the [Open-XY SDK](https://github.com/etcetc000/open-xy).
 
 ## Controls
@@ -24,6 +24,12 @@ The rolling recording holds 65,536 stereo 16-bit frames, about 1.49 seconds.
 Stereo spread is fixed at 75%. The send borrows 282,624 bytes of scratch memory;
 each send has independent state. Reset and effect changes cannot expose old
 scratch audio. Recording resumes through a short crossfade after Freeze.
+
+Density is bounded to sixteen overlapping grains (twelve linear and four cubic
+readers) to reduce peak CPU cost. The diffusion network runs only in the upper
+quarter of Texture; enabling it starts fresh delay history. All eight controls
+keep their order and mapping. The lower overlap limit changes the densest cloud
+textures compared with the earlier thirty-two-grain build.
 
 This ports Clouds' granular mode. Time stretch, looping-delay and spectral
 modes, reverb, audio-quality modes and saved frozen buffers are not implemented.

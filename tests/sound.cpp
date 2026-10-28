@@ -33,6 +33,12 @@ int main() {
         for(unsigned i=0;i<64;++i) {energy+=double(left[i])*left[i]; if(left[i]<-536870912||left[i]>536870912)return 1;}
     }
     if(energy<1e12) {std::puts("FAIL silent grains");return 1;}
+    if(state.diffusion_written)return 1;
+    p[4]=2147483647;
+    for(unsigned b=0;b<20;++b){input();vapour::process(state,buffer,left,right,p);}
+    if(!state.diffusion_written)return 1;
+    p[4]=1073741824;input();vapour::process(state,buffer,left,right,p);
+    if(state.diffusion_written)return 1;
     // Freeze must preserve every recorded sample while continuing to render.
     static opxy::i32 frozen[vapour::ring_frames];
     std::memcpy(frozen,memory,sizeof frozen); p[6]=2147483647;

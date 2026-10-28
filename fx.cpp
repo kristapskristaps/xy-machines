@@ -123,21 +123,24 @@ void process(State& state, opxy::Buffer buffer, opxy::Channel left,
         }
     }
     i32 mixed_left[opxy::block_frames]={},mixed_right[opxy::block_frames]={};
-    for(unsigned g=0;g<24;++g) render_grain<false>(state,workspace,buffer.words,g,mixed_left,mixed_right);
-    for(unsigned g=24;g<grain_capacity;++g) render_grain<true>(state,workspace,buffer.words,g,mixed_left,mixed_right);
+    for(unsigned g=0;g<grain_capacity*3/4;++g) render_grain<false>(state,workspace,buffer.words,g,mixed_left,mixed_right);
+    for(unsigned g=grain_capacity*3/4;g<grain_capacity;++g) render_grain<true>(state,workspace,buffer.words,g,mixed_left,mixed_right);
     const i32 window_gain=static_cast<i32>(texture<12288u ? 32767u+texture*8u/3u : 65534u);
     const i32 gain=static_cast<i32>(tables::normalization[active])+
         mul15(static_cast<i32>(tables::normalization[active]),
               mul15(window_gain-32767,static_cast<i32>(overlap)));
     const i32 diffusion=texture>24576u ? static_cast<i32>((texture-24576u)*4u) : 0;
+    if(!diffusion) state.diffusion_written=0;
     for(unsigned i=0;i<opxy::block_frames;++i) {
         state.normalization+=(gain-state.normalization)/100;
         i32 l=clamp(normalized(mixed_left[i],state.normalization),-32768,32767);
         i32 r=clamp(normalized(mixed_right[i],state.normalization),-32768,32767);
-        const i32 diff_l=diffuse(state,workspace,l,0), diff_r=diffuse(state,workspace,r,1);
-        if(state.diffusion_written<612) ++state.diffusion_written;
-        l=clamp(l+mul15(diff_l-l,diffusion),-32768,32767);
-        r=clamp(r+mul15(diff_r-r,diffusion),-32768,32767);
+        if(diffusion) {
+            const i32 diff_l=diffuse(state,workspace,l,0), diff_r=diffuse(state,workspace,r,1);
+            if(state.diffusion_written<612) ++state.diffusion_written;
+            l=clamp(l+mul15(diff_l-l,diffusion),-32768,32767);
+            r=clamp(r+mul15(diff_r-r,diffusion),-32768,32767);
+        }
         workspace.feedback[i*2]=l;
         workspace.feedback[i*2+1]=r;
         left[i]=l*16384;

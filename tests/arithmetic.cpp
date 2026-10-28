@@ -22,6 +22,6 @@ int main() {
         }
     }
     const int32_t minimum = -2147483647 - 1;
-    if (weave_dsp::product_hi(minimum,minimum) != minimum) return 1;
+    if (weave_dsp::product_hi(minimum,minimum) != 2147483647) return 1;
     std::puts("PASS: one million fractional multiply/reference cases");
 }

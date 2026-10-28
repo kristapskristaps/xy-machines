@@ -32,6 +32,7 @@ constexpr int32_t defined_shift(int32_t value, unsigned bits) {
 }
 
 #include "macro_tables.h"
+#include "macro_division.h"
 
 /* code run once a block or less (coefficients, starts): built for size, the mod's RAM is short */
 #define COLD
@@ -43,9 +44,9 @@ constexpr int32_t defined_shift(int32_t value, unsigned bits) {
  * rounded, not truncated (truncation's bias builds up in a resonant filter's states). macro_render() saves MACSR, ACC0, ACC1
  * (MODAL's filters use it too) and ACCEXT01 and puts them back, as Digi EQ does: the firmware's own audio code uses the unit. */
 // OP-XY: exact EMAC fractional products through the public SDK primitive.
-// Low product bits preserve the original sum-before-rounding behavior.
+// Low product bits preserve sum-before-rounding. MIN * MIN follows the SDK
+// saturation contract; bounded model signals do not reach that exceptional pair.
 static inline int32_t product_hi(int32_t a, int32_t b) {
-    if (a == (-2147483647 - 1) && b == (-2147483647 - 1)) return (-2147483647 - 1);
     return opxy::q31::multiply(a, b);
 }
 static inline int32_t fmac2(int32_t a, int32_t x, int32_t b, int32_t y) {
@@ -361,7 +362,7 @@ static void limit(int32_t *peak, int32_t *x, int n)
         if (pk <= (defined_shift(1, 24)))
             s >>= 2;
         else {                                                  /* s / peak: 1/peak Q31 (below 1), Q17 -> Q15 */
-            uint32_t rp = 0x80000000u / (uint32_t)(pk >> 8);
+            uint32_t rp = divide_audio(0x80000000u, (uint32_t)(pk >> 8));
             s = fmac1(s, rp >= 32768 ? 0x7fffffff : (int32_t)(rp << 16)) >> 2;
         }
         x[i] = s > 65535 ? 65535 : s < -65535 ? -65535 : s;     /* (clipped later; keeps the gain in range) */
@@ -968,9 +969,9 @@ static void particle_render(struct macro_voice *__restrict m, const uint8_t *p, 
     int sync = z->sync;
     z->sync = 0;
 
-    /* density: NoteToFrequency(60 + 72 TIMBRE^2)^2 / 6 an impulse a sample; pd: Q26 */
+    /* density: NoteToFrequency(60 + 72 TIMBRE^2)^2 / 4 per particle; pd: Q26 */
     t2 = (int32_t)(((uint32_t)timb * (uint32_t)timb) >> 16);
-    ld = 2 * (1653513 - 32 * 65536 + ((72 * t2 - 9 * 65536) / 12)) - 169408;  /* 169408: log2 6 */
+    ld = 2 * (1653513 - 32 * 65536 + ((72 * t2 - 9 * 65536) / 12)) - 131072;  /* OP-XY: log2 4, preserving total particle density */
     pd = (int32_t)inc_of_log2(ld + 26 * 65536);
     if (pd < 1)
         pd = 1;
@@ -2448,10 +2449,9 @@ static void chord_render(struct macro_chord *__restrict c, const uint8_t *p, uin
 
 #define NOTE_L0 1653765                     /* log2 of NoteToFrequency(69) x 2^32, at Plaits' 47872.34 Hz, Q16 */
 
-/* rank (rank + 0.01) / 4, Q30. Plaits' rank is (i - n) / n with n = (8 - 1) / 2 in integer arithmetic: 3, so the
- * ranks run -1 .. 1.33, not -1 .. 1 */
+/* rank (rank + 0.01) / 4, Q30, for the four selected ranks -1, -1/3, 1/3, 1. */
 static const int32_t swarm_lin[MACRO_SWARM_VOICES] = {
-    265751101, 117515077, 28931377, 0, 30720947, 121094217, 271119811, 480797728
+    265751101, 28931377, 30720947, 271119811
 };
 
 static COLD void swarm_init(struct macro_swarm *s)
@@ -2633,15 +2633,15 @@ static void swarm_render(struct macro_voice *m, const uint8_t *p, uint32_t inc, 
         int32_t amp, expo, oct;
         uint32_t f;
         genv_step(e, &m->rng, rate, start);
-        amp = genv_amp(e, sr);                                   /* / 8 below */
+        amp = genv_amp(e, sr);                                   /* / 4 below */
         expo = genv_freq(e, sr);
-        oct = ((fmac1(expo, spread) >> 13) * (4 * (k - 3))) / 3;       /* 4 expo spread rank, octaves Q16 */
+        oct = ((fmac1(expo, spread) >> 13) * (4 * (2*k - 3))) / 3;       /* 4 expo spread rank, octaves Q16 */
         f = sat_shl(mulhi(inc, exp2_q16(oct) << 10), 6);        /* x 2^oct (Q16 -> Q26: up to 2^5.33) */
         f = mulhi(f, 0x80000000u + ((uint32_t)fmac1(swarm_lin[k], spread) << 2)) << 1;   /* x (1 + linear) */
         if (want_out)
-            asaw_render(&s->saw[k], f, amp >> 7, out, n);
+            asaw_render(&s->saw[k], f, amp >> 6, out, n);
         if (want_aux)
-            fsin_render(&s->sine[k], f, amp >> 8, aux, n);
+            fsin_render(&s->sine[k], f, amp >> 7, aux, n);
         sr -= ((sr >> 2) * 1966) >> 14;                          /* x 0.97 (sr x 63570 would wrap) */
     }
     for (i = 0; i < n; i++) {
@@ -2677,7 +2677,9 @@ static inline int32_t wt_hermite(const int16_t *t, int32_t i, int32_t f)
 {
     int32_t xm1 = defined_shift(t[i], 8), x0 = defined_shift(t[i + 1], 8), x1 = defined_shift(t[i + 2], 8), x2 = defined_shift(t[i + 3], 8);
     int32_t c = (x1 - xm1) >> 1, v = x0 - x1, w = c + v, a = w + v + ((x2 - x0) >> 1), bn = w + a;
-    return fmac1(fmac1(fmac1(a, f) - bn, f) + c, f) + x0;
+    // Q8 interpolation retains cubic waves; truncation is below one table LSB.
+    // The bounded coefficients and positive fraction need no EMAC wrap handling.
+    return opxy::q31::multiply(opxy::q31::multiply(opxy::q31::multiply(a, f) - bn, f) + c, f) + x0;
 }
 
 static inline const int16_t *wt_wave(int x, int y, int z)
@@ -3322,7 +3324,7 @@ static const int32_t modal_stiffness[65] = {                       /* lut_stiffn
     13833846, 15622578, 16777848, 16871825, 17582612, 19864067, 24446104, 33554432,
     33554432,
 };
-static const int32_t modal_amp[MACRO_MODAL_MODES] = {               /* Resonator::Init(0.015): cosine x 0.25, Q31 */
+static const int32_t modal_amp[24] = {               /* Resonator::Init(0.015): cosine x 0.25, Q31 */
     536870912, 535904512, 533012352, 528215168, 521547521, 513057472,
     502806079, 490867199, 477326785, 462282304, 445842112, 428124608,
     409257280, 389376031, 368623999, 347150593, 325110431, 302662207,
@@ -4219,7 +4221,7 @@ static void sixop_render(struct macro_sixop *__restrict x, uint32_t *rng, const 
             x2 = fmac1(defined_shift(s, 3), defined_shift(s, 3));                             /* Q23 */
             num = (defined_shift(27, 23)) + x2;
             den = (defined_shift(27, 23)) + 9 * x2;
-            r = (int32_t)(((uint32_t)num << 3) / ((uint32_t)den >> 13));   /* (27 + x^2) / (27 + 9 x^2), Q16 */
+            r = (int32_t)(divide_audio((uint32_t)num << 3, (uint32_t)den >> 13));   /* (27 + x^2) / (27 + 9 x^2), Q16 */
             s = fmac1(s, r >= 65536 ? 0x7fffffff : defined_shift(r, 15));
         }
         out[i] = aux[i] = (s + 256) >> 9;

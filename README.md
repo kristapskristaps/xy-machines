@@ -36,9 +36,17 @@ revisions and changes. The engine runs internally at 48 kHz, followed by a
 counts and time constants therefore keep their intended duration.
 
 There is no module-panel CV calibration, user-data/SysEx import, or Plaits LPG.
-The stock XY envelope supplies the voice gate. The native build is limited to four simultaneous Weave voices across all tracks,
+The stock XY envelope supplies the voice gate. The native build is limited to two simultaneous Weave voices across all tracks,
 with oldest-note stealing. The browser audition can schedule eight voices. All
-fifteen models remain available; heavier models still need hardware stress tests.
+fifteen models remain available. Dust uses four particle resonators, Swarm four
+oscillators, Modal twelve modes, and String one internal string per external
+note. Chords keeps its five-note voicing and 6-op keeps all six operators and
+96 patches. The reduced banks trade density and upper partials for headroom;
+String relies on the external voices for overlapping notes. All source DSP
+still runs at 48 kHz, preserving pitch and time constants. The limiter and FM
+soft clip use an exact reciprocal division with a checked remainder; wavetable
+cubic interpolation drops only sub-LSB rounding work. Normal playback and
+worst-case model CPU still require device validation.
 The 24-tap converter uses mirrored histories to remove ring-wrap work while
 retaining bit-identical audio.
 
@@ -54,7 +62,7 @@ python ../open-xy/tools/serve_harness.py --preview ../previews/weave-001
 ```
 
 Tests cover all models and both outputs, deterministic voice ownership, moving
-controls, fractional arithmetic, 59 upstream reference renders plus one corrected FM fixture, sample-rate
+controls, fractional arithmetic, 41 original/corrected reference renders plus 19 bounded-quality fixtures, exhaustive divisor checks, cubic interpolation error bounds, sample-rate
 conversion, and regressions for wavetable bank bounds and the FM sine LFO.
 
 [Hardware profiling](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md)

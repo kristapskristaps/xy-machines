@@ -21,11 +21,11 @@ enum {
     MACRO_HH = 6,           /* hi-hats: six square oscillators (OUT), three ring-modulated pairs (AUX) */
     MACRO_GRAIN = 7,        /* granular formants: two grainlets (OUT), a Z oscillator (AUX)            */
     MACRO_CHORD = 8,        /* Model-TG: chords, five divide-down/wavetable voices (OUT), the root (AUX) */
-    MACRO_SWARM = 9,        /* Model-TG: eight grains or glissandi of saws (OUT) and sines (AUX)        */
+    MACRO_SWARM = 9,        /* Model-TG: four grains or glissandi of saws (OUT) and sines (AUX)        */
     MACRO_WAVETABLE = 10,   /* Model-TG: 8 x 8 x 4 waves, trilinear (OUT), bit-crushed to 1/32 (AUX)    */
     MACRO_VA = 11,          /* Model-TG: virtual analog, sync square + detuned saw (OUT), monster sync (AUX) */
-    MACRO_MODAL = 12,       /* Model-TG: modal resonator, 24 modes (OUT), the click exciting it (AUX)              */
-    MACRO_STRING = 13,      /* Model-TG: inharmonic string, three Karplus-Strong strings (OUT), their bursts (AUX)  */
+    MACRO_MODAL = 12,       /* Model-TG: modal resonator, 12 modes (OUT), the click exciting it (AUX)              */
+    MACRO_STRING = 13,      /* Model-TG: inharmonic string, one Karplus-Strong string (OUT), their bursts (AUX)  */
     MACRO_SIXOP = 14,       /* Model-TG: 6-operator FM, the 96 DX7 patches of Plaits' three banks (OUT = AUX)        */
     MACRO_ENGINES
 };
@@ -86,7 +86,7 @@ struct macro_noise {
 };
 
 /* Plaits' Particle: impulses at random times, each particle's band-pass (stmlib's Svf, Q24) */
-#define MACRO_PARTICLES 6
+#define MACRO_PARTICLES 4
 struct macro_particle {
     int32_t e;                                      /* the time to the next impulse, in exponential units, Q26 */
     int32_t s1, s2;                                 /* the band-pass's states                          */
@@ -174,8 +174,8 @@ struct macro_chord {
     int32_t chord;                                  /* the quantized chord, 0..10                      */
 };
 
-/* Model-TG: Plaits' swarm engine (swarm_engine.cc), its eight voices */
-#define MACRO_SWARM_VOICES 8
+/* Model-TG: Plaits' swarm engine (swarm_engine.cc), its four voices */
+#define MACRO_SWARM_VOICES 4
 struct macro_genv {                                 /* GrainEnvelope                                   */
     int32_t from, interval;                         /* Q30                                             */
     int32_t phase, fm;                              /* Q28; Q26                                        */
@@ -253,7 +253,7 @@ struct macro_sixop {
 };
 
 /* Model-TG: Plaits' string engine (string_engine.cc, string_voice.cc, string.cc) */
-#define MACRO_STRINGS 3
+#define MACRO_STRINGS 1
 struct macro_strv {
     int32_t line[1024];                             /* string_, Q24                                    */
     int32_t stretch[256];                           /* stretch_ (the dispersion allpass), Q24          */
@@ -275,7 +275,7 @@ struct macro_string {
 };
 
 /* Model-TG: Plaits' modal engine (modal_engine.cc, modal_voice.cc, resonator.cc) */
-#define MACRO_MODAL_MODES 24
+#define MACRO_MODAL_MODES 12
 struct macro_modal {
     struct macro_svf exc;                           /* the click's low-pass, Q24                       */
     struct macro_svf mode[MACRO_MODAL_MODES];       /* Q24                                             */

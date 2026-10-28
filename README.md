@@ -1,6 +1,6 @@
 # Matter
 
-An Elements-derived physical-modeling instrument for OP-XY OS 1.2.0, with a
+An Elements-derived physical-modeling instrument for OP-XY OS 1.2.1, with a
 note-reactive isometric material mesh. Fifty-two normal modes and eight bowed
 waveguide modes respond to six exciter families: mallet, plectrum, particles,
 bow, granular breath and sampled strikes. Built with the

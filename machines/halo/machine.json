@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "sdk": "1.2",
+  "kind": "effect",
+  "description": "A blooming stereo plate with diffuse echoes, octave shimmer and hold.",
+  "identity": {
+    "effect": 23,
+    "page": 21
+  },
+  "dryParameter": "dry",
+  "icon": "M4 20c0-7 7-12 15-12s15 5 15 12-7 12-15 12S4 27 4 20 M9 20c0-4 5-7 10-7s10 3 10 7-5 7-10 7-10-3-10-7 M15 20h8"
+}

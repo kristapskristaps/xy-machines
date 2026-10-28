@@ -181,7 +181,9 @@ void display(DisplayState& state,const opxy::draw::Input& input,Frame& frame) {
         number[at++]=static_cast<char>('0'+seed%10);number[at]=0;
         copy(values[7],header_capacity,number);
     }
-    page_header(state.header,input,frame,titles,values,art::bar_0);
+    place(frame,art::label_shaper+selected,238*unit,158*unit,unit,4,keep);
+    const opxy::u8 pages[2][4]={{4,1,2,3},{4,5,6,7}};
+    page_header(state.header,input,frame,titles,values,art::bar_0,pages);
     state.initialized=1;state.track=input.track;state.serial=input.note_serial;
 }
 }

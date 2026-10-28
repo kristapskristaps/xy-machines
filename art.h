@@ -52,6 +52,21 @@ enum Node : unsigned {
     bar_5 = 47,
     bar_6 = 48,
     bar_7 = 49,
-    node_count = 50
+    label_shaper = 50,
+    label_fm = 51,
+    label_noise = 52,
+    label_dust = 53,
+    label_kick = 54,
+    label_snare = 55,
+    label_hihat = 56,
+    label_grain = 57,
+    label_chord = 58,
+    label_swarm = 59,
+    label_wavetable = 60,
+    label_analog = 61,
+    label_modal = 62,
+    label_string = 63,
+    label_sixop = 64,
+    node_count = 65
 };
 }}

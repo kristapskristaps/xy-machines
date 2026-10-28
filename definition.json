@@ -348,10 +348,14 @@
       "stateAlignment": 4,
       "paths": 2,
       "points": 32,
-      "nodes": 50,
+      "nodes": 65,
       "texts": 16,
       "palette": 9
     }
   },
-  "press": "page"
+  "press": "page",
+  "shift": {
+    "parameter": "model",
+    "normal": "output"
+  }
 }

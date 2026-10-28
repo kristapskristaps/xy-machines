@@ -54,7 +54,8 @@ int main() {
     for(unsigned model=0;model<15;++model) {
         in.slots[0]=static_cast<opxy::i32>((2*model+1)*2147483647LL/30);
         for(unsigned i=0;i<7;++i)weave::display(state,in,frame);
-        if(!check(frame) || std::strcmp(frame.header[0],weave::codes[model]))return 1;
+        if(!check(frame) || hidden(frame,weave::art::label_shaper+model))return 1;
+        for(unsigned other=0;other<15;++other)if(hidden(frame,weave::art::label_shaper+other)!=(other!=model))return 1;
         for(unsigned other=0;other<15;++other)if(hidden(frame,weave::art::model_shaper+other)!=(other!=model))return 1;
         const unsigned count=model==1?2:model==14?6:0;
         for(unsigned i=0;i<6;++i)if(hidden(frame,weave::art::operator_0+i)!=(i>=count))return 1;
@@ -71,8 +72,8 @@ int main() {
     if(prior.nodes[weave::art::gauge].cos==frame.nodes[weave::art::gauge].cos && prior.nodes[weave::art::gauge].sin==frame.nodes[weave::art::gauge].sin)return 1;
     prior=frame;in.slots[4]=2147483647;weave::display(state,in,frame);
     if(prior.nodes[weave::art::valve].cos==frame.nodes[weave::art::valve].cos && prior.nodes[weave::art::valve].sin==frame.nodes[weave::art::valve].sin)return 1;
+    in.shown[0]=4;weave::display(state,in,frame);if(state.header.page || std::strcmp(frame.header[0],"100"))return 1;
     in.shown[0]=4;weave::display(state,in,frame);if(std::strcmp(frame.header[0],"100"))return 1;
-    in.shown[0]=0;weave::display(state,in,frame);if(std::strcmp(frame.header[0],"6OP"))return 1;
     in.held_notes=1;weave::display(state,in,frame);prior=frame;
     for(unsigned i=0;i<30;++i){++in.note_serial;weave::display(state,in,frame);}
     if(std::memcmp(&frame,&prior,sizeof frame) || state.phase || state.travel)return 1;
@@ -92,7 +93,7 @@ int main() {
     weave::display(state,in,frame);
     if(state.header.page!=1 || std::strcmp(frame.header[1],"--") ||
        std::strcmp(frame.header[2],"hold") || std::strcmp(frame.header[3],"127") ||
-       std::strcmp(frame.texts[0].chars,"output") || std::strcmp(frame.texts[8].chars,"model"))return 1;
+       std::strcmp(frame.texts[0].chars,"output") || std::strcmp(frame.texts[8].chars,"output"))return 1;
     for(unsigned i=0;i<4;++i)if(hidden(frame,weave::art::bar_0+i))return 1;
     in.slots[0]=static_cast<opxy::i32>(25*2147483647LL/30); // modal
     in.slots[5]=0x20000000;

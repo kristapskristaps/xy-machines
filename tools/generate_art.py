@@ -10,6 +10,7 @@ models = ['shaper','fm','noise','dust','kick','snare','hihat','grain','chord','s
 names += ['model_' + name for name in models]
 names += ['operator_' + str(i) for i in range(6)]
 names += ['bar_' + str(i) for i in range(8)]
+names += ['label_' + name for name in models]
 ids = {name:index for index,name in enumerate(names)}
 lines = ['<g id="weave_panel">']
 def path(d, fill='none', stroke='#63666b', width=.7, name=None, xy=None):
@@ -124,7 +125,47 @@ path('M-3 -7 L3 -7 L3 -5 L-3 -5 Z',fill='#f0443a',stroke='#f0443a',width=.4,name
 path('M-1 5 L2 -4 L0 -7 L2 -10 L3 -6 L5 -9 L6 -5 L4 -2 L2 6 Z',fill='#888b8e',stroke='#b6b9bd',width=.5,name='wrench',xy=(98,147))
 path('M169 178 L177 175 L180 177 M173 179 L174 184 M424 167 L429 166 L430 170',stroke='#63666b',width=.9)
 # The engine name is in the shared header; keep only static engraving on the cabinet.
-text(211,162,'ENGINE',8,'#e7e8e5')
+# Original monoline lettering, retained as paths so it needs no extra text slots.
+letters={
+ 'A':'M0 5 L0 1 L1 0 L2 1 L2 5 M0 3 L2 3',
+ 'C':'M2 0 L0 0 L0 5 L2 5',
+ 'D':'M0 0 L1 0 L2 1 L2 4 L1 5 L0 5 Z',
+ 'E':'M2 0 L0 0 L0 5 L2 5 M0 2.5 L1.5 2.5',
+ 'F':'M2 0 L0 0 L0 5 M0 2.5 L1.5 2.5',
+ 'G':'M2 0 L0 0 L0 5 L2 5 L2 3 L1 3',
+ 'H':'M0 0 L0 5 M2 0 L2 5 M0 2.5 L2 2.5',
+ 'I':'M0 0 L2 0 M1 0 L1 5 M0 5 L2 5',
+ 'K':'M0 0 L0 5 M2 0 L0 2.5 L2 5',
+ 'L':'M0 0 L0 5 L2 5',
+ 'M':'M0 5 L0 0 L1 2 L2 0 L2 5',
+ 'N':'M0 5 L0 0 L2 5 L2 0',
+ 'O':'M0 0 L2 0 L2 5 L0 5 Z',
+ 'P':'M0 5 L0 0 L2 0 L2 2.5 L0 2.5',
+ 'R':'M0 5 L0 0 L2 0 L2 2.5 L0 2.5 M1 2.5 L2 5',
+ 'S':'M2 0 L0 0 L0 2.5 L2 2.5 L2 5 L0 5',
+ 'T':'M0 0 L2 0 M1 0 L1 5',
+ 'U':'M0 0 L0 5 L2 5 L2 0',
+ 'V':'M0 0 L1 5 L2 0',
+ 'W':'M0 0 L0 5 L1 3 L2 5 L2 0',
+ 'Y':'M0 0 L1 2.5 L2 0 M1 2.5 L1 5',
+ '2':'M0 0 L2 0 L2 2.5 L0 2.5 L0 5 L2 5',
+ '6':'M2 0 L0 0 L0 5 L2 5 L2 2.5 L0 2.5',
+ '-':'M0 2.5 L2 2.5',
+}
+import re
+labels=['SHAPER','2-OP FM','NOISE','DUST','KICK','SNARE','HIHAT','GRAIN','CHORDS','SWARM','WAVES','ANALOG','MODAL','STRING','6-OP FM']
+for model,label in zip(models,labels):
+    commands=[]
+    for i,char in enumerate(label):
+        if char==' ':continue
+        tokens=re.findall(r'[MLZ]|[0-9.]+',letters[char]);at=0
+        while at<len(tokens):
+            command=tokens[at];at+=1
+            if command=='Z':commands.append('Z');continue
+            x=float(tokens[at]);y=float(tokens[at+1]);at+=2
+            commands.append(f'{command}{(i*3.4+x-len(label)*1.7)*1.2:.4f} {y*1.2:.4f}')
+    path(' '.join(commands),stroke='#e7e8e5',width=.55,name='label_'+model,xy=(640,320))
+text(12,218,'SHIFT + 1: MODEL',6,'#63666b')
 text(266,98,'XY',7,'#888b8e')
 # Shared two-page header, painted last so the room cannot cover it.
 lines.append('<path d="M0 0 L480 0 L480 38 L0 38 Z" fill="#000000"/>')

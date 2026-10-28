@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "sdk": "1.4",
+  "sdk": "1.5",
   "kind": "synth",
   "description": "Fifteen Plaits-derived synthesis models inside a miniature animated machine room.",
   "identity": {

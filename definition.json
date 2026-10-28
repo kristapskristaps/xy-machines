@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "id": "granular",
+  "name": "Granular",
+  "parameters": [
+    {
+      "id": "position",
+      "label": "Position",
+      "default": 0.1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "default": 0.25,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0.006,
+        "maximum": 0.25
+      },
+      "display": "duration"
+    },
+    {
+      "id": "density",
+      "label": "Density",
+      "default": 0.42857142857142855,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 1,
+        "maximum": 8
+      },
+      "display": "ratio"
+    },
+    {
+      "id": "spray",
+      "label": "Spray",
+      "default": 0.05,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "scan",
+      "label": "Scan",
+      "default": 0.625,
+      "mapping": {
+        "kind": "linear",
+        "minimum": -2,
+        "maximum": 2
+      },
+      "display": "ratio"
+    },
+    {
+      "id": "spread",
+      "label": "Spread",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 12
+      },
+      "display": "semitones"
+    },
+    {
+      "id": "width",
+      "label": "Width",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "level",
+      "label": "Level",
+      "default": 0.8,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Cloud": {
+      "position": 0.1,
+      "size": 0.38,
+      "density": 0.8,
+      "spray": 0.16,
+      "scan": 0.5625,
+      "spread": 0.06,
+      "width": 0.85,
+      "level": 0.8
+    },
+    "Freeze": {
+      "position": 0.32,
+      "size": 0.6,
+      "density": 0.42857142857142855,
+      "spray": 0.015,
+      "scan": 0.5,
+      "spread": 0,
+      "width": 0.35,
+      "level": 0.8
+    },
+    "Scatter": {
+      "position": 0.2,
+      "size": 0.045,
+      "density": 0.5,
+      "spray": 0.55,
+      "scan": 0.25,
+      "spread": 0.4,
+      "width": 1,
+      "level": 0.8
+    },
+    "Scan": {
+      "position": 0,
+      "size": 0.24,
+      "density": 0.42857142857142855,
+      "spray": 0,
+      "scan": 0.75,
+      "spread": 0,
+      "width": 0,
+      "level": 0.8
+    }
+  },
+  "resources": {
+    "voiceCapacity": 256,
+    "stereoOutput": 1
+  }
+}

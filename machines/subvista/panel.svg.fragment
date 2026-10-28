@@ -1,0 +1,65 @@
+<g id="subvista_panel">
+<text x="26" y="45" fill="#ffffff" font-family="monospace" font-size="15">SUBVISTA</text>
+<text x="26" y="60" fill="#777777" font-family="monospace" font-size="7">SUBTRACTIVE / 01</text>
+<text x="373" y="43" fill="#999999" font-family="monospace" font-size="7">8 VOICES</text>
+<path d="M 26 78 L 26 143" fill="none" stroke="#333333" stroke-width="1"/>
+<path d="M 168 78 L 168 143" fill="none" stroke="#333333" stroke-width="1"/>
+<path d="M 312 78 L 312 143" fill="none" stroke="#333333" stroke-width="1"/>
+<path d="M 454 78 L 454 143" fill="none" stroke="#333333" stroke-width="1"/>
+<path d="M 26 112 L 174 112" fill="none" stroke="#333333" stroke-width="1"/>
+<path d="M 306 112 L 454 112" fill="none" stroke="#333333" stroke-width="1"/>
+<circle cx="240" cy="112" r="50" fill="none" stroke="#333333" stroke-width="1"/>
+<circle cx="240" cy="112" r="55" fill="none" stroke="#333333" stroke-width="1"/>
+<path d="M 150 208 L 330 208" fill="none" stroke="#444444" stroke-width="1"/>
+<text x="30" y="196" fill="#777777" font-family="monospace" font-size="7">60 Hz</text>
+<text x="382" y="196" fill="#777777" font-family="monospace" font-size="7">15 kHz</text>
+<path id="subvista_node_0" d="M -60.0000 0 L -58.0952 1 L -56.1905 0 L -54.2857 1 L -52.3810 0 L -50.4762 1 L -48.5714 0 L -46.6667 1 L -44.7619 0 L -42.8571 1 L -40.9524 0 L -39.0476 1 L -37.1429 0 L -35.2381 1 L -33.3333 0 L -31.4286 1 L -29.5238 0 L -27.6190 1 L -25.7143 0 L -23.8095 1 L -21.9048 0 L -20.0000 1 L -18.0952 0 L -16.1905 1 L -14.2857 0 L -12.3810 1 L -10.4762 0 L -8.5714 1 L -6.6667 0 L -4.7619 1 L -2.8571 0 L -0.9524 1 L 0.9524 0 L 2.8571 1 L 4.7619 0 L 6.6667 1 L 8.5714 0 L 10.4762 1 L 12.3810 0 L 14.2857 1 L 16.1905 0 L 18.0952 1 L 20.0000 0 L 21.9048 1 L 23.8095 0 L 25.7143 1 L 27.6190 0 L 29.5238 1 L 31.4286 0 L 33.3333 1 L 35.2381 0 L 37.1429 1 L 39.0476 0 L 40.9524 1 L 42.8571 0 L 44.7619 1 L 46.6667 0 L 48.5714 1 L 50.4762 0 L 52.3810 1 L 54.2857 0 L 56.1905 1 L 58.0952 0 L 60.0000 1 Z" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_1" d="M -60.0000 0 L -58.0952 1 L -56.1905 0 L -54.2857 1 L -52.3810 0 L -50.4762 1 L -48.5714 0 L -46.6667 1 L -44.7619 0 L -42.8571 1 L -40.9524 0 L -39.0476 1 L -37.1429 0 L -35.2381 1 L -33.3333 0 L -31.4286 1 L -29.5238 0 L -27.6190 1 L -25.7143 0 L -23.8095 1 L -21.9048 0 L -20.0000 1 L -18.0952 0 L -16.1905 1 L -14.2857 0 L -12.3810 1 L -10.4762 0 L -8.5714 1 L -6.6667 0 L -4.7619 1 L -2.8571 0 L -0.9524 1 L 0.9524 0 L 2.8571 1 L 4.7619 0 L 6.6667 1 L 8.5714 0 L 10.4762 1 L 12.3810 0 L 14.2857 1 L 16.1905 0 L 18.0952 1 L 20.0000 0 L 21.9048 1 L 23.8095 0 L 25.7143 1 L 27.6190 0 L 29.5238 1 L 31.4286 0 L 33.3333 1 L 35.2381 0 L 37.1429 1 L 39.0476 0 L 40.9524 1 L 42.8571 0 L 44.7619 1 L 46.6667 0 L 48.5714 1 L 50.4762 0 L 52.3810 1 L 54.2857 0 L 56.1905 1 L 58.0952 0 L 60.0000 1 Z" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_2" d="M -60.0000 0 L -58.0952 1 L -56.1905 0 L -54.2857 1 L -52.3810 0 L -50.4762 1 L -48.5714 0 L -46.6667 1 L -44.7619 0 L -42.8571 1 L -40.9524 0 L -39.0476 1 L -37.1429 0 L -35.2381 1 L -33.3333 0 L -31.4286 1 L -29.5238 0 L -27.6190 1 L -25.7143 0 L -23.8095 1 L -21.9048 0 L -20.0000 1 L -18.0952 0 L -16.1905 1 L -14.2857 0 L -12.3810 1 L -10.4762 0 L -8.5714 1 L -6.6667 0 L -4.7619 1 L -2.8571 0 L -0.9524 1 L 0.9524 0 L 2.8571 1 L 4.7619 0 L 6.6667 1 L 8.5714 0 L 10.4762 1 L 12.3810 0 L 14.2857 1 L 16.1905 0 L 18.0952 1 L 20.0000 0 L 21.9048 1 L 23.8095 0 L 25.7143 1 L 27.6190 0 L 29.5238 1 L 31.4286 0 L 33.3333 1 L 35.2381 0 L 37.1429 1 L 39.0476 0 L 40.9524 1 L 42.8571 0 L 44.7619 1 L 46.6667 0 L 48.5714 1 L 50.4762 0 L 52.3810 1 L 54.2857 0 L 56.1905 1 L 58.0952 0 L 60.0000 1 Z" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_3" d="M -60.0000 0 L -58.0952 1 L -56.1905 0 L -54.2857 1 L -52.3810 0 L -50.4762 1 L -48.5714 0 L -46.6667 1 L -44.7619 0 L -42.8571 1 L -40.9524 0 L -39.0476 1 L -37.1429 0 L -35.2381 1 L -33.3333 0 L -31.4286 1 L -29.5238 0 L -27.6190 1 L -25.7143 0 L -23.8095 1 L -21.9048 0 L -20.0000 1 L -18.0952 0 L -16.1905 1 L -14.2857 0 L -12.3810 1 L -10.4762 0 L -8.5714 1 L -6.6667 0 L -4.7619 1 L -2.8571 0 L -0.9524 1 L 0.9524 0 L 2.8571 1 L 4.7619 0 L 6.6667 1 L 8.5714 0 L 10.4762 1 L 12.3810 0 L 14.2857 1 L 16.1905 0 L 18.0952 1 L 20.0000 0 L 21.9048 1 L 23.8095 0 L 25.7143 1 L 27.6190 0 L 29.5238 1 L 31.4286 0 L 33.3333 1 L 35.2381 0 L 37.1429 1 L 39.0476 0 L 40.9524 1 L 42.8571 0 L 44.7619 1 L 46.6667 0 L 48.5714 1 L 50.4762 0 L 52.3810 1 L 54.2857 0 L 56.1905 1 L 58.0952 0 L 60.0000 1 Z" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_4" d="M -3 -9 L 3 9" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_5" d="M -3 -9 L 3 9" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_6" d="M -3 -9 L 3 9" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_7" d="M -3 -9 L 3 9" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_8" d="M -3 -9 L 3 9" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_9" d="M -3 -9 L 3 9" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_10" d="M -3 -9 L 3 9" fill="none" stroke="#ffffff" stroke-width="1"/>
+<path id="subvista_node_11" d="M -3 -9 L 3 9" fill="none" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_12" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_13" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_14" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_15" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_16" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_17" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_18" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_19" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_20" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_21" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_22" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_23" cx="0" cy="0" r="2" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_24" cx="0" cy="0" r="3" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_25" cx="0" cy="0" r="3" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_26" cx="0" cy="0" r="3" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_27" cx="0" cy="0" r="3" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_28" cx="0" cy="0" r="3" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<circle id="subvista_node_29" cx="0" cy="0" r="3" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+<text x="40" y="155" fill="#aaaaaa" font-family="monospace" font-size="7">OSC / SAW + PULSE</text>
+<text x="208" y="155" fill="#aaaaaa" font-family="monospace" font-size="7">LP / 2</text>
+<text x="348" y="155" fill="#aaaaaa" font-family="monospace" font-size="7">FILTERED</text>
+<circle id="subvista_palette_0" cx="640" cy="0" r="1" fill="#000000" stroke="#000000" stroke-width="1"/>
+<circle id="subvista_palette_1" cx="640" cy="0" r="1" fill="#111111" stroke="#111111" stroke-width="1"/>
+<circle id="subvista_palette_2" cx="640" cy="0" r="1" fill="#222222" stroke="#222222" stroke-width="1"/>
+<circle id="subvista_palette_3" cx="640" cy="0" r="1" fill="#333333" stroke="#333333" stroke-width="1"/>
+<circle id="subvista_palette_4" cx="640" cy="0" r="1" fill="#444444" stroke="#444444" stroke-width="1"/>
+<circle id="subvista_palette_5" cx="640" cy="0" r="1" fill="#555555" stroke="#555555" stroke-width="1"/>
+<circle id="subvista_palette_6" cx="640" cy="0" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+<circle id="subvista_palette_7" cx="640" cy="0" r="1" fill="#777777" stroke="#777777" stroke-width="1"/>
+<circle id="subvista_palette_8" cx="640" cy="0" r="1" fill="#888888" stroke="#888888" stroke-width="1"/>
+<circle id="subvista_palette_9" cx="640" cy="0" r="1" fill="#999999" stroke="#999999" stroke-width="1"/>
+<circle id="subvista_palette_10" cx="640" cy="0" r="1" fill="#aaaaaa" stroke="#aaaaaa" stroke-width="1"/>
+<circle id="subvista_palette_11" cx="640" cy="0" r="1" fill="#bbbbbb" stroke="#bbbbbb" stroke-width="1"/>
+<circle id="subvista_palette_12" cx="640" cy="0" r="1" fill="#cccccc" stroke="#cccccc" stroke-width="1"/>
+<circle id="subvista_palette_13" cx="640" cy="0" r="1" fill="#dddddd" stroke="#dddddd" stroke-width="1"/>
+<circle id="subvista_palette_14" cx="640" cy="0" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+<circle id="subvista_palette_15" cx="640" cy="0" r="1" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+</g>

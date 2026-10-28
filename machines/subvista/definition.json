@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "id": "subvista",
+  "name": "Subvista",
+  "parameters": [
+    {
+      "id": "cutoff",
+      "label": "Cutoff",
+      "default": 0.52,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "resonance",
+      "label": "Reso",
+      "default": 0.28,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "shape",
+      "label": "Shape",
+      "default": 0.18,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "contour",
+      "label": "Contour",
+      "default": 0.45,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {
+    "Soft Current": {
+      "cutoff": 0.28,
+      "resonance": 0.18,
+      "shape": 0.12,
+      "contour": 0.24
+    },
+    "Glass Teeth": {
+      "cutoff": 0.64,
+      "resonance": 0.52,
+      "shape": 0.1,
+      "contour": 0.58
+    },
+    "Hollow Reed": {
+      "cutoff": 0.4,
+      "resonance": 0.35,
+      "shape": 0.92,
+      "contour": 0.35
+    },
+    "Acid Bloom": {
+      "cutoff": 0.23,
+      "resonance": 0.82,
+      "shape": 0.35,
+      "contour": 0.92
+    },
+    "Open Circuit": {
+      "cutoff": 0.95,
+      "resonance": 0.08,
+      "shape": 0.45,
+      "contour": 0.1
+    }
+  },
+  "resources": {
+    "voiceBytes": 36,
+    "voiceAlignment": 4,
+    "voiceCapacity": 8,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 24,
+      "stateAlignment": 4,
+      "paths": 4,
+      "points": 64,
+      "nodes": 30,
+      "texts": 0,
+      "palette": 16
+    }
+  }
+}

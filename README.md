@@ -1,6 +1,6 @@
 # Weave
 
-Fifteen Plaits-derived synthesis models for OP-XY OS 1.2.0, with a monochrome
+Fifteen Plaits-derived synthesis models for OP-XY OS 1.2.1, with a monochrome
 woven-oscillation screen. Built with the [Open-XY SDK](https://github.com/etcetc000/open-xy).
 
 The model bank contains waveshaping, two-operator FM, filtered noise, particles,

@@ -117,6 +117,11 @@ Open the printed localhost URL, enable audio, select a low octave and play.
 Tests cover clean-sub purity, fundamental retention, DC, high-register alias
 energy, pitch-drop settling, transient decay, deterministic retrigger, all 256
 control corners and the display's note, idle, track and reduced-motion behavior.
+An independent frozen V2 renderer also verifies bit-identical audio across
+59 million samples of long notes, control changes, glides and retriggers,
+plus two million pitch-band selections. The optimized renderer reuses identical
+waveform lookups, replaces integer division with an exact corrected reciprocal,
+and stops click and pitch-sweep work only after it can no longer affect audio.
 Regenerate the checked-in analytic tables with `python tools/generate_tables.py`.
 The SDK adapters own voice allocation and registration; callbacks allocate no
 memory and do not perform I/O. Machine code, artwork and tests stay here.

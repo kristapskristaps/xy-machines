@@ -17,14 +17,23 @@ i32 lookup(const opxy::i16* table, u32 phase) {
 
 // Remove the richer mip before its highest harmonic reaches 0.44 * Fs.
 void mip(u32 increment, u32& band, i32& mix) {
-    const u32 harmonics[6] = {1, 3, 7, 15, 31, 63};
+    // end = floor(0.44 * 2^32 / harmonics), divisor = (end - end/2) >> 15,
+    // reciprocal = floor(2^31 / divisor). Correct the quotient's possible
+    // one-unit underestimate to preserve the original integer division.
+    static const u32 ends[6] = {1889785610u, 629928536u, 269969372u, 125985707u, 60960826u, 29996596u};
+    static const u32 divisors[6] = {28835u, 9611u, 4119u, 1922u, 930u, 457u};
+    static const i32 reciprocals[6] = {74474, 223440, 521360, 1117317, 2309122, 4699088};
     band = 5;
-    while (band && increment >= 1889785610u / harmonics[band]) --band;
+    while (band && increment >= ends[band]) --band;
     mix = 32768;
     if (band) {
-        const u32 end = 1889785610u / harmonics[band], begin = end / 2;
-        if (increment > begin)
-            mix = static_cast<i32>((end - increment) / ((end - begin) >> 15));
+        const u32 end = ends[band], begin = end / 2;
+        if (increment > begin) {
+            const u32 numerator = end - increment;
+            u32 quotient = static_cast<u32>(opxy::q31::multiply(static_cast<i32>(numerator), reciprocals[band]));
+            if ((quotient + 1) * divisors[band] <= numerator) ++quotient;
+            mix = static_cast<i32>(quotient);
+        }
         if (mix > 32768) mix = 32768;
     }
 }
@@ -34,12 +43,10 @@ i32 shaped(u32 mode, u32 drive, u32 band, i32 band_mix, u32 phase) {
     const i32 mix = static_cast<i32>(drive & 32767u);
     const u32 next = level < 8 ? level + 1 : 8;
     const i32 a = lookup(waves[mode][level][band], phase);
-    const i32 b = lookup(waves[mode][next][band], phase);
-    const i32 rich = a + ((b - a) * mix >> 15);
+    const i32 rich = mix ? a + ((lookup(waves[mode][next][band], phase) - a) * mix >> 15) : a;
     if (!band || band_mix == 32768) return rich;
     const i32 c = lookup(waves[mode][level][band - 1], phase);
-    const i32 d = lookup(waves[mode][next][band - 1], phase);
-    const i32 lean = c + ((d - c) * mix >> 15);
+    const i32 lean = mix ? c + ((lookup(waves[mode][next][band - 1], phase) - c) * mix >> 15) : c;
     return lean + ((rich - lean) * band_mix >> 15);
 }
 
@@ -67,9 +74,13 @@ inline void destroy(Voice&, Shared&, u32) {}
 // Stock AMP, glide, filter and velocity remain in the OP-XY voice path.
 inline void render(Voice& voice, Shared&, u32, opxy::Output output,
                    opxy::Parameters parameters, opxy::Pitch pitch) {
+    // Click is latched at note start. Below one mix unit it stays inaudible;
+    // start() resets its noise/filter state before it can sound again.
+    const bool click = voice.pending ? parameters[4] >= 262144 : voice.click >= 262144;
+    const bool sweep = voice.sweep != 0;
     const u32 mode = shape_index(parameters[3]);
-    const u32 ratio = control_table(pitch_ratios, parameters[0]);
-    const i32 decay = static_cast<i32>(control_table(fall_coefficients, parameters[1]));
+    const u32 ratio = sweep ? control_table(pitch_ratios, parameters[0]) : 65536u;
+    const i32 decay = sweep ? static_cast<i32>(control_table(fall_coefficients, parameters[1])) : 0;
     const i32 target_drive = (parameters[2] >> 16) * 8;
     const i32 target_sub = parameters[5] >> 16;
     const i32 target_color = static_cast<i32>(control_table(tone_coefficients, parameters[6]));
@@ -84,23 +95,27 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         voice.boost = target_boost;
         voice.click = parameters[4];
     }
-    u32 maximum = 0;
-    for (u32 i = 0; i < opxy::block_frames; ++i)
-        if (pitch[i] > maximum) maximum = pitch[i];
-    u32 band;
-    i32 band_mix;
-    mip(swept(maximum, voice.sweep, ratio), band, band_mix);
     const i32 drive_step = (target_drive - voice.drive) / 64;
     const i32 sub_step = (target_sub - voice.sub) / 64;
     const i32 color_step = (target_color - voice.color) / 64;
     const i32 boost_step = (target_boost - voice.boost) / 64;
+    // Every zero-drive bank is exactly the clean sine, including mip blends.
+    const bool pure_body = !voice.drive && !drive_step;
+    u32 band = 0;
+    i32 band_mix = 32768;
+    if (!pure_body) {
+        u32 maximum = 0;
+        for (u32 i = 0; i < opxy::block_frames; ++i)
+            if (pitch[i] > maximum) maximum = pitch[i];
+        mip(swept(maximum, voice.sweep, ratio), band, band_mix);
+    }
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.drive += drive_step;
         voice.sub += sub_step;
         voice.color += color_step;
         voice.boost += boost_step;
         const i32 pure = lookup(waves[0][0][0], voice.phase);
-        const i32 body = shaped(mode, static_cast<u32>(voice.drive), band, band_mix, voice.phase);
+        const i32 body = pure_body ? pure : shaped(mode, static_cast<u32>(voice.drive), band, band_mix, voice.phase);
         // Q23 filter state resolves the bottom of the 20 Hz..open tone range.
         // The clean foundation bypasses both poles, preserving the sub at dark settings.
         voice.body += opxy::q31::multiply(body * 256 - voice.body, voice.color);
@@ -108,13 +123,15 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         const i32 filtered = voice.body2 >> 8;
         i32 sample = filtered + ((pure - filtered) * voice.sub >> 15);
         // High-passed noise impulse, with a fixed 2 ms decay.
-        voice.noise = voice.noise * 1664525u + 1013904223u;
-        const i32 noise = static_cast<i32>(voice.noise >> 17) - 16384;
-        voice.click_low += (noise - voice.click_low) / 4;
-        // Convex click/body mixing stays bounded without hard-clipping the bass.
-        const i32 click_mix = voice.click >> 18;
-        sample = (sample * (32768 - click_mix) + (noise - voice.click_low) * click_mix) >> 15;
-        voice.click = opxy::q31::multiply(voice.click, 2123271099);
+        if (click) {
+            voice.noise = voice.noise * 1664525u + 1013904223u;
+            const i32 noise = static_cast<i32>(voice.noise >> 17) - 16384;
+            voice.click_low += (noise - voice.click_low) / 4;
+            // Convex click/body mixing stays bounded without hard-clipping the bass.
+            const i32 click_mix = voice.click >> 18;
+            sample = (sample * (32768 - click_mix) + (noise - voice.click_low) * click_mix) >> 15;
+            voice.click = opxy::q31::multiply(voice.click, 2123271099);
+        }
         if (voice.fade < 32768) {
             sample = sample * voice.fade >> 15;
             voice.fade += 768;
@@ -124,9 +141,14 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         if (sample < -32767) sample = -32767;
         sample = sample * voice.boost >> 15;
         output[i] = sample * 32768;
-        voice.phase += swept(pitch[i], voice.sweep, ratio);
-        voice.sweep = opxy::q31::multiply(voice.sweep, decay);
+        if (sweep) {
+            voice.phase += swept(pitch[i], voice.sweep, ratio);
+            voice.sweep = opxy::q31::multiply(voice.sweep, decay);
+        } else {
+            voice.phase += pitch[i] > 0x70000000u ? 0x70000000u : pitch[i];
+        }
     }
+    if (!click) voice.click = 0;
     voice.drive = target_drive;
     voice.sub = target_sub;
     voice.color = target_color;

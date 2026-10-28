@@ -1,0 +1,99 @@
+<g id="vader_panel">
+<!-- SDK two-page header: keep this block before machine artwork below y=38. -->
+<path d="M0,0 L480,0 L480,38 L0,38 Z" fill="#000000"/>
+<path id="vader_node_2" transform="matrix(1 0 0 1 0 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#000000" stroke="#000000" stroke-width="0.5"/>
+<path id="vader_node_3" transform="matrix(1 0 0 1 60 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#323232" stroke="#323232" stroke-width="0.5"/>
+<path id="vader_node_4" transform="matrix(1 0 0 1 120 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#4B4B4B" stroke="#4B4B4B" stroke-width="0.5"/>
+<path id="vader_node_5" transform="matrix(1 0 0 1 180 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#646464" stroke="#646464" stroke-width="0.5"/>
+<path id="vader_node_6" transform="matrix(1 0 0 1 240 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#7D7D7D" stroke="#7D7D7D" stroke-width="0.5"/>
+<path id="vader_node_7" transform="matrix(1 0 0 1 300 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#969696" stroke="#969696" stroke-width="0.5"/>
+<path id="vader_node_8" transform="matrix(1 0 0 1 360 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#AFAFAF" stroke="#AFAFAF" stroke-width="0.5"/>
+<path id="vader_node_9" transform="matrix(1 0 0 1 420 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#CDCDCD" stroke="#CDCDCD" stroke-width="0.5"/>
+<text id="vader_text_0" transform="matrix(1 0 0 1 5 10)" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="vader_text_1" transform="matrix(1 0 0 1 125 10)" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="vader_text_2" transform="matrix(1 0 0 1 245 10)" fill="#000000" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="vader_text_3" transform="matrix(1 0 0 1 365 10)" fill="#000000" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="vader_text_4" transform="matrix(1 0 0 1 65 17.4)" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="vader_text_5" transform="matrix(1 0 0 1 185 17.4)" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="vader_text_6" transform="matrix(1 0 0 1 305 17.4)" fill="#000000" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="vader_text_7" transform="matrix(1 0 0 1 425 17.4)" fill="#000000" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="vader_text_8" transform="matrix(1 0 0 1 5 33)" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="vader_text_9" transform="matrix(1 0 0 1 125 33)" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="vader_text_10" transform="matrix(1 0 0 1 245 33)" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="vader_text_11" transform="matrix(1 0 0 1 365 33)" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="vader_text_12" transform="matrix(1 0 0 1 65 33)" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="vader_text_13" transform="matrix(1 0 0 1 185 33)" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="vader_text_14" transform="matrix(1 0 0 1 305 33)" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="vader_text_15" transform="matrix(1 0 0 1 425 33)" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+
+
+<path id="vader_node_0" d="M-52.0000,-0.4000 L-48.6452,3.2234 L-45.2903,6.6984 L-41.9355,9.8828 L-38.5806,12.6463 L-35.2258,14.8756 L-31.8710,16.4795 L-28.5161,17.3924 L-25.1613,17.5769 L-21.8065,17.0254 L-18.4516,15.7605 L-15.0968,13.8340 L-11.7419,11.3247 L-8.3871,8.3354 L-5.0323,4.9885 L-1.6774,1.4210 L1.6774,-2.2210 L5.0323,-5.7885 L8.3871,-9.1354 L11.7419,-12.1247 L15.0968,-14.6340 L18.4516,-16.5605 L21.8065,-17.8254 L25.1613,-18.3769 L28.5161,-18.1924 L31.8710,-17.2795 L35.2258,-15.6756 L38.5806,-13.4463 L41.9355,-10.6828 L45.2903,-7.4984 L48.6452,-4.0234 L52.0000,-0.4000 L52.0000,0.4000 L48.6452,-3.2234 L45.2903,-6.6984 L41.9355,-9.8828 L38.5806,-12.6463 L35.2258,-14.8756 L31.8710,-16.4795 L28.5161,-17.3924 L25.1613,-17.5769 L21.8065,-17.0254 L18.4516,-15.7605 L15.0968,-13.8340 L11.7419,-11.3247 L8.3871,-8.3354 L5.0323,-4.9885 L1.6774,-1.4210 L-1.6774,2.2210 L-5.0323,5.7885 L-8.3871,9.1354 L-11.7419,12.1247 L-15.0968,14.6340 L-18.4516,16.5605 L-21.8065,17.8254 L-25.1613,18.3769 L-28.5161,18.1924 L-31.8710,17.2795 L-35.2258,15.6756 L-38.5806,13.4463 L-41.9355,10.6828 L-45.2903,7.4984 L-48.6452,4.0234 L-52.0000,0.4000 Z" fill="none" stroke="#dddddd" stroke-width="0.7"/>
+<path id="vader_node_1" d="M-52.0000,-0.4000 L-48.6452,3.2234 L-45.2903,6.6984 L-41.9355,9.8828 L-38.5806,12.6463 L-35.2258,14.8756 L-31.8710,16.4795 L-28.5161,17.3924 L-25.1613,17.5769 L-21.8065,17.0254 L-18.4516,15.7605 L-15.0968,13.8340 L-11.7419,11.3247 L-8.3871,8.3354 L-5.0323,4.9885 L-1.6774,1.4210 L1.6774,-2.2210 L5.0323,-5.7885 L8.3871,-9.1354 L11.7419,-12.1247 L15.0968,-14.6340 L18.4516,-16.5605 L21.8065,-17.8254 L25.1613,-18.3769 L28.5161,-18.1924 L31.8710,-17.2795 L35.2258,-15.6756 L38.5806,-13.4463 L41.9355,-10.6828 L45.2903,-7.4984 L48.6452,-4.0234 L52.0000,-0.4000 L52.0000,0.4000 L48.6452,-3.2234 L45.2903,-6.6984 L41.9355,-9.8828 L38.5806,-12.6463 L35.2258,-14.8756 L31.8710,-16.4795 L28.5161,-17.3924 L25.1613,-17.5769 L21.8065,-17.0254 L18.4516,-15.7605 L15.0968,-13.8340 L11.7419,-11.3247 L8.3871,-8.3354 L5.0323,-4.9885 L1.6774,-1.4210 L-1.6774,2.2210 L-5.0323,5.7885 L-8.3871,9.1354 L-11.7419,12.1247 L-15.0968,14.6340 L-18.4516,16.5605 L-21.8065,17.8254 L-25.1613,18.3769 L-28.5161,18.1924 L-31.8710,17.2795 L-35.2258,15.6756 L-38.5806,13.4463 L-41.9355,10.6828 L-45.2903,7.4984 L-48.6452,4.0234 L-52.0000,0.4000 Z" fill="none" stroke="#dddddd" stroke-width="0.7"/>
+<path id="vader_shell" d="M176,153 L185,91 L202,63 L223,50 L257,50 L278,63 L295,91 L304,153 L285,179 L262,170 L240,181 L218,170 L195,179 Z" fill="#080808" stroke="#484848" stroke-width="1.2"/>
+<path id="vader_crown" d="M202,89 L213,67 L231,57 L249,57 L267,67 L278,89 L265,95 L252,85 L228,85 L215,95 Z" fill="#171717" stroke="#626262" stroke-width="0.8"/>
+<path id="vader_forehead" d="M231,58 L249,58 L251,84 L229,84 Z" fill="#242424" stroke="#333333" stroke-width="0.6"/>
+<path id="vader_cheeks" d="M187,119 L204,121 L221,138 L215,164 L197,166 L187,151 Z M293,119 L276,121 L259,138 L265,164 L283,166 L293,151 Z" fill="#101010" stroke="#555555" stroke-width="0.8"/>
+<path id="vader_brow" d="M198,96 L214,91 L236,101 L240,106 L244,101 L266,91 L282,96 L267,100 L243,112 L237,112 L213,100 Z" fill="#303030" stroke="#777777" stroke-width="0.7"/>
+<path id="vader_node_10" d="M-17,-4 L15,1 L10,6 L-13,2 Z" fill="#b5232c" stroke="#b5232c" stroke-width="0.8"/>
+<path id="vader_node_11" d="M-17,-4 L15,1 L10,6 L-13,2 Z" fill="#b5232c" stroke="#b5232c" stroke-width="0.8"/>
+<path id="vader_node_12" d="M0,-12 L11,10 L-11,10 Z" fill="#111111" stroke="#999999" stroke-width="1"/>
+<path id="vader_grille" d="M224,133 L256,133 L273,164 L252,172 L228,172 L207,164 Z" fill="#090909" stroke="#3c3c3c" stroke-width="0.8"/>
+<path id="vader_node_13" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_14" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_15" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_16" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_17" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_18" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_19" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_20" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_21" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_22" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_23" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_24" d="M-1.2,-7 L1.2,-7 L1.2,7 L-1.2,7 Z" fill="#555555" stroke="#555555" stroke-width="0.5"/>
+<path id="vader_node_25" d="M-12.8219,51.4257 L-17.0363,50.1873 L-21.1337,48.6042 L-25.0859,46.6872 L-28.8659,44.4495 L-32.4475,41.9065 L-35.8063,39.0757 L-38.9191,35.9764 L-41.7646,32.6301 L-44.3232,29.0595 L-46.5773,25.2894 L-48.5115,21.3456 L-50.1125,17.2551 L-51.3692,13.0461 L-52.2731,8.7475 L-52.8180,4.3888 L-53.0000,0.0000 L-52.8180,-4.3888 L-52.2731,-8.7475 L-51.3692,-13.0461 L-50.1125,-17.2551 L-48.5115,-21.3456 L-46.5773,-25.2894 L-44.3232,-29.0595 L-41.7646,-32.6301 L-38.9191,-35.9764 L-35.8063,-39.0757 L-32.4475,-41.9065 L-28.8659,-44.4495 L-25.0859,-46.6872 L-21.1337,-48.6042 L-17.0363,-50.1873 L-12.8219,-51.4257 L-12.6808,-50.8600 L-16.8489,-49.6352 L-20.9012,-48.0695 L-24.8100,-46.1736 L-28.5483,-43.9606 L-32.0906,-41.4456 L-35.4124,-38.6459 L-38.4910,-35.5807 L-41.3052,-32.2711 L-43.8356,-28.7399 L-46.0650,-25.0112 L-47.9779,-21.1108 L-49.5612,-17.0653 L-50.8042,-12.9026 L-51.6981,-8.6513 L-52.2370,-4.3406 L-52.4170,0.0000 L-52.2370,4.3406 L-51.6981,8.6513 L-50.8042,12.9026 L-49.5612,17.0653 L-47.9779,21.1108 L-46.0650,25.0112 L-43.8356,28.7399 L-41.3052,32.2711 L-38.4910,35.5807 L-35.4124,38.6459 L-32.0906,41.4456 L-28.5483,43.9606 L-24.8100,46.1736 L-20.9012,48.0695 L-16.8489,49.6352 L-12.6808,50.8600 Z" fill="none" stroke="#555555" stroke-width="0.7"/>
+<path id="vader_node_26" d="M12.8219,-51.4257 L17.0363,-50.1873 L21.1337,-48.6042 L25.0859,-46.6872 L28.8659,-44.4495 L32.4475,-41.9065 L35.8063,-39.0757 L38.9191,-35.9764 L41.7646,-32.6301 L44.3232,-29.0595 L46.5773,-25.2894 L48.5115,-21.3456 L50.1125,-17.2551 L51.3692,-13.0461 L52.2731,-8.7475 L52.8180,-4.3888 L53.0000,0.0000 L52.8180,4.3888 L52.2731,8.7475 L51.3692,13.0461 L50.1125,17.2551 L48.5115,21.3456 L46.5773,25.2894 L44.3232,29.0595 L41.7646,32.6301 L38.9191,35.9764 L35.8063,39.0757 L32.4475,41.9065 L28.8659,44.4495 L25.0859,46.6872 L21.1337,48.6042 L17.0363,50.1873 L12.8219,51.4257 L12.6808,50.8600 L16.8489,49.6352 L20.9012,48.0695 L24.8100,46.1736 L28.5483,43.9606 L32.0906,41.4456 L35.4124,38.6459 L38.4910,35.5807 L41.3052,32.2711 L43.8356,28.7399 L46.0650,25.0112 L47.9779,21.1108 L49.5612,17.0653 L50.8042,12.9026 L51.6981,8.6513 L52.2370,4.3406 L52.4170,0.0000 L52.2370,-4.3406 L51.6981,-8.6513 L50.8042,-12.9026 L49.5612,-17.0653 L47.9779,-21.1108 L46.0650,-25.0112 L43.8356,-28.7399 L41.3052,-32.2711 L38.4910,-35.5807 L35.4124,-38.6459 L32.0906,-41.4456 L28.5483,-43.9606 L24.8100,-46.1736 L20.9012,-48.0695 L16.8489,-49.6352 L12.6808,-50.8600 Z" fill="none" stroke="#555555" stroke-width="0.7"/>
+<path id="vader_node_27" d="M-12.8219,51.4257 L-17.0363,50.1873 L-21.1337,48.6042 L-25.0859,46.6872 L-28.8659,44.4495 L-32.4475,41.9065 L-35.8063,39.0757 L-38.9191,35.9764 L-41.7646,32.6301 L-44.3232,29.0595 L-46.5773,25.2894 L-48.5115,21.3456 L-50.1125,17.2551 L-51.3692,13.0461 L-52.2731,8.7475 L-52.8180,4.3888 L-53.0000,0.0000 L-52.8180,-4.3888 L-52.2731,-8.7475 L-51.3692,-13.0461 L-50.1125,-17.2551 L-48.5115,-21.3456 L-46.5773,-25.2894 L-44.3232,-29.0595 L-41.7646,-32.6301 L-38.9191,-35.9764 L-35.8063,-39.0757 L-32.4475,-41.9065 L-28.8659,-44.4495 L-25.0859,-46.6872 L-21.1337,-48.6042 L-17.0363,-50.1873 L-12.8219,-51.4257 L-12.6808,-50.8600 L-16.8489,-49.6352 L-20.9012,-48.0695 L-24.8100,-46.1736 L-28.5483,-43.9606 L-32.0906,-41.4456 L-35.4124,-38.6459 L-38.4910,-35.5807 L-41.3052,-32.2711 L-43.8356,-28.7399 L-46.0650,-25.0112 L-47.9779,-21.1108 L-49.5612,-17.0653 L-50.8042,-12.9026 L-51.6981,-8.6513 L-52.2370,-4.3406 L-52.4170,0.0000 L-52.2370,4.3406 L-51.6981,8.6513 L-50.8042,12.9026 L-49.5612,17.0653 L-47.9779,21.1108 L-46.0650,25.0112 L-43.8356,28.7399 L-41.3052,32.2711 L-38.4910,35.5807 L-35.4124,38.6459 L-32.0906,41.4456 L-28.5483,43.9606 L-24.8100,46.1736 L-20.9012,48.0695 L-16.8489,49.6352 L-12.6808,50.8600 Z" fill="none" stroke="#555555" stroke-width="0.7"/>
+<path id="vader_node_28" d="M12.8219,-51.4257 L17.0363,-50.1873 L21.1337,-48.6042 L25.0859,-46.6872 L28.8659,-44.4495 L32.4475,-41.9065 L35.8063,-39.0757 L38.9191,-35.9764 L41.7646,-32.6301 L44.3232,-29.0595 L46.5773,-25.2894 L48.5115,-21.3456 L50.1125,-17.2551 L51.3692,-13.0461 L52.2731,-8.7475 L52.8180,-4.3888 L53.0000,0.0000 L52.8180,4.3888 L52.2731,8.7475 L51.3692,13.0461 L50.1125,17.2551 L48.5115,21.3456 L46.5773,25.2894 L44.3232,29.0595 L41.7646,32.6301 L38.9191,35.9764 L35.8063,39.0757 L32.4475,41.9065 L28.8659,44.4495 L25.0859,46.6872 L21.1337,48.6042 L17.0363,50.1873 L12.8219,51.4257 L12.6808,50.8600 L16.8489,49.6352 L20.9012,48.0695 L24.8100,46.1736 L28.5483,43.9606 L32.0906,41.4456 L35.4124,38.6459 L38.4910,35.5807 L41.3052,32.2711 L43.8356,28.7399 L46.0650,25.0112 L47.9779,21.1108 L49.5612,17.0653 L50.8042,12.9026 L51.6981,8.6513 L52.2370,4.3406 L52.4170,0.0000 L52.2370,-4.3406 L51.6981,-8.6513 L50.8042,-12.9026 L49.5612,-17.0653 L47.9779,-21.1108 L46.0650,-25.0112 L43.8356,-28.7399 L41.3052,-32.2711 L38.4910,-35.5807 L35.4124,-38.6459 L32.0906,-41.4456 L28.5483,-43.9606 L24.8100,-46.1736 L20.9012,-48.0695 L16.8489,-49.6352 L12.6808,-50.8600 Z" fill="none" stroke="#555555" stroke-width="0.7"/>
+<path id="vader_node_29" d="M0,10 L0,0 L10,0 L10,1 L1,1 L1,10 Z" fill="none" stroke="#444444" stroke-width="0.5"/>
+<path id="vader_node_30" d="M0,10 L0,0 L10,0 L10,1 L1,1 L1,10 Z" fill="none" stroke="#444444" stroke-width="0.5"/>
+<path id="vader_node_31" d="M0,10 L0,0 L10,0 L10,1 L1,1 L1,10 Z" fill="none" stroke="#444444" stroke-width="0.5"/>
+<path id="vader_node_32" d="M0,10 L0,0 L10,0 L10,1 L1,1 L1,10 Z" fill="none" stroke="#444444" stroke-width="0.5"/>
+<path id="vader_node_33" d="M-1,0 L1,0 L1,-3 L-1,-3 Z" fill="#555555" stroke="#555555" stroke-width="0.6"/>
+<path id="vader_node_34" d="M-1,0 L1,0 L1,-3 L-1,-3 Z" fill="#555555" stroke="#555555" stroke-width="0.6"/>
+<path id="vader_node_35" d="M-1,0 L1,0 L1,-3 L-1,-3 Z" fill="#555555" stroke="#555555" stroke-width="0.6"/>
+<path id="vader_node_36" d="M-1,0 L1,0 L1,-3 L-1,-3 Z" fill="#555555" stroke="#555555" stroke-width="0.6"/>
+<path id="vader_node_37" d="M-1,0 L1,0 L1,-3 L-1,-3 Z" fill="#555555" stroke="#555555" stroke-width="0.6"/>
+<path id="vader_node_38" d="M-1,0 L1,0 L1,-3 L-1,-3 Z" fill="#555555" stroke="#555555" stroke-width="0.6"/>
+<path id="vader_node_39" d="M-1,0 L1,0 L1,-3 L-1,-3 Z" fill="#555555" stroke="#555555" stroke-width="0.6"/>
+<path id="vader_node_40" d="M-1,0 L1,0 L1,-3 L-1,-3 Z" fill="#555555" stroke="#555555" stroke-width="0.6"/>
+<path id="vader_node_41" d="M-.6,0 L.6,0 L.6,-4 L-.6,-4 Z" fill="none" stroke="#777777" stroke-width="0.6"/>
+<path id="vader_node_42" d="M-.6,0 L.6,0 L.6,-4 L-.6,-4 Z" fill="none" stroke="#777777" stroke-width="0.6"/>
+<path id="vader_node_43" d="M-.6,0 L.6,0 L.6,-4 L-.6,-4 Z" fill="none" stroke="#777777" stroke-width="0.6"/>
+<path id="vader_node_44" d="M-.6,0 L.6,0 L.6,-4 L-.6,-4 Z" fill="none" stroke="#777777" stroke-width="0.6"/>
+<circle id="vader_node_45" cx="0" cy="0" r="1.7" fill="#990f1b" stroke="#990f1b" stroke-width="0.6"/>
+<path id="vader_rail_left" d="M35,120 L139,120 L139,120.4 L35,120.4 Z" fill="none" stroke="#202020" stroke-width="0.4"/>
+<path id="vader_rail_right" d="M341,120 L445,120 L445,120.4 L341,120.4 Z" fill="none" stroke="#202020" stroke-width="0.4"/>
+<text x="59" y="85" fill="#777777" font-family="UniversNextPro-Light" font-size="8px">CLEAN SUB</text>
+<text x="356" y="85" fill="#777777" font-family="UniversNextPro-Light" font-size="8px">HARMONIC BODY</text>
+<text x="54" y="151" fill="#444444" font-family="UniversNextPro-Light" font-size="7px">PHASE LOCKED</text>
+<text x="361" y="151" fill="#444444" font-family="UniversNextPro-Light" font-size="7px">BAND LIMITED</text>
+<text x="182" y="211" fill="#c8c8c8" font-family="UniversNextPro-Light" font-size="22px">V A D E R</text>
+<text x="37" y="204" fill="#666666" font-family="UniversNextPro-Light" font-size="14px">808</text>
+<text x="361" y="204" fill="#666666" font-family="UniversNextPro-Light" font-size="9px">SUB REACTOR</text>
+<circle id="vader_palette_0" cx="640" cy="0" r="1" fill="#000000" stroke="#000000" stroke-width="0.8"/>
+<circle id="vader_palette_1" cx="640" cy="0" r="1" fill="#151515" stroke="#151515" stroke-width="0.8"/>
+<circle id="vader_palette_2" cx="640" cy="0" r="1" fill="#232323" stroke="#232323" stroke-width="0.8"/>
+<circle id="vader_palette_3" cx="640" cy="0" r="1" fill="#343434" stroke="#343434" stroke-width="0.8"/>
+<circle id="vader_palette_4" cx="640" cy="0" r="1" fill="#484848" stroke="#484848" stroke-width="0.8"/>
+<circle id="vader_palette_5" cx="640" cy="0" r="1" fill="#606060" stroke="#606060" stroke-width="0.8"/>
+<circle id="vader_palette_6" cx="640" cy="0" r="1" fill="#777777" stroke="#777777" stroke-width="0.8"/>
+<circle id="vader_palette_7" cx="640" cy="0" r="1" fill="#929292" stroke="#929292" stroke-width="0.8"/>
+<circle id="vader_palette_8" cx="640" cy="0" r="1" fill="#aaaaaa" stroke="#aaaaaa" stroke-width="0.8"/>
+<circle id="vader_palette_9" cx="640" cy="0" r="1" fill="#c4c4c4" stroke="#c4c4c4" stroke-width="0.8"/>
+<circle id="vader_palette_10" cx="640" cy="0" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="0.8"/>
+<circle id="vader_palette_11" cx="640" cy="0" r="1" fill="#4b151c" stroke="#4b151c" stroke-width="0.8"/>
+<circle id="vader_palette_12" cx="640" cy="0" r="1" fill="#81212b" stroke="#81212b" stroke-width="0.8"/>
+<circle id="vader_palette_13" cx="640" cy="0" r="1" fill="#b52534" stroke="#b52534" stroke-width="0.8"/>
+<circle id="vader_palette_14" cx="640" cy="0" r="1" fill="#df3344" stroke="#df3344" stroke-width="0.8"/>
+<circle id="vader_palette_15" cx="640" cy="0" r="1" fill="#ff4655" stroke="#ff4655" stroke-width="0.8"/>
+</g>

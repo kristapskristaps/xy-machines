@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "sdk": "1.4",
+  "kind": "synth",
+  "description": "Playable 808 bass and kick: phase-aligned sub, band-limited drive, punch transients and a reactive reactor display.",
+  "identity": {
+    "engine": 36,
+    "page": 84
+  }
+}

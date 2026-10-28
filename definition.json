@@ -1,0 +1,210 @@
+{
+  "schema": 1,
+  "id": "vader",
+  "name": "Vader",
+  "parameters": [
+    {
+      "id": "punch",
+      "label": "Punch",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 48
+      },
+      "display": "semitones"
+    },
+    {
+      "id": "fall",
+      "label": "Fall",
+      "default": 0.5,
+      "mapping": {
+        "kind": "exponential",
+        "minimum": 5,
+        "maximum": 160
+      },
+      "display": "duration"
+    },
+    {
+      "id": "drive",
+      "label": "Drive",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "shape",
+      "label": "Shape",
+      "default": 0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "round",
+          "tube",
+          "diode",
+          "fold"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "click",
+      "label": "Click",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 0
+    },
+    {
+      "id": "sub",
+      "label": "Sub",
+      "default": 0.25,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 1
+    },
+    {
+      "id": "color",
+      "label": "Color",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 2
+    },
+    {
+      "id": "phase",
+      "label": "Phase",
+      "default": 0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "0 deg",
+          "45 deg",
+          "90 deg",
+          "135 deg",
+          "180 deg",
+          "225 deg",
+          "270 deg",
+          "315 deg"
+        ]
+      },
+      "display": "enum",
+      "control": 3
+    }
+  ],
+  "presets": {
+    "Pure Force": {
+      "punch": 0,
+      "fall": 0.5,
+      "drive": 0,
+      "shape": 0,
+      "click": 0,
+      "sub": 0.25,
+      "color": 1,
+      "phase": 0
+    },
+    "Original 808": {
+      "punch": 0.4,
+      "fall": 0.3,
+      "drive": 0.08,
+      "shape": 0,
+      "click": 0.06,
+      "sub": 0.25,
+      "color": 1,
+      "phase": 0
+    },
+    "Dark Lord": {
+      "punch": 0.21,
+      "fall": 0.37,
+      "drive": 0.75,
+      "shape": 0.375,
+      "click": 0,
+      "sub": 0.3,
+      "color": 0.66,
+      "phase": 0
+    },
+    "Death Star": {
+      "punch": 0.12,
+      "fall": 0.5,
+      "drive": 0.9,
+      "shape": 0.625,
+      "click": 0,
+      "sub": 0.35,
+      "color": 0.8,
+      "phase": 0
+    },
+    "Red Saber": {
+      "punch": 0.08,
+      "fall": 0.19,
+      "drive": 0.67,
+      "shape": 0.875,
+      "click": 0,
+      "sub": 0.3,
+      "color": 0.75,
+      "phase": 0
+    },
+    "Short Fuse": {
+      "punch": 0.65,
+      "fall": 0.13,
+      "drive": 0.2,
+      "shape": 0,
+      "click": 0.36,
+      "sub": 0.15,
+      "color": 1,
+      "phase": 0
+    },
+    "Carbon": {
+      "punch": 0,
+      "fall": 0.5,
+      "drive": 0.45,
+      "shape": 0.375,
+      "click": 0,
+      "sub": 0.65,
+      "color": 0.16,
+      "phase": 0
+    },
+    "Seismic": {
+      "punch": 0.33,
+      "fall": 0.85,
+      "drive": 0.28,
+      "shape": 0.125,
+      "click": 0,
+      "sub": 0.6,
+      "color": 1,
+      "phase": 0
+    }
+  },
+  "resources": {
+    "voiceBytes": 44,
+    "voiceAlignment": 4,
+    "voiceCapacity": 8,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 72,
+      "stateAlignment": 4,
+      "paths": 2,
+      "points": 64,
+      "nodes": 46,
+      "texts": 16,
+      "palette": 16
+    }
+  },
+  "press": "page"
+}

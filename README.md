@@ -9,20 +9,27 @@ Requires Open-XY SDK 1.4 or later, with OS 1.2.1 for the native build.
 A phase-reset oscillator feeds two parallel branches: a clean sine foundation
 and a band-limited drive bank. Both follow the played note and the same pitch
 drop, so the clean sub cannot drift against the driven body. A high-passed noise
-impulse adds optional click. A fixed 1 ms onset fade avoids a hard discontinuity
-when choosing a nonzero start phase. Output stays within half-scale Q31.
+impulse adds optional click. A fixed 1 ms onset fade softens phase reset.
+Boost supplies 0–6 dB of output gain; at full Boost the clean oscillator uses
+almost the full half-scale Q31 range permitted by the SDK.
 
 The four drive characters are **Round** (symmetric saturation), **Tube**
-(biased saturation), **Diode** (rounded clipping with an even harmonic), and
+(biased saturation), **Diode** (hard asymmetric clipping), and
 **Fold** (sine folding). These are sound-design characters. The waveform banks
-contain no DC, have a positive fundamental, and crossfade between five
-harmonic-limited versions as pitch rises. Drive interpolates between nine
-intensities; Color darkens the body while Sub blends back the clean fundamental.
+contain no DC, have a positive fundamental, and crossfade between six
+harmonic-limited versions as pitch rises. Drive reaches hard saturation and
+strong sine folding, with up to 63 harmonics at bass pitches. It interpolates
+between nine intensities. Tone is a logarithmic two-pole low-pass from 20 Hz
+to fully open; Sub blends back the clean fundamental around that filter.
 
-The engine sustains. Set the OP-XY's **AMP** page for a short decay and zero
-sustain to make kicks, or hold notes for 808 bass. Use the OP-XY's stock glide
-and note/velocity controls for slides and expression. The browser has its own
-simple audition gate; it does not reproduce the device's AMP or glide behavior.
+The factory default is a mono 808 with portamento, a fast attack, a decaying
+zero-sustain AMP envelope and a release tail. Preset volume is 100 and the
+keyboard starts two octaves down. The stock AMP and play-mode pages remain
+editable. Reload Vader's **default** preset after installing this revision:
+changing firmware or selecting an engine does not rewrite an existing track's
+envelope, volume or play-mode settings. The oscillator itself can still sustain
+when AMP is set that way. The browser has its own simple audition gate and
+does not reproduce the device's preset envelope, mono mode or portamento.
 
 ## Controls
 
@@ -36,12 +43,21 @@ Press any encoder to switch between the two fixed header rows.
 | 1 | Shape | Round, Tube, Diode, Fold | Drive character. |
 | 2 | Click | 0–100 | Amount of a fixed 2 ms noise impulse, captured at note start. |
 | 2 | Sub | 0–100 | Clean parallel foundation; 100 removes the driven body. |
-| 2 | Color | 0–100 | Body brightness, darkest to brightest; the clean sub bypasses this. |
-| 2 | Phase | 0–315°, in 45° steps | Oscillator start phase for alignment with other drums; captured at note start. |
+| 2 | Tone | 0–100 | Logarithmic body brightness, 20 Hz to open; the clean sub bypasses this. |
+| 2 | Boost | 0–6 dB | Smoothed output gain, with full output headroom at 6 dB. |
 
 The eight presets are Pure Force, Original 808, Dark Lord, Death Star, Red Saber,
-Short Fuse, Carbon and Seismic. They store engine controls; use AMP to choose
-the note length. The default Pure Force is clean, with Punch, Drive and Click off.
+Short Fuse, Carbon and Seismic. They ship as native presets with mono play mode,
+portamento, a decaying AMP envelope and full preset volume. Short Fuse has no
+glide and a shorter decay; Seismic has a longer decay. Pure Force is a clean
+sine. The default preset has a small pitch drop and no drive or noise click.
+Regenerate the native preset files with `node tools/generate_presets.mjs`.
+
+This revision keeps the first six parameter slots. Tone keeps Color's seventh
+slot but changes its range to a logarithmic two-pole filter. Boost replaces
+Phase in the eighth slot: an old Phase value now selects gain rather than
+start phase. Reload the supplied presets to adopt the new values and play
+settings; old projects retain their saved control words and AMP settings.
 
 ## Display
 
@@ -54,8 +70,9 @@ Each note recoils the complete helmet, flashes its eyes and sweeps a highlight
 across the visor. Three broken reactor rings rotate outward, sparks scatter
 around the mask and small energy packets connect it to the waveform diagrams.
 Four recent note impacts can overlap, so fast retriggers keep their own rings.
-The grille charges from the centre outward with Drive and note activity; turns
-move the targeting brackets and ease the indicators to their new positions.
+The grille charges from the centre outward with Drive and note activity;
+control changes ease the indicators to their new positions. The corner
+targeting brackets have been removed.
 
 Motion settles within 0.2 seconds; idle and held resting poses are stationary.
 Release closes the visor, reduced motion snaps to static note feedback, and

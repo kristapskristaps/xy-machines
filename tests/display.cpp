@@ -35,7 +35,7 @@ int main() {
     require(!std::memcmp(&held, &frame, sizeof(frame)), "held pose settles without an idle clock");
     ++input.note_serial;
     vader::display(state, input, frame);
-    require(frame.nodes[47].scale > 1024, "the traced helmet recoils as a whole");
+    require(frame.nodes[43].scale > 1024, "the traced helmet recoils as a whole");
     for (unsigned i = 0; i < 3; ++i) vader::display(state, input, frame);
     ++input.note_serial;
     vader::display(state, input, frame);
@@ -46,7 +46,7 @@ int main() {
     ++input.note_serial;
     vader::display(state, input, frame);
     require(state.ages[0] == 184 && frame.nodes[10].shade == 14, "reduced motion keeps static note feedback");
-    require(frame.nodes[47].scale == 1024 && frame.nodes[68].x == 640 * 1024,
+    require(frame.nodes[43].scale == 1024 && frame.nodes[64].x == 640 * 1024,
             "reduced motion removes recoil and particles");
     input.held_notes = 0;
     vader::display(state, input, frame);

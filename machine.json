@@ -2,9 +2,18 @@
   "schema": 1,
   "sdk": "1.4",
   "kind": "synth",
-  "description": "Playable 808 bass and kick: phase-aligned sub, band-limited drive, punch transients and a reactive reactor display.",
+  "description": "Trap 808 bass and kick: mono glide presets, punch transients, hard band-limited drive, wide tone and boost, with a reactive Vader mask.",
   "identity": {
     "engine": 36,
     "page": 84
+  },
+  "presets": "presets",
+  "presetDefaults": {
+    "amp": {
+      "attack": 128,
+      "decay": 16500,
+      "sustain": 0,
+      "release": 16384
+    }
   }
 }

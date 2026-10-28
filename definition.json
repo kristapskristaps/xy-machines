@@ -6,7 +6,7 @@
     {
       "id": "punch",
       "label": "Punch",
-      "default": 0,
+      "default": 0.125,
       "mapping": {
         "kind": "linear",
         "minimum": 0,
@@ -17,7 +17,7 @@
     {
       "id": "fall",
       "label": "Fall",
-      "default": 0.5,
+      "default": 0.3,
       "mapping": {
         "kind": "exponential",
         "minimum": 5,
@@ -66,7 +66,7 @@
     {
       "id": "sub",
       "label": "Sub",
-      "default": 0.25,
+      "default": 0.2,
       "mapping": {
         "kind": "linear",
         "minimum": 0,
@@ -77,7 +77,7 @@
     },
     {
       "id": "color",
-      "label": "Color",
+      "label": "Tone",
       "default": 1,
       "mapping": {
         "kind": "linear",
@@ -88,23 +88,15 @@
       "control": 2
     },
     {
-      "id": "phase",
-      "label": "Phase",
-      "default": 0,
+      "id": "boost",
+      "label": "Boost",
+      "default": 1,
       "mapping": {
-        "kind": "enum",
-        "labels": [
-          "0 deg",
-          "45 deg",
-          "90 deg",
-          "135 deg",
-          "180 deg",
-          "225 deg",
-          "270 deg",
-          "315 deg"
-        ]
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
       },
-      "display": "enum",
+      "display": "percent",
       "control": 3
     }
   ],
@@ -117,7 +109,7 @@
       "click": 0,
       "sub": 0.25,
       "color": 1,
-      "phase": 0
+      "boost": 1
     },
     "Original 808": {
       "punch": 0.4,
@@ -127,7 +119,7 @@
       "click": 0.06,
       "sub": 0.25,
       "color": 1,
-      "phase": 0
+      "boost": 1
     },
     "Dark Lord": {
       "punch": 0.21,
@@ -135,9 +127,9 @@
       "drive": 0.75,
       "shape": 0.375,
       "click": 0,
-      "sub": 0.3,
+      "sub": 0.15,
       "color": 0.66,
-      "phase": 0
+      "boost": 1
     },
     "Death Star": {
       "punch": 0.12,
@@ -145,9 +137,9 @@
       "drive": 0.9,
       "shape": 0.625,
       "click": 0,
-      "sub": 0.35,
+      "sub": 0.1,
       "color": 0.8,
-      "phase": 0
+      "boost": 1
     },
     "Red Saber": {
       "punch": 0.08,
@@ -155,9 +147,9 @@
       "drive": 0.67,
       "shape": 0.875,
       "click": 0,
-      "sub": 0.3,
+      "sub": 0.05,
       "color": 0.75,
-      "phase": 0
+      "boost": 1
     },
     "Short Fuse": {
       "punch": 0.65,
@@ -167,7 +159,7 @@
       "click": 0.36,
       "sub": 0.15,
       "color": 1,
-      "phase": 0
+      "boost": 1
     },
     "Carbon": {
       "punch": 0,
@@ -177,7 +169,7 @@
       "click": 0,
       "sub": 0.65,
       "color": 0.16,
-      "phase": 0
+      "boost": 1
     },
     "Seismic": {
       "punch": 0.33,
@@ -187,21 +179,21 @@
       "click": 0,
       "sub": 0.6,
       "color": 1,
-      "phase": 0
+      "boost": 1
     }
   },
   "resources": {
-    "voiceBytes": 44,
+    "voiceBytes": 52,
     "voiceAlignment": 4,
     "voiceCapacity": 8,
     "sharedBytes": 0,
     "outputPeakQ31": 1073741824,
     "display": {
-      "stateBytes": 140,
+      "stateBytes": 104,
       "stateAlignment": 4,
       "paths": 2,
       "points": 64,
-      "nodes": 86,
+      "nodes": 82,
       "texts": 16,
       "palette": 16
     }

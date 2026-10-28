@@ -17,8 +17,8 @@ i32 lookup(const opxy::i16* table, u32 phase) {
 
 // Remove the richer mip before its highest harmonic reaches 0.44 * Fs.
 void mip(u32 increment, u32& band, i32& mix) {
-    const u32 harmonics[5] = {1, 3, 7, 15, 31};
-    band = 4;
+    const u32 harmonics[6] = {1, 3, 7, 15, 31, 63};
+    band = 5;
     while (band && increment >= 1889785610u / harmonics[band]) --band;
     mix = 32768;
     if (band) {
@@ -57,7 +57,7 @@ inline void initialize(Voice& voice, Shared&, u32 owner) {
     voice.phase = 0;
     voice.pending = 1;
     voice.sweep = opxy::q31::maximum;
-    voice.fade = voice.body = voice.drive = voice.sub = voice.color = 0;
+    voice.fade = voice.body = voice.body2 = voice.drive = voice.sub = voice.color = voice.boost = 0;
     voice.noise = owner * 2654435761u | 1u;
     voice.click = voice.click_low = 0;
 }
@@ -72,13 +72,16 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     const i32 decay = static_cast<i32>(control_table(fall_coefficients, parameters[1]));
     const i32 target_drive = (parameters[2] >> 16) * 8;
     const i32 target_sub = parameters[5] >> 16;
-    const i32 target_color = 600 + ((parameters[6] >> 16) * 30000 >> 15);
+    const i32 target_color = static_cast<i32>(control_table(tone_coefficients, parameters[6]));
+    // Boost spans 0..6 dB, using fixed headroom rather than a clipping stage.
+    const i32 target_boost = static_cast<i32>(control_table(boost_gains, parameters[7]));
     if (voice.pending) {
         voice.pending = 0;
-        voice.phase = (((static_cast<u32>(parameters[7]) >> 16) * 8) >> 15) << 29;
+        voice.phase = 0;
         voice.drive = target_drive;
         voice.sub = target_sub;
         voice.color = target_color;
+        voice.boost = target_boost;
         voice.click = parameters[4];
     }
     u32 maximum = 0;
@@ -90,19 +93,27 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     const i32 drive_step = (target_drive - voice.drive) / 64;
     const i32 sub_step = (target_sub - voice.sub) / 64;
     const i32 color_step = (target_color - voice.color) / 64;
+    const i32 boost_step = (target_boost - voice.boost) / 64;
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.drive += drive_step;
         voice.sub += sub_step;
         voice.color += color_step;
+        voice.boost += boost_step;
         const i32 pure = lookup(waves[0][0][0], voice.phase);
         const i32 body = shaped(mode, static_cast<u32>(voice.drive), band, band_mix, voice.phase);
-        voice.body += ((body - voice.body) * voice.color) >> 15;
-        i32 sample = voice.body + ((pure - voice.body) * voice.sub >> 15);
+        // Q23 filter state resolves the bottom of the 20 Hz..open tone range.
+        // The clean foundation bypasses both poles, preserving the sub at dark settings.
+        voice.body += opxy::q31::multiply(body * 256 - voice.body, voice.color);
+        voice.body2 += opxy::q31::multiply(voice.body - voice.body2, voice.color);
+        const i32 filtered = voice.body2 >> 8;
+        i32 sample = filtered + ((pure - filtered) * voice.sub >> 15);
         // High-passed noise impulse, with a fixed 2 ms decay.
         voice.noise = voice.noise * 1664525u + 1013904223u;
         const i32 noise = static_cast<i32>(voice.noise >> 17) - 16384;
         voice.click_low += (noise - voice.click_low) / 4;
-        sample = sample * 3 / 4 + ((noise - voice.click_low) * (voice.click >> 17) >> 15);
+        // Convex click/body mixing stays bounded without hard-clipping the bass.
+        const i32 click_mix = voice.click >> 18;
+        sample = (sample * (32768 - click_mix) + (noise - voice.click_low) * click_mix) >> 15;
         voice.click = opxy::q31::multiply(voice.click, 2123271099);
         if (voice.fade < 32768) {
             sample = sample * voice.fade >> 15;
@@ -111,6 +122,7 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         }
         if (sample > 32767) sample = 32767;
         if (sample < -32767) sample = -32767;
+        sample = sample * voice.boost >> 15;
         output[i] = sample * 32768;
         voice.phase += swept(pitch[i], voice.sweep, ratio);
         voice.sweep = opxy::q31::multiply(voice.sweep, decay);
@@ -118,5 +130,6 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     voice.drive = target_drive;
     voice.sub = target_sub;
     voice.color = target_color;
+    voice.boost = target_boost;
 }
 }

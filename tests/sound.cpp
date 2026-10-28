@@ -38,11 +38,21 @@ static double magnitude(const std::vector<double>& samples, double cycles) {
     return 2 * std::sqrt(real * real + imag * imag) / samples.size();
 }
 int main() {
-    opxy::i32 p[8] = {0, q(.5), 0, 0, 0, q(.25), q(1), 0};
+    opxy::i32 p[8] = {0, q(.5), 0, 0, 0, q(.25), q(1), q(1)};
     const opxy::u32 bass = 1u << 22; // coherent 43.0664 Hz
     const auto clean = render(p, bass);
-    require(magnitude(clean, 1.0 / 1024) > .22, "useful clean sub level");
+    const double clean_fundamental = magnitude(clean, 1.0 / 1024);
+    require(clean_fundamental > .47, "full Boost uses the available clean sub level");
     require(magnitude(clean, 3.0 / 1024) < .0001, "clean default is a sine");
+    p[7] = 0;
+    const auto unboosted = render(p, bass);
+    const double boost_ratio = clean_fundamental / magnitude(unboosted, 1.0 / 1024);
+    require(boost_ratio > 1.99 && boost_ratio < 2.01, "Boost provides six dB of useful gain");
+    p[7] = q(1); p[5] = 0; p[6] = 0;
+    const auto dark = render(p, bass);
+    require(magnitude(dark, 1.0 / 1024) < clean_fundamental * .25,
+            "Tone audibly darkens a clean bass, even without Drive");
+    p[5] = q(.25); p[6] = q(1);
     // Exact stable tuning at bass and high pitches, independent of drive mode.
     for (unsigned m = 0; m < 4; ++m) {
         p[2] = q(1); p[3] = q((m + .5) / 4); p[5] = q(.25);
@@ -109,5 +119,5 @@ int main() {
                 require(sample >= -1073741824 && sample <= 1073741824, "corner peak");
         }
     }
-    std::puts("PASS: clean sub, drive harmonics, DC, alias rejection, punch tuning, click decay, retrigger and 256 corners.");
+    std::puts("PASS: full-level sub, six dB Boost, audible Tone range, drive harmonics, DC, alias rejection, punch tuning, click decay, retrigger and 256 corners.");
 }

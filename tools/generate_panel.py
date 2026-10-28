@@ -78,7 +78,7 @@ def mask_points(loop):
 
 
 # Everything around the mask is drawn first, so its silhouette stays legible.
-for node in (25, 26, 27, 28, *range(60, 68)):
+for node in (25, 26, 27, 28, *range(56, 64)):
     segments = []
     for segment in range(4):
         points = []
@@ -88,9 +88,9 @@ for node in (25, 26, 27, 28, *range(60, 68)):
                 points.append((radius * math.cos(angle), radius * math.sin(angle) * 0.91))
         segments.append('M' + ' L'.join(f'{x:.4f},{y:.4f}' for x, y in points) + ' Z')
     path(node, ' '.join(segments), stroke='#aaaaaa', width=0.45)
-for node in range(68, 80):
+for node in range(64, 76):
     path(node, 'M-3,-0.4 L3,-0.4 L3,0.4 L-3,0.4 Z', '#dc3844', '#dc3844', 0.4)
-for node in range(80, 86):
+for node in range(76, 82):
     path(node, 'M-3,0 L0,-2 L3,0 L0,2 Z', '#e7e7e7', '#e7e7e7', 0.4)
 for node in range(2):
     points = [(-52 + i * 104 / 31, math.sin(i * math.tau / 31) * 18 - .4) for i in range(32)]
@@ -100,10 +100,10 @@ for node in range(2):
 # Back only the open grille: filling the whole convex silhouette would turn
 # the reference's empty space beneath the flared helmet into white wedges.
 grille = [(325, 374), (363, 332), (363, 324), (367, 318), (375, 318), (379, 324), (379, 332), (417, 374)]
-path(46, [((x - 371) / 2, (y - 261) / 2) for x, y in grille], '#c5c8ca', '#c5c8ca', .3)
-for node, loop in ((47, 0), (48, 1), (49, 4), (50, 7)):
-    path(node, mask_points(loops[loop]), '#050506', '#b5bfc8', .85 if node == 47 else .55)
-for node, loop in ((51, 2), (52, 3), (53, 5), (54, 6), (55, 8), (56, 9), (57, 13), (12, 16)):
+path(42, [((x - 371) / 2, (y - 261) / 2) for x, y in grille], '#c5c8ca', '#c5c8ca', .3)
+for node, loop in ((43, 0), (44, 1), (45, 4), (46, 7)):
+    path(node, mask_points(loops[loop]), '#050506', '#b5bfc8', .85 if node == 43 else .55)
+for node, loop in ((47, 2), (48, 3), (49, 5), (50, 6), (51, 8), (52, 9), (53, 13), (12, 16)):
     path(node, mask_points(loops[loop]), '#c5c8ca', '#c5c8ca', .22)
 for node, loop in zip(range(13, 18), (10, 11, 12, 14, 15)):
     path(node, mask_points(loops[loop]), '#050506', '#050506', .22)
@@ -114,18 +114,16 @@ left = [(308, 274), (311, 267), (317, 255), (325, 255), (334, 259),
 for node, mirror in ((10, False), (11, True)):
     points = [(((742 - x if mirror else x) - 371) / 2, (y - 261) / 2) for x, y in left]
     path(node, points, '#8b9296', '#8b9296', .25)
-for node in (58, 59):
+for node in (54, 55):
     path(node, 'M-0.6,-1.5 L0.6,-1.5 L0.6,1.5 L-0.6,1.5 Z', '#ffdddd', '#ffdddd', .3)
 for node in range(18, 24):
     path(node, 'M-0.45,0 L0.45,0 L0.45,-6 L-0.45,-6 Z', '#ba2937', '#ba2937', .25)
 path(24, 'M-17,-0.4 L17,-0.4 L17,0.4 L-17,0.4 Z', '#9a2530', '#9a2530', .3)
-for node in range(29, 33):
-    path(node, 'M0,10 L0,0 L10,0 L10,1 L1,1 L1,10 Z', stroke='#444444', width=.4)
-for node in range(33, 41):
+for node in range(29, 37):
     path(node, 'M-1,0 L1,0 L1,-5 L-1,-5 Z', '#555555', '#555555', .3)
-for node in range(41, 45):
+for node in range(37, 41):
     path(node, 'M-0.5,0 L0.5,0 L0.5,-4 L-0.5,-4 Z', stroke='#777777', width=.4)
-parts.append('<circle id="vader_node_45" cx="0" cy="0" r="1.5" fill="#990f1b" stroke="#990f1b" stroke-width="0.4"/>')
+parts.append('<circle id="vader_node_41" cx="0" cy="0" r="1.5" fill="#990f1b" stroke="#990f1b" stroke-width="0.4"/>')
 for x in (35, 341):
     parts.append(f'<path d="M{x},120 L{x + 104},120 L{x + 104},120.4 L{x},120.4 Z" fill="none" stroke="#202020" stroke-width="0.3"/>')
 for text, x, y, size, fill in (('CLEAN SUB', 59, 85, 8, '#777777'), ('HARMONIC BODY', 356, 85, 8, '#777777'),

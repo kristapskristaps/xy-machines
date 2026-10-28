@@ -70,10 +70,9 @@ inline void display_reset(DisplayState& state) {
     state.header.reset();
     state.notes.reset();
     state.initialized = state.track = state.serial = state.next = 0;
-    state.edit_age = kDuration;
     state.gate = 0;
     for (u32 i = 0; i < 4; ++i) state.ages[i] = kDuration;
-    for (u32 i = 0; i < 8; ++i) state.previous[i] = state.visual[i] = 0;
+    for (u32 i = 0; i < 8; ++i) state.visual[i] = 0;
 }
 
 inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& frame) {
@@ -84,13 +83,11 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     const NoteEvents events = state.notes.update(input);
     if (snapshot || input.reduced_motion) {
         state.next = 0;
-        state.edit_age = kDuration;
         state.gate = held ? unit : 0;
         for (u32 i = 0; i < 4; ++i) state.ages[i] = kDuration;
         for (u32 i = 0; i < 8; ++i) state.visual[i] = input.slots[i] >> 21;
     } else {
         for (u32 i = 0; i < 4; ++i) state.ages[i] = clamp(state.ages[i] + elapsed, 0, kDuration);
-        state.edit_age = clamp(state.edit_age + elapsed, 0, kDuration);
         state.gate = follow(state.gate, held ? unit : 0, elapsed);
         if (input.note_serial != state.serial) {
             state.ages[state.next] = 0;
@@ -99,26 +96,24 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
         // Release closes the visor smoothly; it never creates another hit.
         if (events.hold_ended) state.gate = follow(state.gate, 0, elapsed);
         for (u32 i = 0; i < 8; ++i) {
-            if (input.slots[i] != state.previous[i]) state.edit_age = 0;
             state.visual[i] = follow(state.visual[i], input.slots[i] >> 21, elapsed);
         }
     }
     state.initialized = 1;
     state.track = input.track;
     state.serial = input.note_serial;
-    for (u32 i = 0; i < 8; ++i) state.previous[i] = input.slots[i];
     const i32 age = state.ages[(state.next + 3) & 3];
-    const i32 impact = remaining(age), edited = remaining(state.edit_age);
+    const i32 impact = remaining(age);
     const u32 mode = shape_index(input.slots[3]);
     const i32 drive = state.visual[2];
-    const char* const titles[8] = {"punch", "fall", "drive", "shape", "click", "sub", "color", "phase"};
+    const char* const titles[8] = {"punch", "fall", "drive", "shape", "click", "sub", "tone", "boost"};
     const char* const modes[4] = {"round", "tube", "diode", "fold"};
     char values[8][header_capacity] = {};
     for (u32 i = 0; i < 8; ++i) header_amount(values[i], header_capacity, input.slots[i]);
     integer(values[0], (static_cast<u32>(input.slots[0] >> 16) * 48 + 16384) >> 15, "st");
     integer(values[1], (control_table(fall_milliseconds, input.slots[1]) + 500) / 1000, "ms");
     copy(values[3], header_capacity, modes[mode]);
-    integer(values[7], (((static_cast<u32>(input.slots[7]) >> 16) * 8) >> 15) * 45);
+    integer(values[7], (static_cast<u32>(input.slots[7] >> 16) * 6 + 16384) >> 15, "dB");
     page_header(state.header, input, frame, titles, values, 2);
 
     // Initialize every retained node, including particles hidden this frame.
@@ -135,7 +130,7 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
         if (pulse_age >= kDuration || input.reduced_motion) continue;
         const i32 progress = ease(pulse_age);
         for (u32 layer = 0; layer < 3; ++layer) {
-            const u32 node = layer ? 60 + slot * 2 + layer - 1 : 25 + slot;
+            const u32 node = layer ? 56 + slot * 2 + layer - 1 : 25 + slot;
             const i32 scale = 950 + (progress * static_cast<i32>(110 + layer * 80) >> 10);
             const i32 shade = clamp(10 - pulse_age / 23 - static_cast<i32>(layer) * 2, 1, 10);
             place(frame, node, 240 * unit, 123 * unit, scale, static_cast<u32>(shade), stroke);
@@ -146,7 +141,7 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     const i32 mask_scale = unit + (impact * (68 + state.visual[0] / 32) >> 10);
     const i32 lift = impact * 4;
     const Turn pose = rotation((state.serial & 1 ? 1 : -1) * (impact * 12 >> 10));
-    for (u32 node = 46; node < 58; ++node) mask(frame, node, 0, 0, mask_scale, lift, pose);
+    for (u32 node = 42; node < 54; ++node) mask(frame, node, 0, 0, mask_scale, lift, pose);
     mask(frame, 12, 0, 0, mask_scale, lift, pose);
     for (u32 node = 13; node < 18; ++node) mask(frame, node, 0, 0, mask_scale, lift, pose);
     const u32 eye_shade = impact > 320 ? 15 : state.gate > 400 ? 14 : 7;
@@ -155,7 +150,7 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
         if (age > 8 && age < 125 && !input.reduced_motion) {
             const i32 scan = clamp((age - 8) * unit / 117, 0, unit);
             const i32 x = (side ? 1 : -1) * (24 * unit - scan * 9);
-            mask(frame, 58 + side, x, 6 * unit, mask_scale, lift, pose, 15, fill_and_stroke);
+            mask(frame, 54 + side, x, 6 * unit, mask_scale, lift, pose, 15, fill_and_stroke);
         }
     }
     // Red ribs charge from the mouth's centre toward its edge.
@@ -176,9 +171,9 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
             const Turn direction = rotation(angle);
             const i32 x = (80 + (progress * 26 >> 10)) * direction.cos;
             const i32 y = (47 + (progress * 13 >> 10)) * direction.sin;
-            place(frame, 68 + spark, 240 * unit + x, 123 * unit + y,
+            place(frame, 64 + spark, 240 * unit + x, 123 * unit + y,
                   unit - (progress >> 1), spark % 3 ? 12 + static_cast<u32>(impact > 300) : 9, fill_and_stroke);
-            turn(frame, 68 + spark, direction);
+            turn(frame, 64 + spark, direction);
         }
     }
     if (impact && !input.reduced_motion) {
@@ -186,27 +181,21 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
         for (u32 packet = 0; packet < 6; ++packet) {
             const i32 distance = clamp((progress * 45 >> 10) - static_cast<i32>(packet % 3) * 8, 0, 34);
             const i32 side = packet < 3 ? -1 : 1;
-            place(frame, 80 + packet, (240 + side * (100 - distance)) * unit,
+            place(frame, 76 + packet, (240 + side * (100 - distance)) * unit,
                   (119 + static_cast<i32>(packet % 3) * 3) * unit, unit,
                   packet < 3 ? 8 : 14, fill_and_stroke);
         }
     }
-    for (u32 corner = 0; corner < 4; ++corner) {
-        const i32 inset = edited / 170;
-        place(frame, 29 + corner, (corner & 1 ? 454 - inset : 26 + inset) * unit,
-              (corner & 2 ? 180 - inset : 65 + inset) * unit, unit, edited ? 8 : 3, stroke);
-        turn(frame, 29 + corner, rotation(static_cast<i32>(corner) * 900));
-    }
     for (u32 bar = 0; bar < 8; ++bar) {
         const i32 level = drive * static_cast<i32>(8 - bar) / 14 + impact * static_cast<i32>(8 - bar) / 12;
-        place(frame, 33 + bar, (354 + static_cast<i32>(bar) * 11) * unit, 170 * unit,
+        place(frame, 29 + bar, (354 + static_cast<i32>(bar) * 11) * unit, 170 * unit,
               unit + clamp(level, 0, unit), bar < static_cast<u32>(drive / 128 + 1) ? 13 : 3, fill_and_stroke);
     }
     const u32 slots[4] = {0, 1, 2, 5};
     for (u32 dial = 0; dial < 4; ++dial) {
-        place(frame, 41 + dial, (40 + static_cast<i32>(dial) * 13) * unit, 169 * unit, unit, 7, stroke);
-        turn(frame, 41 + dial, rotation(-1350 + state.visual[slots[dial]] * 2700 / 1023));
+        place(frame, 37 + dial, (40 + static_cast<i32>(dial) * 13) * unit, 169 * unit, unit, 7, stroke);
+        turn(frame, 37 + dial, rotation(-1350 + state.visual[slots[dial]] * 2700 / 1023));
     }
-    place(frame, 45, 240 * unit, 199 * unit, unit, state.gate ? 14 : 3, fill_and_stroke);
+    place(frame, 41, 240 * unit, 199 * unit, unit, state.gate ? 14 : 3, fill_and_stroke);
 }
 }

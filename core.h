@@ -4,7 +4,7 @@
 namespace vader {
 struct Voice {
     opxy::u32 phase, pending;
-    opxy::i32 sweep, fade, body, drive, sub, color;
+    opxy::i32 sweep, fade, body, body2, drive, sub, color, boost;
     opxy::u32 noise;
     opxy::i32 click, click_low;
 };

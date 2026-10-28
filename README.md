@@ -36,9 +36,11 @@ revisions and changes. The engine runs internally at 48 kHz, followed by a
 counts and time constants therefore keep their intended duration.
 
 There is no module-panel CV calibration, user-data/SysEx import, or Plaits LPG.
-The stock XY envelope supplies the voice gate. Eight browser voices and up to
-sixteen native voice-state slots are allocated; those storage counts do not
-establish usable hardware polyphony.
+The stock XY envelope supplies the voice gate. The native build is limited to four simultaneous Weave voices across all tracks,
+with oldest-note stealing. The browser audition can schedule eight voices. All
+fifteen models remain available; heavier models still need hardware stress tests.
+The 24-tap converter uses mirrored histories to remove ring-wrap work while
+retaining bit-identical audio.
 
 ## Develop and audition
 

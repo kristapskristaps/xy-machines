@@ -49,15 +49,15 @@ void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
                 weave_dsp::macro_render(&voice.oscillator,controls,increment,voice.cache,32);
                 voice.cache_read=0;
             }
-            voice.history[voice.history_write]=voice.cache[voice.cache_read++];
+            const opxy::i16 sample=voice.cache[voice.cache_read++];
+            voice.history[voice.history_write]=voice.history[voice.history_write+24]=sample;
             if(++voice.history_write==24)voice.history_write=0;
         }
         opxy::i32 accumulated=0;
-        unsigned at=voice.history_write;
+        const opxy::i16* history=voice.history+voice.history_write+23;
         const opxy::i16* coefficients=resample_coefficients[voice.resample_phase];
         for(unsigned tap=0;tap<24;++tap) {
-            if(at==0)at=24;
-            accumulated+=static_cast<opxy::i32>(voice.history[--at])*coefficients[tap];
+            accumulated+=static_cast<opxy::i32>(history[-static_cast<int>(tap)])*coefficients[tap];
         }
         const opxy::i32 sample=accumulated>>15;
         output[i]=(sample<-32768?-32768:sample>32767?32767:sample)*16384;

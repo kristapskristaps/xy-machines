@@ -6,7 +6,7 @@ namespace weave {
 struct Voice {
     weave_dsp::macro_voice oscillator;
     opxy::u32 pending, model;
-    opxy::i16 cache[32], history[24];
+    opxy::i16 cache[32], history[48];
     opxy::u32 cache_read, history_write, resample_phase;
 };
 struct Shared {};

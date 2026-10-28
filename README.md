@@ -101,9 +101,11 @@ cost. A profiling-enabled development image can be built from committed source:
 ```sh
 python ../open-xy/sdk.py build --machine . --profiling on \
   --stock-os "<private>/stock-1.2.1/os.ldr" --out "<private>/vader-dev-001"
-python ../open-xy/sdk.py verify --package "<private>/vader-dev-001" \
-  --stock-os "<private>/stock-1.2.1/os.ldr"
 ```
+
+The development build checks a fresh source rebuild locally. The separate
+`sdk.py verify --package ... --stock-os ...` release verification command
+requires the SDK's Windows x86_64 release host.
 
 Keep all firmware and packages outside every checkout. Follow the SDK's
 [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md)

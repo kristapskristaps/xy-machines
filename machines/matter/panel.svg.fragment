@@ -1,0 +1,54 @@
+<g id="matter_panel">
+<path d="M240 56 L420 120" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M240 56 L60 120" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M195 72 L375 136" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M285 72 L105 136" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M150 88 L330 152" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M330 88 L150 152" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M105 104 L285 168" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M375 104 L195 168" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M60 120 L240 184" fill="none" stroke="#373737" stroke-width="0.7"/>
+<path d="M420 120 L240 184" fill="none" stroke="#373737" stroke-width="0.7"/>
+<circle id="matter_node_0" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_1" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_2" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_3" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_4" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_5" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_6" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_7" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_8" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_9" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_10" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_11" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_12" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_13" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_14" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_15" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_16" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_17" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_18" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_19" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_20" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_21" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_22" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_23" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<circle id="matter_node_24" cx="0" cy="0" r="1.6" fill="#737373" stroke="#737373" stroke-width="0.6"/>
+<path id="matter_node_25" d="M0 8 L0 0 L8 0" fill="none" stroke="#555555" stroke-width="0.8"/>
+<path id="matter_node_26" d="M0 8 L0 0 L8 0" fill="none" stroke="#555555" stroke-width="0.8"/>
+<path id="matter_node_27" d="M0 8 L0 0 L8 0" fill="none" stroke="#555555" stroke-width="0.8"/>
+<path id="matter_node_28" d="M0 8 L0 0 L8 0" fill="none" stroke="#555555" stroke-width="0.8"/>
+<path id="matter_node_29" d="M-3 -3 L3 -3 L3 3 L-3 3 Z" fill="none" stroke="#555555" stroke-width="0.8"/>
+<circle id="matter_node_30" cx="0" cy="0" r="3" fill="none" stroke="#eeeeee" stroke-width="0.8"/>
+<text transform="matrix(1 0 0 1 24 201)" fill="#eeeeee" font-family="UniversNextPro-Light" font-size="14px">matter</text>
+<text transform="matrix(1 0 0 1 24 35)" fill="#777777" font-family="UniversNextPro-Light" font-size="10px">modal / 24</text>
+<text id="matter_text_0" fill="#bbbbbb" font-family="UniversNextPro-Light" font-size="12px">mallet</text>
+<circle id="matter_palette_0" transform="matrix(1 0 0 1 640 320)" cx="0" cy="0" r="1" fill="#000000" stroke="#000000" stroke-width="0.7"/>
+<circle id="matter_palette_1" transform="matrix(1 0 0 1 640 320)" cx="0" cy="0" r="1" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="0.7"/>
+<circle id="matter_palette_2" transform="matrix(1 0 0 1 640 320)" cx="0" cy="0" r="1" fill="#373737" stroke="#373737" stroke-width="0.7"/>
+<circle id="matter_palette_3" transform="matrix(1 0 0 1 640 320)" cx="0" cy="0" r="1" fill="#555555" stroke="#555555" stroke-width="0.7"/>
+<circle id="matter_palette_4" transform="matrix(1 0 0 1 640 320)" cx="0" cy="0" r="1" fill="#737373" stroke="#737373" stroke-width="0.7"/>
+<circle id="matter_palette_5" transform="matrix(1 0 0 1 640 320)" cx="0" cy="0" r="1" fill="#9b9b9b" stroke="#9b9b9b" stroke-width="0.7"/>
+<circle id="matter_palette_6" transform="matrix(1 0 0 1 640 320)" cx="0" cy="0" r="1" fill="#c8c8c8" stroke="#c8c8c8" stroke-width="0.7"/>
+<circle id="matter_palette_7" transform="matrix(1 0 0 1 640 320)" cx="0" cy="0" r="1" fill="#f5f5f5" stroke="#f5f5f5" stroke-width="0.7"/>
+</g>

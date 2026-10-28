@@ -2,7 +2,7 @@
 #include <opxy/effect.hpp>
 namespace vapour {
 const unsigned ring_frames = 65536;
-const unsigned grain_capacity = 16;
+const unsigned grain_capacity = 8;
 struct Grain {
     opxy::u32 phase, increment, envelope, envelope_increment, remaining, pre_delay;
     opxy::i32 slope, smoothness, left_gain, right_gain;

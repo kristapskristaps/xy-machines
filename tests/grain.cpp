@@ -39,5 +39,23 @@ int main() {
             if(std::fabs(actual-expected)>.003) {std::puts("FAIL grain window");return 1;}
         }
     }
+    // Exercise the actual grain renderer against the former four-product pan.
+    // Complementary stereo energy is preserved with at most two PCM steps' change.
+    Workspace workspace={};
+    for(unsigned trial=0;trial<2000;++trial) {
+        const opxy::i32 l=static_cast<opxy::i16>(rng=rng*1664525u+1013904223u);
+        const opxy::i32 r=static_cast<opxy::i16>(rng=rng*1664525u+1013904223u);
+        const unsigned packed=static_cast<opxy::u16>(l)|(static_cast<unsigned>(static_cast<opxy::u16>(r))<<16);
+        for(unsigned i=0;i<66;++i)ring[i]=static_cast<opxy::i32>(packed);
+        Grain grain={};grain.remaining=64;grain.increment=65536;grain.envelope=0x80000000u;grain.slope=32768;
+        grain.left_gain=(rng=rng*1664525u+1013904223u)>>17;
+        grain.right_gain=(rng=rng*1664525u+1013904223u)>>17;
+        workspace.grains[0]=grain;opxy::i32 left[64]={},right[64]={};
+        render_grain<false>(state,workspace,ring,0,left,right);
+        const opxy::i32 gl=gain15(l,32767),gr=gain15(r,32767);
+        const opxy::i32 old_l=gain15(gl,grain.left_gain)+gain15(gr,32767-grain.right_gain);
+        const opxy::i32 old_r=gain15(gr,grain.right_gain)+gain15(gl,32767-grain.left_gain);
+        for(unsigned i=0;i<64;++i)if(std::abs(left[i]-old_l)>2||std::abs(right[i]-old_r)>2||left[i]+right[i]!=gl+gr)return 1;
+    }
     std::printf("PASS: 100,000 float-reference interpolation checks (max errors %.3f / %.3f PCM steps), five grain windows\n",worst_linear,worst_cubic);
 }

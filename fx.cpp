@@ -24,15 +24,16 @@ i32 diffuse(State& state, Workspace& workspace, i32 x, unsigned channel) {
     return x;
 }
 template<bool High>
-void render_grain(State& state, Workspace& workspace, const i32* ring, unsigned index, i32* left, i32* right) {
+void render_grain(State& __restrict state, Workspace& __restrict workspace, const i32* __restrict ring, unsigned index, i32* left, i32* right) {
     Grain grain=workspace.grains[index];
     if (!grain.remaining) return;
     for (unsigned i=grain.pre_delay;i<opxy::block_frames && grain.remaining;++i) {
         const i32 gain=envelope(grain,High);
         const i32 l=gain15(read(state,ring,grain.phase,0,High),gain);
         const i32 r=gain15(read(state,ring,grain.phase,1,High),gain);
-        left[i]+=gain15(l,grain.left_gain)+gain15(r,32767-grain.right_gain);
-        right[i]+=gain15(r,grain.right_gain)+gain15(l,32767-grain.left_gain);
+        const i32 pan_l=gain15(l,grain.left_gain),pan_r=gain15(r,grain.right_gain);
+        left[i]+=pan_l+r-pan_r;
+        right[i]+=pan_r+l-pan_l;
         grain.phase+=grain.increment;
         --grain.remaining;
     }

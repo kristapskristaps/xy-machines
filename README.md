@@ -29,13 +29,16 @@ The track's send controls how much enters Halo. Time follows transport at
 40–300 BPM, using 120 BPM when no tempo is available. At 40 BPM the longest
 echo is three seconds. The browser tempo control spans 40–240 BPM.
 
-The wet network runs at 22.05 kHz behind 31-tap halfband filters; the callback
-runs at 44.1 kHz. This deliberately suits a warm, diffuse tail. The symmetric conversion filters share mirrored histories and paired taps.
+The wet network runs at 11.025 kHz behind two cascaded stages of 31-tap halfband filters; the callback
+runs at 44.1 kHz. This deliberately suits a warm, diffuse tail, with a 4 kHz maximum Color
+cutoff and less high-frequency shimmer than the earlier 22.05 kHz network.
+Delay lengths, modulation, ducking and pitch-shift timing are retimed for the
+lower rate; tempo echoes still reach three seconds. The symmetric conversion filters share mirrored histories and paired taps.
 Control-dependent tone, room and feedback coefficients update once per block;
 the modulated audio network still runs per wet sample. The long stereo
 echo uses packed 16-bit samples with error feedback. Plate, diffusion, pre-delay
-and shimmer storage use Q24 words. Each send borrows 458,752 bytes (448 KiB)
-of scratch memory and has its own 236-byte state. Reset cannot expose previous
+and shimmer storage use Q24 words. Each send borrows 231,424 bytes (226 KiB)
+of scratch memory and has its own 248-byte state. Reset cannot expose previous
 scratch audio. Hold maintains an audible tail; it is not a lossless recording.
 
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings

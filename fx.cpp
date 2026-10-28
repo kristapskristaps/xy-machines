@@ -11,17 +11,17 @@ const i32 unit=16777216;
 struct Line {unsigned offset,length;};
 // Four input diffusers per side, then two allpasses and two delays per side.
 const Line lines[19]={
-    {0,128},{128,128},{256,256},{512,256},
-    {768,128},{896,128},{1024,256},{1280,256},
-    {1536,1024},{2560,8192},{10752,2048},{12800,4096},
-    {16896,1024},{17920,4096},{22016,4096},{26112,4096},
-    {30208,8192},{38400,8192},{46592,67584}
+    {0,64},{64,64},{128,128},{256,128},
+    {384,64},{448,64},{512,128},{640,128},
+    {768,512},{1280,4096},{5376,1024},{6400,2048},
+    {8448,512},{8960,2048},{11008,2048},{13056,2048},
+    {15104,4096},{19200,4096},{23296,33792}
 };
-const unsigned fir_offset=114176;
-const unsigned fir_words=188;
+const unsigned fir_offset=57088;
+const unsigned fir_words=376;
 static_assert(fir_offset+fir_words<=buffer_words,"Halo scratch layout");
-const unsigned diffusion_delay[8]={68,104,161,245,73,111,173,251};
-const unsigned plate_delay[2][4]={{498,3299,1334,2756},{673,3124,1968,2344}};
+const unsigned diffusion_delay[8]={34,52,81,123,37,56,87,126};
+const unsigned plate_delay[2][4]={{249,1650,667,1378},{337,1562,984,1172}};
 inline i32 clamp(i32 x,i32 lo,i32 hi){return x<lo?lo:x>hi?hi:x;}
 inline i32 mul(i32 x,i32 gain){return opxy::q31::multiply(x,gain*65536);}
 inline i32 parameter(unsigned index,i32 word) {
@@ -85,17 +85,18 @@ i32 echo_delay(i32 control,u32 bpm) {
     if(!bpm)bpm=1200;
     if(bpm<400)bpm=400;
     if(bpm>3000)bpm=3000;
-    const u32 length=opxy::division_sixteenths[opxy::division(control)]*826875u;
-    const u32 delay=((length/bpm)<<8)+((length%bpm)<<8)/bpm;
+    const u32 length=opxy::division_sixteenths[opxy::division(control)]*network_rate*600u;
+    const u32 denominator=bpm*16u;
+    const u32 delay=((length/denominator)<<8)+((length%denominator)<<8)/denominator;
     const u32 maximum=(echo_frames-3)*256u;
     return static_cast<i32>(delay>maximum?maximum:delay<512u?512u:delay);
 }
 inline i32 pitch_up(const State& state,const i32* memory,unsigned channel,unsigned width) {
     const u32 phase=state.grain_phase>>8,other_phase=(phase+32768u)&65535u;
-    const i32 a_delay=static_cast<i32>(1102u*256u+((65535u-phase)*width>>8));
-    const i32 b_delay=static_cast<i32>(1102u*256u+((65535u-other_phase)*width>>8));
-    const i32 a=tap(state,memory,17,a_delay+static_cast<i32>(channel*4096u),channel);
-    const i32 b=tap(state,memory,17,b_delay+static_cast<i32>(channel*4096u),channel);
+    const i32 a_delay=static_cast<i32>(551u*256u+((65535u-phase)*width>>8));
+    const i32 b_delay=static_cast<i32>(551u*256u+((65535u-other_phase)*width>>8));
+    const i32 a=tap(state,memory,17,a_delay+static_cast<i32>(channel*2048u),channel);
+    const i32 b=tap(state,memory,17,b_delay+static_cast<i32>(channel*2048u),channel);
     return mul(a,table(tables::window,phase))+mul(b,table(tables::window,other_phase));
 }
 struct Settings {
@@ -113,35 +114,36 @@ Settings settings(const State& state) {
     result.decay=decay+mul(32763-decay,hold);
     const i32 damping=5500+mul(color,19000);
     result.damping=damping+mul(32735-damping,hold);
+    result.damping=clamp(2*result.damping-mul(result.damping,result.damping),0,32767);
     result.diffusion=20316+mul(distance,4259);
     result.shimmer=mul(mul(mul(shimmer,shimmer),32767-hold),16384);
     result.seed_echo=mul(echo,21000);result.wet_echo=mul(echo,20000);
     result.feedback=mul(11000+mul(bloom,14000),echo);
-    result.duck=mul(bloom,24576);result.release=12+mul(32767-bloom,35);
-    result.modulation=4000+mul(distance,18000);
-    result.pre_delay=44u+(static_cast<unsigned>(distance)*2160u>>15);
-    result.grain_width=772u+(static_cast<unsigned>(distance)*1543u>>15);
+    result.duck=mul(bloom,24576);result.release=24+mul(32767-bloom,70);
+    result.modulation=2000+mul(distance,9000);
+    result.pre_delay=22u+(static_cast<unsigned>(distance)*1080u>>15);
+    result.grain_width=386u+(static_cast<unsigned>(distance)*771u>>15);
     const i32 scale=18022+mul(distance,22938);
     for(unsigned channel=0;channel<2;++channel)for(unsigned line=0;line<4;++line)
         result.delays[channel][line]=static_cast<i32>(plate_delay[channel][line])*scale/128;
     return result;
 }
-void network(State& state,i32* memory,i32* input,i32* output,const Settings& config) {
+void network(State& __restrict state,i32* __restrict memory,i32* __restrict input,i32* __restrict output,const Settings& __restrict config) {
     i32 echoes[2],predelay[2],shifted[2];
     for(unsigned channel=0;channel<2;++channel) {
-        state.input_high[channel]+=mul(input[channel]-state.input_high[channel],1118);
+        state.input_high[channel]+=mul(input[channel]-state.input_high[channel],2198);
         const i32 high=input[channel]-state.input_high[channel];
         state.input_low[channel]+=mul(high-state.input_low[channel],config.color);
         input[channel]=mul(state.input_low[channel],config.input_gain);
         echoes[channel]=tap(state,memory,18,state.delay,channel);
-        state.echo_low[channel]+=mul(echoes[channel]-state.echo_low[channel],config.color/2+1200);
-        state.echo_high[channel]+=mul(state.echo_low[channel]-state.echo_high[channel],800);
+        state.echo_low[channel]+=mul(echoes[channel]-state.echo_low[channel],config.color/2+2400);
+        state.echo_high[channel]+=mul(state.echo_low[channel]-state.echo_high[channel],1580);
         echoes[channel]=state.echo_low[channel]-state.echo_high[channel];
-        predelay[channel]=line_sample(state,memory,16,config.pre_delay+channel*16u,channel);
+        predelay[channel]=line_sample(state,memory,16,config.pre_delay+channel*8u,channel);
         const i32 previous=state.plate[channel];
-        state.shimmer_high[channel]+=mul(previous-state.shimmer_high[channel],2600);
+        state.shimmer_high[channel]+=mul(previous-state.shimmer_high[channel],4994);
         i32 bright=previous-state.shimmer_high[channel];
-        for(unsigned stage=0;stage<2;++stage){state.shimmer_low[channel][stage]+=mul(bright-state.shimmer_low[channel][stage],19600);bright=state.shimmer_low[channel][stage];}
+        for(unsigned stage=0;stage<2;++stage){state.shimmer_low[channel][stage]+=mul(bright-state.shimmer_low[channel][stage],27476);bright=state.shimmer_low[channel][stage];}
         shifted[channel]=bright;
     }
     // Two overlapped, Hann-windowed heads read at twice the recording speed.
@@ -157,7 +159,7 @@ void network(State& state,i32* memory,i32* input,i32* output,const Settings& con
         for(unsigned stage=0;stage<4;++stage)
             diffused=allpass(state,memory,channel*4+stage,diffused,static_cast<i32>(diffusion_delay[channel*4+stage]*256u),config.diffusion);
         const i32 tank=soft(mul(diffused,23593)+mul(state.plate[other],config.decay)+mul(output[channel],config.shimmer));
-        state.phase[channel]+=channel?24737u:22011u;
+        state.phase[channel]+=channel?49474u:44022u;
         const i32 sine=table(tables::sine,state.phase[channel]>>16);
         const i32 modulation=mul(sine,config.modulation)/4;
         const unsigned first=8+channel*4;
@@ -171,9 +173,9 @@ void network(State& state,i32* memory,i32* input,i32* output,const Settings& con
         next_plate[channel]=clamp(d2,-unit,unit);
         const i32 tail=mul(ap1,4260)+mul(d1,10158)+mul(d2,22282)+mul(state.plate[other],5898);
         const i32 magnitude=input[channel]<0?-input[channel]:input[channel];
-        state.body[channel]+=mul(magnitude-state.body[channel],38);
+        state.body[channel]+=mul(magnitude-state.body[channel],76);
         const i32 transient=clamp((magnitude-state.body[channel]-state.body[channel]/3)*4,0,unit);
-        const i32 follower=transient>state.duck[channel]?2800:config.release;
+        const i32 follower=transient>state.duck[channel]?5361:config.release;
         state.duck[channel]+=mul(transient-state.duck[channel],follower);
         const i32 duck_gain=32767-mul(state.duck[channel]/512,config.duck);
         const i32 open=mul(tail,duck_gain);
@@ -224,8 +226,10 @@ void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
         state.delay=echo_delay(parameters[5],transport.bpm_x10);state.ready=1;
     }
     const i32 target_delay=echo_delay(parameters[5],transport.bpm_x10);
-    i32* down[2]={memory+fir_offset,memory+fir_offset+62};
-    i32* up[2]={memory+fir_offset+124,memory+fir_offset+156};
+    i32* down[2][2]={{memory+fir_offset,memory+fir_offset+62},
+                     {memory+fir_offset+188,memory+fir_offset+250}};
+    i32* up[2][2]={{memory+fir_offset+124,memory+fir_offset+156},
+                   {memory+fir_offset+312,memory+fir_offset+344}};
     for(unsigned control=0;control<7;++control) {
         const i32 target=parameter(control,parameters[control]);
         const i32 delta=mul(target-state.controls[control],control==6?3858:1987);
@@ -234,21 +238,30 @@ void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
     const Settings config=settings(state);
     const u32 grain_step=16777216u/config.grain_width;
     for(unsigned i=0;i<opxy::block_frames;++i) {
-        down[0][state.down_write]=down[0][state.down_write+31]=left[i]/128;
-        down[1][state.down_write]=down[1][state.down_write+31]=right[i]/128;
+        down[0][0][state.down_write[0]]=down[0][0][state.down_write[0]+31]=left[i]/128;
+        down[0][1][state.down_write[0]]=down[0][1][state.down_write[0]+31]=right[i]/128;
         if(!state.half) {
-            state.delay=glide(state.delay,target_delay,1024);
-            i32 input[2]={downsample(down[0],state.down_write),downsample(down[1],state.down_write)},wet[2];
-            network(state,memory,input,wet,config);
-            state.grain_phase=(state.grain_phase+grain_step)&16777215u;
-            if(++state.up_write==16)state.up_write=0;
-            up[0][state.up_write]=up[0][state.up_write+16]=wet[0];
-            up[1][state.up_write]=up[1][state.up_write+16]=wet[1];
+            for(unsigned channel=0;channel<2;++channel)
+                down[1][channel][state.down_write[1]]=down[1][channel][state.down_write[1]+31]=downsample(down[0][channel],state.down_write[0]);
+            if(!state.quarter) {
+                state.delay=glide(state.delay,target_delay,512);
+                i32 input[2]={downsample(down[1][0],state.down_write[1]),downsample(down[1][1],state.down_write[1])},wet[2];
+                network(state,memory,input,wet,config);
+                state.grain_phase=(state.grain_phase+grain_step)&16777215u;
+                if(++state.up_write[1]==16)state.up_write[1]=0;
+                for(unsigned channel=0;channel<2;++channel)
+                    up[1][channel][state.up_write[1]]=up[1][channel][state.up_write[1]+16]=wet[channel];
+            }
+            if(++state.up_write[0]==16)state.up_write[0]=0;
+            for(unsigned channel=0;channel<2;++channel)
+                up[0][channel][state.up_write[0]]=up[0][channel][state.up_write[0]+16]=upsample(up[1][channel],state.up_write[1],state.quarter);
+            state.quarter^=1;
+            if(++state.down_write[1]==31)state.down_write[1]=0;
         }
-        left[i]=clamp(upsample(up[0],state.up_write,state.half),-unit+1,unit-1)*128;
-        right[i]=clamp(upsample(up[1],state.up_write,state.half),-unit+1,unit-1)*128;
+        left[i]=clamp(upsample(up[0][0],state.up_write[0],state.half),-unit+1,unit-1)*128;
+        right[i]=clamp(upsample(up[0][1],state.up_write[0],state.half),-unit+1,unit-1)*128;
         state.half^=1;
-        if(++state.down_write==31)state.down_write=0;
+        if(++state.down_write[0]==31)state.down_write[0]=0;
     }
 }
 }

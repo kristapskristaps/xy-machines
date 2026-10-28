@@ -10,7 +10,7 @@ int main() {
         halo::write(state,memory,16,-static_cast<opxy::i32>(frame*17));
         ++state.written;
     }
-    for(unsigned age=1;age<4000;++age) {
+    for(unsigned age=1;age<2000;++age) {
         if(halo::line_sample(state,memory,16,age,0)!=static_cast<opxy::i32>((5000-age)*21))return 1;
         if(halo::line_sample(state,memory,16,age,1)!=-static_cast<opxy::i32>((5000-age)*17))return 1;
     }
@@ -54,8 +54,26 @@ int main() {
     const double rejection=10*std::log10(powers[1]/powers[0]);
     std::printf("16 kHz alias rejection: %.1f dB\n",rejection);
     if(rejection> -55)return 1;
+    // The full 4:1 cascade must reject audio above the new wet Nyquist limit.
+    double cascade[2]={};
+    for(unsigned tone=0;tone<2;++tone) {
+        opxy::i32 history[2][62]={};unsigned position[2]={};
+        const double frequency=tone?8000:1000;
+        for(unsigned i=0;i<44100;++i) {
+            history[0][position[0]]=history[0][position[0]+31]=static_cast<opxy::i32>(std::sin(2*pi*frequency*i/44100.)*halo::unit/2);
+            if(!(i&1)) {
+                history[1][position[1]]=history[1][position[1]+31]=halo::downsample(history[0],position[0]);
+                if(i>200 && !(i&3)){const double y=halo::downsample(history[1],position[1]);cascade[tone]+=y*y;}
+                if(++position[1]==31)position[1]=0;
+            }
+            if(++position[0]==31)position[0]=0;
+        }
+    }
+    const double cascade_rejection=10*std::log10(cascade[1]/cascade[0]);
+    std::printf("8 kHz rejection through the 4:1 cascade: %.1f dB\n",cascade_rejection);
+    if(cascade_rejection> -55)return 1;
     // A 100 ms grain is phase-coherent for A3; check its octave at A4.
-    halo::initialize(state);const unsigned width=2205,step=16777216u/width;
+    halo::initialize(state);const unsigned width=halo::network_rate/10,step=16777216u/width;
     double energy[2]={};double re[2]={},im[2]={};
     for(unsigned i=0;i<66150;++i) {
         const double input=std::sin(2*pi*220*i/halo::network_rate)*halo::unit/4;

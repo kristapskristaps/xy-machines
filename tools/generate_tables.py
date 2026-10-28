@@ -8,7 +8,7 @@ def array(name,kind,values):
  return '\n'.join(lines+['};'])
 sine=[round(math.sin(2*math.pi*i/256)*32767) for i in range(257)]
 window=[round((.5-.5*math.cos(2*math.pi*i/256))*32767) for i in range(257)]
-tone=[round((1-math.exp(-2*math.pi*(550*(8000/550)**(i/256))/22050))*32767) for i in range(257)]
+tone=[round((1-math.exp(-2*math.pi*(550*(4000/550)**(i/256))/11025))*32767) for i in range(257)]
 soft=[round(math.tanh(i/256)*16777216) for i in range(1025)]
 h=[]
 for i in range(31):

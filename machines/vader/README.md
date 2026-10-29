@@ -102,15 +102,15 @@ product descriptions; it did not include a comparative listening test.
 ## Develop and audition
 
 Keep [Open-XY](https://github.com/etcetc000/open-xy) on `staging` beside this
-repository as `../../../open-xy`. Use Python 3.11+, NumPy 2.3.5, Node 22.12+ and
+repository as `../../../xy-machines-sdk`. Use Python 3.11+, NumPy 2.3.5, Node 22.12+ and
 Clang with WebAssembly support. On macOS with Homebrew LLVM, add
 `--cxx /opt/homebrew/opt/llvm/bin/clang++` to the preview and test commands.
 Choose a fresh output folder for each preview.
 
 ```sh
-python ../../../open-xy/sdk.py test --machine .
-python ../../../open-xy/sdk.py preview --machine . --out ../../../open-xy/local/vader-preview-001
-python ../../../open-xy/tools/serve_harness.py --preview ../../../open-xy/local/vader-preview-001
+python ../../../xy-machines-sdk/sdk.py test --machine .
+python ../../../xy-machines-sdk/sdk.py preview --machine . --out ../../../xy-machines-sdk/local/vader-preview-001
+python ../../../xy-machines-sdk/tools/serve_harness.py --preview ../../../xy-machines-sdk/local/vader-preview-001
 ```
 
 Open the printed localhost URL, enable audio, select a low octave and play.
@@ -132,7 +132,7 @@ Native compilation and host tests do not establish hardware acceptance or CPU
 cost. A profiling-enabled development image can be built from committed source:
 
 ```sh
-python ../../../open-xy/sdk.py build --machine . --profiling on \
+python ../../../xy-machines-sdk/sdk.py build --machine . --profiling on \
   --stock-os "<private>/stock-1.2.1/os.ldr" --out "<private>/vader-dev-001"
 ```
 

@@ -23,12 +23,12 @@ For a lively sequence, vary Multiply and Overtone with parameter locks, leave so
 
 ## Audition and check
 
-Keep the SDK beside this repository as `../../../open-xy`. Use Python 3.11+, NumPy 2.3.5, Node 22.12+ and Clang with a WebAssembly linker. On macOS, Homebrew LLVM and LLD provide the preview compiler. Use `--cxx /opt/homebrew/opt/llvm/bin/clang++` if Apple Clang cannot link WebAssembly.
+Keep the SDK beside this repository as `../../../xy-machines-sdk`. Use Python 3.11+, NumPy 2.3.5, Node 22.12+ and Clang with a WebAssembly linker. On macOS, Homebrew LLVM and LLD provide the preview compiler. Use `--cxx /opt/homebrew/opt/llvm/bin/clang++` if Apple Clang cannot link WebAssembly.
 
 ```sh
-python ../../../open-xy/sdk.py test --machine . --cxx clang++ --firmware
-python ../../../open-xy/sdk.py preview --machine . --cxx clang++ --out ../../../open-xy/local/westfold-preview-001
-python ../../../open-xy/tools/serve_harness.py --preview ../../../open-xy/local/westfold-preview-001 --port 8947
+python ../../../xy-machines-sdk/sdk.py test --machine . --cxx clang++ --firmware
+python ../../../xy-machines-sdk/sdk.py preview --machine . --cxx clang++ --out ../../../xy-machines-sdk/local/westfold-preview-001
+python ../../../xy-machines-sdk/tools/serve_harness.py --preview ../../../xy-machines-sdk/local/westfold-preview-001 --port 8947
 ```
 
 Open `http://127.0.0.1:8947`, enable audio and hold the on-screen keys or use `A W S E D F T G Y H U J K`. The audition has its own simple amplitude gate; the device adds its stock envelopes, filter, velocity and mixer.
@@ -36,7 +36,7 @@ Open `http://127.0.0.1:8947`, enable audio and hold the on-screen keys or use `A
 Render dry WAV demonstrations and run the static folding alias check:
 
 ```sh
-python resources/render_demo.py --out ../../../open-xy/local/westfold-audition-001
+python resources/render_demo.py --out ../../../xy-machines-sdk/local/westfold-audition-001
 ```
 
 Output directories must be new. Generated audio, previews and binaries stay outside this repository. `tests/sound.cpp` checks harmonic families, spectral growth, clean balance, pitch, decay, modulation, deterministic restarts and randomized automation. `tests/display.cpp` checks frame bounds, track changes, note response, alternate captions and reduced motion. Both also run with AddressSanitizer and UndefinedBehaviorSanitizer during development.
@@ -63,7 +63,7 @@ The machine compiles for Blackfin through the public SDK. The source declares a 
 Prepare a profiling-enabled development module outside every checkout:
 
 ```sh
-python ../../../open-xy/sdk.py compile --machine . --profiling on --out /absolute/external/path/westfold-module-001
+python ../../../xy-machines-sdk/sdk.py compile --machine . --profiling on --out /absolute/external/path/westfold-module-001
 ```
 
 An installable image additionally needs the exact stock OS 1.2.0 from the owner’s device. Follow the SDK’s [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md) and [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md). Firmware and firmware-containing packages belong outside every checkout. No device installation or diagnostics are performed by the development commands above.

@@ -88,7 +88,7 @@ gate and glide are audition approximations, not an emulation of XY's stock voice
 
 ## Build and test on this Mac
 
-Keep the SDK beside this repository at `../../../open-xy`. From the SDK checkout:
+Keep the SDK beside this repository at `../../../xy-machines-sdk`. From the SDK checkout:
 
 ```sh
 export PATH="$PWD/local/wasm-tools/lld/23.1.4/bin:$PATH"

@@ -2,6 +2,9 @@ name: Collection checks
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 env:
   OPEN_XY_REF: fbc62e3bfa30fb2be865b5106572c280723d712f
   OPEN_XY_REPOSITORY: kristapskristaps/open-xy

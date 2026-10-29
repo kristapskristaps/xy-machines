@@ -6,7 +6,7 @@ grain pitch move independently: stop the scan to sustain a texture, move it
 backwards, or scatter grains across the sample. Each grain uses linear PCM
 interpolation, its own pitch offset and stereo position.
 
-The machine lives in this repository; the sibling `../../../open-xy` checkout supplies
+The machine lives in this repository; the sibling `../../../xy-machines-sdk` checkout supplies
 the SDK. It registers as a `sample` machine on stock sample page 2. Assign a sample
 through the usual sample browser. Saved trim, reverse, sample level, tuning and
 track transpose apply. Stock envelopes, filters and mixing follow its output.
@@ -67,8 +67,8 @@ Requires Python 3.11+ and a C++11 host compiler. WAV rendering additionally need
 NumPy 2.3.5. From this folder:
 
 ```sh
-python ../../../open-xy/sdk.py test --machine .
-python tools/audition.py --out ../../../open-xy/local/granular-audition-001
+python ../../../xy-machines-sdk/sdk.py test --machine .
+python tools/audition.py --out ../../../xy-machines-sdk/local/granular-audition-001
 ```
 
 Use a fresh output directory each time. On macOS, add
@@ -92,8 +92,8 @@ The Hann table is reproducible with `python tools/generate_window.py`.
 Keep modules and firmware outside every checkout, including ignored folders:
 
 ```sh
-python ../../../open-xy/sdk.py compile --machine . --profiling on --out /external/private/granular-module-001
-python ../../../open-xy/sdk.py build --machine . --profiling on --stock-os /external/private/stock-1.2.1/os.ldr --out /external/private/granular-dev-001
+python ../../../xy-machines-sdk/sdk.py compile --machine . --profiling on --out /external/private/granular-module-001
+python ../../../xy-machines-sdk/sdk.py build --machine . --profiling on --stock-os /external/private/stock-1.2.1/os.ldr --out /external/private/granular-dev-001
 ```
 
 The first command produces a module, which cannot be installed as an OS. The

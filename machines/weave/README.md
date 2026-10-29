@@ -104,13 +104,13 @@ retaining bit-identical audio.
 
 ## Develop and audition
 
-Keep the SDK beside this repository as `../../../open-xy`, using Python 3.11+ and a
+Keep the SDK beside this repository as `../../../xy-machines-sdk`, using Python 3.11+ and a
 Clang with WebAssembly support:
 
 ```sh
-python ../../../open-xy/sdk.py test --machine . --cxx clang++ --firmware
-python ../../../open-xy/sdk.py preview --machine . --cxx clang++ --out ../previews/weave-001
-python ../../../open-xy/tools/serve_harness.py --preview ../previews/weave-001
+python ../../../xy-machines-sdk/sdk.py test --machine . --cxx clang++ --firmware
+python ../../../xy-machines-sdk/sdk.py preview --machine . --cxx clang++ --out ../previews/weave-001
+python ../../../xy-machines-sdk/tools/serve_harness.py --preview ../previews/weave-001
 ```
 
 Tests cover all models and both outputs, deterministic voice ownership, moving

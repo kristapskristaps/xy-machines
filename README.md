@@ -20,6 +20,21 @@ subset and preserve your device's existing layout when building firmware.
 
 ## Check and develop
 
+The standard workflow is documented in **[docs/development.md](docs/development.md)**
+and [AGENTS.md](AGENTS.md). Its short commands are:
+
+```sh
+./xy setup --native
+./xy new mybass --name "My Bass" --controls 8
+./xy test mybass
+./xy preview mybass --watch
+./xy test --changed --native
+```
+
+Setup records local paths in ignored configuration. Hardware `build`, `stage`
+and explicit `profile` commands are described in the guide; previews/tests never
+contact a device. Existing machines' DSP and artwork are unchanged by these tools.
+
 Use Python 3.12, Node 22.12+, NumPy 2.3.5 and Clang with wasm32 support.
 The separate Open-XY SDK revision tested by CI is recorded in `SDK_REVISION`;
 it includes the SDK 1.5 Shift selector needed by the imported Weave revision.

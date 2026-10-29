@@ -31,7 +31,10 @@ jobs:
       - name: Source history audit
         working-directory: xy-machines
         run: python tools/check_private_files.py --history --all-objects
-      - name: All 35 machine previews and host tests
+      - name: Development workflow tests
+        working-directory: xy-machines
+        run: python -m unittest discover -s tests
+      - name: Machine previews and host tests
         working-directory: xy-machines
         run: python tools/check.py --sdk ../open-xy --cxx clang++ --host-cxx g++
   native:
@@ -51,6 +54,6 @@ jobs:
       - name: Pinned Blackfin toolchain
         working-directory: open-xy
         run: python sdk.py toolchain fetch
-      - name: Compile each of the 35 machines
+      - name: Compile each machine
         working-directory: xy-machines
         run: python tools/check.py --sdk ../open-xy --native-only

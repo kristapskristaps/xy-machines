@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")"
+if [ -x .venv/bin/python ]; then exec .venv/bin/python tools/dev.py "$@"; fi
+for python in python3.12 python3.11 python3; do
+  if command -v "$python" >/dev/null 2>&1 && "$python" -c 'import sys; sys.exit(sys.version_info < (3, 11))' 2>/dev/null; then
+    exec "$python" tools/dev.py "$@"
+  fi
+done
+echo 'Python 3.11+ is required. Install Python 3.12, then run ./xy setup.' >&2
+exit 1

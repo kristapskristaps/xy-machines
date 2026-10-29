@@ -1,8 +1,63 @@
 # XY Machines
 
-This repository contains 35 Open-XY machines. The SDK is a separate sibling
-checkout at `../open-xy`; never vendor or modify it to make a machine work.
+Use [docs/development.md](docs/development.md) and the root `./xy` commands.
+The SDK is a separate pinned checkout configured by `./xy setup`; never vendor
+or modify it to make a machine work. `SDK_REPOSITORY` and `SDK_REVISION` define
+the dependency; local overrides live in ignored `local/dev.json`.
 Read the SDK's authoring, UX, API, build and profiling guides before machine work.
+
+## Standard development loop
+
+1. Work on a `codex/<topic>` branch. Use separate Git worktrees per chat when
+   needed, coordinate shared inventory/tooling edits, and merge completed work.
+2. Run `./xy setup` once and `./xy doctor` to check the pinned SDK and preview
+   compiler. Setup never resets an existing SDK or another chat's changes.
+3. Use `./xy new <id> --name "Name" --controls 8` for a new synth, or add
+   `--kind effect` for an effect. It creates tests/docs and updates the inventory
+   without nested Git repositories. Sample engines use the Granular/API examples;
+   the SDK does not scaffold them. Preserve saved IDs and control contracts.
+4. Edit the machine's C++, metadata, artwork, presets and machine-local tests.
+   Run `./xy test <id>` for quick checks. `./xy test --changed` includes staged,
+   unstaged and untracked machine files relative to HEAD; `--base origin/main`
+   includes branch changes. Inventory/SDK-pin changes select all machines.
+5. For synths use `./xy preview <id> --watch`. The localhost allowlist serves
+   fresh authenticated snapshots and reloads only successful builds. A failed
+   edit keeps the previous audition available. Re-enable audio after reload.
+   The default chooses a free port; never stop another chat's server.
+6. Run `./xy test <id> --native` before hardware work. Add `--cpu` for DSP
+   performance changes; this is an advisory host estimate, not Blackfin timing.
+   Effect native checks include Subvista because SDK startup needs an engine.
+
+The SDK browser workbench supports synths. Effects/sample engines use the same
+test/build commands plus their specialist auditions listed in the development
+guide. Do not claim that browser tests reproduce native mono/glide, stock
+envelopes, sends, scheduling, device CPU or hardware display behaviour.
+
+## Hardware workflow
+
+- DSP/display C++ is statically linked: updating it needs a firmware rebuild,
+  boot-partition write and reboot. MTP cannot hot-load a plugin. Iterate locally
+  first and batch device tests. Native preset-only JSON changes can be copied
+  and reloaded without flashing when the engine contract remains unchanged.
+- Commit clean source, then run `./xy build --kit <collection.json> --layout
+  <last-installed/layout.json>`. Never default hardware builds to the full
+  inventory or omit the saved layout. Keep the other machines used by projects.
+- `./xy stage <package>` verifies hashes and prepares an external install bundle.
+  `--against <previous-verified/install-manifest.json>` lists bundle differences;
+  it does not attest the live device. Presets are opt-in with `--presets`.
+  Back up replaced device files, verify complete readbacks, and never delete
+  unrelated content or silently overwrite edited user presets.
+- On macOS/libmtp use bounded partial reads: whole-file reads previously stalled
+  the XY. Confirm the physical flash/reboot before claiming an installed build.
+- Once device work is authorized, continue necessary reversible steps without
+  repeatedly requesting approval. Ask for physical MTP/flash/reboot readiness
+  when needed; build/test/stage commands themselves never contact a device.
+- After a confirmed reboot, saved/stopped project and USB audio off, run
+  `./xy profile --package <package> --machine <id> --installed` for three complete
+  sequential measurements and the SDK report. Restart without saving diagnostic
+  settings afterwards. Do not infer total project CPU or polyphony from it.
+
+## Repository boundaries and releases
 
 - Work in this repository. The original sibling repositories and the original
   `open-xy-hundekraft` folder are independent working copies used by other chats;
@@ -14,10 +69,12 @@ Read the SDK's authoring, UX, API, build and profiling guides before machine wor
 - Use root `collection.json` as the complete inventory. Files in `collections/`
   select groups; an inventory is not a promise that all machines fit one image.
   Keep IDs, parameter contracts, licences, notices and upstream attribution intact.
-- Run `python tools/check.py --sdk ../open-xy` for machine previews and host tests.
+- Run `./xy test` for collection-wide previews and host tests, and
+  `python -m unittest discover -s tests` for shared workflow tools.
   Use `--native` for per-machine Blackfin compilation into external temporary
   directories. Run the SDK public check and the staged/history private-data scan.
-  Preserve imported DSP during layout/tooling changes; check provenance hashes.
+  Preserve imported DSP during layout/tooling changes; initial provenance hashes
+  describe the historical snapshot, not future intentional source revisions.
 - Contributor C++ uses public opxy headers, with no OS headers, platform
   conditionals, assembly, allocation, blocking, I/O or graphics in audio callbacks.
 - Firmware, stock content, device captures, firmware packages and private backups

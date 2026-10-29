@@ -255,6 +255,31 @@ def stage(args, sdk):
         + flash)
     print(f'Staged {len(hashes)} files; {len(changed)} differ from the comparison bundle. No device operations.\n{out}')
 
+def profile_package(args, sdk):
+    package = outside_checkout(args.package)
+    sys.path.insert(0, str(sdk))
+    from tooling.profile_report import package_data
+    _, report, _ = package_data(package)
+    available = [case['name'] for case in report['benchmark_cases'] if case.get('source') == 'sdk']
+    names = available if args.all_machines else list(dict.fromkeys(args.machine or []))
+    require(names and all(name in available for name in names), 'Machine is not in this diagnostic package.')
+    output = fresh(private_root() / 'cpu', package.name + '-batch')
+    captures = []
+    print('Active device diagnostic: leave the saved/stopped XY untouched. Restart afterwards without saving test settings.')
+    for number in range(1, 4):
+        out = output / f'run-{number}'
+        sdk_command(sdk, 'profile', 'benchmark', '--package', package, '--installed', '--greet', '--out', out)
+        captures += ['--capture', out / 'capture.json']
+    reports = {}
+    for name in names:
+        out = output / 'reports' / name
+        sdk_command(sdk, 'profile', 'report', '--package', package, '--machine', name, *captures, '--out', out)
+        reports[name] = str(out)
+    output.mkdir(parents=True, exist_ok=True)
+    (output / 'batch-summary.json').write_text(json.dumps(dict(package=str(package), reports=reports,
+        captures=[str(path) for path in captures[1::2]], independent_runs=3), indent=2) + '\n')
+    print(f'{len(names)} machine reports from the same 3 complete runs: {output}')
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sdk', type=Path)
@@ -283,7 +308,9 @@ def main():
     p.add_argument('package'); p.add_argument('--against'); p.add_argument('--out'); p.add_argument('--presets', action='store_true')
     p = sub.add_parser('profile', help='Explicit active device diagnostic; save and stop the project first')
     p.add_argument('--package', required=True); p.add_argument('--installed', required=True, action='store_true')
-    p.add_argument('--machine', required=True)
+    group = p.add_mutually_exclusive_group(required=True)
+    group.add_argument('--machine', action='append', help='machine ID; repeat to report a subset')
+    group.add_argument('--all', dest='all_machines', action='store_true', help='report every SDK machine from the same three captures')
     args = parser.parse_args()
     if args.command == 'setup':
         setup(args); return
@@ -312,20 +339,7 @@ def main():
     elif args.command == 'stage':
         stage(args, sdk)
     elif args.command == 'profile':
-        package = outside_checkout(args.package)
-        sys.path.insert(0, str(sdk))
-        from tooling.profile_report import package_data
-        _, report, _ = package_data(package)
-        require(any(case.get('source') == 'sdk' and case['name'] == args.machine
-                    for case in report['benchmark_cases']), 'Machine is not in this diagnostic package.')
-        captures = []
-        print('Active device diagnostic: leave the saved/stopped XY untouched. Restart afterwards without saving test settings.')
-        for number in range(1, 4):
-            out = fresh(private_root() / 'cpu', f'{args.machine}-run{number}')
-            sdk_command(sdk, 'profile', 'benchmark', '--package', package, '--installed', '--greet', '--out', out)
-            captures += ['--capture', out / 'capture.json']
-        sdk_command(sdk, 'profile', 'report', '--package', package, '--machine', args.machine,
-                    *captures, '--out', fresh(private_root() / 'cpu', args.machine + '-report'))
+        profile_package(args, sdk)
 
 if __name__ == '__main__':
     try:

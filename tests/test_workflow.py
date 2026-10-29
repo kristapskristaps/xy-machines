@@ -100,5 +100,38 @@ class WorkflowTests(unittest.TestCase):
                 dev.build(argparse.Namespace(), Path('/unused-sdk'))
             sdk.assert_not_called()
 
+    def test_batch_profiling_reuses_three_captures_for_all_reports(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            module = types.ModuleType('tooling.profile_report')
+            module.package_data = lambda _: ({}, {'benchmark_cases': [
+                {'name': 'stock', 'source': 'stock'}, {'name': 'a', 'source': 'sdk'},
+                {'name': 'b', 'source': 'sdk'}]}, {})
+            args = argparse.Namespace(package=str(root / 'package'), machine=None, all_machines=True)
+            with (patch.dict(sys.modules, {'tooling.profile_report': module}),
+                  patch.object(dev, 'private_root', return_value=root),
+                  patch.object(dev, 'sdk_command') as command,
+                  patch.object(sys, 'path', sys.path.copy())):
+                dev.profile_package(args, root / 'sdk')
+            captures = [call.args for call in command.call_args_list if call.args[2] == 'benchmark']
+            reports = [call.args for call in command.call_args_list if call.args[2] == 'report']
+            self.assertEqual(len(captures), 3)
+            self.assertEqual(len(reports), 2)
+            self.assertEqual({call[call.index('--machine') + 1] for call in reports}, {'a', 'b'})
+            first = reports[0][reports[0].index('--capture'):reports[0].index('--out')]
+            self.assertEqual(first, reports[1][reports[1].index('--capture'):reports[1].index('--out')])
+            summary = json.loads(next(root.rglob('batch-summary.json')).read_text())
+            self.assertEqual(summary['independent_runs'], 3)
+
+    def test_unknown_profile_target_never_opens_the_device(self):
+        module = types.ModuleType('tooling.profile_report')
+        module.package_data = lambda _: ({}, {'benchmark_cases': [{'name': 'a', 'source': 'sdk'}]}, {})
+        with tempfile.TemporaryDirectory() as folder, patch.dict(sys.modules, {'tooling.profile_report': module}), patch.object(
+                dev, 'sdk_command') as command, patch.object(sys, 'path', sys.path.copy()):
+            args = argparse.Namespace(package=folder, machine=['missing'], all_machines=False)
+            with self.assertRaises(ValueError):
+                dev.profile_package(args, Path(folder))
+            command.assert_not_called()
+
 if __name__ == '__main__':
     unittest.main()

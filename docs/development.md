@@ -76,6 +76,10 @@ recording establishes hardware CPU or native display acceptance.
 
 ## Repeatable device updates
 
+For a full-collection audition, use the measured two-bank plan in
+[hardware-testing.md](hardware-testing.md). It covers layout/project isolation,
+repeatable listening tests and reusing three captures for a complete image.
+
 1. Choose a development **kit** containing the machines used by current projects
    plus the machine under development. The full inventory is not a default
    hardware kit and may exceed memory.
@@ -126,6 +130,10 @@ This explicitly starts an active device diagnostic. It collects three complete
 sequential runs and the SDK's revision-bound report. Restart without saving the
 diagnostic settings afterwards. Host estimates cannot replace these measurements;
 the synthetic whole-voice metric excludes graphics and total project scheduling.
+
+Use `--all` instead of `--machine vader` to generate every included machine's
+report from the same three captures. Repeating `--machine` selects a subset of
+reports without repeating the hardware capture batch.
 
 ## Parallel work and final checks
 

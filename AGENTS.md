@@ -56,6 +56,11 @@ envelopes, sends, scheduling, device CPU or hardware display behaviour.
   `./xy profile --package <package> --machine <id> --installed` for three complete
   sequential measurements and the SDK report. Restart without saving diagnostic
   settings afterwards. Do not infer total project CPU or polyphony from it.
+- For full-collection tests follow docs/hardware-testing.md. Keep lab-bank
+  layouts/projects isolated from personal projects. Use `profile --all` to
+  reuse one three-run capture batch for all machines in an installed image;
+  never repeat captures per report or imply that one benchmark covers every
+  internal synthesis model, preset or demanding parameter setting.
 
 ## Repository boundaries and releases
 

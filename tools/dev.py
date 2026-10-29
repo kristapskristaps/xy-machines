@@ -192,7 +192,7 @@ def stage(args, sdk):
     package = outside_checkout(args.package)
     sys.path.insert(0, str(sdk))
     from tooling.profile_report import package_data
-    manifest, _, _ = package_data(package)  # Validate firmware and compile-report hashes.
+    manifest, report, _ = package_data(package)  # Validate firmware and compile-report hashes.
     out = outside_checkout(args.out or fresh(private_root() / 'staging', 'install'))
     require(not out.exists(), 'Choose a fresh staging directory.')
     files = {}
@@ -219,6 +219,10 @@ def stage(args, sdk):
         _, machines, _ = native.configuration(native.package_collection(package), native.package_layout(package))
         descriptors = []
         for machine in machines:
+            prefix = 'external/' + machine.id + '/'
+            expected = {name: sha for name, sha in report['sources'].items() if name.startswith(prefix)}
+            require({name: digest(path) for name, path in machine.files().items()} == expected,
+                    'Source changed since this package was built; rebuild before staging presets: ' + machine.id)
             values = [math.floor(p['default'] * 32767 + .5) for p in machine.definition['parameters']]
             metadata = json.loads((machine.root / 'machine.json').read_text())
             descriptors.append(dict(id=machine.id, kind=machine.kind, presets=machine.presets or {},

@@ -107,7 +107,7 @@ class WorkflowTests(unittest.TestCase):
             module.package_data = lambda _: ({}, {'benchmark_cases': [
                 {'name': 'stock', 'source': 'stock'}, {'name': 'a', 'source': 'sdk'},
                 {'name': 'b', 'source': 'sdk'}]}, {})
-            args = argparse.Namespace(package=str(root / 'package'), machine=None, all_machines=True)
+            args = argparse.Namespace(package=str(root / 'package'), machine=None, all_machines=True, runs=3)
             with (patch.dict(sys.modules, {'tooling.profile_report': module}),
                   patch.object(dev, 'private_root', return_value=root),
                   patch.object(dev, 'sdk_command') as command,

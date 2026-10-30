@@ -8,7 +8,9 @@ import shutil
 import subprocess
 import sys
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parents[2] / 'open-xy'
+sys.path.insert(0,str(ROOT.parents[1]/'tools'))
+from workspace import sdk_path
+SDK=sdk_path()
 CXX='/opt/homebrew/opt/llvm/bin/clang++'
 
 def main():

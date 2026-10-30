@@ -1,10 +1,7 @@
 {
   "schema": 1,
-  "sdk": "1.2",
+  "sdk": "1.6",
   "kind": "sample",
   "description": "Four-grain sample engine with Hann windows, spray and stereo sample playback.",
-  "identity": {
-    "engine": 48,
-    "page": 2
-  }
+  "base": "sampler"
 }

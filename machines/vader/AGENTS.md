@@ -34,14 +34,14 @@ Use the pinned SDK configured by `./xy setup`, never an arbitrary sibling SDK.
    and [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
    Prepare a profiling-enabled build from committed source, request a device test
    if not already authorized, and wait for confirmation of installation/reboot.
-   Collect three complete runs, generate the report and explain its scope.
+   Follow the pinned SDK capture requirements, generate the report and explain its scope.
    Never invent a CPU number from host checks. If hardware is unavailable, report
    that validation remains pending; a maintainer can run the batch.
 5. If publication is requested, follow
    [catalog submission](https://github.com/etcetc000/open-xy/blob/staging/docs/catalog.md#submit-a-machine).
    New or changed draft/published entries require the hardware `cpu` record for
    the exact pinned commit. A new machine revision needs a new measurement.
-   The catalog PR targets `staging` and changes only `catalog/machines.json`.
+   Follow the pinned SDK catalog target policy; change only `catalog/machines.json`.
 
 Keep generated outputs outside this repository. Firmware, stock content and
 firmware-containing packages must stay outside every checkout, even ignored

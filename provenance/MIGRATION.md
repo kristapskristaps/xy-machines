@@ -52,3 +52,15 @@ SDK copy. Existing SDK checkouts used by other threads were not modified.
 | open-xy-hundekraft | Initial source snapshot | `machines/hundekraft` |
 | acidline | Initial source snapshot | `machines/acidline` |
 | subvista | Initial source snapshot | `machines/subvista` |
+
+## Upstream SDK migration, 2026-10-30
+
+The collection now uses unmodified official `etcetc000/open-xy`, pinned to
+`6941bc8a18e622d520cff6c9503121c6518e8fa3` (SDK 1.6). Machine metadata no
+longer fixes numeric identities; persistent layouts own those assignments.
+Weave uses normal Model/page controls instead of its former fork-only Shift
+shortcut. Its static artwork hint follows that control change; DSP is unchanged.
+The standalone Granular engine is removed from the active inventory and source
+tree. Its import commit, original licence and namespaced archive refs remain in
+history. HK Granular is retained, but excluded from the 25-port synth/effect kit.
+Original sibling checkouts and historical import hashes are unchanged.

@@ -6,8 +6,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 env:
-  OPEN_XY_REF: fbc62e3bfa30fb2be865b5106572c280723d712f
-  OPEN_XY_REPOSITORY: kristapskristaps/open-xy
+  OPEN_XY_REF: 6941bc8a18e622d520cff6c9503121c6518e8fa3
+  OPEN_XY_REPOSITORY: etcetc000/open-xy
 jobs:
   host:
     runs-on: ubuntu-latest

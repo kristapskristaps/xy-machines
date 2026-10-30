@@ -1,11 +1,7 @@
 {
   "schema": 1,
-  "sdk": "1.2",
+  "sdk": "1.6",
   "kind": "effect",
   "description": "Hundekraft Plate DSP port for private OP-XY testing.",
-  "identity": {
-    "effect": 24,
-    "page": 21
-  },
   "dryParameter": "dry"
 }

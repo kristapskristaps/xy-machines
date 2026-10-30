@@ -1,12 +1,8 @@
 {
   "schema": 1,
-  "sdk": "1.4",
+  "sdk": "1.6",
   "kind": "synth",
   "description": "Trap 808 bass and kick: mono glide presets, punch transients, hard band-limited drive, wide tone and boost, with a reactive Vader mask.",
-  "identity": {
-    "engine": 36,
-    "page": 84
-  },
   "presets": "presets",
   "presetDefaults": {
     "amp": {

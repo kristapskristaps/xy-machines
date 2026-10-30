@@ -353,9 +353,5 @@
       "palette": 9
     }
   },
-  "press": "page",
-  "shift": {
-    "parameter": "model",
-    "normal": "output"
-  }
+  "press": "page"
 }

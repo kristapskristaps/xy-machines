@@ -1,10 +1,6 @@
 {
   "schema": 1,
-  "sdk": "1.4",
+  "sdk": "1.6",
   "kind": "synth",
-  "description": "Hundekraft EVA DSP port for private OP-XY testing.",
-  "identity": {
-    "engine": 45,
-    "page": 93
-  }
+  "description": "Hundekraft EVA DSP port for private OP-XY testing."
 }

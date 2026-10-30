@@ -1,11 +1,7 @@
 {
   "schema": 1,
-  "sdk": "1.2",
+  "sdk": "1.6",
   "kind": "effect",
   "description": "Hundekraft Stutter DSP port for private OP-XY testing.",
-  "identity": {
-    "effect": 35,
-    "page": 21
-  },
   "dryParameter": "dry"
 }

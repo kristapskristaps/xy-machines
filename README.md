@@ -1,17 +1,18 @@
 # XY Machines
 
-35 Open-XY machines: **18 synths, 15 send effects and 2 sample engines**.
+34 Open-XY machines: **18 synths, 15 send effects and 1 sample engine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
 - `machines/<id>/`: Vader, Weave, Matter, Vapour, Halo, Westfold, Acidline,
-  Subvista and Granular.
+  and Subvista.
 - `machines/hundekraft/`: all 26 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 35 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 34 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
+  `collections/hundekraft-test.json` selects exactly the 12 HK synths and 13 effects.
 - `provenance/`: source commits, branch/tag references, original file hashes,
   snapshot records and the documentation/tooling-only layout adaptations.
 
@@ -36,16 +37,17 @@ and explicit `profile` commands are described in the guide; previews/tests never
 contact a device. Existing machines' DSP and artwork are unchanged by these tools.
 
 Use Python 3.12, Node 22.12+, NumPy 2.3.5 and Clang with wasm32 support.
-The separate Open-XY SDK revision tested by CI is recorded in `SDK_REVISION`;
-it includes the SDK 1.5 Shift selector needed by the imported Weave revision.
-`SDK_REPOSITORY` identifies the compatible fork while that change awaits upstream
-integration. Use that pinned revision in a separate SDK checkout; SDK 1.4 cannot
-build this Weave revision. Existing sibling SDK checkouts were not changed.
-For new SDK interfaces, update the repository and commit pins deliberately.
+The SDK is pinned to official upstream staging at `SDK_REVISION` (SDK 1.6).
+`SDK_REPOSITORY` is `etcetc000/open-xy`; no private SDK fork is required.
+Local checkouts used by other threads are left untouched. Weave uses the
+upstream Model knob/page navigation rather than the old fork-only Shift shortcut.
+The standalone Granular engine is removed from the active tree; its original
+Git history remains available. HK Granular remains in the inventory, but the
+Hundekraft synth/effects test kit excludes it.
 
 ```sh
-git clone https://github.com/kristapskristaps/open-xy.git ../xy-machines-sdk
-git -C ../xy-machines-sdk checkout --detach fbc62e3bfa30fb2be865b5106572c280723d712f
+git clone https://github.com/etcetc000/open-xy.git ../xy-machines-sdk
+git -C ../xy-machines-sdk checkout --detach 6941bc8a18e622d520cff6c9503121c6518e8fa3
 python -m pip install numpy==2.3.5
 python tools/check.py --sdk ../xy-machines-sdk
 python tools/check.py --sdk ../xy-machines-sdk --native-only
@@ -92,8 +94,9 @@ separate reviewed imports; never overwrite their working folders from here.
 Each machine can have its own release tag, commit, catalog path and hardware
 CPU record. Examples are `vader-v1.0.0` with path `machines/vader` and
 `hksupersaw-v1.0.0` with path `machines/hundekraft/hksupersaw`. Updating one
-machine does not require repinning the others. Catalog submissions go to the
-separate SDK repository's staging branch and change only catalog entries.
+machine does not require repinning the others. Catalog submissions follow the
+pinned SDK policy: main by default, staging when an unreleased SDK API is needed,
+and only catalog entries change.
 
 Imported build and hardware claims belong to their original source revisions.
 In particular, Vader's earlier measured commit remains in history; that CPU
@@ -112,7 +115,6 @@ and documentation; it does not replace the licences of the machines.
 | ID | Name | Kind | Folder |
 | --- | --- | --- | --- |
 | acidline | Acidline | synth | [machines/acidline](machines/acidline/README.md) |
-| granular | Granular | sample | [machines/granular](machines/granular/README.md) |
 | halo | Halo | effect | [machines/halo](machines/halo/README.md) |
 | hkarc | HK Arc | synth | [machines/hundekraft/hkarc](machines/hundekraft/hkarc/README.md) |
 | hkclouds | HK Clouds | effect | [machines/hundekraft/hkclouds](machines/hundekraft/hkclouds/README.md) |

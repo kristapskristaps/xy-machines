@@ -4,7 +4,9 @@ from pathlib import Path
 import argparse, hashlib, itertools, json, math, re, subprocess, sys, xml.etree.ElementTree as ET
 
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parents[2] / 'open-xy'
+sys.path.insert(0,str(ROOT.parents[1]/'tools'))
+from workspace import sdk_path
+SDK=sdk_path()
 UPSTREAM=Path('/tmp/openxy-hundekraft-3.0.3-port-source/ext/kennel/synth_sdk/plugins')
 sys.path.insert(0,str(SDK))
 from tooling.custom_preview import page_header_artwork
@@ -292,7 +294,8 @@ inline void display(DisplayState& state,const opxy::draw::Input& input,Frame& fr
     if synth:
         definition['resources']['display']=display
         if paged:definition['press']='page'
-        record['sdk']='1.4' if paged else '1.3'
+        record['sdk']='1.6'
+        record.pop('identity',None)
         (folder/'definition.json').write_text(json.dumps(definition,indent=2)+'\n');(folder/'machine.json').write_text(json.dumps(record,indent=2)+'\n')
     metadata=dict(id=ident,name=definition['name'],kind=record['kind'],display=display,
                   nodes=[f'{ident}_node_{i}' for i in range(count)],texts=[f'{ident}_text_{i}' for i in range(texts)],

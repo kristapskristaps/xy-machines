@@ -1,12 +1,8 @@
 {
   "schema": 1,
-  "sdk": "1.2",
+  "sdk": "1.6",
   "kind": "synth",
   "description": "A West Coast voice: animated harmonic folding, odd/even overtones, FM, cycling slope and a plucked low-pass gate.",
-  "identity": {
-    "engine": 36,
-    "page": 84
-  },
   "icon": "M3 24h7l5-15 9 30 8-30 7 15h5",
   "presetDefaults": {
     "amp": {

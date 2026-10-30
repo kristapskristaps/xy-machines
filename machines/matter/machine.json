@@ -1,11 +1,7 @@
 {
   "schema": 1,
-  "sdk": "1.2",
+  "sdk": "1.6",
   "kind": "synth",
   "description": "Elements-derived physical modeling: six exciters, 24 resonant modes and a material mesh.",
-  "identity": {
-    "engine": 41,
-    "page": 89
-  },
   "icon": "M5 17l14-7 14 7-14 7z M5 24l14 7 14-7 M19 10v21"
 }

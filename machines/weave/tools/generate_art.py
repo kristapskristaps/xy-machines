@@ -165,7 +165,7 @@ for model,label in zip(models,labels):
             x=float(tokens[at]);y=float(tokens[at+1]);at+=2
             commands.append(f'{command}{(i*3.4+x-len(label)*1.7)*1.2:.4f} {y*1.2:.4f}')
     path(' '.join(commands),stroke='#e7e8e5',width=.55,name='label_'+model,xy=(640,320))
-text(12,218,'SHIFT + 1: MODEL',6,'#63666b')
+text(12,218,'PAGE 1: MODEL',6,'#63666b')
 text(266,98,'XY',7,'#888b8e')
 # Shared two-page header, painted last so the room cannot cover it.
 lines.append('<path d="M0 0 L480 0 L480 38 L0 38 Z" fill="#000000"/>')

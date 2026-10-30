@@ -11,14 +11,13 @@ the complete 24-model module.
 
 ## Controls
 
-Hold Shift and turn the black encoder to select Model from either page.
-Its normal turn edits Output on both pages. Press any encoder to switch the
-other three controls between two pages; Shift + those encoders retains fine
-adjustment. Both rows stay visible above the room.
+Model is encoder 1 on page 1; Output is encoder 1 on page 2.
+Press any encoder to switch all four controls between pages. Shift + turn
+keeps the SDK's normal fine adjustment. Both rows stay visible above the room.
 
 | Encoder | Page 1 | Page 2 |
 | --- | --- | --- |
-| 1 | Output: main through a crossfade to auxiliary | Output (shared) |
+| 1 | Model | Output: main through a crossfade to auxiliary |
 | 2 | Harmonic | Strike: stock, soft, mid, hard |
 | 3 | Timbre | Mode: normal, hold |
 | 4 | Morph | Seed: free, 1–127 |
@@ -43,7 +42,7 @@ history, so a ringing retrigger is not promised to repeat an entire waveform.
 Its effect depends on the output and, for FM, the patch's LFO type. Controls
 that do not apply to the selected model show `--`.
 
-The model name stays engraved on the cabinet, with a Shift shortcut hint below
+The model name stays engraved on the cabinet, with a page-1 Model hint below
 the room. The selector changes GUI routing only; all eight saved parameter
 slots and every DSP file are unchanged by this interaction update.
 
@@ -57,7 +56,7 @@ Harmonic, Timbre and Morph follow each model's original meanings. The underlying
 integer port accepts 128 steps for these controls and interpolates within its
 render blocks. Changing model retriggers it. The XY's stock amp envelope,
 filter and mixing remain downstream. Percussive models supply their own decay;
-use a sufficiently long stock amp envelope to hear their full tails. The Shift selector requires SDK 1.5.
+use a sufficiently long stock amp envelope to hear their full tails. Controls use the upstream SDK 1.6 paged interface.
 
 The display is a cutaway machine room. A belt-driven flywheel powers a cabinet,
 with a hanging light, pressure gauge, conveyor and a small maintenance robot.

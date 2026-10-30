@@ -7,7 +7,9 @@ import subprocess
 import sys
 
 ROOT=Path(__file__).resolve().parents[1]
-SDK=ROOT.parents[2] / 'open-xy'
+sys.path.insert(0,str(ROOT.parents[1]/'tools'))
+from workspace import sdk_path
+SDK=sdk_path()
 PYTHON='/Users/tapsy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3'
 CXX='/opt/homebrew/opt/llvm/bin/clang++'
 

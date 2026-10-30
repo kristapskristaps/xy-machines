@@ -14,7 +14,7 @@ Read the SDK's authoring, UX, API, build and profiling guides before machine wor
    compiler. Setup never resets an existing SDK or another chat's changes.
 3. Use `./xy new <id> --name "Name" --controls 8` for a new synth, or add
    `--kind effect` for an effect. It creates tests/docs and updates the inventory
-   without nested Git repositories. Sample engines use the Granular/API examples;
+   without nested Git repositories. Sample engines use the HK Granular/Timestretch API examples;
    the SDK does not scaffold them. Preserve saved IDs and control contracts.
 4. Edit the machine's C++, metadata, artwork, presets and machine-local tests.
    Run `./xy test <id>` for quick checks. `./xy test --changed` includes staged,
@@ -22,11 +22,11 @@ Read the SDK's authoring, UX, API, build and profiling guides before machine wor
    includes branch changes. Inventory/SDK-pin changes select all machines.
 5. For synths use `./xy preview <id> --watch`. The localhost allowlist serves
    fresh authenticated snapshots and reloads only successful builds. A failed
-   edit keeps the previous audition available. Re-enable audio after reload.
+   edit keeps the previous audition available. Playing a key starts audio.
    The default chooses a free port; never stop another chat's server.
 6. Run `./xy test <id> --native` before hardware work. Add `--cpu` for DSP
    performance changes; this is an advisory host estimate, not Blackfin timing.
-   Effect native checks include Subvista because SDK startup needs an engine.
+   Effect native checks include Subvista because the SDK startup check needs an engine.
 
 The SDK browser workbench supports synths. Effects/sample engines use the same
 test/build commands plus their specialist auditions listed in the development
@@ -47,18 +47,19 @@ envelopes, sends, scheduling, device CPU or hardware display behaviour.
   it does not attest the live device. Presets are opt-in with `--presets`.
   Back up replaced device files, verify complete readbacks, and never delete
   unrelated content or silently overwrite edited user presets.
-- On macOS/libmtp use bounded partial reads: whole-file reads previously stalled
-  the XY. Confirm the physical flash/reboot before claiming an installed build.
+- Use upstream `sdk.py device push` on Windows and the documented OpenMTP or
+  browser installation path on macOS. Do not create another transfer script.
+  Confirm the physical flash/reboot before claiming an installed build.
 - Once device work is authorized, continue necessary reversible steps without
   repeatedly requesting approval. Ask for physical MTP/flash/reboot readiness
   when needed; build/test/stage commands themselves never contact a device.
 - After a confirmed reboot, saved/stopped project and USB audio off, run
-  `./xy profile --package <package> --machine <id> --installed` for three complete
-  sequential measurements and the SDK report. Restart without saving diagnostic
+  `./xy profile --package <package> --machine <id> --installed` for the upstream-default capture
+  (use `--runs 3` for repeated measurements) and the SDK report. Restart without saving diagnostic
   settings afterwards. Do not infer total project CPU or polyphony from it.
 - For full-collection tests follow docs/hardware-testing.md. Keep lab-bank
   layouts/projects isolated from personal projects. Use `profile --all` to
-  reuse one three-run capture batch for all machines in an installed image;
+  reuse one capture batch for all machines in an installed image;
   never repeat captures per report or imply that one benchmark covers every
   internal synthesis model, preset or demanding parameter setting.
 
@@ -67,7 +68,7 @@ envelopes, sends, scheduling, device CPU or hardware display behaviour.
 - Work in this repository. The original sibling repositories and the original
   `open-xy-hundekraft` folder are independent working copies used by other chats;
   do not move, reset, commit, clean or overwrite their work as part of this repo.
-- Nine standalone machines live in `machines/<id>`. The 26 Hundekraft ports live
+- Eight standalone machines live in `machines/<id>`. The 26 Hundekraft ports live
   in `machines/hundekraft/<id>` with their original collection tools and notices.
   Each folder containing `machine.json` is an independently releasable machine.
   New machines belong in `machines/<id>` without a nested Git repository.
@@ -85,10 +86,11 @@ envelopes, sends, scheduling, device CPU or hardware display behaviour.
 - Firmware, stock content, device captures, firmware packages and private backups
   stay outside every checkout, including ignored folders. Never commit them.
 - Building/checking locally does not authorize device operations. Hardware tests
-  require user authorization, confirmed install/reboot and three complete runs.
+  require user authorization, confirmed install/reboot and the upstream-required capture(s).
   Measurements bind the exact source revision; old measurements are historical
   evidence, not CPU qualification for a newly reorganized release commit.
 - Preserve original commits and namespaced `archive/<id>/...` branch/tag refs.
   `provenance/imports.json` describes initial imports, not mutable current hashes.
   Each release can have its own tag, commit, catalog path and CPU report. SDK
-  catalog submissions target staging and change only the catalog entry.
+  catalog submissions follow the pinned SDK policy and change only the catalog entry.
+  Current upstream targets main, or staging when an unreleased SDK API is needed.

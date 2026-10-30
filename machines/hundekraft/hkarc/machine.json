@@ -1,10 +1,6 @@
 {
   "schema": 1,
-  "sdk": "1.4",
+  "sdk": "1.6",
   "kind": "synth",
-  "description": "Hundekraft Arc DSP port for private OP-XY testing.",
-  "identity": {
-    "engine": 46,
-    "page": 94
-  }
+  "description": "Hundekraft Arc DSP port for private OP-XY testing."
 }

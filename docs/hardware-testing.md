@@ -1,107 +1,83 @@
-# Audition the complete collection efficiently
+# Audition the collection efficiently
 
-Use two lab images, one flash per image, and audition every machine in that
-image before changing firmware. Fix findings in batches and reflash only the
-affected image. Preset-only tuning does not need an OS rewrite while its engine
-contract is unchanged.
+Batch listening tests into a small number of firmware installs. DSP and display
+changes require a rebuild, boot-partition write and reboot; preset-only tuning
+can be transferred and reloaded while its engine contract remains unchanged.
 
-## Validated batch sizes
+## Choose a kit
 
-Native compilation with the pinned SDK and this chat's last-known installed
-layout produced these module footprints on 2026-10-29:
+`collections/hundekraft-test.json` contains **12 synths and 13 send effects**.
+On 2026-10-30 it linked with upstream SDK 1.6 at **1,013.7 KiB of 2,032 KiB**,
+including the shared SDK module. This is a native module check, not bootable
+image verification, device acceptance or measured CPU. HK Granular is excluded;
+the separate standalone Granular engine has been removed from the active tree.
 
-| Lab bank | Collection | Coverage | Module footprint |
-| --- | --- | --- | ---: |
-| A | `collections/standalone.json` | 6 synths, 2 effects, 1 sample engine | 1,471.7 KiB |
-| B | `collections/hundekraft.json` | 12 synths, 13 effects, 1 sample engine | 1,066.2 KiB |
+`collections/standalone.json` selects the other six synths and two effects;
+`collections/hundekraft.json` also includes HK Granular. The full inventory has
+34 entries. SDK 1.6 supports 256 engine/screen slots, so the old advice about
+exhausting a small ID pool no longer applies. Every combined image must still
+pass the shared 2,032 KiB module limit. Do not assume all 34 fit together.
 
-The module allowance is 2,040 KiB. Both groups link successfully. Combining all
-35 with the last-known layout fails SDK engine-number allocation before linking;
-effects also occupy engine-number slots. These are native module checks, not
-bootable image verification, device acceptance or measured CPU results. Do not
-assume the device still has this chat's last-known layout if another thread has
-installed an update.
+## Preserve projects and layout
 
-## Bank/project discipline
+Back up the actual current firmware, layout and replaced content before a lab
+installation. Another chat may have installed a newer image; an old package
+filename is not evidence of what is currently on the device. Preserve the
+last verified layout when building so existing machine numbers remain stable.
+The SDK assigns numbers through layout.json, not machine.json.
 
-Back up the actual current firmware, layout and replaced content before the
-first lab installation. Keep that known-working configuration for restoration.
-Use a saved, stopped stock-only **LAB BOOT** project before changing banks, so
-automatic startup never opens a project that depends on the previous bank.
+Before changing the installed kit, open and save a stopped stock-only **LAB BOOT**
+project. Only open a project's custom machines when their matching kit is
+installed. Keep test projects, install manifests and layouts for each kit.
+Do not reuse personal machine numbers or silently overwrite edited presets.
 
-Keep **LAB A** and **LAB B** projects and a saved layout for each bank. Only open
-a bank's custom-machine projects while that matching bank is installed. Normal
-projects may reference machines omitted from a lab image. Separate lab layouts
-are not interchangeable, and carrying every reservation across the entire
-35-machine collection can exhaust the SDK's ID pool. Never silently reuse a
-personal project's IDs or treat a lab layout as a universal collection layout.
+Build from clean committed source, stage presets for a first installation,
+back up replaced files and verify complete readbacks. Use upstream device push
+on Windows, or its documented OpenMTP/browser flow on Mac. Confirm the physical
+boot-partition write and reboot before claiming installation. All firmware,
+backups, captures and packages stay in external private storage.
 
-For each bank, build with its deliberately chosen saved layout, stage native
-presets for a first install, back up replaced files, verify complete readbacks,
-then write the OS and reboot. When revising that bank later, use that bank's
-last verified installed layout. Use a real current device readback to choose the
-initial layout; do not infer it from an old package filename. Device work still
-requires an explicit user instruction and physical MTP/flash/reboot readiness.
+## Repeatable listening
 
-## One shared audition routine
+Create lab projects on the XY. Use the same tempo, phrase, velocities, dry input
+and mixer settings, with a stock reference sound/input and saved test presets.
 
-Create the lab projects on the XY rather than synthesizing undocumented project
-files. Use the same tempo, note phrase, velocities, dry input and mixer settings
-for comparisons. Keep a stock reference sound/input and save test presets.
-
-| Kind | Quick sweep | Stress/edge checks |
+| Kind | Quick sweep | Edge checks |
 | --- | --- | --- |
-| Synth | Default and named presets; low/mid/high notes; sweep every control | Retrigger, glide, 1/4/8 voices where supported, note-off/release, preset/project reload |
-| Effect | Same drums, pluck and sustained chord; dry/wet A/B; control extremes | Freeze/hold on/off, tails after input stops, reset/reload, feedback extremes, stereo image |
-| Sample | Same mono/stereo sources and a percussion loop | Trim endpoints, reverse, retrigger, pitch range, assignment changes, grain-density extremes |
+| Synth | Presets; low/mid/high notes; every control and internal model | Retrigger, glide, chords, note-off/release, preset/project reload |
+| Effect | Drums, pluck and sustained chord; dry/wet A/B; extremes | Freeze/hold, tails, feedback, reset/reload, stereo image |
+| Sample | Mono/stereo sources and percussion loop | Trim, reverse, retrigger, pitch, assignment, grain density |
 
-Test each internal model separately: one Weave engine entry does not mean its
-15 algorithms have all been auditioned. The standard CPU benchmark uses fixed
-settings, not every model or preset. Listen for clicks, DC/level jumps, lost
-fundamental, harsh upper notes, stuck tails/voices and control discontinuities.
-Check the native display, page switching and reduced motion independently.
+Listen for clicks, level jumps, missing fundamental, harsh high notes, stuck
+voices/tails and discontinuous controls. Check display/page switching separately.
+For findings record **kit, machine/model, source commit, preset/settings, input,
+expected/actual behavior and an audio capture**. Host cost estimates can suggest
+where to investigate; they do not establish hardware CPU or usable polyphony.
 
-For each finding record **bank, machine ID, internal model, source commit,
-preset/parameter values, note or input, expected/actual behaviour and a short
-audio capture**. This makes fixes reproducible instead of relying on memory.
-Prioritize the Hundekraft algorithms already flagged by host estimates (Arc,
-Wavetable, SID, Clouds, Reverb and Palme) for demanding-setting hardware tests;
-host estimates alone do not establish their device cost.
+## Share profiling captures across reports
 
-## Three captures per image, not per machine
-
-After installing/confirming a bank, save/stop the project and leave USB audio off:
+Install a profiling-enabled package, confirm reboot, save/stop the project and
+leave USB audio off:
 
 ```sh
-./xy profile --package /private/lab-a-package --all --installed
+./xy profile --package /private/hk-package --all --installed
 ```
 
-This collects **three complete sequential captures total** for that image, then
-generates an individual SDK CPU report for every included machine using those
-same captures. Stock reference cases are not published as collection machines.
-For only selected reports, repeat `--machine`:
+One complete capture is the current upstream default. It covers all cases in
+the image, and the same capture generates each machine's revision-bound report.
+Use `--runs 3` for repeats, or repeat `--machine <id>` to select reports without
+repeating the capture batch. Confirm silent settings with a second run and add
+runs for random algorithms as directed by the SDK report. Full synth sweeps
+can take minutes: each control is exercised individually and the heaviest
+positions are combined. They do not audition every possible preset or interaction.
 
-```sh
-./xy profile --package /private/lab-a-package \
-  --machine vader --machine weave --installed
-```
+`./xy build` enables full sweeps by default. `--sweep off` is a faster midpoint
+check that cannot qualify a synth catalog record. Investigate synth settings
+above upstream's recommended 3.5%, recording the heaviest setting. Never infer
+total project CPU or maximum polyphony by multiplying a synthetic voice result.
 
-Two lab images therefore need six complete captures, not 105. Output includes
-`batch-summary.json`, the three captures and per-machine reports in external
-private storage. A failed run aborts; incomplete captures never become zero-cost
-results. Raw captures stay private because they can contain device identity.
-Restart without saving the diagnostic's temporary settings before auditioning.
-
-## Improvement cycle
-
-1. Flash A once; audition all nine, record findings, collect its three CPU runs.
-2. Return to LAB BOOT; flash B once; repeat for all 26 and their internal models.
-3. Fix the recorded problems on the computer with focused tests/browser auditions.
-4. Rebuild/reflash only affected banks; repeat the exact recorded comparisons.
-5. Remeasure changed release revisions, then restore the saved everyday firmware
-   and its layout before resuming normal projects.
-
-Do not flash for each knob setting or individual preset. Do not derive maximum
-polyphony or total-project CPU by multiplying the synthetic whole-voice metric;
-test demanding real playback separately. Test projects and listening feedback
-are useful acceptance evidence in addition to the standard catalog CPU records.
+Output includes `batch-summary.json`, raw captures and individual reports in
+external private storage. Failed/incomplete captures are not zero-cost results.
+Restart without saving diagnostic settings before listening. Fix recorded issues
+in batches, rebuild only affected kits and remeasure changed release revisions.
+Restore the backed-up everyday image/layout before resuming normal projects.

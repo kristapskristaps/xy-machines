@@ -182,7 +182,7 @@ def build(args, sdk):
     stock = outside_checkout(stock)
     out = outside_checkout(args.out or fresh(private_root() / 'builds', kit.stem))
     sdk_command(sdk, 'build', '--collection', kit, '--layout', layout, '--stock-os', stock,
-                '--profiling', 'on', '--out', out, *native_flags())
+                '--profiling', 'on', '--sweep', args.sweep, '--out', out, *native_flags())
     print('Package:', out, '\nNext: ./xy stage "' + str(out) + '"')
 
 def digest(path):
@@ -260,13 +260,13 @@ def profile_package(args, sdk):
     sys.path.insert(0, str(sdk))
     from tooling.profile_report import package_data
     _, report, _ = package_data(package)
-    available = [case['name'] for case in report['benchmark_cases'] if case.get('source') == 'sdk']
+    available = list(dict.fromkeys(case['name'] for case in report['benchmark_cases'] if case.get('source') == 'sdk'))
     names = available if args.all_machines else list(dict.fromkeys(args.machine or []))
     require(names and all(name in available for name in names), 'Machine is not in this diagnostic package.')
     output = fresh(private_root() / 'cpu', package.name + '-batch')
     captures = []
     print('Active device diagnostic: leave the saved/stopped XY untouched. Restart afterwards without saving test settings.')
-    for number in range(1, 4):
+    for number in range(1, args.runs + 1):
         out = output / f'run-{number}'
         sdk_command(sdk, 'profile', 'benchmark', '--package', package, '--installed', '--greet', '--out', out)
         captures += ['--capture', out / 'capture.json']
@@ -277,8 +277,8 @@ def profile_package(args, sdk):
         reports[name] = str(out)
     output.mkdir(parents=True, exist_ok=True)
     (output / 'batch-summary.json').write_text(json.dumps(dict(package=str(package), reports=reports,
-        captures=[str(path) for path in captures[1::2]], independent_runs=3), indent=2) + '\n')
-    print(f'{len(names)} machine reports from the same 3 complete runs: {output}')
+        captures=[str(path) for path in captures[1::2]], independent_runs=args.runs), indent=2) + '\n')
+    print(f'{len(names)} machine reports from {args.runs} complete capture(s): {output}')
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -304,13 +304,15 @@ def main():
     p.add_argument('--port', type=int, default=0); p.add_argument('--cxx')
     p = sub.add_parser('build')
     p.add_argument('--kit', required=True); p.add_argument('--layout'); p.add_argument('--stock-os'); p.add_argument('--out')
+    p.add_argument('--sweep', choices=('on', 'off'), default='on', help='on: SDK default full synth sweep; off: quick midpoint-only development')
     p = sub.add_parser('stage')
     p.add_argument('package'); p.add_argument('--against'); p.add_argument('--out'); p.add_argument('--presets', action='store_true')
     p = sub.add_parser('profile', help='Explicit active device diagnostic; save and stop the project first')
     p.add_argument('--package', required=True); p.add_argument('--installed', required=True, action='store_true')
+    p.add_argument('--runs', type=int, choices=range(1, 101), default=1, help='SDK default: one capture; use 2+ to confirm silent settings, 3+ for variable results')
     group = p.add_mutually_exclusive_group(required=True)
     group.add_argument('--machine', action='append', help='machine ID; repeat to report a subset')
-    group.add_argument('--all', dest='all_machines', action='store_true', help='report every SDK machine from the same three captures')
+    group.add_argument('--all', dest='all_machines', action='store_true', help='report every SDK machine from the same capture batch')
     args = parser.parse_args()
     if args.command == 'setup':
         setup(args); return

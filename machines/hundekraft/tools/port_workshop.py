@@ -13,7 +13,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SDK = ROOT.parents[2] / 'open-xy'
+sys.path.insert(0,str(ROOT.parents[1]/'tools'))
+from workspace import sdk_path
+SDK=sdk_path()
 SOURCE = Path('/tmp/openxy-hundekraft-3.0.3-port-source/ext/kennel')
 PLUGINS = SOURCE / 'synth_sdk/plugins'
 PYTHON = '/Users/tapsy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3'
@@ -436,11 +438,10 @@ def write_machine(spec,index,shim):
     definition.update(parameters=params,presets={'Init':{p['id']:p['default'] for p in params}})
     record=json.loads((folder/'machine.json').read_text())
     record['description']='Hundekraft '+title+' DSP port for private OP-XY testing.'
-    if kind=='synth':record['identity']={'engine':36+index,'page':84+index}
-    else:
-        free=[n for n in json.loads((SDK/'profiles/opxy-1.2.1.json').read_text())['identities']['effects'] if n!=1]
-        record['identity']={'effect':free[index-12],'page':21}
-        record['dryParameter']='dry'
+    record['sdk']='1.6'
+    record.pop('identity',None)
+    if kind=='sample':record['base']='sampler'
+    if kind=='effect':record['dryParameter']='dry'
     (folder/'machine.json').write_text(json.dumps(record,indent=2)+'\n')
     (folder/'definition.json').write_text(json.dumps(definition,indent=2)+'\n')
     (folder/'wide.hpp').write_text((ROOT/'tools/wide.hpp.in').read_text().replace('@ID@',ident))

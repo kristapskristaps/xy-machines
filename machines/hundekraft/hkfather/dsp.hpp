@@ -198,9 +198,6 @@ struct Dsp {
   }
 
   void mw_init(mw_state *s) {
-    uint8_t *p = (uint8_t *)s;
-    for (unsigned i = 0; i < sizeof *s; i++)
-      p[i] = 0;
     s->mix = -1;
     s->pre_samples = -1;
     s->gate_gain = 32767;

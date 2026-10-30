@@ -30,14 +30,27 @@ The audition server is running at **http://127.0.0.1:9137/**.
 Host auditions do not establish device acceptance. The first hardware audition
 reported crackling on the effects and degraded Mixtur audio. After the native
 word-type correction, the user confirmed Mixtur improved; the FX remained bad.
-Crush now has a separate quiet-send precision correction awaiting hardware A/B.
-The other effects retain their previous level conversion until that comparison.
+All 13 effect adapters now normalize the input before the original 16-bit DSP
+and undo that gain on the wet return. Named audio memories change units with the
+gain; pointers, phases, positions and coefficients do not. Headroom checks allow
+precision to recover after louder input without resetting delay/freeze tails.
+The helpers use conservative, representation-specific bounds for sample,
+filter and energy storage. Duplicate full-buffer initialization clears have
+been removed; the existing bounded adapter clear still protects dirty scratch.
+
+Every effect has a quiet-send regression at four levels (512 through 2^28 word
+peaks), followed by a full-scale transient, silence and dirty-buffer reset.
+All 13 pass host/native compilation and the new AddressSanitizer/UBSan checks.
+The importer reproduces the adapters and the audited startup changes.
+Hardware sound acceptance and timing for this revision remain pending. In
+particular, gain changes scan/rescale delay history and need native peak-cycle
+validation; host checks cannot establish that these transitions meet deadlines.
 
 The corrected word-type build (`c3690f4`) completed one hardware CPU capture:
 Crush 0.954%, Father 11.374%, Clouds 13.481%, Reverb 17.887% and Palme 28.396%
 of the audio-block budget at defaults. In a room's default workload was inactive,
 so it has no valid CPU number. These default-setting measurements do not establish
-maximum load or audio acceptance, and predate the Crush level correction.
+maximum load or audio acceptance, and predate the collection-wide level correction.
 
 To restart the server after stopping it, from this folder:
 

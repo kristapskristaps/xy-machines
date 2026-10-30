@@ -1,8 +1,9 @@
 #include "core.h"
 #include "sine.hpp"
 #include "dsp.hpp"
+#include "audio_state.hpp"
 namespace hkinaroom {
-void initialize(State& state) { state=State{}; }
+void initialize(State& state) { state=State{}; state.lift=20; }
 void process(State& state, opxy::Buffer buffer, const opxy::Transport& transport, opxy::Channel left,
              opxy::Channel right, opxy::Parameters parameters) {
     if (!buffer.words || buffer.count<buffer_bytes/4) {
@@ -15,6 +16,8 @@ void process(State& state, opxy::Buffer buffer, const opxy::Transport& transport
         for(unsigned i=0;i<64;++i) left[i]=right[i]=0;
         return;
     }
+    const SendLevel level=prepare_level(state,buffer,left,right,2,44766);
+    const opxy::u32 lower=state.lift-level.lift;
     port::int16_t q[8]={};
     q[0] = parameters[0] < 0 ? 0 : static_cast<port::int16_t>(static_cast<opxy::u32>(parameters[0]) >> 16);
     q[1] = parameters[1] < 0 ? 0 : static_cast<port::int16_t>(static_cast<opxy::u32>(parameters[1]) >> 16);
@@ -35,6 +38,7 @@ void process(State& state, opxy::Buffer buffer, const opxy::Transport& transport
         port::Dsp& d=*reinterpret_cast<port::Dsp*>(memory);
         d.scratch=reinterpret_cast<port::uint8_t*>(memory)+2600;
         if(!state.ready) {d.defaults();d.sit_init(0);}
+        else if(lower) lower_audio(d,lower);
         d.fx_page[0][3]=parameters[7]>=0x40000000;
         
         d.beat.len=static_cast<port::int32_t>(beat_length);
@@ -43,12 +47,13 @@ void process(State& state, opxy::Buffer buffer, const opxy::Transport& transport
 
         port::int16_t audio_left[64];
         for(unsigned i=0;i<64;++i) {
-            audio_left[i]=static_cast<port::int16_t>((channel?right:left)[i]>>16);
+            audio_left[i]=level.input((channel?right:left)[i]);
             
         }
         d.sit_render(0,audio_left,q);
-        for(unsigned i=0;i<64;++i) (channel?right:left)[i]=static_cast<opxy::i32>(audio_left[i])*65536;
+        for(unsigned i=0;i<64;++i) (channel?right:left)[i]=level.output(audio_left[i]);
     }
+    state.lift=level.lift;
     state.ready=1;
     state.clock_phase+=1048576u;if(state.clock_phase>=beat_length)state.clock_phase-=beat_length;
 }

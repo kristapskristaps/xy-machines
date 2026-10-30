@@ -1,7 +1,7 @@
 #include "core.h"
 #include "sine.hpp"
 #include "dsp.hpp"
-#include "send_level.hpp"
+#include "audio_state.hpp"
 namespace hkcrush {
 void initialize(State& state) { state=State{}; state.lift=20; }
 void process(State& state, opxy::Buffer buffer, opxy::Channel left,
@@ -16,7 +16,7 @@ void process(State& state, opxy::Buffer buffer, opxy::Channel left,
         for(unsigned i=0;i<64;++i) left[i]=right[i]=0;
         return;
     }
-    const SendLevel level(left,right,state.lift);
+    const SendLevel level=prepare_level(state,buffer,left,right,1,34);
     const opxy::u32 lower=state.lift-level.lift;
     port::int16_t q[8]={};
     q[0] = parameters[0] < 0 ? 0 : static_cast<port::int16_t>(static_cast<opxy::u32>(parameters[0]) >> 16);
@@ -30,11 +30,8 @@ void process(State& state, opxy::Buffer buffer, opxy::Channel left,
         port::Dsp& d=*reinterpret_cast<port::Dsp*>(memory);
         d.scratch=0;
         if(!state.ready) {d.defaults();d.init(0);}
-        else if(lower) {
-            d.state[0].held[0] >>= lower;
-            d.state[0].held[1] >>= lower;
-            d.state[0].peak >>= lower;
-        }
+        else if(lower) lower_audio(d,lower);
+
         
         
         port::int16_t audio_left[64],audio_right[64];

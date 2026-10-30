@@ -685,10 +685,6 @@ struct Dsp {
       return;
     s->buf = (int16_t *)m;
     s->rev = (int16_t *)(m + 65536 * 2 + 4);
-    for (int i = 0; i <= 65536; i++)
-      s->buf[i] = 0;
-    for (int i = 0; i < 2 * 8192; i++)
-      s->rev[i] = 0;
     for (int i = 0; i < 16; i++) {
       s->g[i].stage = 3;
       s->prio[i] = &s->g[i];

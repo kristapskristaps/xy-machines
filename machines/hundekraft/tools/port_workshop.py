@@ -213,6 +213,32 @@ def member_declaration(decl):
         else:plain.append(p)
     return ','.join(plain)+';',initial
 
+def remove_duplicate_clears(name,text):
+    """The adapter clears all instance/scratch storage before calling init once."""
+    patterns={
+        'clouds': [r'    for \(int i = 0; i < 118784 / 2; i\+\+\)\n      c->s16\[i\] = 0;\n',
+                   r'    for \(int i = 0; i < 2048; i\+\+\)\n      c->diff_buf\[i\] = 0;\n',
+                   r'    for \(int i = 0; i < 16384; i\+\+\)\n      c->rev_buf\[i\] = 0;\n',
+                   r'    for \(int i = 0; i < 4096; i\+\+\)\n      c->ps_buf\[i\] = 0;\n'],
+        'father': [r'    uint8_t \*p = \(uint8_t \*\)s;\n    for \(unsigned i = 0; i < sizeof \*s; i\+\+\)\n      p\[i\] = 0;\n'],
+        'hail': [r'    for \(int i = 0; i <= 65536; i\+\+\)\n      s->buf\[i\] = 0;\n',
+                 r'    for \(int i = 0; i < 2 \* 8192; i\+\+\)\n      s->rev\[i\] = 0;\n'],
+        'plate': [r'    for \(unsigned i = 0; i < 65536; i\+\+\)\n      s->ring\[i\] = 0;\n'],
+        'reverb': [r'    for \(int i = 0; i < 32768; i\+\+\)\n      r->buf\[i\] = 0;\n'],
+        'snowglobe': [r'    state_t \*s = &st\[inst\];\n    uint8_t \*p = .*?;\n    for \(unsigned i = 0; i < sizeof\(state_t\); i\+\+\)\n      p\[i\] = 0;\n'],
+        'stutter': [r'    int16_t \*buf = \(int16_t \*\)scratch;\n    if \(buf\)\n      for \(int i = 0; i < 65536; i\+\+\)\n        buf\[i\] = 0;\n'],
+        'warble': [r'    for \(unsigned c = 0; c < 2; c\+\+\)\n      for \(unsigned i = 0; i < 2048; i\+\+\)\n        s->ring\[c\]\[i\] = 0;\n'],
+        'washer': [r'    for \(int i = 0; i < 2048; i\+\+\)\n      s->buf\[i\] = 0;\n'],
+    }
+    for pattern in patterns.get(name,[]):
+        replacement='    (void)inst;\n' if name=='snowglobe' else ''
+        text,count=re.subn(pattern,replacement,text)
+        if count!=1:raise ValueError(f'{name}: initial clear changed; review before importing')
+    if name=='palme':
+        text,count=re.subn(r's->clr = 0;', 's->clr = 8;',text)
+        if count!=1:raise ValueError('palme: initial clear changed')
+    return text
+
 def make_dsp(name,ident,shim):
     external=[];members=[];functions=[];initial=[]
     for kind,item in chunks(preprocess(name,shim)):
@@ -262,7 +288,8 @@ def make_dsp(name,ident,shim):
     body+='void defaults() { '+' '.join(initial)+' }\n'
     body+='\n\n'.join(functions)+'\n};\n'
     result='#pragma once\n#include "wide.hpp"\n#include <opxy/types.hpp>\n// DSP adapted from Hundekraft 3.0.3. Retained copyright and terms: NOTICE, LICENSE.\nnamespace '+ident+' { namespace port {\n'+body+'}}\n'
-    return subprocess.check_output(['/opt/homebrew/opt/llvm/bin/clang-format'],input=result,text=True)
+    formatted=subprocess.check_output(['/opt/homebrew/opt/llvm/bin/clang-format'],input=result,text=True)
+    return remove_duplicate_clears(name,formatted)
 
 def wrappers(port, size):
     name,kind,ident=port['name'],port['kind'],port['id']
@@ -332,7 +359,7 @@ inline void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
         if mixword is not None:copy+=f'\n    q[{mixword}]=32767;'
         latch={'snowglobe':4,'clouds':7,'hail':7,'stutter':5,'palme':7,'in_a_room':7}.get(name)
         # Scratch is zeroed incrementally before initialization; no stale send data is read.
-        level_state=', lift' if name=='crush' else ''
+        level_state=', lift, gain_check'
         (folder/'core.h').write_text(f'''#pragma once
 #include <opxy/effect.hpp>
 namespace {ident} {{
@@ -402,23 +429,35 @@ void process(State& state, opxy::Buffer buffer, {extra}opxy::Channel left,
 }}
 }}
 '''
-        if name=='crush':
-            body=body.replace('#include "dsp.hpp"', '#include "dsp.hpp"\n#include "send_level.hpp"')
-            body=body.replace('state=State{};', 'state=State{}; state.lift=20;')
-            body=body.replace('    port::int16_t q[8]={};',
-                '    const SendLevel level(left,right,state.lift);\n'
-                '    const opxy::u32 lower=state.lift-level.lift;\n    port::int16_t q[8]={};')
-            body=body.replace('if(!state.ready) {d.defaults();d.init(0);}',
-                'if(!state.ready) {d.defaults();d.init(0);}'
-                '\n        else if(lower) {\n'
-                '            d.state[0].held[0] >>= lower;\n'
-                '            d.state[0].held[1] >>= lower;\n'
-                '            d.state[0].peak >>= lower;\n        }')
-            body=body.replace('static_cast<port::int16_t>((channel?right:left)[i]>>16)', 'level.input(left[i])')
-            body=body.replace('static_cast<port::int16_t>(right[i]>>16)', 'level.input(right[i])')
-            body=body.replace('static_cast<opxy::i32>(audio_left[i])*65536', 'level.output(audio_left[i])')
-            body=body.replace('static_cast<opxy::i32>(audio_right[i])*65536', 'level.output(audio_right[i])')
-            body=body.replace('    state.ready=1;', '    state.lift=level.lift;\n    state.ready=1;')
+        # Helpers remain machine-local, so each machine can be released alone.
+        (folder/'send_level.hpp').write_text((ROOT/'tools/send_level.hpp.in').read_text().replace('@ID@',ident))
+        body=body.replace('#include "dsp.hpp"', '#include "dsp.hpp"\n#include "audio_state.hpp"')
+        body=body.replace('state=State{};', 'state=State{}; state.lift=20;')
+        body=body.replace('    port::int16_t q[8]={};',
+            f'    const SendLevel level=prepare_level(state,buffer,left,right,{count},{stride//4});\n'
+            '    const opxy::u32 lower=state.lift-level.lift;\n    port::int16_t q[8]={};')
+        body=body.replace(f'if(!state.ready) {{d.defaults();{init}}}',
+            f'if(!state.ready) {{d.defaults();{init}}}\n        else if(lower) lower_audio(d,lower);')
+        body=body.replace('static_cast<port::int16_t>((channel?right:left)[i]>>16)', 'level.input((channel?right:left)[i])')
+        body=body.replace('static_cast<port::int16_t>(right[i]>>16)', 'level.input(right[i])')
+        body=body.replace('static_cast<opxy::i32>(audio_left[i])*65536', 'level.output(audio_left[i])')
+        body=body.replace('static_cast<opxy::i32>(audio_right[i])*65536', 'level.output(audio_right[i])')
+        body=body.replace('    state.ready=1;', '    state.lift=level.lift;\n    state.ready=1;')
+        # Named audio memories are maintained in audio_state.hpp; refresh only
+        # its shared gain-preparation footer, preserving the field audit.
+        audio_path=folder/'audio_state.hpp'
+        if not audio_path.is_file():raise ValueError(f'{ident}: audit its audio memories before importing')
+        audio=audio_path.read_text();start=audio.index('inline void lower_audio(')
+        audio_path.write_text(audio[:start]+(ROOT/'tools/effect_audio_helpers.hpp.in').read_text()+'}\n')
+        defaults=[math.floor(parameter['default']*32767+0.5)<<16 for parameter in definition['parameters']]
+        defaults += [0]*(8-len(defaults))
+        test=(ROOT/'tools/effect_send_test.cpp.in').read_text()
+        test=test.replace('@ID@',ident).replace('@WORDS@',str(total//4)).replace('@PARAMS@',','.join(map(str,defaults)))
+        test=test.replace('@ARGS@','state,opxy::Buffer{memory.data,words},'+('transport,' if extra else '')+'l,r,p')
+        test=test.replace('@CAPTURE@','p[7]=block<100 ? 0 : 2147483647;' if name=='in_a_room' else '')
+        test=test.replace('@RECOVERY@','if(state.lift<16) {std::puts("Quiet-send precision did not recover after a loud transient");return 4;}' if name=='crush' else '')
+        test=test.replace('@UNCAPTURE@','p[7]=0;' if name=='in_a_room' else '(void)transport;')
+        (folder/'tests/send_range.cpp').write_text(test)
         (folder/'fx.cpp').write_text(body)
         definition['resources']={'bufferBytes':total}
         if extra:definition['resources']['transport']=1
@@ -496,7 +535,7 @@ def main():
         folder=Path(port['path']);ident=port['id']
         probe=ROOT/'local'/('size-'+ident+'.cpp')
         probe.write_text('#include <cstdio>\n#include "'+str(folder/'sine.hpp')+'"\n#include "'+str(folder/'dsp.hpp')+'"\nint main(){printf("%zu",sizeof('+ident+'::port::Dsp));}\n')
-        command=[CLANG+'++','-std=c++11','-O2','-Wall','-Werror',str(probe),'-o',str(probe.with_suffix(''))]
+        command=[CLANG+'++','-std=c++11','-O2','-Wall','-Werror','-I'+str(SDK/'sdk/include'),str(probe),'-o',str(probe.with_suffix(''))]
         compiled=subprocess.run(command,text=True,capture_output=True)
         if compiled.returncode:
             failures.append(ident);(ROOT/'local'/('error-'+ident+'.txt')).write_text(compiled.stderr)

@@ -54,8 +54,6 @@ struct Dsp {
 
   void fx_reset(int inst) {
     state_t *s = &st[inst];
-    for (int i = 0; i < 2048; i++)
-      s->buf[i] = 0;
     s->w = 0;
     s->ph = 0;
   }

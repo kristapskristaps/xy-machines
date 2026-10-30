@@ -218,7 +218,7 @@ struct Dsp {
     if (!s->L)
       return;
     s->L += 48;
-    s->clr = 0;
+    s->clr = 8;
     s->age = 0;
     s->czm = (1 << 12) - 1;
     s->wp = 0;

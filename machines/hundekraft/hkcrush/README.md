@@ -26,8 +26,8 @@ measured 0.954% of the audio-block budget at default settings, but the user stil
 reported bad FX audio. That measurement predates the working-level correction.
 
 The adapter now normalizes quiet sends before the original 16-bit DSP and
-restores their return level afterwards. Its gain only falls when louder input
-arrives; held audio is rescaled at the same time. Tests cover transparent
+restores their return level afterwards. Held audio changes units with the gain;
+headroom checks restore precision after louder input without resetting the hold. Tests cover transparent
 processing from 512-word peaks through loud signals and held-sample continuity.
 Hardware audio acceptance and CPU measurement for this change remain pending.
 

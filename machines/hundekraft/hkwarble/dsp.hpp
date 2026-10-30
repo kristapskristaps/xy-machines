@@ -101,9 +101,6 @@ struct Dsp {
     s->lp[0] = s->lp[1] = 0;
     s->mix = -1;
     s->depth = 0;
-    for (unsigned c = 0; c < 2; c++)
-      for (unsigned i = 0; i < 2048; i++)
-        s->ring[c][i] = 0;
   }
 
   int16_t clip(int32_t x) {

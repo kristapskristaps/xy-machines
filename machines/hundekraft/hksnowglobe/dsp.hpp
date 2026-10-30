@@ -74,10 +74,7 @@ struct Dsp {
   }
 
   void fx_reset(int inst) {
-    state_t *s = &st[inst];
-    uint8_t *p = reinterpret_cast<uint8_t *>(s);
-    for (unsigned i = 0; i < sizeof(state_t); i++)
-      p[i] = 0;
+    (void)inst;
   }
 
   inline int32_t sg_sat(int32_t v) {

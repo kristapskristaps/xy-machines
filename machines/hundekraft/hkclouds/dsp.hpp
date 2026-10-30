@@ -1848,20 +1848,12 @@ struct Dsp {
     c->mode = c->prev_mode = mode;
     c->s16 = (int16_t *)m;
     c->size = 118784 / 2 - 8;
-    for (int i = 0; i < 118784 / 2; i++)
-      c->s16[i] = 0;
     m += 118784;
     c->diff_buf = (int32_t *)m;
     m += 2048 * 4;
     c->rev_buf = (int16_t *)m;
     m += 16384 * 2;
     c->ps_buf = (int16_t *)m;
-    for (int i = 0; i < 2048; i++)
-      c->diff_buf[i] = 0;
-    for (int i = 0; i < 16384; i++)
-      c->rev_buf[i] = 0;
-    for (int i = 0; i < 4096; i++)
-      c->ps_buf[i] = 0;
     for (int i = 0, b = 0; i < 10; i++) {
       rv_base[i] = b;
       b += rv_len[i] + 1;

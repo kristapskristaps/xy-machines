@@ -86,8 +86,6 @@ struct Dsp {
     r->buf = (int16_t *)scratch;
     if (!r->buf)
       return;
-    for (int i = 0; i < 32768; i++)
-      r->buf[i] = 0;
     for (int i = 0, b = 0; i < 10; i++) {
       r->base[i] = b;
       b += rv_len[i] + 1;

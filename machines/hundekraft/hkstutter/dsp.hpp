@@ -98,10 +98,6 @@ struct Dsp {
     s->rng = 0x2545F491u + (uint32_t)pos * 0x9E3779B9u;
     s->slice = 0;
     s->hist = 0;
-    int16_t *buf = (int16_t *)scratch;
-    if (buf)
-      for (int i = 0; i < 65536; i++)
-        buf[i] = 0;
   }
 
   int grid(st_t *s, int div, int32_t *slen) {

@@ -92,8 +92,6 @@ struct Dsp {
     s->feedback[0] = s->feedback[1] = s->peak = 0;
     s->pre = s->dry = -1;
     s->wet = 0;
-    for (unsigned i = 0; i < 65536; i++)
-      s->ring[i] = 0;
   }
 
   int32_t read_at(plate_state *s, unsigned h, unsigned off) {

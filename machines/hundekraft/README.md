@@ -30,21 +30,17 @@ The audition server is running at **http://127.0.0.1:9137/**.
 Host auditions do not establish device acceptance. The first hardware audition
 reported crackling on the effects and degraded Mixtur audio. After the native
 word-type correction, the user confirmed Mixtur improved; the FX remained bad.
-All 13 effect adapters now normalize the input before the original 16-bit DSP
-and undo that gain on the wet return. Named audio memories change units with the
-gain; pointers, phases, positions and coefficients do not. Headroom checks allow
-precision to recover after louder input without resetting delay/freeze tails.
-The helpers use conservative, representation-specific bounds for sample,
-filter and energy storage. Duplicate full-buffer initialization clears have
-been removed; the existing bounded adapter clear still protects dirty scratch.
+The subsequent collection-wide level correction also failed hardware acceptance:
+the user reported the HK effects still sounded bad while core Ring Mod and Ping
+Pong sounded correct on the same setup. FX debugging is stopped at the user's
+request. The 13 effect sources and their histories are retained, but
+`collections/hundekraft-test.json` now selects only the 12 synth ports. The full
+source inventory remains available in `collections/hundekraft.json`.
 
-Every effect has a quiet-send regression at four levels (512 through 2^28 word
-peaks), followed by a full-scale transient, silence and dirty-buffer reset.
-All 13 pass host/native compilation and the new AddressSanitizer/UBSan checks.
-The importer reproduces the adapters and the audited startup changes.
-Hardware sound acceptance and timing for this revision remain pending. In
-particular, gain changes scan/rescale delay history and need native peak-cycle
-validation; host checks cannot establish that these transitions meet deadlines.
+The experimental FX source includes working-level handling and typed history
+rescaling, with passing host/native/sanitizer checks. Those checks do not
+establish usable hardware audio. Do not include these FX in normal device kits
+unless explicitly requested for renewed investigation.
 
 The corrected word-type build (`c3690f4`) completed one hardware CPU capture:
 Crush 0.954%, Father 11.374%, Clouds 13.481%, Reverb 17.887% and Palme 28.396%
@@ -160,7 +156,7 @@ identity layout. Do not install `module.bin` or `module.elf` as an OS.
 
 Development firmware is built from the official pinned SDK using the root
 `./xy build` and `./xy stage` workflow in [the development guide](../../docs/development.md).
-The HK test kit contains 12 synths and 13 effects. Carry the last verified device
+The default HK test kit contains the 12 synths; its 13 unaccepted FX are excluded. Carry the last verified device
 layout into each build and keep firmware, packages and captures in external
 private storage. Installation and profiling require an authorized device test.
 

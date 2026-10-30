@@ -1,7 +1,7 @@
 # Acidline
 
-An acid synth for Open-XY: band-limited saw/pulse, a resonant four-pole
-filter, a pluck envelope and distortion. Stock OP-XY supplies pitch,
+An acid synth for Open-XY: band-limited saw/triangle/square, a resonant four-pole
+filter, a pluck envelope, soft clipping and an octave-down sine sub. Stock OP-XY supplies pitch,
 portamento, velocity, amplitude envelopes and mixing.
 
 ## Mono playback
@@ -23,15 +23,26 @@ it is not a per-track polyphony setting.
 ## Controls and display
 
 Press any encoder to switch the complete page. The SDK's shared two-page
-header shows both rows and highlights the active row. Saved parameter order
-and mappings are unchanged; this update adds no filler controls.
+header shows both rows and highlights the active row. The original six saved
+slots keep their order; Sub and Damp use the two previously unused slots.
 
 | Encoder | Page 1 | Page 2 |
 | --- | --- | --- |
 | 1 | Cutoff | Decay |
 | 2 | Reso | Wave |
-| 3 | Distort | Distort (same saved control) |
-| 4 | Env Amt | Env Amt (same saved control) |
+| 3 | Distort | Sub |
+| 4 | Env Amt | Damp |
+
+Wave now selects **Saw / Triangle / Square** with a named readout, rather than
+morphing continuously between saw and pulse. Existing low/high settings still
+select saw/square, but intermediate saved values now select one of the three
+shapes. Waveform changes crossfade over one audio block.
+
+Sub blends in a sine exactly one octave below the supplied pitch, including
+stock glide. At full Sub the main and sub each contribute half, preserving
+output headroom. Sub bypasses its lookup when off. Damp is a post-distortion
+low-pass: zero bypasses it, turning clockwise increasingly darkens the sound.
+Both new controls default off; the bass factory presets demonstrate them.
 
 A laboratory bench holds a red triangular Erlenmeyer flask, a blue round-bottom
 reaction flask and a slender green test tube. Their liquid outlines and bubble
@@ -49,17 +60,20 @@ continuous movement. Display work is separate from the audio callback.
 ## DSP
 
 The oscillator, nonlinear feedback filter and distortion run at 88.2 kHz.
-A symmetric 31-tap half-band FIR returns 44.1 kHz output. Filter saturation,
-anti-aliasing, signal levels and control mappings are unchanged.
+A symmetric 31-tap half-band FIR returns 44.1 kHz output. The original filter
+saturation and anti-aliasing remain. Distort now drives a symmetric tanh soft
+clipper across its whole range; it no longer folds at the top. A single small
+interpolated curve replaces the 33-row distortion table, with gain computed
+per block and smoothly ramped. Its zero setting is an exact bypass.
 
-The FIR's seven nonzero symmetric pairs and four filter stages are unrolled
-without changing accumulation order or rounding. A before/after comparison of
-153,600 output samples with changing controls, pitch and retriggers was
-bit-identical. The host advisory estimate changed from roughly 45,300 to
-42,000 Blackfin instructions per voice block in this run; these estimates are
-noisy and are not hardware measurements. The main overload fix is using stock
-mono rather than accumulating heavy polyphonic voices. Several Acidline tracks
-still add CPU cost.
+The FIR's seven nonzero symmetric pairs remain unrolled. Each complementary
+filter blend uses one multiply instead of two, changing only fixed-point
+rounding. No oversampling or filter stages were removed. A paired host timing
+comparison against the preceding version took about 24–25% less time across
+all three waveform positions, including Sub and Damp enabled. The native
+machine plus SDK occupied about 120 KiB, down from about 175 KiB. These are
+host timings and compile sizes, not device CPU measurements. Stock mono keeps
+rapid notes from accumulating polyphonic voices; multiple tracks still add cost.
 
 ## Development
 
@@ -72,7 +86,8 @@ node --test machines/acidline/tests/presets.test.mjs
 ```
 
 The C++ tests cover control extremes, peak bounds, filter attenuation,
-distortion, exact stock pitch ramps, independent DSP states, display bounds,
+monotonic symmetric soft clipping, waveform spectra, octave-down sub,
+damping, exact stock pitch ramps, independent DSP states, display bounds,
 both header pages, idle/reduced-motion behavior, full-convolution equivalence
 and spectral alias rejection. Preset tests check stock mono mode and unchanged
 sound parameters. The optional dedicated acid sequencer under `audition/`

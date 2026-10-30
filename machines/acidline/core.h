@@ -7,6 +7,8 @@ struct Voice {
     opxy::i32 dc_input, dc_output;
     opxy::i32 fir1[32];
     opxy::u32 cursor1;
+    opxy::u32 sub_phase, sub_remainder;
+    opxy::i32 sub, tone, tone_memory;
 };
 struct Shared {};
 }

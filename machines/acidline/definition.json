@@ -64,12 +64,39 @@
       "label": "Wave",
       "default": 0,
       "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Saw",
+          "Triangle",
+          "Square"
+        ]
+      },
+      "display": "enum",
+      "control": 1
+    },
+    {
+      "id": "sub",
+      "label": "Sub",
+      "default": 0,
+      "mapping": {
         "kind": "linear",
         "minimum": 0,
         "maximum": 1
       },
       "display": "percent",
-      "control": 1
+      "control": 2
+    },
+    {
+      "id": "damp",
+      "label": "Damp",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 3
     }
   ],
   "presets": {
@@ -79,7 +106,9 @@
       "drive": 0.0,
       "env": 0.72,
       "decay": 0.35,
-      "wave": 0
+      "wave": 0,
+      "sub": 0,
+      "damp": 0
     },
     "Warehouse": {
       "cutoff": 0.29,
@@ -87,7 +116,9 @@
       "drive": 0.55,
       "env": 0.86,
       "decay": 0.31,
-      "wave": 0
+      "wave": 0,
+      "sub": 0.15,
+      "damp": 0
     },
     "Corroded": {
       "cutoff": 0.43,
@@ -95,7 +126,9 @@
       "drive": 0.91,
       "env": 0.75,
       "decay": 0.42,
-      "wave": 0.12
+      "wave": 0.12,
+      "sub": 0,
+      "damp": 0.18
     },
     "Rubber Pulse": {
       "cutoff": 0.28,
@@ -103,7 +136,9 @@
       "drive": 0.32,
       "env": 0.66,
       "decay": 0.44,
-      "wave": 1
+      "wave": 1,
+      "sub": 0.25,
+      "damp": 0.12
     },
     "Sewer Bass": {
       "cutoff": 0.19,
@@ -111,11 +146,13 @@
       "drive": 0.72,
       "env": 0.56,
       "decay": 0.52,
-      "wave": 0
+      "wave": 0,
+      "sub": 0.55,
+      "damp": 0.18
     }
   },
   "resources": {
-    "voiceBytes": 180,
+    "voiceBytes": 200,
     "voiceAlignment": 4,
     "voiceCapacity": 16,
     "sharedBytes": 0,

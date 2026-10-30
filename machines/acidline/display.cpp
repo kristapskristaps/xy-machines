@@ -6,10 +6,12 @@ inline void display_reset(DisplayState& s){
 }
 inline void display(DisplayState& s,const opxy::draw::Input& in,Frame& frame){
     using namespace opxy::draw;using opxy::i32;using opxy::u32;
-    const char* const titles[8]={"Cutoff","Reso","Distort","Env Amt","Decay","Wave","",""};
-    const opxy::u8 pages[2][4]={{0,1,2,3},{4,5,2,3}};
+    const char* const titles[8]={"Cutoff","Reso","Distort","Env Amt","Decay","Wave","Sub","Damp"};
+    const opxy::u8 pages[2][4]={{0,1,2,3},{4,5,6,7}};
     char values[8][header_capacity]={};
-    for(u32 i=0;i<6;++i)header_amount(values[i],header_capacity,in.slots[i]);
+    for(u32 i=0;i<8;++i)header_amount(values[i],header_capacity,in.slots[i]);
+    const char* const waves[3]={"Saw","Tri","Square"};
+    copy(values[5],header_capacity,waves[(static_cast<u32>(in.slots[5])>>16)*3>>15]);
     page_header(s.header,in,frame,titles,values,3,pages);
     s.notes.update(in);
     const bool changed=!s.initialized || s.track!=in.track;

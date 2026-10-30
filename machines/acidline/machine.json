@@ -2,6 +2,6 @@
   "schema": 1,
   "sdk": "1.6",
   "kind": "synth",
-  "description": "Acid voice with a resonant four-pole filter, pluck envelope, saw/pulse and distortion; uses stock pitch and velocity.",
+  "description": "Mono acid voice with saw/triangle/square, resonant four-pole filter, octave-down sine sub, soft clipping and damping.",
   "presets": "presets"
 }

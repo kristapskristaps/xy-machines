@@ -11,7 +11,7 @@ const wasmPath=process.env.ACIDLINE_WASM;
 assert.ok(wasmPath,'Set ACIDLINE_WASM to a built SDK engine.wasm');
 const module=await WebAssembly.compile(readFileSync(wasmPath));
 const definition=JSON.parse(readFileSync(new URL('../definition.json',import.meta.url)));
-const parameters=[...definition.parameters.map(p=>Math.round(definition.presets.Warehouse[p.id]*2147483647)),0,0];
+const parameters=definition.parameters.map(p=>Math.round(definition.presets.Warehouse[p.id]*2147483647));
 const create=()=>new Processor({processorOptions:{module,parameters,pattern:patterns[0]}});
 const output=[new Float32Array(128)];
 function message(engine,data){engine.port.onmessage({data});}

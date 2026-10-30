@@ -27,8 +27,8 @@
       21626,
       14417,
       32767,
-      0,
-      0
+      8192,
+      3932
     ],
     "playmode": "mono",
     "portamento.amount": 0,

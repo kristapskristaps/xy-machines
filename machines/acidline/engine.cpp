@@ -19,19 +19,17 @@ i32 lookup(const opxy::i16* row,u32 phase){
     const u32 index=phase>>23;
     return row[index]+(row[index+1]-row[index])*static_cast<i32>((phase&0x7fffffu)>>9)/one;
 }
-i32 distort_row(i32 x,const opxy::i16* row){
-    const u32 position=static_cast<u32>(limit(x,32768)+32768);
-    const u32 index=position>>6;
-    if(index>=1024)return row[1024];
-    return row[index]+(row[index+1]-row[index])*static_cast<i32>(position&63u)/64;
-}
-i32 distort(i32 x,i32 amount){
+i32 distortion_gain(i32 amount){return 256+multiply(amount,amount)*55/64;}
+i32 distort(i32 x,i32 amount,i32 gain){
     if(!amount)return x;
-    const u32 row=static_cast<u32>(amount)>>9;
-    const i32 fraction=amount&511;
-    const i32 a=distort_row(x,tables::distortion[row]);
-    return a+(distort_row(x,tables::distortion[row+1])-a)*fraction/512;
+    const i32 boosted=x*gain/256;
+    const u32 position=static_cast<u32>(boosted<0?-boosted:boosted);
+    const u32 index=position>>10;
+    const i32 clipped=index>=256?32767:tables::clip[index]+
+        (tables::clip[index+1]-tables::clip[index])*static_cast<i32>(position&1023u)/1024;
+    return mix(x,boosted<0?-clipped:clipped,amount);
 }
+inline i32 distort(i32 x,i32 amount){return distort(x,amount,distortion_gain(amount));}
 i32 interpolate(const opxy::i16* table,i32 control){
     const u32 index=static_cast<u32>(control)>>8;
     return table[index]+(table[index+1]-table[index])*(control&255)/256;
@@ -60,9 +58,12 @@ inline void start(Voice& v,Shared&,opxy::u32){v.envelope=one;}
 inline void destroy(Voice&,Shared&,opxy::u32){}
 inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Parameters p,opxy::Pitch pitch){
     const i32 base=p[0]/131072,resonance=p[1]/131072;
-    const i32 drive=p[2]/131072,env=p[3]/131072,decay_control=p[4]/131072,wave=p[5]/131072;
+    const i32 drive=p[2]/131072,env=p[3]/131072,decay_control=p[4]/131072;
+    const u32 choice=(static_cast<u32>(p[5])>>16)*3>>15;
+    const i32 wave=static_cast<i32>(choice)*8192;
+    const i32 sub=p[6]/131072,tone=16383-p[7]/131072;
     const i32 cutoff=limit(base+multiply(multiply(v.envelope,env),10650),one-1);
-    if(v.cutoff<0){v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;}
+    if(v.cutoff<0){v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;}
     i32 g=interpolate(tables::pole,v.cutoff);
     i32 feedback=interpolate(tables::feedback,v.resonance);
     i32 correction=inverse(v.cutoff,v.resonance);
@@ -70,51 +71,58 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
     const i32 df=(interpolate(tables::feedback,resonance)-feedback)/64;
     const i32 di=(inverse(cutoff,resonance)-correction)/64;
     const i32 dd=(drive-v.drive)/64,dw=(wave-v.wave)/64;
+    i32 clip_gain=distortion_gain(v.drive);
+    const i32 clip_step=(distortion_gain(drive)-clip_gain)/64;
+    const i32 ds=(sub-v.sub)/64,dt=(tone-v.tone)/64;
+    i32 tone_g=interpolate(tables::tone,v.tone);
+    const i32 tone_step=(interpolate(tables::tone,tone)-tone_g)/64;
     u32 highest=0;
     for(u32 i=0;i<64;++i)if(pitch[i]>highest)highest=pitch[i];
     highest/=2;
     u32 band=0;while(band<7 && highest<(0x80000000u>>(band+1)))++band;
     for(u32 i=0;i<64;++i){
-        g+=dg;feedback+=df;correction+=di;v.drive+=dd;v.wave+=dw;
-        const i32 one_minus_g=one-g;
+        g+=dg;feedback+=df;correction+=di;v.drive+=dd;v.wave+=dw;v.sub+=ds;v.tone+=dt;tone_g+=tone_step;clip_gain+=clip_step;
         i32 reduced=0;
         const u32 increment=pitch[i];
-        const u32 width=0x74000000u+increment/8;
         for(u32 sub=0;sub<2;++sub){
-            const i32 saw=lookup(tables::saw[band],v.phase);
-            i32 source=saw;
-            if(v.wave){
-                const i32 pulse=(saw-lookup(tables::saw[band],v.phase+width))/2;
-                source=mix(saw,pulse,v.wave);
+            i32 source;
+            if(v.wave==8192)source=lookup(tables::triangle[band],v.phase);
+            else {
+                const i32 saw=lookup(tables::saw[band],v.phase);
+                source=saw;
+                if(v.wave>8192){
+                    const i32 square=(saw-lookup(tables::saw[band],v.phase+0x80000000u))/2;
+                    source=v.wave==one?square:mix(lookup(tables::triangle[band],v.phase),square,(v.wave-8192)*2);
+                }else if(v.wave)source=mix(saw,lookup(tables::triangle[band],v.phase),v.wave*2);
             }
             i32 memory=0;
-            memory=multiply(memory,g)+multiply(v.pole[0],one_minus_g);
-            memory=multiply(memory,g)+multiply(v.pole[1],one_minus_g);
-            memory=multiply(memory,g)+multiply(v.pole[2],one_minus_g);
-            memory=multiply(memory,g)+multiply(v.pole[3],one_minus_g);
+            memory=v.pole[0]+multiply(memory-v.pole[0],g);
+            memory=v.pole[1]+multiply(memory-v.pole[1],g);
+            memory=v.pole[2]+multiply(memory-v.pole[2],g);
+            memory=v.pole[3]+multiply(memory-v.pole[3],g);
             i32 signal=multiply(source/4-multiply(memory,feedback),correction);
             signal=soft(limit(signal,12288)*4);
             {
-                const i32 y=multiply(signal,g)+multiply(v.pole[0],one_minus_g);
+                const i32 y=v.pole[0]+multiply(signal-v.pole[0],g);
                 v.pole[0]=limit(y+(y-v.pole[0]),internal_peak);
                 signal=y;
             }
             {
-                const i32 y=multiply(signal,g)+multiply(v.pole[1],one_minus_g);
+                const i32 y=v.pole[1]+multiply(signal-v.pole[1],g);
                 v.pole[1]=limit(y+(y-v.pole[1]),internal_peak);
                 signal=y;
             }
             {
-                const i32 y=multiply(signal,g)+multiply(v.pole[2],one_minus_g);
+                const i32 y=v.pole[2]+multiply(signal-v.pole[2],g);
                 v.pole[2]=limit(y+(y-v.pole[2]),internal_peak);
                 signal=y;
             }
             {
-                const i32 y=multiply(signal,g)+multiply(v.pole[3],one_minus_g);
+                const i32 y=v.pole[3]+multiply(signal-v.pole[3],g);
                 v.pole[3]=limit(y+(y-v.pole[3]),internal_peak);
                 signal=y;
             }
-            v.fir1[v.cursor1]=distort(limit(signal+signal/2,32768),v.drive);
+            v.fir1[v.cursor1]=distort(limit(signal+signal/2,32768),v.drive,clip_gain);
             if(sub==1)reduced=decimate(v.fir1,v.cursor1,tables::halfband31);
             v.cursor1=(v.cursor1+1)&31u;
             // Honor stock pitch modulation and portamento exactly, sample by sample.
@@ -122,9 +130,16 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
         }
         const i32 dc_removed=limit(reduced-v.dc_input+multiply(v.dc_output,16376),32768);
         v.dc_input=reduced;v.dc_output=dc_removed;
-        output[i]=dc_removed*32768;
+        if(v.tone>=16383)v.tone_memory=dc_removed;
+        else v.tone_memory+=multiply(dc_removed-v.tone_memory,tone_g);
+        const i32 main=v.tone_memory;
+        const i32 low=v.sub?lookup(tables::sine,v.sub_phase):0;
+        output[i]=mix(main,low,v.sub/2)*32768;
+        v.sub_remainder+=increment&1u;
+        v.sub_phase+=increment/2+v.sub_remainder/2;
+        v.sub_remainder&=1u;
     }
     v.envelope=multiply(v.envelope,interpolate(tables::decay,decay_control));
-    v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;
+    v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;
 }
 }

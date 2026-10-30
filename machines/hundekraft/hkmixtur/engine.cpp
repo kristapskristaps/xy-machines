@@ -29,7 +29,7 @@ inline void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
         for(unsigned i=0;i<64;++i)output[i]=static_cast<opxy::i32>(voice.audio[64+i])*32768;
         voice.half=1;return;
     }
-    d.pitch_input=reinterpret_cast<const port::int32_t*>(voice.pitch);
+    d.pitch_input=reinterpret_cast<const opxy::i32*>(voice.pitch);
     if (voice.pending) { d.mx_note_on(&d.note,q); voice.pending=0; }
     d.mx_render(&d.note,voice.audio,q);
     d.pitch_input=0;

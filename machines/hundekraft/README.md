@@ -27,8 +27,9 @@ The audition server is running at **http://127.0.0.1:9137/**.
 - **Freeze / Latch:** these controls are exposed as Off/On parameters, including
   HAIL, Clouds, Snowglobe and Palme. Start with input playing before freezing.
 
-The initial host audition is for listening and control testing. Hardware CPU,
-device sound, display behavior and recovery have not been tested.
+Host auditions do not establish device acceptance. The first hardware audition
+reported crackling on the effects and degraded Mixtur audio; the native word-type
+correction needs a fresh hardware comparison. CPU measurements remain pending.
 
 To restart the server after stopping it, from this folder:
 
@@ -57,6 +58,13 @@ Those services are absent from the current public XY machine API. Tape tools,
 sequencers, MIDI Tape and other OP-1 system features are separate firmware work.
 
 ## What the ports change
+
+The effects and Mixtur use SDK `opxy::i32`/`u32` for their imported 32-bit
+words. Host-preprocessed `int` is a different type from Blackfin's SDK `long`,
+even though both are 32 bits; mixing them violates sample-buffer aliasing.
+`tests/target_words.cpp` checks pointer compatibility and is also compiled with
+the pinned Blackfin compiler during validation. The importer preserves SDK word
+types for future regenerations.
 
 Synth DSP keeps its original 128-sample internal block. The adapter queues the
 pitch input and emits 64 samples per XY callback, adding **64 samples / 1.45 ms**

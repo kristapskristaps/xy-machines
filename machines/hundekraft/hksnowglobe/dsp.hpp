@@ -1,12 +1,13 @@
 #pragma once
 #include "wide.hpp"
+#include <opxy/types.hpp>
 // DSP adapted from Hundekraft 3.0.3. Retained copyright and terms: NOTICE,
 // LICENSE.
 namespace hksnowglobe {
 namespace port {
-typedef int int32_t;
+typedef opxy::i32 int32_t;
 
-typedef unsigned int uint32_t;
+typedef opxy::u32 uint32_t;
 
 typedef short int16_t;
 
@@ -74,8 +75,8 @@ struct Dsp {
 
   void fx_reset(int inst) {
     state_t *s = &st[inst];
-    int16_t *p = (int16_t *)s->ap;
-    for (unsigned i = 0; i < sizeof(state_t) / 2; i++)
+    uint8_t *p = reinterpret_cast<uint8_t *>(s);
+    for (unsigned i = 0; i < sizeof(state_t); i++)
       p[i] = 0;
   }
 

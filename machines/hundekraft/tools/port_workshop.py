@@ -185,6 +185,10 @@ def preprocess(name,shim):
     text=re.sub(r'__attribute__\s*\(\(aligned\([^)]*\)\)\)','',text)
     text=re.sub(r'^\s*#pragma[^\n]*\n','',text,flags=re.M)
     text=text.replace('typedef long long int int64_t;','typedef Wide int64_t;').replace('typedef long long unsigned int uint64_t;','typedef Wide uint64_t;')
+    # Host preprocessing spells int32_t as int; Blackfin's SDK word is long.
+    # Preserve type identity, not only width, before casting SDK audio memory.
+    text=text.replace('typedef int int32_t;', 'typedef opxy::i32 int32_t;')
+    text=text.replace('typedef unsigned int uint32_t;', 'typedef opxy::u32 uint32_t;')
     text=text.replace('__builtin_clz','leading_zeroes')
     text=re.sub(r'\b(0[xX][0-9a-fA-F]+|[0-9]+)(?:ULL|LLU|LL|ull|llu|ll)\b',r'Wide(\1)',text)
     if name=='oxbow':text=re.sub(r'\[P_\w+\]\s*=(?!=)\s*','',text)
@@ -224,6 +228,8 @@ def make_dsp(name,ident,shim):
                 item=item.replace('x - ((x * k3) >> 16) + ((wet * k3) >> 15)','wet')
                 item=item.replace('const int32_t k2 = knobs[2] < 0 ? 0 : knobs[2], k3 = knobs[3] < 0 ? 0 : knobs[3];','const int32_t k2 = knobs[2] < 0 ? 0 : knobs[2];')
             if name=='snowglobe':
+                item=item.replace('int16_t *p = (int16_t *)s->ap;', 'uint8_t *p = (uint8_t *)s;')
+                item=item.replace('i < sizeof(state_t) / 2', 'i < sizeof(state_t)')
                 item=item.replace('x0 - ((x0 * k3) >> 16) + ((wprev + wk) >> 1)','((wprev + wk) >> 1)').replace('x1 - ((x1 * k3) >> 16) + wk','wk')
                 item=item.replace('const int32_t x0 = io2[2 * j], x1 = io2[2 * j + 1], wk =','const int32_t wk =')
                 item=item.replace('const int freeze = k3 > 31500;','const int freeze = fx_page[0][3] != 0;')
@@ -255,7 +261,7 @@ def make_dsp(name,ident,shim):
     if name in DIRECT:body+=DIRECT[name]+' note;\n'
     body+='void defaults() { '+' '.join(initial)+' }\n'
     body+='\n\n'.join(functions)+'\n};\n'
-    result='#pragma once\n#include "wide.hpp"\n// DSP adapted from Hundekraft 3.0.3. Retained copyright and terms: NOTICE, LICENSE.\nnamespace '+ident+' { namespace port {\n'+body+'}}\n'
+    result='#pragma once\n#include "wide.hpp"\n#include <opxy/types.hpp>\n// DSP adapted from Hundekraft 3.0.3. Retained copyright and terms: NOTICE, LICENSE.\nnamespace '+ident+' { namespace port {\n'+body+'}}\n'
     return subprocess.check_output(['/opt/homebrew/opt/llvm/bin/clang-format'],input=result,text=True)
 
 def wrappers(port, size):
@@ -300,7 +306,7 @@ inline void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
         for(unsigned i=0;i<64;++i)output[i]=static_cast<opxy::i32>(voice.audio[64+i])*32768;
         voice.half=1;return;
     }}
-    d.pitch_input=reinterpret_cast<const port::int32_t*>(voice.pitch);
+    d.pitch_input=reinterpret_cast<const opxy::i32*>(voice.pitch);
     if (voice.pending) {{ d.{on}({selfarg},q); voice.pending=0; }}
     d.{render}({selfarg},voice.audio,q);
     d.pitch_input=0;

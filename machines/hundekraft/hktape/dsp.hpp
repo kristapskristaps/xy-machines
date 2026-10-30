@@ -1,12 +1,13 @@
 #pragma once
 #include "wide.hpp"
+#include <opxy/types.hpp>
 // DSP adapted from Hundekraft 3.0.3. Retained copyright and terms: NOTICE,
 // LICENSE.
 namespace hktape {
 namespace port {
-typedef int int32_t;
+typedef opxy::i32 int32_t;
 
-typedef unsigned int uint32_t;
+typedef opxy::u32 uint32_t;
 
 typedef short int16_t;
 

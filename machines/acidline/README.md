@@ -33,7 +33,9 @@ and mappings are unchanged; this update adds no filler controls.
 | 3 | Distort | Distort (same saved control) |
 | 4 | Env Amt | Env Amt (same saved control) |
 
-A laboratory bench contains red acid, blue catalyst and a pale base, connected
+A laboratory bench holds a red triangular Erlenmeyer flask, a blue round-bottom
+reaction flask and a slender green test tube. Their liquid outlines and bubble
+positions follow their different vessel profiles. All three are connected
 by a recirculating glass pipe network. Coloured fluid packets travel through
 the pipes while notes sound; cutoff controls flow speed. Turning valves, two
 pressure gauges, reaction flashes and droplets respond to the controls and

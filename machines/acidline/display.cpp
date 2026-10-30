@@ -1,4 +1,5 @@
 #include "display.h"
+#include "vessels.h"
 namespace acidline {
 inline void display_reset(DisplayState& s){
     s.header.reset();s.notes.reset();s.phase=s.bloom=s.serial=s.track=s.initialized=0;
@@ -26,12 +27,24 @@ inline void display(DisplayState& s,const opxy::draw::Input& in,Frame& frame){
         const i32 phase=static_cast<i32>(s.phase)*3600/4096;
         const i32 amplitude=1+(held?reso/256:0)+static_cast<i32>(s.bloom)/256;
         frame.paths[vial].key=1+static_cast<u32>(levels[vial]+32)+s.phase*128+static_cast<u32>(amplitude)*524288;
+        const i32 surface=140+levels[vial],width=vessel_width(vial,surface);
         for(u32 i=0;i<16;++i){
             const i32 angle=static_cast<i32>(i)*3600/15+phase+static_cast<i32>(vial)*1100;
-            frame.paths[vial].points[i]={(-26+static_cast<i32>(i)*52/15)*unit,
-                levels[vial]*unit+sine(angle)*amplitude};
-            const Turn bend=rotation(static_cast<i32>(i)*1800/15);
-            frame.paths[vial].points[16+i]={bend.cos*26,24*unit+bend.sin*26};
+            const i32 taper=sine(static_cast<i32>(i)*1800/15);
+            frame.paths[vial].points[i]={(-width+static_cast<i32>(i)*width*2/15)*unit,
+                levels[vial]*unit+sine(angle)*amplitude*taper/1024};
+            if(vial==2){
+                const Turn bend=rotation(static_cast<i32>(i)*1800/15);
+                frame.paths[vial].points[16+i]={bend.cos*14,36*unit+bend.sin*14};
+            }else if(i<7 || i>8){
+                const i32 step=static_cast<i32>(i<7?i:15-i);
+                const i32 bottom=vial==0?184:188;
+                const i32 y=surface+3+(bottom-surface-3)*step/6;
+                const i32 side=vessel_width(vial,y);
+                frame.paths[vial].points[16+i]={(i<7?side:-side)*unit,(y-140)*unit};
+            }else{
+                frame.paths[vial].points[16+i]={(i==7?1:-1)*(vial==0?35:1)*unit,(vial==0?48:50)*unit};
+            }
         }
         place(frame,vial,center*unit,140*unit,unit,12+vial,stroke);
         place(frame,32+vial,center*unit,(140+levels[vial])*unit,unit,0,fill_and_stroke);
@@ -41,7 +54,8 @@ inline void display(DisplayState& s,const opxy::draw::Input& in,Frame& frame){
             const i32 cycle=static_cast<i32>((s.phase*(2+vial)+bubble*659+vial*271)&4095u);
             const i32 top=levels[vial]+146;
             const i32 y=180-cycle*(180-top)/4096;
-            const i32 x=center-16+static_cast<i32>(bubble%3)*16+sine(cycle*3600/4096)/384;
+            const i32 spread=clamp(vessel_width(vial,y)-6,2,28);
+            const i32 x=center+(static_cast<i32>(bubble%3)-1)*spread+sine(cycle*3600/4096)/512;
             place(frame,node,x*unit,y*unit,unit,10,stroke);
         }
         if(!s.bloom || in.reduced_motion)hide(frame,29+vial);

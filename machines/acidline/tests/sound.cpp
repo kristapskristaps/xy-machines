@@ -56,6 +56,11 @@ int main(){
         acidline::display(state,input,frame);
         if(!opxy::draw::valid(frame)){std::puts("FAIL display frame");return 1;}
     }
+    if(acidline::vessel_width(0,180)<=acidline::vessel_width(0,125)
+       || acidline::vessel_width(1,155)<=acidline::vessel_width(1,125)
+       || acidline::vessel_width(2,125)!=acidline::vessel_width(2,175)){
+        std::puts("FAIL vessel profiles are not distinct");return 1;
+    }
     acidline::display_reset(state);input={};input.elapsed=17;
     acidline::display(state,input,frame);
     acidline::Frame idle=frame;

@@ -29,6 +29,52 @@ Local configuration is ignored `local/dev.json`. Setup can also remember
 and `--private-root /private/xy-machines`. Firmware paths inside any Git checkout
 are rejected. Default hardware outputs use the OS's OPXY-SDK private directory.
 
+## Browser selection, builds and USB installation
+
+Use the official Open-XY browser app with the published catalog plus this
+repository's private machines. Local versions take precedence if IDs overlap.
+The rejected HK effects and HK Granular are excluded; their sources remain intact.
+Catalog extensions are included in the optional extension picker.
+
+```sh
+./xy browser
+```
+
+This serves the most recent verified personal kit at
+`http://127.0.0.1:8928/` using the pinned SDK's allowlisted Vite server. Use
+Chrome or Edge for Web MIDI and WebUSB. The exported `opxy-builder.html` also
+opens directly in Chrome, including offline, so a running server is optional.
+All generated native objects, stock content and browser packages stay in the
+external private directory.
+
+Inside the browser, load the original device OS and your last installed
+`layout.json`, choose machines and extensions, build, and follow the Mac USB
+transfer guide. Loading the layout preserves saved machine numbers. Device USB
+permission and the physical boot-partition write/reboot remain user actions.
+The app builds a new firmware selection from already compiled objects; it does
+not hot-load machines into running firmware. Presets/projects referencing an
+omitted machine need that machine restored before they can work normally.
+
+To refresh the pool after editing machine code or updating the pinned catalog:
+
+```sh
+./xy browser --refresh --stock-os /external/private/stock-1.2.1/os.ldr
+```
+
+Export runs all upstream kit checks before replacing the cached kit. A failed
+refresh preserves the previous verified kit. `--build-only` exports without
+starting a server; `--port` chooses another localhost port without stopping
+another app. The launcher verifies the cached HTML hash and the pinned SDK's
+runtime signature before serving it.
+
+The SDK's personal-kit checker currently needs the verification-only correction
+in [upstream PR 277](https://github.com/etcetc000/open-xy/pull/277). The ignored
+`local/dev.json` may point `browser_export_sdk` at that separate SDK checkout.
+The launcher accepts it only when its browser, firmware, profiles, linker and
+runtime tooling exactly match the pinned SDK; the original SDK checkout stays
+unchanged. The cache records the export revision separately. Remove that local
+override once the upstream fix is included in the SDK pin.
+
 ## Fast edit/listen loop
 
 ```sh

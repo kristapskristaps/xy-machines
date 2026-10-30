@@ -302,6 +302,9 @@ def main():
     p = sub.add_parser('preview')
     p.add_argument('id'); p.add_argument('--watch', action='store_true'); p.add_argument('--no-serve', action='store_true')
     p.add_argument('--port', type=int, default=0); p.add_argument('--cxx')
+    p = sub.add_parser('browser', help='Official browser builder with catalog plus local machines')
+    p.add_argument('--refresh', action='store_true'); p.add_argument('--stock-os')
+    p.add_argument('--build-only', action='store_true'); p.add_argument('--port', type=int, default=8928)
     p = sub.add_parser('build')
     p.add_argument('--kit', required=True); p.add_argument('--layout'); p.add_argument('--stock-os'); p.add_argument('--out')
     p.add_argument('--sweep', choices=('on', 'off'), default='on', help='on: SDK default full synth sweep; off: quick midpoint-only development')
@@ -336,6 +339,9 @@ def main():
         run(command)
     elif args.command == 'preview':
         preview(args, sdk)
+    elif args.command == 'browser':
+        from browser_gui import launch
+        launch(args, sdk, native_flags())
     elif args.command == 'build':
         build(args, sdk)
     elif args.command == 'stage':

@@ -33,6 +33,17 @@ test/build commands plus their specialist auditions listed in the development
 guide. Do not claim that browser tests reproduce native mono/glide, stock
 envelopes, sends, scheduling, device CPU or hardware display behaviour.
 
+## Browser workflow
+
+Use `./xy browser` for the cached official builder with catalog and private
+machines. `./xy browser --refresh --stock-os <external original OS>` exports a
+fresh pool and runs all SDK kit checks; a failed export never replaces the
+cached builder. Catalog extensions are preserved and local machine IDs take
+precedence. Exclude the rejected HK effects and HK Granular. Read the browser
+section of docs/development.md before changing this workflow. Keep all native
+objects, stock content, kits and site output outside every checkout. Use the
+upstream browser's transfer implementation; do not add another device writer.
+
 ## Hardware workflow
 
 - DSP/display C++ is statically linked: updating it needs a firmware rebuild,

@@ -37,6 +37,7 @@ def setup(args):
     pin = (ROOT / 'SDK_REVISION').read_text().strip()
     if not sdk.exists():
         run(['git', 'clone', '--no-checkout', (ROOT / 'SDK_REPOSITORY').read_text().strip(), sdk])
+        run(['git', '-C', sdk, 'fetch', 'origin', pin])
         run(['git', '-C', sdk, 'checkout', '--detach', pin])
     checked_sdk(sdk)  # Never reset an existing SDK or another chat's changes.
     config = settings()

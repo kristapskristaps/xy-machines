@@ -67,13 +67,17 @@ starting a server; `--port` chooses another localhost port without stopping
 another app. The launcher verifies the cached HTML hash and the pinned SDK's
 runtime signature before serving it.
 
-The SDK's personal-kit checker currently needs the verification-only correction
-in [upstream PR 277](https://github.com/etcetc000/open-xy/pull/277). The ignored
-`local/dev.json` may point `browser_export_sdk` at that separate SDK checkout.
-The launcher accepts it only when its browser, firmware, profiles, linker and
-runtime tooling exactly match the pinned SDK; the original SDK checkout stays
-unchanged. The cache records the export revision separately. Remove that local
-override once the upstream fix is included in the SDK pin.
+The SDK pin includes the pending upstream builder changes in
+[PR 278](https://github.com/etcetc000/open-xy/pull/278): automatic machine and
+extension selection saving, explanations for a disabled Build button, and the
+independent catalog-check correction from PR 277. Native DSP and platform
+sources are unchanged. Setup fetches the exact pinned commit from the official
+SDK repository; existing SDK checkouts are never reset.
+
+Choices survive refreshes in the same browser at the same address. The OS file
+must be chosen again. Audition links (`#preview/machines` or
+`#preview/extensions`) cannot build firmware: use **Go to OS setup**, then load
+your OS. The selection must fit the memory meter before Build becomes available.
 
 ## Fast edit/listen loop
 

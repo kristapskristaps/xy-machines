@@ -41,13 +41,17 @@ i32 inverse(i32 cutoff,i32 resonance){
     const i32 a=interpolate(tables::inverse[row],cutoff);
     return a+(interpolate(tables::inverse[row+1],cutoff)-a)*(resonance&255)/256;
 }
-template<unsigned Count,unsigned Size>
-i32 decimate(i32 (&history)[Size],u32 cursor,const opxy::i16 (&kernel)[Count]){
-    const u32 middle=Count/2;
-    i32 sum=history[(cursor-middle)&(Size-1)]*kernel[middle];
-    for(u32 i=0;i<middle;++i){
-        if(kernel[i])sum+=(history[(cursor-i)&(Size-1)]+history[(cursor-(Count-1-i))&(Size-1)])*kernel[i];
-    }
+// The 31-tap half-band has seven nonzero symmetric pairs. Keep the original
+// accumulation order and rounding while eliminating the runtime tap loop.
+i32 decimate(i32 (&history)[32],u32 cursor,const opxy::i16 (&kernel)[31]){
+    i32 sum=history[(cursor-15)&31u]*kernel[15];
+    sum+=(history[(cursor-2)&31u]+history[(cursor-28)&31u])*kernel[2];
+    sum+=(history[(cursor-4)&31u]+history[(cursor-26)&31u])*kernel[4];
+    sum+=(history[(cursor-6)&31u]+history[(cursor-24)&31u])*kernel[6];
+    sum+=(history[(cursor-8)&31u]+history[(cursor-22)&31u])*kernel[8];
+    sum+=(history[(cursor-10)&31u]+history[(cursor-20)&31u])*kernel[10];
+    sum+=(history[(cursor-12)&31u]+history[(cursor-18)&31u])*kernel[12];
+    sum+=(history[(cursor-14)&31u]+history[(cursor-16)&31u])*kernel[14];
     return sum/one;
 }
 }
@@ -84,12 +88,30 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
                 source=mix(saw,pulse,v.wave);
             }
             i32 memory=0;
-            for(u32 stage=0;stage<4;++stage)memory=multiply(memory,g)+multiply(v.pole[stage],one_minus_g);
+            memory=multiply(memory,g)+multiply(v.pole[0],one_minus_g);
+            memory=multiply(memory,g)+multiply(v.pole[1],one_minus_g);
+            memory=multiply(memory,g)+multiply(v.pole[2],one_minus_g);
+            memory=multiply(memory,g)+multiply(v.pole[3],one_minus_g);
             i32 signal=multiply(source/4-multiply(memory,feedback),correction);
             signal=soft(limit(signal,12288)*4);
-            for(u32 stage=0;stage<4;++stage){
-                const i32 y=multiply(signal,g)+multiply(v.pole[stage],one_minus_g);
-                v.pole[stage]=limit(y+(y-v.pole[stage]),internal_peak);
+            {
+                const i32 y=multiply(signal,g)+multiply(v.pole[0],one_minus_g);
+                v.pole[0]=limit(y+(y-v.pole[0]),internal_peak);
+                signal=y;
+            }
+            {
+                const i32 y=multiply(signal,g)+multiply(v.pole[1],one_minus_g);
+                v.pole[1]=limit(y+(y-v.pole[1]),internal_peak);
+                signal=y;
+            }
+            {
+                const i32 y=multiply(signal,g)+multiply(v.pole[2],one_minus_g);
+                v.pole[2]=limit(y+(y-v.pole[2]),internal_peak);
+                signal=y;
+            }
+            {
+                const i32 y=multiply(signal,g)+multiply(v.pole[3],one_minus_g);
+                v.pole[3]=limit(y+(y-v.pole[3]),internal_peak);
                 signal=y;
             }
             v.fir1[v.cursor1]=distort(limit(signal+signal/2,32768),v.drive);

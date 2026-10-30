@@ -23,7 +23,7 @@ int main() {
                 l[i]=static_cast<opxy::i32>(peak*std::sin(phase));
                 r[i]=static_cast<opxy::i32>(peak*std::sin(phase*1.5));
             }
-            
+
             process(state,opxy::Buffer{memory.data,words},l,r,p);
             if(block>2000) for(unsigned i=0;i<64;++i) {
                 square+=double(l[i])*l[i]+double(r[i])*r[i];samples+=2;

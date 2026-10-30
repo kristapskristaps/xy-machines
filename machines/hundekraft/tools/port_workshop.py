@@ -457,7 +457,7 @@ void process(State& state, opxy::Buffer buffer, {extra}opxy::Channel left,
         test=test.replace('@CAPTURE@','p[7]=block<100 ? 0 : 2147483647;' if name=='in_a_room' else '')
         test=test.replace('@RECOVERY@','if(state.lift<16) {std::puts("Quiet-send precision did not recover after a loud transient");return 4;}' if name=='crush' else '')
         test=test.replace('@UNCAPTURE@','p[7]=0;' if name=='in_a_room' else '(void)transport;')
-        (folder/'tests/send_range.cpp').write_text(test)
+        (folder/'tests/send_range.cpp').write_text('\n'.join(line.rstrip() for line in test.splitlines())+'\n')
         (folder/'fx.cpp').write_text(body)
         definition['resources']={'bufferBytes':total}
         if extra:definition['resources']['transport']=1

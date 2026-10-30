@@ -33,7 +33,12 @@ and mappings are unchanged; this update adds no filler controls.
 | 3 | Distort | Distort (same saved control) |
 | 4 | Env Amt | Env Amt (same saved control) |
 
-Three chemical vials show red acid, blue catalyst and a pale base. Cutoff,
+A laboratory bench contains red acid, blue catalyst and a pale base, connected
+by a recirculating glass pipe network. Coloured fluid packets travel through
+the pipes while notes sound; cutoff controls flow speed. Turning valves, two
+pressure gauges, reaction flashes and droplets respond to the controls and
+note pulses. The apparatus sits against a tiled lab wall with pump housings
+and an instrument cabinet. Cutoff,
 resonance and distortion change the liquid levels. Notes trigger ripples,
 bubbles and short vapour bursts; held notes keep the reaction active. Idle
 motion settles, track changes reset activity, and reduced motion removes the

@@ -63,6 +63,9 @@ int main(){
     if(std::memcmp(&idle,&frame,sizeof(frame))){std::puts("FAIL idle display moves");return 1;}
     input.note_on_serial=1;input.held_notes=1;acidline::display(state,input,frame);
     if(!state.bloom){std::puts("FAIL note does not trigger chemical reaction");return 1;}
+    const opxy::draw::Node packet=frame.nodes[35];
+    acidline::display(state,input,frame);
+    if(packet.x==frame.nodes[35].x && packet.y==frame.nodes[35].y){std::puts("FAIL pipe fluid does not travel");return 1;}
     input.reduced_motion=true;acidline::display(state,input,frame);
     if(state.phase || state.bloom){std::puts("FAIL reduced-motion reaction keeps moving");return 1;}
     input.shown[0]=4;input.shown[1]=5;acidline::display(state,input,frame);

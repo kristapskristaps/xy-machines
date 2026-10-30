@@ -47,5 +47,50 @@ inline void display(DisplayState& s,const opxy::draw::Input& in,Frame& frame){
         if(!s.bloom || in.reduced_motion)hide(frame,29+vial);
         else place(frame,29+vial,center*unit,(70-static_cast<i32>(1024-s.bloom)/128)*unit,unit,12+vial,stroke);
     }
+    // Travel along glass pipes in screen space; no audio state is consulted.
+    const i32 routes[6][5][2]={
+        {{44,149},{76,149},{76,66},{120,66},{120,77}},
+        {{120,77},{120,64},{240,64},{240,77},{240,77}},
+        {{240,77},{240,50},{360,50},{360,77},{360,77}},
+        {{360,77},{400,77},{400,132},{438,132},{438,132}},
+        {{438,166},{404,166},{404,202},{240,202},{240,194}},
+        {{120,194},{120,202},{74,202},{74,170},{44,170}},
+    };
+    const u32 count[6]={5,4,4,4,5,5};
+    for(u32 pipe=0;pipe<6;++pipe){
+        i32 length=0;
+        for(u32 part=1;part<count[pipe];++part){
+            const i32 dx=routes[pipe][part][0]-routes[pipe][part-1][0],dy=routes[pipe][part][1]-routes[pipe][part-1][1];
+            length+=(dx<0?-dx:dx)+(dy<0?-dy:dy);
+        }
+        for(u32 particle=0;particle<2;++particle){
+            const u32 node=35+pipe*2+particle;
+            if((!held && !s.bloom) || in.reduced_motion){hide(frame,node);continue;}
+            i32 distance=static_cast<i32>((s.phase*(2+static_cast<u32>(cutoff)/256)+particle*2048+pipe*349)&4095u)*length/4096;
+            for(u32 part=1;part<count[pipe];++part){
+                const i32 dx=routes[pipe][part][0]-routes[pipe][part-1][0],dy=routes[pipe][part][1]-routes[pipe][part-1][1];
+                const i32 span=(dx<0?-dx:dx)+(dy<0?-dy:dy);
+                if(distance<=span){
+                    place(frame,node,(routes[pipe][part-1][0]+dx*distance/span)*unit,
+                        (routes[pipe][part-1][1]+dy*distance/span)*unit,unit,pipe>=2 && pipe<=4?13:12,fill_and_stroke);break;
+                }
+                distance-=span;
+            }
+        }
+    }
+    const i32 spin=static_cast<i32>(s.phase)*3600/4096;
+    place(frame,47,184*unit,64*unit,unit,12,stroke);turn(frame,47,rotation(spin+reso));
+    place(frame,48,300*unit,50*unit,unit,13,stroke);turn(frame,48,rotation(-spin+drive));
+    place(frame,49,44*unit,141*unit,unit,15,fill_and_stroke);turn(frame,49,rotation(-700+cutoff*1400/1024+static_cast<i32>(s.bloom)/8));
+    place(frame,50,438*unit,151*unit,unit,15,fill_and_stroke);turn(frame,50,rotation(-700+reso*1400/1024+static_cast<i32>(s.bloom)/8));
+    if(!s.bloom || in.reduced_motion)hide(frame,51);
+    else place(frame,51,240*unit,(137-static_cast<i32>(s.bloom)/128)*unit,unit+static_cast<i32>(s.bloom)/2,15,fill_and_stroke);
+    for(u32 drop=0;drop<4;++drop){
+        if(!s.bloom || in.reduced_motion){hide(frame,52+drop);continue;}
+        const i32 age=1024-static_cast<i32>(s.bloom);
+        place(frame,52+drop,(drop<2?120:360)*unit+(drop%2?1:-1)*age*10,
+            75*unit-age*16+age*age/96,unit,drop<2?12:13,fill_and_stroke);
+    }
+
 }
 }

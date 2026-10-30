@@ -68,7 +68,7 @@ another app. The launcher verifies the cached HTML hash and the pinned SDK's
 runtime signature before serving it.
 
 The SDK pin includes the pending upstream builder changes in
-[PR 278](https://github.com/etcetc000/open-xy/pull/278): automatic machine and
+[PR 279](https://github.com/etcetc000/open-xy/pull/279): Expert mode, automatic machine and
 extension selection saving, explanations for a disabled Build button, and the
 independent catalog-check correction from PR 277. Native DSP and platform
 sources are unchanged. Setup fetches the exact pinned commit from the official
@@ -78,6 +78,14 @@ Choices survive refreshes in the same browser at the same address. The OS file
 must be chosen again. Audition links (`#preview/machines` or
 `#preview/extensions`) cannot build firmware: use **Go to OS setup**, then load
 your OS. The selection must fit the memory meter before Build becomes available.
+
+For repeat installs choose **Expert mode** after the entry notice. It remembers
+that preference. Load a config/layout or reuse the saved selection, choose your
+OS, then use **Build & copy to XY** with the device already in dev-menu MTP mode
+and OpenMTP/Field Kit closed. The SDK asks for the USB device, builds, sends
+content before the OS, and verifies every file by reading it back. The final
+screen gives the physical write/reboot steps in one line. **Save config** works
+before a build; **Build ZIP** is available without direct USB transfer.
 
 ## Fast edit/listen loop
 

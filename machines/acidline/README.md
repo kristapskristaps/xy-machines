@@ -72,8 +72,9 @@ rounding. No oversampling or filter stages were removed. A paired host timing
 comparison against the preceding version took about 24–25% less time across
 all three waveform positions, including Sub and Damp enabled. The native
 machine plus SDK occupied about 120 KiB, down from about 175 KiB. These are
-host timings and compile sizes, not device CPU measurements. Stock mono keeps
-rapid notes from accumulating polyphonic voices; multiple tracks still add cost.
+host timings and compile sizes, not device CPU measurements. Stock mono is the
+intended per-track mode; rapid-note behaviour and total load need device testing.
+Multiple tracks still add cost.
 
 The native compiler previously lowered the filter saturation's division by
 three to a software divide inside the oversampled loop: 128 calls per block.

@@ -38,7 +38,7 @@ reaction flask and a slender green test tube. Their liquid outlines and bubble
 positions follow their different vessel profiles. All three are connected
 by a recirculating glass pipe network. Coloured fluid packets travel through
 the pipes while notes sound; cutoff controls flow speed. Turning valves, two
-pressure gauges, reaction flashes and droplets respond to the controls and
+pressure gauges and droplets respond to the controls and
 note pulses. The apparatus sits against a tiled lab wall with pump housings
 and an instrument cabinet. Cutoff,
 resonance and distortion change the liquid levels. Notes trigger ripples,

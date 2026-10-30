@@ -97,12 +97,10 @@ inline void display(DisplayState& s,const opxy::draw::Input& in,Frame& frame){
     place(frame,48,300*unit,50*unit,unit,13,stroke);turn(frame,48,rotation(-spin+drive));
     place(frame,49,44*unit,141*unit,unit,15,fill_and_stroke);turn(frame,49,rotation(-700+cutoff*1400/1024+static_cast<i32>(s.bloom)/8));
     place(frame,50,438*unit,151*unit,unit,15,fill_and_stroke);turn(frame,50,rotation(-700+reso*1400/1024+static_cast<i32>(s.bloom)/8));
-    if(!s.bloom || in.reduced_motion)hide(frame,51);
-    else place(frame,51,240*unit,(137-static_cast<i32>(s.bloom)/128)*unit,unit+static_cast<i32>(s.bloom)/2,15,fill_and_stroke);
     for(u32 drop=0;drop<4;++drop){
-        if(!s.bloom || in.reduced_motion){hide(frame,52+drop);continue;}
+        if(!s.bloom || in.reduced_motion){hide(frame,51+drop);continue;}
         const i32 age=1024-static_cast<i32>(s.bloom);
-        place(frame,52+drop,(drop<2?120:360)*unit+(drop%2?1:-1)*age*10,
+        place(frame,51+drop,(drop<2?120:360)*unit+(drop%2?1:-1)*age*10,
             75*unit-age*16+age*age/96,unit,drop<2?12:13,fill_and_stroke);
     }
 

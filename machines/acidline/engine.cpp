@@ -12,7 +12,12 @@ i32 soft(i32 x){
     x=limit(x,internal_peak);
     const i32 half=x/2;
     const i32 square=half*half/one;
-    return x-(x*square/65536)/3;
+    const i32 cubic=x*square/65536;
+    // |cubic| <= 27648: this reciprocal gives exact truncation by three
+    // throughout that range, without Blackfin's per-sample software divide.
+    const i32 magnitude=cubic<0?-cubic:cubic;
+    const i32 third=(magnitude*21846)>>16;
+    return x-(cubic<0?-third:third);
 }
 i32 mix(i32 a,i32 b,i32 fraction){return a+(b-a)*fraction/one;}
 i32 lookup(const opxy::i16* row,u32 phase){

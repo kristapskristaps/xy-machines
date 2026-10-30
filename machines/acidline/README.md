@@ -75,6 +75,13 @@ machine plus SDK occupied about 120 KiB, down from about 175 KiB. These are
 host timings and compile sizes, not device CPU measurements. Stock mono keeps
 rapid notes from accumulating polyphonic voices; multiple tracks still add cost.
 
+The native compiler previously lowered the filter saturation's division by
+three to a software divide inside the oversampled loop: 128 calls per block.
+It now uses an exact bounded reciprocal. Exhaustive saturation tests and a
+307,200-sample render comparison are bit-identical, and the Blackfin voice
+object has no software division call. This fixes a target-specific cost the
+desktop timing comparison did not capture; hardware load still needs testing.
+
 ## Development
 
 From the XY Machines root:

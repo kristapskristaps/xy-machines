@@ -29,6 +29,12 @@ Spectrum measure(opxy::i32 wave,opxy::i32 sub,opxy::i32 damp){
 }
 }
 int main(){
+    for(int x=-100000;x<=100000;++x){
+        const int bounded=x<-49152?-49152:x>49152?49152:x;
+        const int half=bounded/2,square=half*half/16384;
+        require(acidline::soft(x)==bounded-(bounded*square/65536)/3,
+            "FAIL division-free saturation differs from the original curve");
+    }
     for(int amount=0;amount<=16383;amount+=1023){
         int previous=-32769;
         for(int x=-32768;x<=32768;x+=8){

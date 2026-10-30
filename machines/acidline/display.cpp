@@ -33,7 +33,8 @@ inline void display(DisplayState& s,const opxy::draw::Input& in,Frame& frame){
             const Turn bend=rotation(static_cast<i32>(i)*1800/15);
             frame.paths[vial].points[16+i]={bend.cos*26,24*unit+bend.sin*26};
         }
-        place(frame,vial,center*unit,140*unit,unit,12+vial,fill_and_stroke);
+        place(frame,vial,center*unit,140*unit,unit,12+vial,stroke);
+        place(frame,32+vial,center*unit,(140+levels[vial])*unit,unit,0,fill_and_stroke);
         for(u32 bubble=0;bubble<6;++bubble){
             const u32 node=11+vial*6+bubble;
             if(!held && !s.bloom){hide(frame,node);continue;}
@@ -41,7 +42,7 @@ inline void display(DisplayState& s,const opxy::draw::Input& in,Frame& frame){
             const i32 top=levels[vial]+146;
             const i32 y=180-cycle*(180-top)/4096;
             const i32 x=center-16+static_cast<i32>(bubble%3)*16+sine(cycle*3600/4096)/384;
-            place(frame,node,x*unit,y*unit,unit,12+vial,stroke);
+            place(frame,node,x*unit,y*unit,unit,10,stroke);
         }
         if(!s.bloom || in.reduced_motion)hide(frame,29+vial);
         else place(frame,29+vial,center*unit,(70-static_cast<i32>(1024-s.bloom)/128)*unit,unit,12+vial,stroke);

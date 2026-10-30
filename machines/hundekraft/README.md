@@ -28,8 +28,16 @@ The audition server is running at **http://127.0.0.1:9137/**.
   HAIL, Clouds, Snowglobe and Palme. Start with input playing before freezing.
 
 Host auditions do not establish device acceptance. The first hardware audition
-reported crackling on the effects and degraded Mixtur audio; the native word-type
-correction needs a fresh hardware comparison. CPU measurements remain pending.
+reported crackling on the effects and degraded Mixtur audio. After the native
+word-type correction, the user confirmed Mixtur improved; the FX remained bad.
+Crush now has a separate quiet-send precision correction awaiting hardware A/B.
+The other effects retain their previous level conversion until that comparison.
+
+The corrected word-type build (`c3690f4`) completed one hardware CPU capture:
+Crush 0.954%, Father 11.374%, Clouds 13.481%, Reverb 17.887% and Palme 28.396%
+of the audio-block budget at defaults. In a room's default workload was inactive,
+so it has no valid CPU number. These default-setting measurements do not establish
+maximum load or audio acceptance, and predate the Crush level correction.
 
 To restart the server after stopping it, from this folder:
 
@@ -137,24 +145,11 @@ The verified compile output is outside every checkout:
 It contains a **non-bootable module**, compile analysis, source hashes and an
 identity layout. Do not install `module.bin` or `module.elf` as an OS.
 
-An installable development OS has not been made: the available file at
-`/Users/tapsy/Documents/os.ldr` does not match the stock 1.2.1 hash required by
-the SDK. The required SHA-256 is
-`e9dbdaa16e39446b267bee4c9e7256c491d167a1594a3a97343af35d74bc98f2`.
-No expected hashes or authentication checks were changed.
-
-Once the user's matching stock file is available, build with the sibling SDK:
-
-```sh
-python ../../../xy-machines-sdk/sdk.py build --collection collection.json --profiling on --stock-os /external/private/stock-1.2.1/os.ldr --out /external/private/hundekraft-dev-001
-```
-
-For an existing custom firmware, carry its layout forward with `--layout` and
-include the machines it needs. Keep all stock inputs and firmware-containing
-outputs outside every checkout. Installation, reboot and three hardware
-profiling runs require a separately authorized device test, following
-[Open-XY's profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
-There are no catalog submissions or hardware CPU records yet.
+Development firmware is built from the official pinned SDK using the root
+`./xy build` and `./xy stage` workflow in [the development guide](../../docs/development.md).
+The HK test kit contains 12 synths and 13 effects. Carry the last verified device
+layout into each build and keep firmware, packages and captures in external
+private storage. Installation and profiling require an authorized device test.
 
 ## Rebuild auditions
 

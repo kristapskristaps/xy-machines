@@ -332,11 +332,12 @@ inline void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
         if mixword is not None:copy+=f'\n    q[{mixword}]=32767;'
         latch={'snowglobe':4,'clouds':7,'hail':7,'stutter':5,'palme':7,'in_a_room':7}.get(name)
         # Scratch is zeroed incrementally before initialization; no stale send data is read.
+        level_state=', lift' if name=='crush' else ''
         (folder/'core.h').write_text(f'''#pragma once
 #include <opxy/effect.hpp>
 namespace {ident} {{
 const opxy::u32 buffer_bytes={total};
-struct State {{ opxy::u32 cleared, ready, clock_phase, clock_tempo, clock_tick; }};
+struct State {{ opxy::u32 cleared, ready, clock_phase, clock_tempo, clock_tick{level_state}; }};
 }}
 ''')
         args='0,audio_left,audio_right,q' if name in STEREO else ('0,audio_left,64,q' if name in ['washer','snowglobe'] else '0,audio_left,q')
@@ -401,6 +402,23 @@ void process(State& state, opxy::Buffer buffer, {extra}opxy::Channel left,
 }}
 }}
 '''
+        if name=='crush':
+            body=body.replace('#include "dsp.hpp"', '#include "dsp.hpp"\n#include "send_level.hpp"')
+            body=body.replace('state=State{};', 'state=State{}; state.lift=20;')
+            body=body.replace('    port::int16_t q[8]={};',
+                '    const SendLevel level(left,right,state.lift);\n'
+                '    const opxy::u32 lower=state.lift-level.lift;\n    port::int16_t q[8]={};')
+            body=body.replace('if(!state.ready) {d.defaults();d.init(0);}',
+                'if(!state.ready) {d.defaults();d.init(0);}'
+                '\n        else if(lower) {\n'
+                '            d.state[0].held[0] >>= lower;\n'
+                '            d.state[0].held[1] >>= lower;\n'
+                '            d.state[0].peak >>= lower;\n        }')
+            body=body.replace('static_cast<port::int16_t>((channel?right:left)[i]>>16)', 'level.input(left[i])')
+            body=body.replace('static_cast<port::int16_t>(right[i]>>16)', 'level.input(right[i])')
+            body=body.replace('static_cast<opxy::i32>(audio_left[i])*65536', 'level.output(audio_left[i])')
+            body=body.replace('static_cast<opxy::i32>(audio_right[i])*65536', 'level.output(audio_right[i])')
+            body=body.replace('    state.ready=1;', '    state.lift=level.lift;\n    state.ready=1;')
         (folder/'fx.cpp').write_text(body)
         definition['resources']={'bufferBytes':total}
         if extra:definition['resources']['transport']=1

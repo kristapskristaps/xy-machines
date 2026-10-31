@@ -109,17 +109,17 @@
     }
   },
   "resources": {
-    "voiceBytes": 84,
+    "voiceBytes": 180,
     "voiceAlignment": 4,
     "voiceCapacity": 32,
     "sharedBytes": 0,
     "outputPeakQ31": 1073741824,
     "display": {
-      "stateBytes": 36,
+      "stateBytes": 44,
       "stateAlignment": 4,
       "paths": 0,
       "points": 0,
-      "nodes": 11,
+      "nodes": 56,
       "texts": 16,
       "palette": 5
     },

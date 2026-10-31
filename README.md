@@ -34,9 +34,15 @@ group cut each other off. Set open and closed hats to the same numbered group
 when assembling a kit. Repeated hits on the same pad use the SDK's short
 crossfade instead of piling up voices.
 
-The drum graphic pulses on note starts, with its visible tail following the
-selected pad's decay. Reduced motion keeps static hit feedback. Entering a
-track establishes a baseline instead of inventing a hit.
+All 18 drum types have their own instrument graphic and moving playing part:
+membranes, snare wires, clapping hands, hat plates, cymbals, strikers and shaking
+percussion. All 47 type/style combinations react to note starts. The 606 snaps
+with fine impact marks; 707 motion steps through a rectangular grid; 808 uses
+rounded pulses; 909 uses sharp impacts and recoil. Movement settles within
+0.2 seconds, with brightness following the selected pad's decay. Reduced motion
+keeps static hit feedback. Entering a track or browsing a type/style establishes
+a still pose instead of inventing a hit. Drawing uses the public note-activity
+snapshot, so simultaneous triggers between display frames can coalesce.
 
 The kit has 24 independent pads, with these drum types: kick, snare, clap, rim,
 low/mid/high tom, closed/open hat, cymbal, ride, cowbell, claves, maracas,
@@ -123,6 +129,13 @@ proves neither hardware acceptance nor measured CPU cost.
   metallic source for hats/cymbal.
 - 808: sine kick with pitch fall, tonal/noise snare, burst clap, tuned toms and
   congas, rim/claves, metallic hats/cymbal, dual-oscillator cowbell and maracas.
+  Hats/cymbal use six band-limited rectangular oscillators, with upper-overtone
+  bands near 3.44/7.1 kHz and separate high-pass branches. The cymbal has three
+  spectral branches with different envelope shapes, rather than added white
+  noise. Tone balances the high bands; Bell shapes the cymbal's lower strike.
+  These lightweight filters follow the spectral architecture described by
+  [Werner, Abel and Smith (2014)](https://www.icmc14-smc14.net/images/proceedings/OS24-B10-TheTR-808Cymbal.pdf),
+  with original code and coefficients, rather than their complete circuit model.
 - 707: all 15 original recordings, including the two kick and snare variants.
   Body blends the variants on those two voices. Other controls shape pitch,
   envelope, onset, spectral balance and transient/body character.
@@ -146,6 +159,7 @@ logarithmic curve and decoded/interpolated at playback. See
 [source hashes](assets/provenance.json). To rebuild sample data, run
 `python assets/generate.py --cache <external-cache>` with ffmpeg installed;
 `python dsp/generate_tables.py` rebuilds the fixed-point math tables.
+`python dsp/generate_metallic.py` rebuilds the 808 spectral filter coefficients.
 
 The envelope lookup uses 85 knots spaced more closely at short durations,
 saving 5,812 bytes compared with a uniform four-millisecond table.
@@ -155,7 +169,9 @@ coefficient-derived decay time stays within 0.35% of the requested time.
 `tests/sound.cpp` checks all 47 combinations, 323 audible shaping controls,
 output bounds, voice completion, retriggering and the measured two-octave tuning
 span. `tests/numerics.cpp` covers 6,016 control corners, buffer ownership and DSP
-isolation. Neither test establishes circuit accuracy or device CPU cost.
+isolation. `tests/metallic.cpp` checks upper-band energy and suppression of the
+808 hat/cymbal's pitched fundamentals, plus independence from the white-noise
+generator. These tests establish neither circuit accuracy nor device CPU cost.
 
 To render a four-kit demonstration and a timed catalogue of all 47 sounds,
 compile `audition/render.cpp` with `dsp/tables.cpp`, `dsp/sample_data.cpp` and the

@@ -3,12 +3,14 @@
 #include "../models.h"
 #include "primitives.h"
 #include "pcm.h"
+#include "metallic.h"
 
 namespace x0x { namespace dsp {
 struct Settings {
-    u32 family, raw[8], duration, increments[6], sample_step;
+    u32 family, raw[8], duration, increments[6], sample_step, metal_reciprocals[6];
     i32 amplitude_rate, transient_rate, pitch_rate, filter, noise_filter;
     i32 sample, alternate;
+    bool metal808;
 };
 static inline i32 sample_for(u32 model, u32 family) {
     static const i32 bank707[model_count] = {0,2,12,13,4,5,6,7,8,9,10,11,-1,-1,-1,-1,-1,14};
@@ -19,12 +21,14 @@ static inline Settings settings(u32 model, opxy::Parameters parameters) {
     Settings s = {};
     for (u32 i = 0; i < 8; ++i) s.raw[i] = raw_control(parameters[i]);
     s.family = family_index(model, s.raw[style]);
+    s.metal808 = s.family == 2 && model >= closed_hat && model <= cymbal;
     s.duration = decay_ms(model, s.raw[decay]);
     if (model == closed_hat || model == open_hat) s.duration = s.duration * (64 + s.raw[body]) / 128;
     s.amplitude_rate = rate(s.duration);
     s.transient_rate = rate(7);
     s.pitch_rate = rate(s.family == 3 ? 18 : 8);
     s.filter = tables::tone[s.raw[tone]];
+    if (s.metal808) s.filter = 32767; // Tone balances the spectral branches below.
     s.noise_filter = i32(scale(2048 + s.raw[tone] * 32, tables::tuning[s.raw[tune]]));
     if (s.noise_filter > 16384) s.noise_filter = 16384;
     s.sample = sample_for(model, s.family);
@@ -51,6 +55,11 @@ static inline Settings settings(u32 model, opxy::Parameters parameters) {
             const u32 frequency = metallic[s.family == 0 ? 0 : 1][i];
             const i32 detune = (i32(s.raw[character]) - 64) * i32(i) / 8;
             s.increments[i] = scale(step(u32(i32(frequency) + detune)), tables::tuning[s.raw[tune]]);
+            if (s.metal808) {
+                static const u32 nominal[6] = {2053,3696,3044,5227,5400,8000};
+                s.increments[i] = scale(step(u32(i32(nominal[i])+10*detune))/10, tables::tuning[s.raw[tune]]);
+                s.metal_reciprocals[i] = 0x7fffffffu/(s.increments[i]>>16);
+            }
         }
     }
     return s;
@@ -131,6 +140,12 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
         if (v.model <= high_tom) signal += multiply(multiply(random, transient), s.family == 0 ? 7000 : 2500);
         break;
     case closed_hat: case open_hat: case cymbal: {
+        if (s.metal808) {
+            if (!v.metal.initialized) metal_start(v.metal,v.phase);
+            signal = metal_source(v.metal,v.phase,s.increments,s.metal_reciprocals,
+                                  v.model == cymbal,s.raw[tone],s.raw[body]);
+            break;
+        }
         i32 metal = 0;
         for (u32 i = 0; i < 6; ++i) metal += square(v.phase[i]) / 6;
         v.metal_low += multiply(metal - v.metal_low, s.family == 0 ? 12000 : 9000);

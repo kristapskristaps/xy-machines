@@ -14,7 +14,7 @@ timing remain unverified.
 ## SDK
 
 This native stepping candidate pairs with the separate local SDK draft
-`12b8bbdceedb524be0a5b4a8526188c4bfbf6631` on `codex/native-gui-size`,
+`335a8d064b66f31d697fa6516e6bbae6d96cafa9` on `codex/native-gui-size`,
 checked out as `../xy-sdk-gui-size`. It adds `resources.parameterEdit`
 to SDK 1.9's synthesis-drum support. CI can use this pin after that SDK commit
 is published. The existing `../open-xy` checkout is untouched.
@@ -100,7 +100,9 @@ helps compare tuning, envelopes and hat choke groups while playing.
 The Kit menu offers 808 Classic, 606 Dry, 707 Studio, 909 Club, Night Wire,
 Warehouse and Soft Machines. Loading one resets all 24 audition pads; each
 pad remains independently editable. `python tools/generate_presets.py` rebuilds
-the audition bank.
+the audition bank and the matching device files in `presets/`. Device presets
+store all 24 pads with neutral track parameters, keeping model selection and
+both pages freely editable. Their open/closed hats share choke group 1.
 
 The browser uses the full C++ engine, including the 707 and 909 recordings,
 and the actual C++ display. It is not a device/project-storage simulator.

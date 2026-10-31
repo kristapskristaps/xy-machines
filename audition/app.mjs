@@ -176,6 +176,7 @@ addEventListener('blur', () => { shifted = false; update(); });
 async function load() {
   const manifest = await (await fetch('/preview/manifest.json')).json();
   presets = await (await fetch('/x0x/presets.json')).json();
+  kitPads(presets[0]).forEach((pad,i) => { pads[i] = pad; });
   for (const kit of presets) {
     const option = document.createElement('option'); option.value = kit.id;
     option.textContent = kit.name; $('preset').append(option);

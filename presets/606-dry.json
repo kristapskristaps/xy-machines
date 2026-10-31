@@ -1,0 +1,355 @@
+{
+  "engine": {
+    "bendrange": 8191,
+    "highpass": 0,
+    "modulation": {
+      "aftertouch": {
+        "amount": 16384,
+        "target": 0
+      },
+      "modwheel": {
+        "amount": 16384,
+        "target": 0
+      },
+      "pitchbend": {
+        "amount": 16384,
+        "target": 0
+      },
+      "velocity": {
+        "amount": 16384,
+        "target": 0
+      }
+    },
+    "params": [
+      16384,
+      16384,
+      16384,
+      16384,
+      16384,
+      16384,
+      16384,
+      16384
+    ],
+    "playmode": "poly",
+    "portamento.amount": 0,
+    "portamento.type": 0,
+    "transpose": 0,
+    "tuning.root": 0,
+    "tuning.scale": 0,
+    "velocity.sensitivity": 0,
+    "volume": 16384,
+    "width": 0
+  },
+  "envelope": {
+    "amp": {
+      "attack": 0,
+      "decay": 0,
+      "release": 32767,
+      "sustain": 32767
+    },
+    "filter": {
+      "attack": 0,
+      "decay": 0,
+      "release": 0,
+      "sustain": 32767
+    }
+  },
+  "fx": {
+    "active": false,
+    "params": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      32767,
+      0,
+      0
+    ],
+    "type": "svf"
+  },
+  "lfo": {
+    "active": false,
+    "params": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "type": "value"
+  },
+  "octave": 0,
+  "platform": "OP-XY",
+  "regions": [
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        6
+      ],
+      "playmode": "oneshot",
+      "hikey": 53
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        2054
+      ],
+      "playmode": "oneshot",
+      "hikey": 54
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        4102
+      ],
+      "playmode": "oneshot",
+      "hikey": 55
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        6150
+      ],
+      "playmode": "oneshot",
+      "hikey": 56
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        8198
+      ],
+      "playmode": "oneshot",
+      "hikey": 57
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        10246
+      ],
+      "playmode": "oneshot",
+      "hikey": 58
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        12294
+      ],
+      "playmode": "oneshot",
+      "hikey": 59
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        14342
+      ],
+      "playmode": "mute1",
+      "hikey": 60
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        16390
+      ],
+      "playmode": "mute1",
+      "hikey": 61
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        18438
+      ],
+      "playmode": "oneshot",
+      "hikey": 62
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        20486
+      ],
+      "playmode": "oneshot",
+      "hikey": 63
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        22534
+      ],
+      "playmode": "oneshot",
+      "hikey": 64
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        30918
+      ],
+      "playmode": "oneshot",
+      "hikey": 65
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        30934
+      ],
+      "playmode": "oneshot",
+      "hikey": 66
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        30950
+      ],
+      "playmode": "oneshot",
+      "hikey": 67
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        30966
+      ],
+      "playmode": "oneshot",
+      "hikey": 68
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        30982
+      ],
+      "playmode": "oneshot",
+      "hikey": 69
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        30998
+      ],
+      "playmode": "oneshot",
+      "hikey": 70
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        6
+      ],
+      "playmode": "oneshot",
+      "hikey": 71
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        2054
+      ],
+      "playmode": "oneshot",
+      "hikey": 72
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        14342
+      ],
+      "playmode": "mute1",
+      "hikey": 73
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        16390
+      ],
+      "playmode": "mute1",
+      "hikey": 74
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        4102
+      ],
+      "playmode": "oneshot",
+      "hikey": 75
+    },
+    {
+      "model": "fm slap",
+      "params": [
+        8208,
+        4625,
+        26624,
+        18438
+      ],
+      "playmode": "oneshot",
+      "hikey": 76
+    }
+  ],
+  "type": "x0x",
+  "version": 4
+}

@@ -4,6 +4,7 @@ Reuses the SDK fixture's stock boundary doubles; no stock addresses or native
 hooks belong to the machine. This is host evidence, not a hardware observation.
 """
 import argparse
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -121,7 +122,60 @@ int main() {
         }
     }
     require(regions[7][23][0] == 123456 && regions[7][23][5] == 987654);
-    std::puts("PASS: X0X + SDK editor: one-detent styles, per-pad type, both pages, eight tracks, choke, copy and lossless preset words");
+    check_presets();
+    std::puts("PASS: X0X + SDK editor: one-detent styles, per-pad type, both pages, eight tracks, choke, copy, lossless preset words and seven editable kits");
+}
+'''
+
+
+def preset_checks(machine):
+    # An independent JS projection supplies the browser's expected per-pad
+    # values. The real SDK decoder/editor below receives the device JSON words.
+    script = """import {kitPads} from './audition/models.mjs';
+import {readFileSync} from 'node:fs';
+const kits=JSON.parse(readFileSync('audition/presets.json','utf8'));
+console.log(JSON.stringify(kits.map(kit=>({id:kit.id,pads:kitPads(kit)}))));"""
+    browser = json.loads(subprocess.check_output(['node','--input-type=module','-e',script],cwd=machine,text=True))
+    modes = {'gate':0,'oneshot':1,'mute1':2,'loop':3,'mute2':4,'mute3':5}
+    cpp_array = lambda values: '{'+','.join(map(str,values))+'}'
+    banks = []
+    for kit in browser:
+        preset = json.loads((machine/'presets'/(kit['id']+'.json')).read_text())
+        if preset['engine']['params'] != [16384]*8 or len(preset['regions']) != 24:
+            raise ValueError('A kit needs neutral track offsets and 24 stored pads')
+        rows = []
+        for i, (region, expected) in enumerate(zip(preset['regions'],kit['pads'])):
+            if region['model'] != 'fm slap' or region['hikey'] != 53+i:
+                raise ValueError('Invalid pad identity')
+            rows.append('{'+','.join([cpp_array(region['params']),str(expected['model']),
+                cpp_array(expected['raw']),str(7+16*modes[region['playmode']]),str(expected['choke'])])+'}')
+        banks.append('{'+','.join(rows)+'}')
+    declarations = '''struct PresetPad { opxy::u32 words[4], model; opxy::u8 raw[8]; opxy::u32 mark, choke; };
+static const PresetPad saved_presets[][24] = {'''+','.join(banks)+'};\n'
+    return declarations + r'''
+void check_presets() {
+    using namespace opxy;
+    using namespace opxy::platform;
+    track = 0;
+    for (const auto& kit : saved_presets) {
+        for (u32 p = 0; p < 24; ++p) {
+            std::memset(regions[0][p],0,sizeof(regions[0][p]));
+            for (u32 w = 0; w < 4; ++w) regions[0][p][w+1] = i32(kit[p].words[w] << 16);
+            reinterpret_cast<u8*>(regions[0][p])[24] = u8(kit[p].mark);
+            reinterpret_cast<u8*>(regions[0][p])[26] = u8(53+p);
+        }
+        for (u32 p = 0; p < 24; ++p) {
+            key = 53+p;
+            u8 model, values[8]; require(sdk_drum_values(track,&model,values));
+            require(model == kit[p].model && sdk_drum_choke_choice(track) == kit[p].choke);
+            for (u32 s = 0; s < x0x::parameter_count(model); ++s) require(values[s] == kit[p].raw[s]);
+            // Loaded kit styles remain freely editable at one detent/choice.
+            const u32 next = x0x::stepped_value(model,0,values[0],1);
+            const u32 event[] = {1000,1,0}; sdk_drum_edit(key,0,event,0);
+            require(sdk_drum_values(track,&model,values) && values[0] == next);
+            for (u32 s = 1; s < x0x::parameter_count(model); ++s) require(values[s] == kit[p].raw[s]);
+        }
+    }
 }
 '''
 
@@ -164,7 +218,7 @@ def main():
             target.write_text((platform / name).read_text())
             sources.append(str(target))
         driver = scratch / "interaction.cpp"
-        driver.write_text(fixture + DRIVER)
+        driver.write_text(fixture + preset_checks(machine) + DRIVER)
         binary = scratch / "interaction"
         subprocess.run([args.cxx, "-std=c++11", "-O2", "-Wall", "-Werror",
                         "-I" + str(scratch), "-I" + str(sdk / "sdk/include"),

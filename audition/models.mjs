@@ -34,6 +34,7 @@ export function kitPads(kit) {
       kit.offsets.some(value => !Number.isInteger(value) || value < -64 || value > 63)) throw new Error('Invalid kit');
   return LAYOUT.map((_,i) => {
     const pad = defaultPad(i);
+    if (pad.model === 7 || pad.model === 8) pad.choke = 1;
     pad.raw = pad.raw.map((value,s) => Math.max(0,Math.min(127,value+kit.offsets[s])));
     return pad;
   });

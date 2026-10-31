@@ -2,8 +2,10 @@
 
 This repository holds X0X (`x0x`). The machine is at the repository root.
 Read README.md and use the [Open-XY SDK](https://github.com/etcetc000/open-xy)
-at `c08d2d023473e989792ad1feadec75cc58ce4de2` on `sdk/drum-synthesis`,
-normally checked out beside this repository as `../open-xy-x0x-sdk`.
+at local draft `1b4892dea9803ad10d3175ecdb17aa860d199c37` on
+`codex/drum-parameter-edit`, checked out beside this repository as
+`../xy-sdk-drum-stepping`. This branch needs its `parameterEdit` callback.
+Windows release-host qualification and upstream SDK review remain pending.
 Adjust that path if the user already has the SDK elsewhere.
 
 1. Read the [machine API](https://github.com/etcetc000/open-xy/blob/staging/docs/api.md),
@@ -29,7 +31,7 @@ per pad. Do not replace the drum adapter with track-wide synth controls.
    Contributor code has no assembly, raw firmware addresses, OS headers or
    platform conditionals. Audio callbacks must not allocate, block, log, do I/O
    or call graphics.
-3. Run `python ../open-xy-x0x-sdk/sdk.py test --machine .` and extend `tests/` for the
+3. Run `python ../xy-sdk-drum-stepping/sdk.py test --machine .` and extend `tests/` for the
    machine's promised sound and behavior. Offer browser audition where supported.
    Use the host CPU estimate to guide iteration; it is not a hardware measurement.
 4. After local testing and audition, propose hardware validation. Follow the SDK's

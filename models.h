@@ -76,6 +76,25 @@ static inline const char* control_name(opxy::u32 model, opxy::u32 slot) {
     default: return slot == character ? "sweep" : "body";
     }
 }
+static inline opxy::u32 stepped_value(opxy::u32 model, opxy::u32 slot, opxy::u32 value, opxy::i32 delta) {
+    if (value > 127 || !control_name(model, slot)[0] || !delta) return value;
+    if (delta > 127) delta = 127;
+    if (delta < -127) delta = -127;
+    if (slot != style) {
+        const opxy::i32 next = opxy::i32(value) + delta;
+        return opxy::u32(next < 0 ? 0 : next > 127 ? 127 : next);
+    }
+    const opxy::u32 current = family_index(model, value);
+    opxy::u32 choices[4], count = 0, position = 0;
+    for (opxy::u32 i = 0; i < 4; ++i) if (family_masks[model] & (1u << i)) {
+        if (i == current) position = count;
+        choices[count++] = i;
+    }
+    opxy::i32 next = opxy::i32(position) + delta;
+    if (next < 0) next = 0;
+    if (next >= opxy::i32(count)) next = opxy::i32(count) - 1;
+    return next == opxy::i32(position) ? value : 16 + 32 * choices[next];
+}
 static inline void default_pad(opxy::u32 key, opxy::u8* model, opxy::u8* controls) {
     static const opxy::u8 layout[pad_count] = {
         kick, snare, clap, rim, low_tom, mid_tom, high_tom, closed_hat, open_hat,

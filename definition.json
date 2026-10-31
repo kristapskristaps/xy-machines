@@ -124,6 +124,7 @@
       "palette": 5
     },
     "modelCount": 18,
-    "chokeSameKey": 1
+    "chokeSameKey": 1,
+    "parameterEdit": 1
   }
 }

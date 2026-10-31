@@ -30,7 +30,7 @@ int main() {
     require(sdk_drum_values(track, &model, raw) && model == x0x::kick && raw[1] == 64);
     edit(4, 1); // Shift + black: kick -> snare
     require(sdk_drum_values(track, &model, raw) && model == x0x::snare);
-    edit(0, 32); // 808 -> 909, independent of type
+    edit(0, 1); // One detent: 808 -> 909, independent of type
     edit(1, 7);
     require(sdk_drum_values(track, &model, raw) && x0x::family_index(model, raw[0]) == 3 && raw[1] == 71);
     key = 54;
@@ -47,7 +47,7 @@ int main() {
     key = 53;
     require(sdk_drum_values(track, &model, raw) && model == x0x::snare && raw[1] == 71);
     key = 55;
-    edit(0, -32); // Default 808 clap -> 707 clap.
+    edit(0, -1); // One detent: default 808 clap -> 707 clap.
     require(sdk_drum_values(track, &model, raw) && x0x::family_index(model, raw[0]) == 1);
     edit(4, -2); // Clap -> kick, preserving the same requested family.
     require(sdk_drum_values(track, &model, raw) && model == x0x::kick && x0x::family_index(model, raw[0]) == 1);
@@ -101,7 +101,27 @@ int main() {
         require(regions[t][p][0] == 123456 && regions[t][p][5] == 987654);
         require(reinterpret_cast<u8*>(regions[t][p])[26] == 53 + p);
     }
-    std::puts("PASS: X0X + SDK editor: per-pad type/style, both pages, eight tracks, choke, copy and lossless preset words");
+    track = 7; key = 76; shown(0,1,2,3);
+    for (u32 m = 0; m < x0x::model_count; ++m) for (u32 value = 0; value < 128; ++value) {
+        u32 options[4], size = 0, position = 0;
+        for (u32 f = 0; f < 4; ++f) if (x0x::family_masks[m] & (1u << f)) {
+            if (x0x::family_index(m,value) == f) position = size;
+            options[size++] = f;
+        }
+        for (i32 direction = -1; direction <= 1; direction += 2) {
+            u8 initial[8] = {u8(value),64,48,64,0,64,64,0};
+            require(drum_pack(m,initial,regions[7][23]+1,codec));
+            reinterpret_cast<u8*>(regions[7][23])[24] = drum_mark(0);
+            edit(0,direction);
+            require(sdk_drum_values(track,&model,raw) && model == m);
+            const i32 next = i32(position)+direction;
+            const u32 expected = options[next < 0 ? 0 : next >= i32(size) ? size-1 : u32(next)];
+            require(x0x::family_index(m,raw[0]) == expected);
+            for (u32 slot=1;slot<x0x::parameter_count(m);++slot) require(raw[slot] == initial[slot]);
+        }
+    }
+    require(regions[7][23][0] == 123456 && regions[7][23][5] == 987654);
+    std::puts("PASS: X0X + SDK editor: one-detent styles, per-pad type, both pages, eight tracks, choke, copy and lossless preset words");
 }
 '''
 
@@ -125,6 +145,10 @@ def main():
     fixture = re.sub(r"const char\* name\(u32 model\).*?\n", "const char* name(u32 model) { return x0x::model_name(model); }\n", fixture)
     fixture = re.sub(r"u32 count\(u32 model\).*?\n", "u32 count(u32 model) { return x0x::parameter_count(model); }\n", fixture)
     fixture = fixture.replace("34), ready, 2, defaults", "34), ready, x0x::model_count, defaults")
+    entry = '{reinterpret_cast<const char*>(34), ready, x0x::model_count, defaults, label, name, count}'
+    if fixture.count(entry) != 1:
+        raise ValueError('SDK GUI fixture changed; check the registered editor callback')
+    fixture = fixture.replace(entry, entry[:-1] + ', 0, nullptr, nullptr, x0x::edit_parameter}')
     with tempfile.TemporaryDirectory(prefix="x0x-sdk-integration-") as temporary:
         scratch = Path(temporary)
         stock = (platform / "stock.hpp").read_text().replace(

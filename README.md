@@ -13,11 +13,18 @@ timing remain unverified.
 
 ## SDK
 
-Requires SDK 1.9 drum synthesis support, currently on
-[`sdk/drum-synthesis`](https://github.com/etcetc000/open-xy/tree/sdk/drum-synthesis),
-not `staging`. CI pins `c08d2d023473e989792ad1feadec75cc58ce4de2`.
-The local development checkout is `../open-xy-x0x-sdk`; the existing `../open-xy`
-checkout is untouched. Use a separate clone/worktree at the pinned revision.
+This native stepping candidate pairs with the separate local SDK draft
+`1b4892dea9803ad10d3175ecdb17aa860d199c37` on `codex/drum-parameter-edit`,
+checked out as `../xy-sdk-drum-stepping`. It adds `resources.parameterEdit`
+to SDK 1.9's synthesis-drum support. CI can use this pin after that SDK commit
+is published. The existing `../open-xy` checkout is untouched.
+
+The draft passes public checks and a Mac native build/reconstruction; the
+required Windows release-host qualification and hardware acceptance remain
+pending. The standalone validation package is not an installation candidate
+for the user's existing collection. The full combined kit still needs memory
+work. The browser audition currently served for user review remains on
+`codex/x0x-prototype` with its earlier SDK pin.
 
 ## Controls
 
@@ -64,8 +71,8 @@ For the complete 24-pad browser audition, build a fresh preview and run the
 machine's allowlisted audition server:
 
 ```sh
-python ../open-xy-x0x-sdk/sdk.py preview --machine . --out ../open-xy-x0x-sdk/local/x0x-browser-001 --cxx clang++
-python audition/serve.py --sdk ../open-xy-x0x-sdk --preview ../open-xy-x0x-sdk/local/x0x-browser-001 --port 8958
+python ../xy-sdk-drum-stepping/sdk.py preview --machine . --out ../xy-sdk-drum-stepping/local/x0x-browser-001 --cxx clang++
+python audition/serve.py --sdk ../xy-sdk-drum-stepping --preview ../xy-sdk-drum-stepping/local/x0x-browser-001 --port 8958
 ```
 
 Open http://127.0.0.1:8958/. Click a pad or a style to start audio. Style's
@@ -77,17 +84,19 @@ helps compare tuning, envelopes and hat choke groups while playing.
 
 The browser uses the full C++ engine, including the 707 and 909 recordings,
 and the actual C++ display. It is not a device/project-storage simulator.
-The current native SDK editor still edits raw drum values one unit at a time;
-matching the browser's one-detent discrete Style behavior on hardware needs
-a separate SDK stepping change before the next firmware test.
+This branch declares `parameterEdit` and maps each Style detent directly to
+the next available family, in either direction, using the same saved raw-value
+encoding. For example, ride steps directly between 707 and 909. Other controls
+retain their unit steps. The draft SDK integration checks all 4,608 combinations
+of model, stored Style value and direction through its real pad editor.
 
 With Python 3.11+, NumPy 2.3.5 and Clang with WebAssembly linking installed:
 
 ```sh
-python ../open-xy-x0x-sdk/sdk.py test --machine . --cxx clang++ --host-cxx c++
-python tests/sdk_integration.py --sdk ../open-xy-x0x-sdk --cxx c++
-python ../open-xy-x0x-sdk/sdk.py preview --machine . --out ../open-xy-x0x-sdk/local/x0x-preview-001 --cxx clang++
-python ../open-xy-x0x-sdk/tools/serve_harness.py --preview ../open-xy-x0x-sdk/local/x0x-preview-001
+python ../xy-sdk-drum-stepping/sdk.py test --machine . --cxx clang++ --host-cxx c++
+python tests/sdk_integration.py --sdk ../xy-sdk-drum-stepping --cxx c++
+python ../xy-sdk-drum-stepping/sdk.py preview --machine . --out ../xy-sdk-drum-stepping/local/x0x-preview-001 --cxx clang++
+python ../xy-sdk-drum-stepping/tools/serve_harness.py --preview ../xy-sdk-drum-stepping/local/x0x-preview-001
 ```
 
 On macOS, pass `/opt/homebrew/opt/llvm/bin/clang++` as `--cxx` when Apple's

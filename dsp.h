@@ -51,7 +51,8 @@ inline u32 tuning(i32 detune) {
 inline u32 second_increment(u32 pitch, u32 ratio, u32 octave) {
     // Split Q20 product avoids 64-bit runtime helpers on Blackfin.
     const u32 delta = ratio - (1 << 20);
-    u32 increment = pitch + (pitch >> 16) * delta / 16 + ((pitch & 65535u) * delta >> 20);
+    u32 increment = pitch;
+    if (delta) increment += (pitch >> 16) * delta / 16 + ((pitch & 65535u) * delta >> 20);
     if (octave == 0) increment >>= 1;
     if (octave == 2) increment = increment < 0x20000000u ? increment * 2 : 0x40000000u;
     return increment > 0x40000000u ? 0x40000000u : increment;

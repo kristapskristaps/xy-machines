@@ -37,12 +37,14 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     const Ladder filter(pole(cutoff_position(p, pitch[0])), p[1]);
     const i32 drive = 256 + multiply(p[2], 1792); // 1..8, Q8
     const i32 balance = p[5] >> 16;
+    const bool changing_waves = voice.wave[0] != target_wave[0] || voice.wave[1] != target_wave[1];
     for (unsigned i = 0; i < opxy::block_frames; ++i) {
-        voice.wave[0] += (target_wave[0] - voice.wave[0]) >> 7;
-        voice.wave[1] += (target_wave[1] - voice.wave[1]) >> 7;
-        for (unsigned j = 0; j < 2; ++j) {
-            const i32 left = target_wave[j] - voice.wave[j];
-            if (left > -128 && left < 128) voice.wave[j] = target_wave[j];
+        if (changing_waves) {
+            for (unsigned j = 0; j < 2; ++j) {
+                voice.wave[j] += (target_wave[j] - voice.wave[j]) >> 7;
+                const i32 left = target_wave[j] - voice.wave[j];
+                if (left > -128 && left < 128) voice.wave[j] = target_wave[j];
+            }
         }
         const u32 increment = pitch[i] > 0x40000000u ? 0x40000000u : pitch[i];
         const u32 other = second_increment(increment, ratio, octave);

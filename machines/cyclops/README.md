@@ -48,10 +48,31 @@ Cyclops does not reproduce Minitaur's independent filter ADSR, external input,
 CV/MIDI implementation or global monophonic note-priority logic. Its eight
 voices follow the OP-XY's allocation and amplitude processing.
 
-**Init** starts with two unison saws and no resonance, drive, detune or key
-tracking. **Bull Bass**, **Round Sub**, **Copper Bite**, **Octave Growl**,
-**Hollow Pulse**, **Resonant Wire** and **Open Twins** explore the useful range.
-Presets store the eight engine controls, not the OP-XY's other pages.
+The bank contains 16 native presets with engine controls, AMP envelopes and
+voice mode. Most are mono bass patches; **Open Twins** and **Velvet Twin** are
+polyphonic. **Slow Giant** adds portamento. Browser presets recall the engine
+controls only; the full AMP and voice settings apply on the OP-XY.
+
+| Preset | Character |
+| --- | --- |
+| Init | Clean unison saws, open sustain, no drive or resonance. |
+| Bull Bass | Rounded detuned saw bass with a little bite. |
+| Round Sub | Dark square oscillators with a lower octave underneath. |
+| Copper Bite | Resonant saw/pulse edge for rhythmic bass lines. |
+| Octave Growl | Driven lower-octave saw/pulse weight. |
+| Hollow Pulse | Detuned square pair with a hollow middle. |
+| Resonant Wire | Thin, strongly resonant single-oscillator tone. |
+| Open Twins | Bright detuned saw pair, polyphonic. |
+| Deep Pillar | Low, restrained sub with strong key tracking. |
+| Rubber Pluck | Short zero-sustain saw/pulse bass. |
+| Acid Stare | Resonant single-saw bass for cutoff performance. |
+| Iron Fang | Hard-driven lower-octave bass. |
+| Slow Giant | Soft attack, detuned saws and glide. |
+| Wooden Knock | Short zero-sustain pulse with upper-octave body. |
+| Velvet Twin | Soft, lightly detuned saw/pulse blend, polyphonic. |
+| Upper Eye | Brighter upper-octave saw/pulse lead bass. |
+
+The original eight engine presets keep their exact parameter values.
 
 ## Sound and display
 

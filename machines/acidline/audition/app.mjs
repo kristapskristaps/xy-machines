@@ -9,7 +9,7 @@ const noteNames = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B
 const noteName = midi => noteNames[midi%12]+(Math.floor(midi/12)-1);
 const hints = {cutoff:'Base frequency',resonance:'Feedback / squelch',drive:'Smooth soft clipping',env:'Filter sweep',decay:'Pluck length',wave:'Three distinct waveforms',sub:'Sine one octave down',damp:'Tame distortion brightness'};
 const units = {cutoff:'Hz',resonance:'%',drive:'%',env:'%',decay:'ms',wave:'',sub:'%',damp:'%'};
-const readout = (id,v) => id==='wave'?['Saw','Triangle','Square'][Math.min(2,Math.floor(v*3))]:id==='cutoff'?Math.round(45*(12000/45)**v).toLocaleString():id==='decay'?Math.round(55*24**v):Math.round(v*100);
+const readout = (id,v) => id==='wave'?['Saw','Triangle','Square'][Math.min(2,Math.floor(v*3))]:id==='cutoff'?Math.round(35*400**v).toLocaleString():id==='decay'?Math.round(30*(1400/30)**v):Math.round(v*100);
 const q31 = () => definition.parameters.map(p => Math.round(values[p.id]*2147483647));
 const status = text => {$('status').textContent=text;};
 function send(type, extra={}) {processor?.port.postMessage({type,...extra});}

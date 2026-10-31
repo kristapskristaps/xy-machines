@@ -6,7 +6,7 @@
     {
       "id": "cutoff",
       "label": "Cutoff",
-      "default": 0.34,
+      "default": 0.26,
       "mapping": {
         "kind": "linear",
         "minimum": 0,
@@ -17,7 +17,7 @@
     {
       "id": "resonance",
       "label": "Reso",
-      "default": 0.76,
+      "default": 0.68,
       "mapping": {
         "kind": "linear",
         "minimum": 0,
@@ -28,7 +28,7 @@
     {
       "id": "drive",
       "label": "Distort",
-      "default": 0.36,
+      "default": 0.28,
       "mapping": {
         "kind": "linear",
         "minimum": 0,
@@ -39,7 +39,7 @@
     {
       "id": "env",
       "label": "Env Amt",
-      "default": 0.72,
+      "default": 0.62,
       "mapping": {
         "kind": "linear",
         "minimum": 0,
@@ -50,7 +50,7 @@
     {
       "id": "decay",
       "label": "Decay",
-      "default": 0.35,
+      "default": 0.38,
       "mapping": {
         "kind": "linear",
         "minimum": 0,
@@ -103,7 +103,7 @@
     "Silver Acid": {
       "cutoff": 0.34,
       "resonance": 0.76,
-      "drive": 0.0,
+      "drive": 0,
       "env": 0.72,
       "decay": 0.35,
       "wave": 0,
@@ -111,44 +111,44 @@
       "damp": 0
     },
     "Warehouse": {
-      "cutoff": 0.29,
-      "resonance": 0.88,
-      "drive": 0.55,
-      "env": 0.86,
-      "decay": 0.31,
+      "cutoff": 0.25,
+      "resonance": 0.82,
+      "drive": 0.58,
+      "env": 0.78,
+      "decay": 0.3,
       "wave": 0,
-      "sub": 0.15,
-      "damp": 0
-    },
-    "Corroded": {
-      "cutoff": 0.43,
-      "resonance": 0.91,
-      "drive": 0.91,
-      "env": 0.75,
-      "decay": 0.42,
-      "wave": 0.12,
-      "sub": 0,
-      "damp": 0.18
-    },
-    "Rubber Pulse": {
-      "cutoff": 0.28,
-      "resonance": 0.72,
-      "drive": 0.32,
-      "env": 0.66,
-      "decay": 0.44,
-      "wave": 1,
-      "sub": 0.25,
+      "sub": 0.1,
       "damp": 0.12
     },
-    "Sewer Bass": {
-      "cutoff": 0.19,
-      "resonance": 0.64,
-      "drive": 0.72,
-      "env": 0.56,
-      "decay": 0.52,
+    "Corroded": {
+      "cutoff": 0.38,
+      "resonance": 0.92,
+      "drive": 0.88,
+      "env": 0.7,
+      "decay": 0.42,
       "wave": 0,
-      "sub": 0.55,
-      "damp": 0.18
+      "sub": 0.08,
+      "damp": 0.24
+    },
+    "Rubber Pulse": {
+      "cutoff": 0.24,
+      "resonance": 0.66,
+      "drive": 0.35,
+      "env": 0.58,
+      "decay": 0.46,
+      "wave": 1,
+      "sub": 0.3,
+      "damp": 0.1
+    },
+    "Sewer Bass": {
+      "cutoff": 0.15,
+      "resonance": 0.58,
+      "drive": 0.64,
+      "env": 0.5,
+      "decay": 0.55,
+      "wave": 0,
+      "sub": 0.5,
+      "damp": 0.3
     }
   },
   "resources": {

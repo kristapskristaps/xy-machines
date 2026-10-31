@@ -41,7 +41,7 @@ int main(){
             const int y=acidline::distort(x,amount);
             require(y>=previous,"FAIL clipping folds back");
             require(y>=-32768 && y<=32768,"FAIL clipping peak");
-            require(y==-acidline::distort(-x,amount),"FAIL clipping introduces asymmetry");
+            require(std::abs(y+acidline::distort(-x,amount))<=1,"FAIL clipping introduces asymmetry beyond one rounding unit");
             require(amount || y==x,"FAIL zero drive changes the signal");
             previous=y;
         }

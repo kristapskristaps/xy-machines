@@ -1,13 +1,18 @@
 #include "core.h"
 #include "tables.h"
+#include <opxy/q31.hpp>
 namespace acidline {
 namespace {
 using opxy::i32;using opxy::u32;
 const i32 one=16384;
 const i32 internal_peak=49152;
 i32 limit(i32 x,i32 bound){return x < -bound ? -bound : x > bound ? bound : x;}
-// Samples are Q16, coefficients Q14. Products stay in signed 32 bits.
-i32 multiply(i32 sample,i32 coefficient){return sample*coefficient/one;}
+// The public fractional multiply maps to Blackfin's DSP instruction. Inputs
+// here stay below 2^17 and 2^16, so both scalings fit signed 32 bits.
+i32 multiply(i32 sample,i32 coefficient){return opxy::q31::multiply(sample*8192,coefficient*16);}
+i32 cutoff_target(i32 base,i32 envelope,i32 amount){
+    return limit(base+multiply(one-1-base,multiply(envelope,amount)),one-1);
+}
 i32 soft(i32 x){
     x=limit(x,internal_peak);
     const i32 half=x/2;
@@ -19,12 +24,12 @@ i32 soft(i32 x){
     const i32 third=(magnitude*21846)>>16;
     return x-(cubic<0?-third:third);
 }
-i32 mix(i32 a,i32 b,i32 fraction){return a+(b-a)*fraction/one;}
+i32 mix(i32 a,i32 b,i32 fraction){return a+multiply(b-a,fraction);}
 i32 lookup(const opxy::i16* row,u32 phase){
     const u32 index=phase>>23;
-    return row[index]+(row[index+1]-row[index])*static_cast<i32>((phase&0x7fffffu)>>9)/one;
+    return row[index]+multiply(row[index+1]-row[index],static_cast<i32>((phase&0x7fffffu)>>9));
 }
-i32 distortion_gain(i32 amount){return 256+multiply(amount,amount)*55/64;}
+i32 distortion_gain(i32 amount){return 256+multiply(amount,amount)*23/64;}
 i32 distort(i32 x,i32 amount,i32 gain){
     if(!amount)return x;
     const i32 boosted=x*gain/256;
@@ -67,14 +72,19 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
     const u32 choice=(static_cast<u32>(p[5])>>16)*3>>15;
     const i32 wave=static_cast<i32>(choice)*8192;
     const i32 sub=p[6]/131072,tone=16383-p[7]/131072;
-    const i32 cutoff=limit(base+multiply(multiply(v.envelope,env),10650),one-1);
+    const i32 cutoff=cutoff_target(base,v.envelope,env);
     if(v.cutoff<0){v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;}
     i32 g=interpolate(tables::pole,v.cutoff);
-    i32 feedback=interpolate(tables::feedback,v.resonance);
-    i32 correction=inverse(v.cutoff,v.resonance);
+    const i32 feedback=interpolate(tables::feedback,v.resonance);
+    const i32 correction=inverse(v.cutoff,v.resonance);
+    const i32 end_feedback=interpolate(tables::feedback,resonance),end_correction=inverse(cutoff,resonance);
     const i32 dg=(interpolate(tables::pole,cutoff)-g)/64;
-    const i32 df=(interpolate(tables::feedback,resonance)-feedback)/64;
-    const i32 di=(inverse(cutoff,resonance)-correction)/64;
+    i32 input_gain=correction/4+multiply(correction,v.drive)/2;
+    const i32 input_step=(end_correction/4+multiply(end_correction,drive)/2-input_gain)/64;
+    i32 feedback_gain=multiply(correction,feedback);
+    const i32 feedback_step=(multiply(end_correction,end_feedback)-feedback_gain)/64;
+    i32 body=interpolate(tables::body,v.resonance);
+    const i32 body_step=(interpolate(tables::body,resonance)-body)/64;
     const i32 dd=(drive-v.drive)/64,dw=(wave-v.wave)/64;
     i32 clip_gain=distortion_gain(v.drive);
     const i32 clip_step=(distortion_gain(drive)-clip_gain)/64;
@@ -86,7 +96,8 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
     highest/=2;
     u32 band=0;while(band<7 && highest<(0x80000000u>>(band+1)))++band;
     for(u32 i=0;i<64;++i){
-        g+=dg;feedback+=df;correction+=di;v.drive+=dd;v.wave+=dw;v.sub+=ds;v.tone+=dt;tone_g+=tone_step;clip_gain+=clip_step;
+        g+=dg;v.drive+=dd;v.wave+=dw;v.sub+=ds;v.tone+=dt;tone_g+=tone_step;clip_gain+=clip_step;
+        input_gain+=input_step;feedback_gain+=feedback_step;body+=body_step;
         i32 reduced=0;
         const u32 increment=pitch[i];
         for(u32 sub=0;sub<2;++sub){
@@ -105,7 +116,7 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
             memory=v.pole[1]+multiply(memory-v.pole[1],g);
             memory=v.pole[2]+multiply(memory-v.pole[2],g);
             memory=v.pole[3]+multiply(memory-v.pole[3],g);
-            i32 signal=multiply(source/4-multiply(memory,feedback),correction);
+            i32 signal=multiply(source,input_gain)-multiply(memory,feedback_gain);
             signal=soft(limit(signal,12288)*4);
             {
                 const i32 y=v.pole[0]+multiply(signal-v.pole[0],g);
@@ -127,7 +138,7 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
                 v.pole[3]=limit(y+(y-v.pole[3]),internal_peak);
                 signal=y;
             }
-            v.fir1[v.cursor1]=distort(limit(signal+signal/2,32768),v.drive,clip_gain);
+            v.fir1[v.cursor1]=distort(limit(multiply(signal,body)*2,32768),v.drive,clip_gain);
             if(sub==1)reduced=decimate(v.fir1,v.cursor1,tables::halfband31);
             v.cursor1=(v.cursor1+1)&31u;
             // Honor stock pitch modulation and portamento exactly, sample by sample.

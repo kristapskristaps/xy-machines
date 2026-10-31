@@ -57,31 +57,34 @@ bubbles and short vapour bursts; held notes keep the reaction active. Idle
 motion settles, track changes reset activity, and reduced motion removes the
 continuous movement. Display work is separate from the audio callback.
 
-## DSP
+## DSP and control shaping
 
-The oscillator, nonlinear feedback filter and distortion run at 88.2 kHz.
-A symmetric 31-tap half-band FIR returns 44.1 kHz output. The original filter
-saturation and anti-aliasing remain. Distort now drives a symmetric tanh soft
-clipper across its whole range; it no longer folds at the top. A single small
-interpolated curve replaces the 33-row distortion table, with gain computed
-per block and smoothly ramped. Its zero setting is an exact bypass.
+The base cutoff spans 35 Hz to 14 kHz logarithmically. Env Amt uses the remaining
+cutoff range above that base, so high Cutoff/Env settings no longer hit an early
+ceiling. Decay spans roughly 30 ms to 1.4 s, with more room for short acid plucks.
+Resonance brings in squelch earlier and applies a gradual body compensation so
+raising it does not simply remove the bass.
 
-The FIR's seven nonzero symmetric pairs remain unrolled. Each complementary
-filter blend uses one multiply instead of two, changing only fixed-point
-rounding. No oversampling or filter stages were removed. A paired host timing
-comparison against the preceding version took about 24–25% less time across
-all three waveform positions, including Sub and Damp enabled. The native
-machine plus SDK occupied about 120 KiB, down from about 175 KiB. These are
-host timings and compile sizes, not device CPU measurements. Stock mono is the
-intended per-track mode; rapid-note behaviour and total load need device testing.
-Multiple tracks still add cost.
+Distort links pre-filter drive to a smooth post-filter soft clipper. Low settings
+add edge, the middle pushes the resonant filter harder, and the top becomes
+compressed and gritty. Post-clip gain has a gentler range than before. Damp
+rolls the main sound down toward 220 Hz at its dark end; the octave sub stays
+clean beneath it. Factory presets are revoiced around these curves. Existing
+saved controls keep their indices but sound different with the revised DSP.
 
-The native compiler previously lowered the filter saturation's division by
-three to a software divide inside the oversampled loop: 128 calls per block.
-It now uses an exact bounded reciprocal. Exhaustive saturation tests and a
-307,200-sample render comparison are bit-identical, and the Blackfin voice
-object has no software division call. This fixes a target-specific cost the
-desktop timing comparison did not capture; hardware load still needs testing.
+The oscillator, nonlinear four-pole filter and soft clipping run at 88.2 kHz.
+The 31-tap half-band FIR returns 44.1 kHz output. Oversampling and filter stages
+are retained. Fixed-point blending uses the public SDK fractional multiply,
+which provides the Blackfin DSP instruction through the platform boundary.
+Coefficient products and gain targets are prepared per block. The filter's
+saturation retains the bounded, division-free reciprocal calculation.
+
+The preceding division-free revision measured **11.772% per whole voice at
+midpoint** on hardware. That is historical evidence, above the SDK's recommended
+3.5%, not a measurement of this retuned revision or a full control sweep. New
+hardware timing and listening tests remain pending. Mono avoids the polyphonic
+voice stacking previously observed on dense sixteenth-note patterns; several
+independent tracks still add load.
 
 ## Development
 

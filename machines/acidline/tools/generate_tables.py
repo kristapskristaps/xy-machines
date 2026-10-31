@@ -20,18 +20,19 @@ for count in [1, 2, 4, 8, 16, 32, 64, 128]:
     lines.append('{'+','.join(str(round(v)) for v in values)+'},')
 lines.append('};')
 lines.append('static const opxy::i16 sine[513] = {'+','.join(str(round(math.sin(2*math.pi*i/512)*32767)) for i in range(513))+'};')
-array('tone[65]', [1-math.exp(-2*math.pi*(150*120**(i/64))/44100) for i in range(65)])
-array('pole[65]', [math.tan(math.pi*(45*(12000/45)**(i/64))/88200)/(1+math.tan(math.pi*(45*(12000/45)**(i/64))/88200)) for i in range(65)])
-array('feedback[65]', [.985*(i/64)**.7 for i in range(65)])  # Quarter of the loop gain.
+array('tone[65]', [1-math.exp(-2*math.pi*(220*(18000/220)**(i/64))/44100) for i in range(65)])
+array('pole[65]', [math.tan(math.pi*(35*400**(i/64))/88200)/(1+math.tan(math.pi*(35*400**(i/64))/88200)) for i in range(65)])
+array('feedback[65]', [.99*(i/64)**.55 for i in range(65)])  # Quarter of the loop gain.
+array('body[65]', [.625*math.sqrt(1+3.96*(i/64)**.55) for i in range(65)])
 lines.append('static const opxy::i16 inverse[65][65] = {')
 for r in range(65):
-    gain=3.94*(r/64)**.7;row=[]
+    gain=3.96*(r/64)**.55;row=[]
     for i in range(65):
-        g=math.tan(math.pi*(45*(12000/45)**(i/64))/88200);g=g/(1+g)
+        g=math.tan(math.pi*(35*400**(i/64))/88200);g=g/(1+g)
         row.append(1/(1+gain*g**4))
     lines.append('{'+','.join(str(round(v*Q)) for v in row)+'},')
 lines.append('};')
-array('decay[65]',[math.exp(-64/(44100*(.055*24**(i/64)))) for i in range(65)])
+array('decay[65]',[math.exp(-64/(44100*(.03*(1.4/.03)**(i/64)))) for i in range(65)])
 for count in [31]:
     center=(count-1)//2;values=[]
     for i in range(count):

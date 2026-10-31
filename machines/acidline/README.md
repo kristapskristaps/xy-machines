@@ -79,12 +79,13 @@ which provides the Blackfin DSP instruction through the platform boundary.
 Coefficient products and gain targets are prepared per block. The filter's
 saturation retains the bounded, division-free reciprocal calculation.
 
-The preceding division-free revision measured **11.772% per whole voice at
-midpoint** on hardware. That is historical evidence, above the SDK's recommended
-3.5%, not a measurement of this retuned revision or a full control sweep. New
-hardware timing and listening tests remain pending. Mono avoids the polyphonic
-voice stacking previously observed on dense sixteenth-note patterns; several
-independent tracks still add load.
+Hardware midpoint comparisons measured **11.772% per whole voice** for the
+preceding division-free revision and **10.611%** for the retuned DSP at
+`e4004ef` (about 9.9% less). These synthetic single-voice midpoint runs exclude
+graphics and do not measure a live project or maximum polyphony. Both exceed
+the SDK's recommended 3.5%; a full control sweep is still needed before catalog
+submission. Mono avoids the polyphonic voice stacking previously observed on
+dense sixteenth-note patterns; several independent tracks still add load.
 
 ## Development
 
@@ -106,8 +107,8 @@ provides its own simple mono gate and glide; it does not emulate stock's
 allocator or envelopes.
 
 Use the root browser workflow to refresh the cached builder after source
-changes. This revision still needs device testing with rapid notes and several
-independent tracks, plus a revision-bound CPU profile before publication.
+changes. The retuned revision still needs wider device listening tests and a complete
+revision-bound control sweep before publication.
 Host/native checks do not establish real-time hardware headroom. Keep firmware
 and stock content outside every checkout; device operations require a separate
 user instruction.

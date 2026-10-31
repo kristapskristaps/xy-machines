@@ -9,7 +9,7 @@ inline void start(Voice& voice, Shared&, u32) {
     for (unsigned i = 0; i < 8; ++i) voice.controls[i] = 0;
     voice.ready = 0;
     voice.wave[0] = voice.wave[1] = 0;
-    voice.dc_input = voice.dc_output = 0;
+    voice.dc_input = voice.dc_output = voice.dc_residue = 0;
 }
 inline void initialize(Voice& voice, Shared& shared, u32 owner) { start(voice, shared, owner); }
 inline void destroy(Voice&, Shared&, u32) {}
@@ -56,7 +56,9 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         // Mild compensation keeps a resonant bass patch useful.
         filtered += (filtered * (p[1] >> 16) >> 15);
         const i32 limited = saturate(filtered);
-        const i32 dc = limited - voice.dc_input + (voice.dc_output * 32721 >> 15); // 10 Hz
+        const i32 charge = voice.dc_output * 32721 + voice.dc_residue;
+        const i32 dc = limited - voice.dc_input + (charge >> 15); // 10 Hz
+        voice.dc_residue = charge - (charge >> 15) * 32768;
         voice.dc_input = limited;
         voice.dc_output = dc;
         output[i] = clamp(dc, -unity, unity) * 32768;

@@ -11,7 +11,7 @@ struct Voice {
     i32 controls[8];
     u32 ready;
     i32 wave[2];
-    i32 dc_input, dc_output;
+    i32 dc_input, dc_output, dc_residue;
 };
 struct Shared {};
 }

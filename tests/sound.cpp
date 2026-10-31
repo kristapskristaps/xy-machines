@@ -120,6 +120,14 @@ int main() {
         render(voice, shared, 1, output, p, pitch);
         for (unsigned i = 0; i < 64; ++i) require(output[i] >= -peak && output[i] <= peak, "automated stability");
     }
+    // A stationary oscillator is a DC input. Fractional charge in the output
+    // blocker must drain it, including negative tails smaller than one step.
+    for (unsigned j = 0; j < 8; ++j) p[j] = 0;
+    p[0] = q(.8); p[5] = q(1); p[6] = q(.5);
+    for (unsigned i = 0; i < 64; ++i) pitch[i] = 0;
+    start(voice, shared, 1);
+    for (unsigned b = 0; b < 2048; ++b) render(voice, shared, 1, output, p, pitch);
+    for (unsigned i = 0; i < 64; ++i) require(std::abs(output[i]) <= 32768, "DC blocker drains a constant negative input");
     opxy::i32 before[64];
     start(voice, shared, 1); render(voice, shared, 1, before, p, pitch);
     start(voice, shared, 1); render(voice, shared, 1, output, p, pitch);

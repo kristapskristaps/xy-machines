@@ -7,7 +7,7 @@ permissions:
   contents: read
 env:
   # Synthesis drum support is on sdk/drum-synthesis, not staging yet.
-  OPEN_XY_REF: 7edfb5f8667d38cd36732f83f09899a575e8e3d6
+  OPEN_XY_REF: f7956ced288b907ac11a17c2cd962c20b9dd4eeb
 jobs:
   machine:
     runs-on: ubuntu-latest

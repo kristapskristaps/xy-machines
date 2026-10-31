@@ -14,7 +14,7 @@ timing remain unverified.
 ## SDK
 
 This native stepping candidate pairs with the separate local SDK draft
-`7edfb5f8667d38cd36732f83f09899a575e8e3d6` on `codex/native-gui-size`,
+`f7956ced288b907ac11a17c2cd962c20b9dd4eeb` on `codex/native-gui-size`,
 checked out as `../xy-sdk-gui-size`. It adds `resources.parameterEdit`
 to SDK 1.9's synthesis-drum support. CI can use this pin after that SDK commit
 is published. The existing `../open-xy` checkout is untouched.

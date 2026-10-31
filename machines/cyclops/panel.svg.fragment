@@ -1,0 +1,69 @@
+<g id="cyclops_panel">
+<!-- SDK two-page header: keep this block before machine artwork below y=38. -->
+<path d="M0,0 L480,0 L480,38 L0,38 Z" fill="#000000"/>
+<path id="cyclops_node_2" transform="matrix(1 0 0 1 0 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#000000" stroke="#000000" stroke-width="0.5"/>
+<path id="cyclops_node_3" transform="matrix(1 0 0 1 60 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#323232" stroke="#323232" stroke-width="0.5"/>
+<path id="cyclops_node_4" transform="matrix(1 0 0 1 120 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#4B4B4B" stroke="#4B4B4B" stroke-width="0.5"/>
+<path id="cyclops_node_5" transform="matrix(1 0 0 1 180 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#646464" stroke="#646464" stroke-width="0.5"/>
+<path id="cyclops_node_6" transform="matrix(1 0 0 1 240 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#7D7D7D" stroke="#7D7D7D" stroke-width="0.5"/>
+<path id="cyclops_node_7" transform="matrix(1 0 0 1 300 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#969696" stroke="#969696" stroke-width="0.5"/>
+<path id="cyclops_node_8" transform="matrix(1 0 0 1 360 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#AFAFAF" stroke="#AFAFAF" stroke-width="0.5"/>
+<path id="cyclops_node_9" transform="matrix(1 0 0 1 420 0)" d="M0,0 L60,0 L60,20 L0,20 Z" fill="#CDCDCD" stroke="#CDCDCD" stroke-width="0.5"/>
+<text id="cyclops_text_0" transform="matrix(1 0 0 1 5 10)" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="cyclops_text_1" transform="matrix(1 0 0 1 125 10)" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="cyclops_text_2" transform="matrix(1 0 0 1 245 10)" fill="#000000" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="cyclops_text_3" transform="matrix(1 0 0 1 365 10)" fill="#000000" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="cyclops_text_4" transform="matrix(1 0 0 1 65 17.4)" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="cyclops_text_5" transform="matrix(1 0 0 1 185 17.4)" fill="#CBCBCB" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="cyclops_text_6" transform="matrix(1 0 0 1 305 17.4)" fill="#000000" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="cyclops_text_7" transform="matrix(1 0 0 1 425 17.4)" fill="#000000" font-family="UniversNextPro-Light" font-size="20px">-</text>
+<text id="cyclops_text_8" transform="matrix(1 0 0 1 5 33)" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="cyclops_text_9" transform="matrix(1 0 0 1 125 33)" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="cyclops_text_10" transform="matrix(1 0 0 1 245 33)" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="cyclops_text_11" transform="matrix(1 0 0 1 365 33)" fill="#5A5A5A" font-family="UniversNextPro-Light" font-size="10px">-</text>
+<text id="cyclops_text_12" transform="matrix(1 0 0 1 65 33)" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="cyclops_text_13" transform="matrix(1 0 0 1 185 33)" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="cyclops_text_14" transform="matrix(1 0 0 1 305 33)" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+<text id="cyclops_text_15" transform="matrix(1 0 0 1 425 33)" fill="#707070" font-family="UniversNextPro-Light" font-size="13px">-</text>
+
+
+<!-- Broad stone head, swept hair and a single animated eye. -->
+<path d="M153,102 L136,102 L132,119 L141,140 L155,143 M327,102 L344,102 L348,119 L339,140 L325,143" fill="#242424" stroke="#858585" stroke-width="2"/>
+<path d="M162,72 L183,56 L222,52 L260,54 L294,63 L316,81 L326,115 L321,157 L305,190 L276,207 L207,207 L176,190 L159,158 L154,115 Z" fill="#242424" stroke="#BDBDBD" stroke-width="2"/>
+<path d="M161,90 L169,61 L183,67 L192,48 L210,61 L226,44 L242,61 L262,49 L270,64 L291,56 L303,77 L316,79 L320,96 L288,83 L268,82 L241,88 L210,80 L185,86 Z" fill="#111111" stroke="#949494" stroke-width="1.5"/>
+<path d="M165,144 L181,160 L190,184 L211,198 L201,199 L177,183 Z M315,144 L300,160 L290,184 L268,198 L280,198 L305,181 Z" fill="#444444" stroke="none"/>
+<path d="M205,153 L225,148 L240,152 L255,148 L275,153 L264,163 L216,163 Z" fill="#191919" stroke="#626262" stroke-width="1"/>
+<path d="M236,145 L231,159 L249,159" fill="#353535" stroke="#949494" stroke-width="1.5"/>
+<path d="M203,194 L219,199 L261,199 L277,192" fill="none" stroke="#666666" stroke-width="1.5"/>
+<path d="M178,98 L190,91 M302,98 L290,91 M173,148 L180,153 M307,148 L300,153" fill="none" stroke="#8D8D8D" stroke-width="2"/>
+<path id="cyclops_node_0" d="M61.0000,0.0000 L60.7063,2.5484 L59.8279,5.0723 L58.3734,7.5474 L56.3567,9.9498 L53.7972,12.2563 L50.7196,14.4448 L47.1536,16.4942 L43.1335,18.3848 L38.6980,20.0983 L33.8898,21.6182 L28.7552,22.9300 L23.3437,24.0209 L17.7074,24.8804 L11.9005,25.5004 L5.9790,25.8748 L0.0000,26.0000 L-5.9790,25.8748 L-11.9005,25.5004 L-17.7074,24.8804 L-23.3437,24.0209 L-28.7552,22.9300 L-33.8898,21.6182 L-38.6980,20.0983 L-43.1335,18.3848 L-47.1536,16.4942 L-50.7196,14.4448 L-53.7972,12.2563 L-56.3567,9.9498 L-58.3734,7.5474 L-59.8279,5.0723 L-60.7063,2.5484 L-61.0000,0.0000 L-60.7063,-2.5484 L-59.8279,-5.0723 L-58.3734,-7.5474 L-56.3567,-9.9498 L-53.7972,-12.2563 L-50.7196,-14.4448 L-47.1536,-16.4942 L-43.1335,-18.3848 L-38.6980,-20.0983 L-33.8898,-21.6182 L-28.7552,-22.9300 L-23.3437,-24.0209 L-17.7074,-24.8804 L-11.9005,-25.5004 L-5.9790,-25.8748 L-0.0000,-26.0000 L5.9790,-25.8748 L11.9005,-25.5004 L17.7074,-24.8804 L23.3437,-24.0209 L28.7552,-22.9300 L33.8898,-21.6182 L38.6980,-20.0983 L43.1335,-18.3848 L47.1536,-16.4942 L50.7196,-14.4448 L53.7972,-12.2563 L56.3567,-9.9498 L58.3734,-7.5474 L59.8279,-5.0723 L60.7063,-2.5484 Z" fill="none" stroke="#EEEEEE" stroke-width="2"/>
+<path id="cyclops_node_1" d="M-63,0 L-59,-16 L-42,-26 L0,-30 L42,-26 L59,-16 L63,0 L59,16 L42,26 L0,30 L-42,26 L-59,16 Z" fill="none" stroke="#6A6A6A" stroke-width="1"/>
+<circle id="cyclops_node_10" cx="0" cy="0" r="23" fill="#777777" stroke="#777777" stroke-width="1"/>
+<circle id="cyclops_node_11" cx="0" cy="0" r="13" fill="#000000" stroke="#000000" stroke-width="1"/>
+<circle id="cyclops_node_12" cx="0" cy="0" r="3" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1"/>
+<path id="cyclops_node_13" d="M-59,10 L-53,3 L-22,0 L0,5 L22,0 L53,3 L59,10 L29,5 L0,11 L-29,5 Z" fill="#BDBDBD" stroke="#BDBDBD" stroke-width="1"/>
+<path id="cyclops_node_14" d="M-34,-3 L-17,3 L0,5 L17,3 L34,-3 L31,3 L15,9 L-15,9 L-31,3 Z" fill="none" stroke="#CCCCCC" stroke-width="1.5"/>
+<circle id="cyclops_node_15" cx="0" cy="0" r="2" fill="#CCCCCC" stroke="#CCCCCC" stroke-width="1"/>
+<!-- Quiet instrument marks leave the character as the focus. -->
+<text transform="matrix(1 0 0 1 20 190)" fill="#AAAAAA" font-family="UniversNextPro-Light" font-size="12px">CYCLOPS</text>
+<text transform="matrix(1 0 0 1 20 207)" fill="#626262" font-family="UniversNextPro-Light" font-size="8px">DUAL OSC BASS</text>
+<path d="M24,98 L43,80 L43,98 L62,80 L62,98 L81,80 L81,98 M399,98 L399,81 L415,81 L415,98 L431,98 L431,81 L447,81 L447,98" fill="none" stroke="#707070" stroke-width="1.5"/>
+<path d="M397,151 L450,151 M404,162 L443,162 M411,173 L436,173 M418,184 L429,184" fill="none" stroke="#707070" stroke-width="1.5"/>
+<text transform="matrix(1 0 0 1 400 207)" fill="#626262" font-family="UniversNextPro-Light" font-size="8px">24dB LP</text>
+  <circle id="cyclops_palette_0" cx="640" cy="0" r="1" fill="#000000" stroke="#000000" stroke-width="1"/>
+  <circle id="cyclops_palette_1" cx="640" cy="0" r="1" fill="#111111" stroke="#111111" stroke-width="1"/>
+  <circle id="cyclops_palette_2" cx="640" cy="0" r="1" fill="#222222" stroke="#222222" stroke-width="1"/>
+  <circle id="cyclops_palette_3" cx="640" cy="0" r="1" fill="#333333" stroke="#333333" stroke-width="1"/>
+  <circle id="cyclops_palette_4" cx="640" cy="0" r="1" fill="#444444" stroke="#444444" stroke-width="1"/>
+  <circle id="cyclops_palette_5" cx="640" cy="0" r="1" fill="#555555" stroke="#555555" stroke-width="1"/>
+  <circle id="cyclops_palette_6" cx="640" cy="0" r="1" fill="#666666" stroke="#666666" stroke-width="1"/>
+  <circle id="cyclops_palette_7" cx="640" cy="0" r="1" fill="#777777" stroke="#777777" stroke-width="1"/>
+  <circle id="cyclops_palette_8" cx="640" cy="0" r="1" fill="#888888" stroke="#888888" stroke-width="1"/>
+  <circle id="cyclops_palette_9" cx="640" cy="0" r="1" fill="#999999" stroke="#999999" stroke-width="1"/>
+  <circle id="cyclops_palette_10" cx="640" cy="0" r="1" fill="#aaaaaa" stroke="#aaaaaa" stroke-width="1"/>
+  <circle id="cyclops_palette_11" cx="640" cy="0" r="1" fill="#bbbbbb" stroke="#bbbbbb" stroke-width="1"/>
+  <circle id="cyclops_palette_12" cx="640" cy="0" r="1" fill="#cccccc" stroke="#cccccc" stroke-width="1"/>
+  <circle id="cyclops_palette_13" cx="640" cy="0" r="1" fill="#dddddd" stroke="#dddddd" stroke-width="1"/>
+  <circle id="cyclops_palette_14" cx="640" cy="0" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
+  <circle id="cyclops_palette_15" cx="640" cy="0" r="1" fill="#ffffff" stroke="#ffffff" stroke-width="1"/>
+</g>

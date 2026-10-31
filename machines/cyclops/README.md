@@ -90,7 +90,7 @@ unrolls the fixed four stages, prepares waveform/pitch paths once per block,
 and caches exact saturation values in 16 KiB. Voice state is 80 bytes (was 96).
 The native module uses about 189 KiB of the shared 2032 KiB region.
 
-The latest SDK host estimate is about **14,100 instructions per voice per
+The latest SDK host estimate is about **11,600 instructions per voice per
 64-sample block**, below the advisory 15,000 target. A longer paired benchmark
 against the imported `2c40746` engine covers 384 cases, including both
 oscillators, control extremes, high notes, pitch bends and simultaneous

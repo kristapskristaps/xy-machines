@@ -79,7 +79,7 @@ upstream browser's transfer implementation; do not add another device writer.
 - Work in this repository. The original sibling repositories and the original
   `open-xy-hundekraft` folder are independent working copies used by other chats;
   do not move, reset, commit, clean or overwrite their work as part of this repo.
-- Eight standalone machines live in `machines/<id>`. The 26 Hundekraft ports live
+- Nine standalone machines live in `machines/<id>`. The 26 Hundekraft ports live
   in `machines/hundekraft/<id>` with their original collection tools and notices.
   Each folder containing `machine.json` is an independently releasable machine.
   New machines belong in `machines/<id>` without a nested Git repository.

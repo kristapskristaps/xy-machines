@@ -125,6 +125,8 @@ Effects/sample engines use the same test/build commands plus existing auditions:
 - Hundekraft: see `machines/hundekraft/README.md` for its live stereo effect
   workbench, A/B, test phrases and local audio files.
 - Halo: `machines/halo/tools/audition.py` builds/serves its live workbench.
+- Rebound: `machines/rebound/tools/audition.cpp` renders clean ping-pong and
+  above-unity feedback rides; see its README for the compile/render commands.
 - HK Granular's audition is a recording; native sample assignment still needs
   hardware validation.
 

@@ -12,11 +12,11 @@ including the shared SDK module. This is a native module check, not bootable
 image verification, device acceptance or measured CPU. HK Granular is excluded;
 the separate standalone Granular engine has been removed from the active tree.
 
-`collections/standalone.json` selects the other six synths and two effects;
+`collections/standalone.json` selects the other six synths and three effects;
 `collections/hundekraft.json` also includes HK Granular. The full inventory has
-34 entries. SDK 1.6 supports 256 engine/screen slots, so the old advice about
+35 entries. SDK 1.6 supports 256 engine/screen slots, so the old advice about
 exhausting a small ID pool no longer applies. Every combined image must still
-pass the shared 2,032 KiB module limit. Do not assume all 34 fit together.
+pass the shared 2,032 KiB module limit. Do not assume all 35 fit together.
 
 ## Preserve projects and layout
 

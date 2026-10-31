@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "sdk": "1.6",
+  "kind": "effect",
+  "description": "Tempo-synced stereo delay with feedback to 150%, soft saturation, feedback filters and variable ping-pong.",
+  "dryParameter": "dry",
+  "icon": "M6 13h22l-5 -5 M28 13l-5 5 M32 27H10l5 -5 M10 27l5 5"
+}

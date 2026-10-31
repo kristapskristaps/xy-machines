@@ -1,16 +1,16 @@
 # XY Machines
 
-34 Open-XY machines: **18 synths, 15 send effects and 1 sample engine**.
+35 Open-XY machines: **18 synths, 16 send effects and 1 sample engine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
 - `machines/<id>/`: Vader, Weave, Matter, Vapour, Halo, Westfold, Acidline,
-  and Subvista.
+  Subvista, and Rebound.
 - `machines/hundekraft/`: all 26 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 34 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 35 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects exactly the 12 HK synths and 13 effects.
 - `provenance/`: source commits, branch/tag references, original file hashes,
@@ -143,6 +143,7 @@ and documentation; it does not replace the licences of the machines.
 | hkwasher | HK Washer | effect | [machines/hundekraft/hkwasher](machines/hundekraft/hkwasher/README.md) |
 | hkwavetable | HK Wavetable | synth | [machines/hundekraft/hkwavetable](machines/hundekraft/hkwavetable/README.md) |
 | matter | Matter | synth | [machines/matter](machines/matter/README.md) |
+| rebound | Rebound | effect | [machines/rebound](machines/rebound/README.md) |
 | subvista | Subvista | synth | [machines/subvista](machines/subvista/README.md) |
 | vader | Vader | synth | [machines/vader](machines/vader/README.md) |
 | vapour | Vapour | effect | [machines/vapour](machines/vapour/README.md) |

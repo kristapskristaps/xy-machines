@@ -41,7 +41,7 @@ static inline i32 rate(u32 milliseconds) {
 static inline i32 envelope(i32 value, i32 coefficient) { return opxy::q31::multiply(value, coefficient); }
 static inline i32 drive(i32 sample, u32 amount) {
     if (!amount) return sample;
-    const i32 boosted = limit(sample * (1 + i32(amount) / 16));
+    const i32 boosted = limit(sample + sample*i32(amount)/16);
     const i32 half = boosted / 2;
     const i32 cube = (half * half / 16384) * half / 16384;
     return boosted - 2 * cube / 3;

@@ -6,5 +6,7 @@ struct DisplayState {
     opxy::draw::PageHeader header;
     opxy::u32 initialized, track, note, model, family;
     opxy::i32 age;
+    opxy::u32 hit_model, hit_family;
+    opxy::i32 hit_duration;
 };
 }

@@ -14,7 +14,7 @@ timing remain unverified.
 ## SDK
 
 This native stepping candidate pairs with the separate local SDK draft
-`f7956ced288b907ac11a17c2cd962c20b9dd4eeb` on `codex/native-gui-size`,
+`12b8bbdceedb524be0a5b4a8526188c4bfbf6631` on `codex/native-gui-size`,
 checked out as `../xy-sdk-gui-size`. It adds `resources.parameterEdit`
 to SDK 1.9's synthesis-drum support. CI can use this pin after that SDK commit
 is published. The existing `../open-xy` checkout is untouched.
@@ -41,7 +41,7 @@ group cut each other off. Set open and closed hats to the same numbered group
 when assembling a kit. Repeated hits on the same pad use the SDK's short
 crossfade instead of piling up voices.
 
-The screen shows a sunglasses-wearing beaver playing a blue/red drum kit. All
+The screen shows a sunglasses-wearing beaver and drum kit in grayscale, with small blue/red accents. All
 18 drum types have their own band-style emblem printed on the kick head. All
 47 type/style combinations react to note starts, with articulated shoulder and
 wrist movement, alternating hands where the surface is reachable, stick
@@ -51,8 +51,10 @@ the paws as the joints rebound at different rates. The 606 snaps, 707 steps,
 808 rolls back smoothly and 909 recoils sharply. Movement settles within
 0.2 seconds, with hit brightness following the pad's decay. Reduced motion
 keeps static feedback. Entering a track or browsing a type/style establishes a
-still pose instead of inventing a hit. Drawing uses the public note-activity
-snapshot, so simultaneous triggers between display frames can coalesce.
+still pose instead of inventing a hit. Drawing follows the latest played pad on the track, including sequencer hits,
+while the header and encoders stay on the selected pad. It uses drawing ABI 5
+trigger snapshots; simultaneous hits between display frames can coalesce, and
+GUI control snapshots are not a history of audio-side step locks.
 Run `python artwork/beaver.py` to regenerate the vector scene, pivots and contact
 poses. The same C++ animates the browser and native display; no bitmap is loaded
 by the machine.
@@ -68,7 +70,9 @@ uses the next available family, or the last available one if none is higher.
 Single-family types leave the style position blank. Tune has an exact zero centre and a ±12-semitone
 range. Decay shows milliseconds or seconds and controls the sound envelope. Sampled
 voices also end when the recording ends; tuning changes their playback length.
-Other values are amounts from 0 to 100 without a percent sign.
+Attack is the onset ramp in milliseconds, from 0 (the natural transient) to 127 ms.
+Tone spans a low-pass range from 35 Hz to 18.5 kHz; 808 metal voices instead balance
+their upper spectral bands. Other values are amounts from 0 to 100 without a percent sign.
 
 Page 2 labels follow the selected drum: kick has sweep/body, snare has
 snappy/body, clap has spread/noise, and hats have metal/open. Simple percussion
@@ -93,6 +97,10 @@ families. Each pad retains its type, eight controls and choke group. Any main
 encoder press switches pages; Shift exposes type/choke. The browser plays
 one-shot tails and supports eight concurrent audition voices. A beat loop
 helps compare tuning, envelopes and hat choke groups while playing.
+The Kit menu offers 808 Classic, 606 Dry, 707 Studio, 909 Club, Night Wire,
+Warehouse and Soft Machines. Loading one resets all 24 audition pads; each
+pad remains independently editable. `python tools/generate_presets.py` rebuilds
+the audition bank.
 
 The browser uses the full C++ engine, including the 707 and 909 recordings,
 and the actual C++ display. It is not a device/project-storage simulator.
@@ -181,8 +189,9 @@ saving 5,812 bytes compared with a uniform four-millisecond table.
 `tests/envelopes.cpp` checks all 6,141 supported millisecond durations: the
 coefficient-derived decay time stays within 0.35% of the requested time.
 
-`tests/sound.cpp` checks all 47 combinations, 323 audible shaping controls,
-output bounds, voice completion, retriggering and the measured two-octave tuning
+`tests/sound.cpp` checks all 47 combinations, 323 shaping controls with a substantial measured waveform change,
+gain-normalized distinctions between all available family pairs, character/body
+timbre changes, output bounds, voice completion, retriggering and the measured two-octave tuning
 span. `tests/numerics.cpp` covers 6,016 control corners, buffer ownership and DSP
 isolation. `tests/metallic.cpp` checks upper-band energy and suppression of the
 808 hat/cymbal's pitched fundamentals, plus independence from the white-noise

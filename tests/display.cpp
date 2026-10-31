@@ -129,5 +129,19 @@ int main() {
         require(frame.nodes[body_node+input.model].shade == 1,"browsing a family stays still");
     }
     require(count == 47,"complete animated sound inventory");
+    // A sequencer hit can be a different instrument/family from the pad being
+    // edited. It changes the drummer and emblem, never the selected header.
+    display_reset(state); input = {}; input.model = kick;
+    input.slots[style] = 0x50000000; input.slots[decay] = 0x30000000;
+    display(state,input,frame);
+    input.trigger_key = 54; input.trigger_model = snare;
+    input.trigger_controls[style] = 0x70000000;
+    input.trigger_controls[decay] = 0x40000000;
+    ++input.note_serial; display(state,input,frame);
+    require(frame.nodes[body_node+snare].shade == 9 && state.hit_family == 3,
+            "sequencer animates the actual played drum and family");
+    require(!std::strcmp(frame.header[0],"808"),"sequencer does not replace selected pad controls");
+    input.elapsed = 17; display(state,input,frame);
+    require(state.hit_model == snare && state.age == 17,"played drum pose persists between display frames");
     std::puts("PASS: captions, both pages, Shift config, all 47 distinct type/style trigger animations, retrigger, rest and reduced motion");
 }

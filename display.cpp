@@ -13,6 +13,12 @@ inline void caption(char* out, opxy::u32 model, opxy::u32 slot, opxy::i32 value)
     if (!control_name(model, slot)[0]) { copy(out, header_capacity, ""); return; }
     const opxy::u32 raw = raw_control(value);
     if (slot == style) { copy(out, header_capacity, family_name(model, raw)); return; }
+    if (slot == attack) {
+        number(out,raw);
+        opxy::u32 at = 0; while (out[at]) ++at;
+        out[at++] = 'm'; out[at++] = 's'; out[at] = 0;
+        return;
+    }
     if (slot == tune) {
         const opxy::i32 cents = tune_cents(raw);
         char text[8]; text[0] = cents < 0 ? '-' : '+';
@@ -60,18 +66,23 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     }
     page_header(state.header, projected, frame, titles, values, 0);
     const opxy::u32 family = family_index(model,raw_control(input.slots[style]));
-    if (!state.initialized || state.track != input.track) {
+    const bool hit = state.initialized && state.track == input.track && state.note != input.note_serial;
+    if (!state.initialized || state.track != input.track || (!hit && (state.model != model || state.family != family))) {
         state.age = 2048;
-    } else if (state.note != input.note_serial) {
+        state.hit_model = model; state.hit_family = family;
+        state.hit_duration = clamp(opxy::i32(decay_ms(model,raw_control(input.slots[decay]))*1024/1000),128,1536);
+    } else if (hit) {
         state.age = 0;
-    } else if (state.model != model || state.family != family) {
-        state.age = 2048;
+        const bool known = input.trigger_key >= 53 && input.trigger_key < 77 && input.trigger_model < model_count;
+        state.hit_model = known ? input.trigger_model : model;
+        const opxy::i32* values = known ? input.trigger_controls : input.slots;
+        state.hit_family = family_index(state.hit_model,raw_control(values[style]));
+        state.hit_duration = clamp(opxy::i32(decay_ms(state.hit_model,raw_control(values[decay]))*1024/1000),128,1536);
     } else {
         state.age = clamp(state.age + clamp(input.elapsed, 0, 103), 0, 2048);
     }
     state.initialized = 1; state.track = input.track; state.note = input.note_serial;
     state.model = model; state.family = family;
-    const opxy::i32 duration = clamp(opxy::i32(decay_ms(model, raw_control(input.slots[decay])) * 1024 / 1000), 128, 1536);
-    instrument_animation(frame,model,family,state.age,duration,input.reduced_motion != 0,input.note_serial);
+    instrument_animation(frame,state.hit_model,state.hit_family,state.age,state.hit_duration,input.reduced_motion != 0,input.note_serial);
 }
 }

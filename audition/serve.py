@@ -17,6 +17,7 @@ bundle = preview_bundle(args.preview.resolve())
 for route, name, mime in [('/', 'index.html', 'text/html'),
                          ('/x0x/app.mjs', 'app.mjs', 'text/javascript'),
                          ('/x0x/models.mjs', 'models.mjs', 'text/javascript'),
+                         ('/x0x/presets.json', 'presets.json', 'application/json'),
                          ('/x0x/engine.mjs', 'engine.mjs', 'text/javascript'),
                          ('/x0x/processor.mjs', 'processor.mjs', 'text/javascript'),
                          ('/x0x/credits.txt', '../assets/CREDITS.md', 'text/plain'),

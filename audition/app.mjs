@@ -1,9 +1,11 @@
-import {MODELS,FAMILIES,LAYOUT,KEYS,available,family,stepFamily,defaultPad,controlNames,word} from './models.mjs';
+import {MODELS,FAMILIES,LAYOUT,KEYS,available,family,stepFamily,defaultPad,kitPads,controlNames,word} from './models.mjs';
 import {PreviewDisplay,SvgDisplay,NoteActivity} from '/sdk/browser/display.mjs';
 import {shownControls} from '/sdk/browser/controls.mjs';
 
 const $ = id => document.getElementById(id);
 const pads = LAYOUT.map((_, i) => defaultPad(i));
+let lastTrigger = null;
+let presets = [];
 let selected = 0, page = 0, configLocked = false, shifted = false;
 let module, display, scene, context, processor, outputGain, analyser, starting;
 const waveform = new Float32Array(64), activity = new NoteActivity();
@@ -40,6 +42,7 @@ async function enableAudio() {
   try { await starting; } finally { starting = null; }
 }
 function flash(index) {
+  lastTrigger = {key:53+index,model:pads[index].model,controls:pads[index].raw.map(word)};
   activity.noteOn(53 + index); padButtons[index].classList.add('hit');
   later(() => { padButtons[index].classList.remove('hit'); activity.noteOff(53 + index); }, 85);
 }
@@ -135,6 +138,17 @@ $('config').addEventListener('click', () => { configLocked = !configLocked; upda
 $('hit').addEventListener('click', () => hit());
 $('volume').addEventListener('input', () => { if (outputGain) outputGain.gain.setTargetAtTime(Number($('volume').value), context.currentTime, .01); });
 $('tempo').addEventListener('input', () => { $('tempo-value').textContent = $('tempo').value; });
+$('preset').addEventListener('change', () => {
+  const kit = presets.find(kit => kit.id === $('preset').value);
+  if (!kit) return;
+  stopBeat(); send({type:'panic'}); lastTrigger = null;
+  const next = kitPads(kit);
+  for (let i = 0; i < pads.length; ++i) {
+    const pad = next[i];
+    pads[i] = pad; send({type:'pad',index:i,pad});
+  }
+  display?.reset(); update(); status(`${kit.name} · 24 pads loaded`);
+});
 function stopBeat() { clearInterval(beatTimer); beatTimer = null; send({type:'clear'}); for (const timer of timers) clearTimeout(timer); timers.clear(); activity.panic(); padButtons.forEach(button => button.classList.remove('hit')); $('beat').setAttribute('aria-pressed','false'); $('beat').textContent = 'Play beat'; }
 function scheduleBeat() {
   while (nextTime < context.currentTime + .12) {
@@ -161,6 +175,11 @@ addEventListener('blur', () => { shifted = false; update(); });
 
 async function load() {
   const manifest = await (await fetch('/preview/manifest.json')).json();
+  presets = await (await fetch('/x0x/presets.json')).json();
+  for (const kit of presets) {
+    const option = document.createElement('option'); option.value = kit.id;
+    option.textContent = kit.name; $('preset').append(option);
+  }
   const responses = await Promise.all([fetch('/preview/engine.wasm'),fetch('/preview/panel.svg')]);
   if (responses.some(response => !response.ok)) throw new Error('Preview assets are unavailable');
   const [bytes, artwork] = await Promise.all(responses.map(response => response.arrayBuffer()));
@@ -172,7 +191,7 @@ async function load() {
   function draw(now) {
     try {
       const pad = pads[selected], shown = [0,1,2,3].map(i => i + page * 4);
-      scene.apply(display.tick(shownControls(pad.raw.map(word),shown),Math.round(Math.min(100,now-last)*1024/1000),activity.note_on_serial,0,reduced.matches,activity,pad.model,Number(isConfig()),[pad.model,pad.choke,0,0]));
+      scene.apply(display.tick(shownControls(pad.raw.map(word),shown),Math.round(Math.min(100,now-last)*1024/1000),activity.note_on_serial,0,reduced.matches,activity,pad.model,Number(isConfig()),[pad.model,pad.choke,0,0],lastTrigger));
       encoders.forEach((encoder, i) => { encoder.output.textContent = scene.header[i] || '—'; });
       if (analyser) { analyser.getFloatTimeDomainData(waveform); let level = 0; for (const sample of waveform) level = Math.max(level,Math.abs(sample)); heldLevel = Math.max(level * 4, heldLevel * .91); $('level').value = heldLevel; }
       last = now; requestAnimationFrame(draw);

@@ -20,8 +20,6 @@ export function stepFamily(pad, delta) {
 export function defaultPad(index) {
   const model = LAYOUT[index];
   const pad = {model, raw:[80,64,48,64,0,64,64,0], choke:0};
-  if (model === 10) pad.raw[0] = 112;
-  pad.raw[0] = 16 + 32 * family(pad);
   return pad;
 }
 export function validatePad(pad) {
@@ -30,6 +28,15 @@ export function validatePad(pad) {
       !Array.isArray(pad.raw) || pad.raw.length !== 8 ||
       pad.raw.some(v => !Number.isInteger(v) || v < 0 || v > 127)) throw new Error('Invalid pad settings');
   return pad;
+}
+export function kitPads(kit) {
+  if (!kit || !Array.isArray(kit.offsets) || kit.offsets.length !== 8 ||
+      kit.offsets.some(value => !Number.isInteger(value) || value < -64 || value > 63)) throw new Error('Invalid kit');
+  return LAYOUT.map((_,i) => {
+    const pad = defaultPad(i);
+    pad.raw = pad.raw.map((value,s) => Math.max(0,Math.min(127,value+kit.offsets[s])));
+    return pad;
+  });
 }
 export const word = raw => raw === 127 ? 0x7fffffff : raw * 0x1000000;
 export function controlNames(model) {

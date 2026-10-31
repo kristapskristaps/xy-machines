@@ -2,7 +2,7 @@
 
 This repository holds X0X (`x0x`). The machine is at the repository root.
 Read README.md and use the [Open-XY SDK](https://github.com/etcetc000/open-xy)
-at local draft `f7956ced288b907ac11a17c2cd962c20b9dd4eeb` on
+at local draft `12b8bbdceedb524be0a5b4a8526188c4bfbf6631` on
 `codex/native-gui-size`, checked out beside this repository as
 `../xy-sdk-gui-size`. This branch needs its `parameterEdit` callback.
 Windows release-host qualification and upstream SDK review remain pending.

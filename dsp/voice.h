@@ -7,7 +7,7 @@
 
 namespace x0x { namespace dsp {
 struct Settings {
-    u32 family, raw[8], duration, increments[6], sample_step, metal_reciprocals[6];
+    u32 family, raw[8], duration, increments[6], sample_step, metal_reciprocals[6], attack_frames, attack_step;
     i32 amplitude_rate, transient_rate, pitch_rate, filter, noise_filter;
     i32 sample, alternate;
     bool metal808;
@@ -26,11 +26,18 @@ static inline Settings settings(u32 model, opxy::Parameters parameters) {
     if (model == closed_hat || model == open_hat) s.duration = s.duration * (64 + s.raw[body]) / 128;
     s.amplitude_rate = rate(s.duration);
     s.transient_rate = rate(7);
+    s.attack_frames = s.raw[attack] * 441u / 10;
+    s.attack_step = s.attack_frames ? 0x7fffffffu / s.attack_frames : 0;
     s.pitch_rate = rate(s.family == 3 ? 18 : 8);
     s.filter = tables::tone[s.raw[tone]];
     if (s.metal808) s.filter = 32767; // Tone balances the spectral branches below.
     s.noise_filter = i32(scale(2048 + s.raw[tone] * 32, tables::tuning[s.raw[tune]]));
+    if (model == snare && s.family == 3) s.noise_filter = 8192 + s.raw[tone] * 64;
     if (s.noise_filter > 16384) s.noise_filter = 16384;
+    if (model == maracas) {
+        s.noise_filter = i32(scale(4096+s.raw[character]*128,tables::tuning[s.raw[tune]]));
+        if (s.noise_filter > 28000) s.noise_filter = 28000;
+    }
     s.sample = sample_for(model, s.family);
     s.alternate = s.family == 1 && (model == kick || model == snare) ? s.sample + 1 : -1;
     if (s.sample >= 0) s.sample_step = scale(pcm::samples[s.sample].rate * 65536u / 44100u, tables::tuning[s.raw[tune]]);
@@ -79,7 +86,7 @@ static inline i32 pcm_source(Voice& v, const Settings& s) {
     }
     if (v.model == clap && s.raw[character]) {
         const u32 delay = sample.rate * s.raw[character] / 4000;
-        if (v.cursor >= delay) signal = (signal * 3 + read(sample, v.cursor - delay, v.fraction)) / 4;
+        signal = limit(signal*3/4+(v.cursor >= delay ? read(sample,v.cursor-delay,v.fraction)/2 : 0));
     }
     // A low/high split exposes snappy/metal/click/noise without replacing the
     // recording's character. Both gains are neutral at their centre values.
@@ -88,7 +95,11 @@ static inline i32 pcm_source(Voice& v, const Settings& s) {
         const i32 high = limit(signal - v.metal_low);
         signal = limit(v.metal_low + multiply(high, i32(s.raw[character]) * 512));
     }
-    if (s.alternate < 0) signal = limit(signal + multiply(v.metal_low, (i32(s.raw[body]) - 64) * 256));
+    if (s.alternate < 0) {
+        const i32 high = limit(signal - v.metal_low);
+        signal = limit(multiply(high,32767+(64-i32(s.raw[body]))*128)
+                     + multiply(v.metal_low,32767+(i32(s.raw[body])-64)*384));
+    }
     u32 increment = s.sample_step;
     if (v.model == kick || (v.model >= low_tom && v.model <= high_tom)) {
         const i32 bend = (i32(s.raw[character]) - 64) * (v.pitch_envelope >> 16) / 64;
@@ -125,18 +136,17 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     case clap: {
         const u32 period = s.family == 3 ? 128 + s.raw[character] * 4 : 180 + s.raw[character] * 5;
         const u32 local = v.age % period;
-        const i32 burst = v.age < 3 * period ? i32((period - local) * 32767 / period) : 9000 + body_amount / 3;
+        const i32 burst = v.age < 3 * period ? i32((period - local) * 32767 / period) : 4096 + body_amount*3/4;
         signal = multiply(limit((random - v.noise_low) * 2), burst);
         break;
     }
     case rim:
-        signal = (tonal + sine(v.phase[1])) / 3;
-        signal += multiply(multiply(random, transient), i32(s.raw[character]) * 128);
-        signal = multiply(limit(signal), 16384 + body_amount / 2);
+        signal = (multiply(tonal,32767-body_amount)+multiply(sine(v.phase[1]),body_amount))*2/3;
+        signal += multiply(multiply(random, transient), i32(s.raw[character]) * 512);
         break;
     case low_tom: case mid_tom: case high_tom:
     case low_conga: case mid_conga: case high_conga:
-        signal = (tonal * 3 + multiply(sine(v.phase[0] * 3), body_amount) / 2) / 4;
+        signal = tonal + multiply(sine(v.phase[0]*3)-tonal,body_amount/2);
         if (v.model <= high_tom) signal += multiply(multiply(random, transient), s.family == 0 ? 7000 : 2500);
         break;
     case closed_hat: case open_hat: case cymbal: {
@@ -157,12 +167,11 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
         signal = (square(v.phase[0]) + multiply(square(v.phase[1]), body_amount)) / 2;
         break;
     case claves:
-        signal = multiply(tonal, 16384 + body_amount / 2);
-        signal += multiply(multiply(random, transient), i32(s.raw[character]) * 64);
+        signal = tonal + multiply(sine(v.phase[0]*2)-tonal,body_amount/2);
+        signal += multiply(multiply(random, transient), i32(s.raw[character]) * 1024);
         break;
     case maracas:
-        signal = multiply(limit((random - v.noise_low) * 2), 8192 + i32(s.raw[character]) * 193);
-        signal = multiply(signal, 16384 + body_amount / 2);
+        signal = limit((random-v.noise_low)*2+multiply(v.noise_low,body_amount)*2);
         break;
     default: break; // Ride and tambourine are PCM-only types.
     }
@@ -207,8 +216,8 @@ static inline void render(Voice& v, opxy::Output output, opxy::Parameters parame
                 v.noise_low += multiply(random - v.noise_low, s.noise_filter);
                 sample = synth_source(v, s, random);
             }
-            // Attack adds a short transient boost; zero keeps the plain hit.
-            sample = limit(sample + multiply(multiply(sample, v.transient >> 16), i32(s.raw[attack]) * 200));
+            if (v.age < s.attack_frames)
+                sample = multiply(sample,i32(v.age*s.attack_step >> 16));
             sample = multiply(sample, v.amplitude >> 16);
             v.amplitude = envelope(v.amplitude, s.amplitude_rate);
             v.transient = envelope(v.transient, s.transient_rate);

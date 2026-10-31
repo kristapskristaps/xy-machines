@@ -102,8 +102,7 @@ static inline void default_pad(opxy::u32 key, opxy::u8* model, opxy::u8* control
         tambourine, kick, snare, closed_hat, open_hat, clap, cymbal
     };
     *model = layout[key >= 53 && key <= 76 ? key - 53 : 0];
-    const opxy::u8 defaults[8] = {family_raw(*model, 2), 64, 48, 64, 0, 64, 64, 0};
+    const opxy::u8 defaults[8] = {80, 64, 48, 64, 0, 64, 64, 0};
     for (opxy::u32 i = 0; i < 8; ++i) controls[i] = defaults[i];
-    if (*model == ride) controls[style] = family_raw(*model, 3);
 }
 }

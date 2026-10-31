@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {MODELS,available,family,stepFamily,defaultPad,validatePad} from '../audition/models.mjs';
+import {MODELS,available,family,stepFamily,defaultPad,kitPads,validatePad} from '../audition/models.mjs';
 import {DrumAudition} from '../audition/engine.mjs';
 
 test('one style detent moves one available family in either direction for every raw value', () => {
@@ -25,6 +25,28 @@ const wasm = process.env.X0X_PREVIEW_WASM;
 if (!wasm) throw new Error('Set X0X_PREVIEW_WASM to a fresh full-engine preview');
 const module = await WebAssembly.compile(await readFile(wasm));
 const pads = () => Array.from({length:24},(_,i)=>defaultPad(i));
+test('all seven kits produce audible 24-pad sounds and retain editable, independent pads', async () => {
+  const kits = JSON.parse(await readFile(new URL('../audition/presets.json',import.meta.url),'utf8'));
+  assert.equal(kits.length,7);
+  for (const kit of kits) {
+    const settings = kitPads(kit), engine = new DrumAudition(module,44100,settings), output = new Float32Array(128);
+    const expected = {'606-dry':0,'707-studio':1,default:2,'909-club':3}[kit.id];
+    for (let pad = 0; pad < 24; ++pad) {
+      if (expected !== undefined && available(settings[pad].model).includes(expected))
+        assert.equal(family(settings[pad]),expected,`${kit.name} pad ${pad+1} family`);
+      engine.panic(); engine.hit(pad); let energy = 0;
+      for (let block = 0; block < 100; ++block) {
+        engine.render(output);
+        for (const value of output) { assert.ok(Number.isFinite(value) && Math.abs(value) <= .89); energy += value*value; }
+      }
+      assert.ok(energy > 1e-7,`${kit.name} pad ${pad+1} audible`);
+    }
+    const fresh = kitPads(kit); settings[0].raw[1] = 0;
+    assert.deepEqual(fresh,kitPads(kit));
+    assert.notEqual(settings[0].raw,settings[1].raw);
+  }
+  assert.throws(() => kitPads({offsets:[0]}),/Invalid kit/);
+});
 test('all 47 full-engine sounds produce bounded nonzero browser audio', () => {
   const engine = new DrumAudition(module,44100,pads()), output = new Float32Array(128);
   let cases = 0;

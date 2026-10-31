@@ -22,7 +22,20 @@ inline void caption(char* out, opxy::u32 model, opxy::u32 slot, opxy::i32 value)
         copy(out, header_capacity, text);
         return;
     }
-    if (slot == decay) { number(out, decay_ms(raw)); return; }
+    if (slot == decay) {
+        const opxy::u32 ms = decay_ms(model, raw);
+        if (ms >= 1000) {
+            const opxy::u32 tenths = (ms + 50) / 100;
+            number(out, tenths / 10);
+            opxy::u32 at = 0; while (out[at]) ++at;
+            out[at++] = '.'; out[at++] = char('0' + tenths % 10); out[at++] = 's'; out[at] = 0;
+        } else {
+            number(out, ms);
+            opxy::u32 at = 0; while (out[at]) ++at;
+            out[at++] = 'm'; out[at++] = 's'; out[at] = 0;
+        }
+        return;
+    }
     header_amount(out, header_capacity, value);
 }
 inline void display_reset(DisplayState& state) { state.header.reset(); }

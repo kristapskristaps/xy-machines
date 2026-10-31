@@ -18,7 +18,7 @@ int main() {
                 input.reduced_motion = 1; input.shift = 0;
                 display(state, input, frame);
                 require(opxy::draw::valid(frame), "valid two-page drawing");
-                if (!page) require(!std::strcmp(frame.header[0], family_name(model, raw)), "style shown as family number");
+                if (!page && family_count(model) > 1) require(!std::strcmp(frame.header[0], family_name(model, raw)), "style shown as family number");
                 for (opxy::u32 i = 0; i < 4; ++i) {
                     char expected[8]; caption(expected, model, i + 4 * page, input.slots[i + 4 * page]);
                     require(!std::strcmp(frame.header[i], expected), "encoder follows active page");

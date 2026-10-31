@@ -21,23 +21,15 @@ static inline opxy::u32 family_count(opxy::u32 model) {
 static inline opxy::u32 family_index(opxy::u32 model, opxy::u32 raw) {
     if (model >= model_count) return 0;
     if (raw > 127) raw = 127;
-    opxy::u32 rank = raw * family_count(model) / 128;
-    for (opxy::u32 i = 0; i < 4; ++i) {
-        if (!(family_masks[model] & (1u << i))) continue;
-        if (!rank) return i;
-        --rank;
-    }
+    const opxy::u32 requested = raw / 32;
+    for (opxy::u32 i = requested; i < 4; ++i) if (family_masks[model] & (1u << i)) return i;
+    for (opxy::u32 i = 4; i > 0; --i) if (family_masks[model] & (1u << (i - 1))) return i - 1;
     return 0;
 }
 static inline opxy::u8 family_raw(opxy::u32 model, opxy::u32 family) {
     if (model >= model_count) return 0;
-    opxy::u32 rank = 0;
-    for (opxy::u32 i = 0; i < 4; ++i) {
-        if (!(family_masks[model] & (1u << i))) continue;
-        if (i == family) return opxy::u8((2 * rank + 1) * 64 / family_count(model));
-        ++rank;
-    }
-    return 0;
+    if (family > 3) family = 3;
+    return opxy::u8(16 + 32 * family_index(model, 16 + 32 * family));
 }
 static inline const char* family_name(opxy::u32 model, opxy::u32 raw) {
     static const char* const names[] = {"606", "707", "808", "909"};
@@ -48,7 +40,13 @@ static inline opxy::i32 tune_cents(opxy::u32 raw) {
     if (raw > 127) raw = 127;
     return raw <= 64 ? (opxy::i32(raw) - 64) * 1200 / 64 : (opxy::i32(raw) - 64) * 1200 / 63;
 }
-static inline opxy::u32 decay_ms(opxy::u32 raw) { return 20 + raw * raw / 4; }
+static inline opxy::u32 decay_ms(opxy::u32 model, opxy::u32 raw) {
+    static const opxy::u16 minimum[model_count] = {30,30,40,8,30,30,30,8,40,100,80,30,5,10,20,20,20,20};
+    static const opxy::u16 maximum[model_count] = {3500,1800,1500,300,2500,2500,2500,300,2500,6000,5000,1500,600,1000,1800,1800,1800,2000};
+    if (model >= model_count) model = kick;
+    if (raw > 127) raw = 127;
+    return minimum[model] + (maximum[model] - minimum[model]) * raw * raw / 16129;
+}
 static inline opxy::u32 control_count(opxy::u32 model) {
     // Simple percussion has no drive: twelve full models fit the SDK prefix
     // codec (at most 15 eight-control models in a kit with >16 models).
@@ -64,6 +62,7 @@ static inline const char* short_name(opxy::u32 model) {
 }
 static inline const char* control_name(opxy::u32 model, opxy::u32 slot) {
     if (slot >= control_count(model)) return "";
+    if (slot == style && family_count(model) == 1) return "";
     static const char* const common[] = {"style", "tune", "decay", "tone", "attack", "", "", "drive"};
     if (slot != character && slot != body) return common[slot];
     switch (model) {
@@ -71,7 +70,7 @@ static inline const char* control_name(opxy::u32 model, opxy::u32 slot) {
     case clap: return slot == character ? "spread" : "noise";
     case closed_hat: case open_hat: return slot == character ? "metal" : "open";
     case cymbal: case ride: return slot == character ? "metal" : "bell";
-    case cowbell: return slot == character ? "ratio" : "body";
+    case cowbell: return slot == character ? "metal" : "body";
     case rim: case claves: return slot == character ? "click" : "body";
     case maracas: case tambourine: return slot == character ? "noise" : "body";
     default: return slot == character ? "sweep" : "body";

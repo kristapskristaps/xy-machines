@@ -19,6 +19,7 @@ Adjust that path if the user already has the SDK elsewhere.
    same saved parameter in columns without alternates; never invent filler
    parameters. Format captions in real units and keep artwork below y=38.
    Preserve licences and attribution when reusing code.
+
 This is a `kind: drum` machine. Drum type and both control pages must stay
 per pad. Do not replace the drum adapter with track-wide synth controls.
 

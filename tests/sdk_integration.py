@@ -46,6 +46,12 @@ int main() {
     }
     key = 53;
     require(sdk_drum_values(track, &model, raw) && model == x0x::snare && raw[1] == 71);
+    key = 55;
+    edit(0, -32); // Default 808 clap -> 707 clap.
+    require(sdk_drum_values(track, &model, raw) && x0x::family_index(model, raw[0]) == 1);
+    edit(4, -2); // Clap -> kick, preserving the same requested family.
+    require(sdk_drum_values(track, &model, raw) && model == x0x::kick && x0x::family_index(model, raw[0]) == 1);
+    key = 53;
     // The Shift model control remains the same while the second page is up.
     sdk_synth_press(2); shown(4,5,6,7);
     edit(4, 1);

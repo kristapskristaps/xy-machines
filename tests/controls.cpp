@@ -23,7 +23,7 @@ int main() {
         require(count >= 4 && count <= 8 && family_count(m), "valid controls and styles");
         for (opxy::u32 s = 0; s < 8; ++s) {
             const char* label = parameter_name(m, s);
-            require(std::strlen(label) <= 8 && bool(label[0]) == (s < count), "short labels; unused slot blank");
+            require(std::strlen(label) <= 8 && bool(label[0]) == (s < count && !(s == style && family_count(m) == 1)), "short labels; unused slot blank");
         }
         for (opxy::u32 raw = 0; raw < 128; ++raw) {
             require(family_masks[m] & (1u << family_index(m, raw)), "style available on original family");
@@ -31,6 +31,8 @@ int main() {
         }
         for (opxy::u32 f = 0; f < 4; ++f) if (family_masks[m] & (1u << f))
             require(family_index(m, family_raw(m, f)) == f, "style choice round-trips");
+        for (opxy::u32 f = 0; f < 4; ++f) if (family_masks[m] & (1u << f))
+            require(family_index(m, family_raw(kick, f)) == f, "family positions stay consistent across types");
     }
     require(full <= 15 && !parameter_name(claves, 7)[0], "fits prefix storage without filler eighth controls");
     require(!std::strcmp(parameter_name(kick, character), "sweep") && !std::strcmp(parameter_name(snare, character), "snappy"), "type-specific controls");
@@ -42,6 +44,6 @@ int main() {
     opxy::i32 output[64], controls[8] = {}; opxy::u32 pitch[64] = {};
     for (auto& sample : output) sample = 123;
     render(a, shared, 1, output, controls, pitch);
-    for (auto sample : output) require(sample == 0, "controls milestone writes silence");
+    for (auto sample : output) require(sample == 0, "unstarted voice writes silence");
     std::puts("PASS: 24 defaults, 18 types, available styles, two-page labels and independent voices");
 }

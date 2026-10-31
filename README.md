@@ -14,17 +14,17 @@ timing remain unverified.
 ## SDK
 
 This native stepping candidate pairs with the separate local SDK draft
-`1b4892dea9803ad10d3175ecdb17aa860d199c37` on `codex/drum-parameter-edit`,
-checked out as `../xy-sdk-drum-stepping`. It adds `resources.parameterEdit`
+`4c5873b0ba43c32cfe31cde856f4b517bef562a5` on `codex/native-gui-size`,
+checked out as `../xy-sdk-gui-size`. It adds `resources.parameterEdit`
 to SDK 1.9's synthesis-drum support. CI can use this pin after that SDK commit
 is published. The existing `../open-xy` checkout is untouched.
 
-The draft passes public checks and a Mac native build/reconstruction; the
-required Windows release-host qualification and hardware acceptance remain
-pending. The standalone validation package is not an installation candidate
-for the user's existing collection. The full combined kit still needs memory
-work. The browser audition currently served for user review remains on
-`codex/x0x-prototype` with its earlier SDK pin.
+The draft passes public checks, and the full existing collection now links
+inside the shared module limit. Windows release-host qualification and
+hardware acceptance remain pending. The SDK changes keep the existing
+machine sources and DSP compiler settings intact. The browser audition
+served for user review remains on `codex/x0x-prototype` with its earlier
+SDK pin.
 
 ## Controls
 
@@ -83,8 +83,8 @@ For the complete 24-pad browser audition, build a fresh preview and run the
 machine's allowlisted audition server:
 
 ```sh
-python ../xy-sdk-drum-stepping/sdk.py preview --machine . --out ../xy-sdk-drum-stepping/local/x0x-browser-001 --cxx clang++
-python audition/serve.py --sdk ../xy-sdk-drum-stepping --preview ../xy-sdk-drum-stepping/local/x0x-browser-001 --port 8958
+python ../xy-sdk-gui-size/sdk.py preview --machine . --out ../xy-sdk-gui-size/local/x0x-browser-001 --cxx clang++
+python audition/serve.py --sdk ../xy-sdk-gui-size --preview ../xy-sdk-gui-size/local/x0x-browser-001 --port 8958
 ```
 
 Open http://127.0.0.1:8958/. Click a pad or a style to start audio. Style's
@@ -105,10 +105,10 @@ of model, stored Style value and direction through its real pad editor.
 With Python 3.11+, NumPy 2.3.5 and Clang with WebAssembly linking installed:
 
 ```sh
-python ../xy-sdk-drum-stepping/sdk.py test --machine . --cxx clang++ --host-cxx c++
-python tests/sdk_integration.py --sdk ../xy-sdk-drum-stepping --cxx c++
-python ../xy-sdk-drum-stepping/sdk.py preview --machine . --out ../xy-sdk-drum-stepping/local/x0x-preview-001 --cxx clang++
-python ../xy-sdk-drum-stepping/tools/serve_harness.py --preview ../xy-sdk-drum-stepping/local/x0x-preview-001
+python ../xy-sdk-gui-size/sdk.py test --machine . --cxx clang++ --host-cxx c++
+python tests/sdk_integration.py --sdk ../xy-sdk-gui-size --cxx c++
+python ../xy-sdk-gui-size/sdk.py preview --machine . --out ../xy-sdk-gui-size/local/x0x-preview-001 --cxx clang++
+python ../xy-sdk-gui-size/tools/serve_harness.py --preview ../xy-sdk-gui-size/local/x0x-preview-001
 ```
 
 On macOS, pass `/opt/homebrew/opt/llvm/bin/clang++` as `--cxx` when Apple's

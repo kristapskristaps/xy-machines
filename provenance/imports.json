@@ -1020,6 +1020,36 @@
         "tests/sound.cpp": "68668692e1898a4688adaadb0f4e81840f1d5b966413a7a75684c99705a941d1"
       },
       "history_note": "No committed source history; initial source snapshot. Original working directory untouched."
+    },
+    {
+      "id": "cyclops",
+      "source": "cyclops",
+      "commit": "5e910ea16ba869de309642d26f2ffc9a93e1787e",
+      "refs": {
+        "refs/heads/main": "5e910ea16ba869de309642d26f2ffc9a93e1787e"
+      },
+      "source_status": [],
+      "destination": "machines/cyclops",
+      "files": {
+        ".github/workflows/machine.yml": "50e8d2174ea27d3182514741b3a6add8a0f94f8c7236122a019f3cb7ffa40a08",
+        ".gitignore": "63c2cad6f95a7c734fe5072293998a93412fdf36aa6f18ac96ffc278531dbea9",
+        "AGENTS.md": "28aecb2c23ee64f80ec8acd5fdfe463b583e81eac0f2d63ea94e57aa04569516",
+        "LICENSE": "afac4d20ab410b587b9dd19a83cafab2d256579d34cdc92bf1ea8b8a5a694e2a",
+        "README.md": "9a2a44e133ef64643c1ded7e0b0a22f42926fc73ecb6c63eb81775a60699219e",
+        "core.h": "c99cd2e4123abe653a9b5cca8441c838a2e79d7eb997ed5238faa4fb9d7b8ebb",
+        "definition.json": "623dc270bf47a9fc821318dd0bb9fe42a0670a85f0f5c0d07f117e4428277f1c",
+        "display.cpp": "f3d0b60a2cc8fa3b15265997cf313ba2c5d8ab65874d135e9e7dce252a3c77f9",
+        "display.h": "21667a33effdadd5adcd7d4ede112f0202f251d193864290a8a4c1ce6892baeb",
+        "dsp.h": "5141b7e9ea078549f8fcc9686c5604364eb219e7660a79fd7cc6929c2ae71407",
+        "engine.cpp": "82a65c7dad08b839cea03c6f4d80347e3a26b566923e4d5d953e7b570c7f10e9",
+        "machine.json": "7bb7648443de6f9f701c254e739863805ae57ae9e3792b472d8bf1d414aef879",
+        "panel.svg.fragment": "80909316ba6fda676a87fb04261c29302cd17e6622d538c16b2fdeaff880ef21",
+        "tables.h": "109816d959fde80f8e1fcd357efcd1dfd066795de03d6609b63c5258896fcc0a",
+        "tests/display.cpp": "8423bf269d10301c31887b72cedca7233c7a41e6e26226fa80d511bfdc553b00",
+        "tests/sound.cpp": "c9bc92b56667a2f2d036acf228feff37c3eefbb671ab1880aea404c39857638d",
+        "tools/generate_tables.py": "7d6c1e3d1f2faacc8d93f2f85abd3d91c3c3d0c8789d8b59a460b792171886e1"
+      },
+      "history_import_commit": "dd3f3854ac03cac857b0963384e86bfe96114d89"
     }
   ]
 }

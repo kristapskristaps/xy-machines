@@ -7,20 +7,20 @@ not a component-level circuit model or a measured reproduction of the hardware.
 
 ## Play
 
-Keep the Open-XY SDK beside this repository as `../open-xy`, on `staging`.
-Use Python 3.11+, NumPy 2.3.5 and Clang with WebAssembly support. On macOS,
-use Homebrew LLVM rather than Apple's Clang. See the SDK's
-[first-machine guide](https://github.com/etcetc000/open-xy/blob/staging/docs/first-machine.md).
+From the XY Machines repository root, use the collection's configured SDK
+and compiler:
 
 ```sh
-python ../open-xy/sdk.py test --machine . --cxx /opt/homebrew/opt/llvm/bin/clang++
-python ../open-xy/sdk.py preview --machine . --out ../open-xy/local/cyclops-preview-001 --cxx /opt/homebrew/opt/llvm/bin/clang++
-python ../open-xy/tools/serve_harness.py --preview ../open-xy/local/cyclops-preview-001 --port 8947
+./xy test cyclops --native --cpu
+./xy preview cyclops --watch
 ```
 
-Open http://127.0.0.1:8947/ and play the keyboard or **Play phrase**.
+The preview prints a free localhost URL. Open it and play the keyboard or
+**Play phrase**. The repository's [development guide](../../docs/development.md)
+covers setup and hardware builds.
+
 For bass, use the keyboard's minus button to move down an octave or two.
-Use a fresh output directory after editing. The preview applies its own
+Watch mode rebuilds successful edits automatically. The preview applies its own
 simple amplitude gate; it does not emulate the OP-XY's envelopes, glide,
 LFOs, stock filter or effects.
 
@@ -61,7 +61,8 @@ feedback, with a tanh input in the feedback path, integrator charge retention,
 mild resonance compensation and a 10 Hz output DC blocker. It runs at 44.1 kHz;
 nonlinear drive can introduce aliasing at bright, high-register settings.
 The table generator is reproducible with Python's standard library:
-`python tools/generate_tables.py`. Audio callbacks allocate nothing and use
+`python machines/cyclops/tools/generate_tables.py` from the repository root.
+Audio callbacks allocate nothing and use
 no floating point, OS services or per-sample general division.
 
 This follows the dual saw/square oscillators and resonant 24 dB/octave low-pass
@@ -81,22 +82,20 @@ The machine tests check tuning, harmonic content, suppression of a folded
 oscillator harmonic, ladder rolloff and resonance, key tracking, control
 corners, rapid automation, deterministic retriggers and display behavior.
 Host tests and browser playback do not establish hardware CPU cost or device
-acceptance. The final host estimate is about 23,000 instructions per voice
-block, above the SDK’s 15,000 target. Device profiling must determine the
-actual cost before catalog submission or relying on many simultaneous voices.
+acceptance. Host estimates exceed the SDK’s 15,000-instruction target per
+voice block. Device profiling must determine the actual cost before catalog
+submission or relying on many simultaneous voices.
 CPU profiling and normal hardware playback remain pending.
 
-Prepare a development build from committed source, keeping all firmware
-outside every checkout:
+For hardware work, follow the collection's
+[development guide](../../docs/development.md#repeatable-device-updates):
+commit the source, select a kit containing Cyclops and the machines needed by
+existing projects, and preserve the last installed layout. `./xy build` and
+`./xy stage` keep firmware outside every checkout. Device installation and
+diagnostics require the user's separate instruction.
 
-```sh
-python ../open-xy/sdk.py build --machine . --profiling on --stock-os "<private>/stock-1.2.1/os.ldr" --out "<private>/cyclops-dev-001"
-```
-
-Follow the SDK's [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
-Device installation and diagnostics require the user's separate instruction.
 A catalog submission must wait for the exact revision's hardware control-sweep
-CPU record. A catalog-only PR targets `main`, unless it depends on SDK changes
-only available on `staging`.
+CPU record and use the catalog path `machines/cyclops`. A catalog-only PR targets
+`main`, unless it depends on SDK changes only available on `staging`.
 
 Source and generated tables are MIT licensed; see [LICENSE](LICENSE).

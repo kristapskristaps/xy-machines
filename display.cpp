@@ -72,6 +72,6 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     state.initialized = 1; state.track = input.track; state.note = input.note_serial;
     state.model = model; state.family = family;
     const opxy::i32 duration = clamp(opxy::i32(decay_ms(model, raw_control(input.slots[decay])) * 1024 / 1000), 128, 1536);
-    instrument_animation(frame,model,family,state.age,duration,input.reduced_motion != 0);
+    instrument_animation(frame,model,family,state.age,duration,input.reduced_motion != 0,input.note_serial);
 }
 }

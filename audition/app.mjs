@@ -149,6 +149,7 @@ $('beat').addEventListener('click', async () => {
 });
 $('stop').addEventListener('click', () => { stopBeat(); send({type:'panic'}); });
 addEventListener('keydown', event => {
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
   if (event.key === 'Shift') { shifted = true; update(); }
   if (event.repeat || /INPUT|SELECT|TEXTAREA/.test(event.target.tagName)) return;
   const index = KEYS.indexOf(event.key.toLowerCase());

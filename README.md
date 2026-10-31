@@ -34,6 +34,10 @@ group cut each other off. Set open and closed hats to the same numbered group
 when assembling a kit. Repeated hits on the same pad use the SDK's short
 crossfade instead of piling up voices.
 
+The drum graphic pulses on note starts, with its visible tail following the
+selected pad's decay. Reduced motion keeps static hit feedback. Entering a
+track establishes a baseline instead of inventing a hit.
+
 The kit has 24 independent pads, with these drum types: kick, snare, clap, rim,
 low/mid/high tom, closed/open hat, cymbal, ride, cowbell, claves, maracas,
 low/mid/high conga and tambourine. The default mapping is in `models.h`.

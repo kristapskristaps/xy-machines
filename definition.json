@@ -115,13 +115,13 @@
     "sharedBytes": 0,
     "outputPeakQ31": 1073741824,
     "display": {
-      "stateBytes": 20,
+      "stateBytes": 36,
       "stateAlignment": 4,
       "paths": 0,
       "points": 0,
-      "nodes": 8,
+      "nodes": 11,
       "texts": 16,
-      "palette": 2
+      "palette": 5
     },
     "modelCount": 18,
     "chokeSameKey": 1

@@ -1,6 +1,10 @@
 #pragma once
 #include <opxy/page_header.hpp>
 namespace x0x {
-using Frame = opxy::draw::Frame<0, 0, 8, 16, 2>;
-struct DisplayState { opxy::draw::PageHeader header; };
+using Frame = opxy::draw::Frame<0, 0, 11, 16, 5>;
+struct DisplayState {
+    opxy::draw::PageHeader header;
+    opxy::u32 initialized, track, note;
+    opxy::i32 age;
+};
 }

@@ -37,5 +37,20 @@ int main() {
         display(state, input, frame);
         require(opxy::draw::valid(frame), "valid page animation");
     }
-    std::puts("PASS: captions, both pages, Shift config and page animation");
+    display_reset(state); input.note_serial = 9; input.track = 0;
+    display(state, input, frame);
+    require(frame.nodes[9].x == opxy::draw::hidden_x * 1024, "entering a track does not invent a hit");
+    ++input.note_serial; display(state, input, frame);
+    require(frame.nodes[9].x == 350 * 1024 && frame.nodes[9].shade == 1, "a real note starts a visible hit");
+    const opxy::i32 initial = frame.nodes[9].scale;
+    display(state, input, frame);
+    require(frame.nodes[9].scale < initial && opxy::draw::valid(frame), "hit decays between notes");
+    input.reduced_motion = 1; ++input.note_serial; display(state, input, frame);
+    require(frame.nodes[9].scale == 1024 && frame.nodes[10].scale == 1024, "reduced motion keeps static hit feedback");
+    input.track = 1; display(state, input, frame);
+    require(frame.nodes[9].x == opxy::draw::hidden_x * 1024, "track changes clear a previous hit");
+    input.elapsed = 0x7fffffff;
+    for (unsigned i = 0; i < 30; ++i) display(state, input, frame);
+    require(opxy::draw::valid(frame) && frame.nodes[9].x == opxy::draw::hidden_x * 1024, "late frames settle safely");
+    std::puts("PASS: captions, both pages, Shift config, page and hit animation");
 }

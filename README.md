@@ -41,15 +41,21 @@ group cut each other off. Set open and closed hats to the same numbered group
 when assembling a kit. Repeated hits on the same pad use the SDK's short
 crossfade instead of piling up voices.
 
-All 18 drum types have their own instrument graphic and moving playing part:
-membranes, snare wires, clapping hands, hat plates, cymbals, strikers and shaking
-percussion. All 47 type/style combinations react to note starts. The 606 snaps
-with fine impact marks; 707 motion steps through a rectangular grid; 808 uses
-rounded pulses; 909 uses sharp impacts and recoil. Movement settles within
-0.2 seconds, with brightness following the selected pad's decay. Reduced motion
-keeps static hit feedback. Entering a track or browsing a type/style establishes
-a still pose instead of inventing a hit. Drawing uses the public note-activity
+The screen shows a sunglasses-wearing beaver playing a blue/red drum kit. All
+18 drum types have their own band-style emblem printed on the kick head. All
+47 type/style combinations react to note starts, with articulated shoulder and
+wrist movement, alternating hands where the surface is reachable, stick
+follow-through, cymbal/skin vibration, head nods, tail motion and a kick pedal.
+The generator solves strike poses offline; runtime keeps the sticks attached to
+the paws as the joints rebound at different rates. The 606 snaps, 707 steps,
+808 rolls back smoothly and 909 recoils sharply. Movement settles within
+0.2 seconds, with hit brightness following the pad's decay. Reduced motion
+keeps static feedback. Entering a track or browsing a type/style establishes a
+still pose instead of inventing a hit. Drawing uses the public note-activity
 snapshot, so simultaneous triggers between display frames can coalesce.
+Run `python artwork/beaver.py` to regenerate the vector scene, pivots and contact
+poses. The same C++ animates the browser and native display; no bitmap is loaded
+by the machine.
 
 The kit has 24 independent pads, with these drum types: kick, snare, clap, rim,
 low/mid/high tom, closed/open hat, cymbal, ride, cowbell, claves, maracas,

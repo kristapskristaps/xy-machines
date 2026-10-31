@@ -60,6 +60,27 @@ publication and choke routing; there is no sidecar project format.
 
 ## Validate and preview
 
+For the complete 24-pad browser audition, build a fresh preview and run the
+machine's allowlisted audition server:
+
+```sh
+python ../open-xy-x0x-sdk/sdk.py preview --machine . --out ../open-xy-x0x-sdk/local/x0x-browser-001 --cxx clang++
+python audition/serve.py --sdk ../open-xy-x0x-sdk --preview ../open-xy-x0x-sdk/local/x0x-browser-001 --port 8958
+```
+
+Open http://127.0.0.1:8958/. Click a pad or a style to start audio. Style's
+buttons, arrows, wheel and range input step directly between available
+families. Each pad retains its type, eight controls and choke group. Any main
+encoder press switches pages; Shift exposes type/choke. The browser plays
+one-shot tails and supports eight concurrent audition voices. A beat loop
+helps compare tuning, envelopes and hat choke groups while playing.
+
+The browser uses the full C++ engine, including the 707 and 909 recordings,
+and the actual C++ display. It is not a device/project-storage simulator.
+The current native SDK editor still edits raw drum values one unit at a time;
+matching the browser's one-detent discrete Style behavior on hardware needs
+a separate SDK stepping change before the next firmware test.
+
 With Python 3.11+, NumPy 2.3.5 and Clang with WebAssembly linking installed:
 
 ```sh

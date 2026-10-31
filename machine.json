@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "sdk": "1.6",
+  "kind": "synth",
+  "description": "Minitaur-inspired dual-oscillator bass synth with a nonlinear four-pole ladder filter and a note-reactive cyclops."
+}

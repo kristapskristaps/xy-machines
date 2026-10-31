@@ -39,18 +39,67 @@ int main() {
     }
     display_reset(state); input.note_serial = 9; input.track = 0;
     display(state, input, frame);
-    require(frame.nodes[9].x == opxy::draw::hidden_x * 1024, "entering a track does not invent a hit");
+    require(frame.nodes[body_node+kick].shade == 3, "entering a track does not invent a hit");
     ++input.note_serial; display(state, input, frame);
-    require(frame.nodes[9].x == 350 * 1024 && frame.nodes[9].shade == 1, "a real note starts a visible hit");
-    const opxy::i32 initial = frame.nodes[9].scale;
+    require(frame.nodes[body_node+kick].x == 350 * 1024 && frame.nodes[body_node+kick].shade == 1, "a real note starts a visible hit");
+    const opxy::i32 initial = frame.nodes[moving_node+kick].scale;
     display(state, input, frame);
-    require(frame.nodes[9].scale < initial && opxy::draw::valid(frame), "hit decays between notes");
+    require(frame.nodes[moving_node+kick].scale < initial && opxy::draw::valid(frame), "hit decays between notes");
     input.reduced_motion = 1; ++input.note_serial; display(state, input, frame);
-    require(frame.nodes[9].scale == 1024 && frame.nodes[10].scale == 1024, "reduced motion keeps static hit feedback");
+    require(frame.nodes[body_node+kick].scale == 1024 && frame.nodes[moving_node+kick].scale == 1024, "reduced motion keeps static hit feedback");
     input.track = 1; display(state, input, frame);
-    require(frame.nodes[9].x == opxy::draw::hidden_x * 1024, "track changes clear a previous hit");
+    require(frame.nodes[body_node+kick].shade == 3, "track changes clear a previous hit");
     input.elapsed = 0x7fffffff;
     for (unsigned i = 0; i < 30; ++i) display(state, input, frame);
-    require(opxy::draw::valid(frame) && frame.nodes[9].x == opxy::draw::hidden_x * 1024, "late frames settle safely");
-    std::puts("PASS: captions, both pages, Shift config, page and hit animation");
+    require(opxy::draw::valid(frame) && frame.nodes[body_node+kick].shade == 3, "late frames settle safely");
+    unsigned hashes[47], count = 0;
+    for (unsigned model = 0; model < model_count; ++model) for (unsigned family = 0; family < 4; ++family) {
+        if (!(family_masks[model] & (1u << family))) continue;
+        input = {}; input.model = model; input.elapsed = 16;
+        const unsigned raw[8] = {family_raw(model,family),64,48,64,0,64,64,0};
+        for (unsigned s = 0; s < 8; ++s) input.slots[s] = opxy::i32(raw[s]<<24);
+        display_reset(state); display(state,input,frame);
+        require(frame.nodes[body_node+model].shade == 3,"all types have a still resting graphic");
+        ++input.note_serial; display(state,input,frame);
+        require(frame.nodes[body_node+model].shade == 1,"all 47 variants respond to a trigger");
+        const Frame hit = frame;
+        unsigned hash = 2166136261u;
+        for (unsigned tick = 0; tick < 100; ++tick) {
+            require(opxy::draw::valid(frame),"valid full animation for every type and family");
+            if (tick < 12) for (unsigned node = body_node; node < Frame::node_count; ++node) {
+                const auto& n = frame.nodes[node];
+                const opxy::i32 fields[] = {n.x,n.y,n.scale,n.cos,n.sin,opxy::i32(n.shade)};
+                for (auto field : fields) hash = (hash ^ unsigned(field))*16777619u;
+            }
+            display(state,input,frame);
+        }
+        for (unsigned previous = 0; previous < count; ++previous)
+            require(hash != hashes[previous],"each type/style combination has its own animation");
+        hashes[count++] = hash;
+        const Frame rest = frame;
+        display(state,input,frame);
+        require(!std::memcmp(rest.nodes+body_node,frame.nodes+body_node,(Frame::node_count-body_node)*sizeof(frame.nodes[0])),"idle artwork stays still");
+        ++input.note_serial; display(state,input,frame);
+        require(!std::memcmp(hit.nodes+body_node,frame.nodes+body_node,(Frame::node_count-body_node)*sizeof(frame.nodes[0])),"retrigger restarts each variant's animation");
+        // Different note counters, including uint32 wrap, are all hit events.
+        input.note_serial = 0xffffffffu; display(state,input,frame);
+        input.note_serial = 0; display(state,input,frame);
+        require(frame.nodes[body_node+model].shade == 1,"wrapped serial triggers every model");
+        input.reduced_motion = 1; ++input.note_serial; display(state,input,frame);
+        for (unsigned part = 0; part < 2; ++part) {
+            const unsigned node = (part ? moving_node : body_node)+model;
+            require(frame.nodes[node].scale == 1024 && frame.nodes[node].cos == 1024 && !frame.nodes[node].sin,
+                    "reduced motion has static geometry for every model");
+        }
+        ++input.track; display(state,input,frame);
+        require(frame.nodes[body_node+model].shade == 3,"track entry never fabricates a trigger");
+        input.reduced_motion = 0; ++input.note_serial; display(state,input,frame);
+        input.model = (model+1)%model_count; display(state,input,frame);
+        require(frame.nodes[body_node+input.model].shade == 3,"browsing a type does not borrow a previous hit");
+        input.slots[style] = opxy::i32(unsigned(family_raw(input.model,(family+1)%4))<<24);
+        display(state,input,frame);
+        require(frame.nodes[body_node+input.model].shade == 3,"browsing a family stays still");
+    }
+    require(count == 47,"complete animated sound inventory");
+    std::puts("PASS: captions, both pages, Shift config, all 47 distinct type/style trigger animations, retrigger, rest and reduced motion");
 }

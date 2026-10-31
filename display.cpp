@@ -1,5 +1,6 @@
 #include "display.h"
 #include "models.h"
+#include "animation.h"
 namespace x0x {
 inline void number(char* out, opxy::u32 value) {
     char reverse[10]; opxy::u32 n = 0;
@@ -58,21 +59,19 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
         projected.reduced_motion = 1;
     }
     page_header(state.header, projected, frame, titles, values, 0);
+    const opxy::u32 family = family_index(model,raw_control(input.slots[style]));
     if (!state.initialized || state.track != input.track) {
         state.age = 2048;
     } else if (state.note != input.note_serial) {
         state.age = 0;
+    } else if (state.model != model || state.family != family) {
+        state.age = 2048;
     } else {
         state.age = clamp(state.age + clamp(input.elapsed, 0, 103), 0, 2048);
     }
     state.initialized = 1; state.track = input.track; state.note = input.note_serial;
+    state.model = model; state.family = family;
     const opxy::i32 duration = clamp(opxy::i32(decay_ms(model, raw_control(input.slots[decay])) * 1024 / 1000), 128, 1536);
-    const opxy::i32 strength = state.age >= duration ? 0 : unit - state.age * unit / duration;
-    place(frame, 8, 350 * unit, 124 * unit, unit, 2, stroke);
-    if (strength) {
-        const opxy::u32 color = strength > 768 ? 1 : strength > 512 ? 4 : strength > 256 ? 3 : 2;
-        place(frame, 9, 350 * unit, 124 * unit, input.reduced_motion ? unit : unit + strength / 6, color, fill_and_stroke);
-        place(frame, 10, 350 * unit, 124 * unit, input.reduced_motion ? unit : unit + (unit - strength) / 2, 3, stroke);
-    } else { hide(frame, 9); hide(frame, 10); }
+    instrument_animation(frame,model,family,state.age,duration,input.reduced_motion != 0);
 }
 }

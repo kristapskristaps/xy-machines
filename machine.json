@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "sdk": "1.9",
+  "kind": "drum",
+  "description": "X0X drum kit: per-pad drum type, family and two control pages. Controls prototype; no audio yet."
+}

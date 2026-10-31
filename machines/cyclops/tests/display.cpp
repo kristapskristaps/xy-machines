@@ -16,25 +16,26 @@ int main() {
     cyclops::display_reset(state);
     cyclops::display(state, input, frame);
     require(opxy::draw::valid(frame), "initial display frame");
-    require(state.blink == 0, "activation does not fabricate a note");
+    require(state.impulse == 0, "activation does not fabricate a note");
     const int open = frame.paths[0].points[16].y;
     input.note_serial++;
     cyclops::display(state, input, frame);
-    require(frame.paths[0].points[16].y < open / 3, "note closes the eye");
+    require(frame.paths[0].points[16].y > open, "note gently opens the eye");
+    require(frame.paths[0].points[16].y < open * 11 / 10, "note response remains restrained");
     for (unsigned i = 0; i < 12; ++i) {
         cyclops::display(state, input, frame);
-        require(opxy::draw::valid(frame), "blink remains a valid frame");
+        require(opxy::draw::valid(frame), "impulse remains a valid frame");
     }
-    require(state.blink == 0, "blink settles within 0.2 seconds");
+    require(state.impulse == 0, "iris impulse settles within 0.2 seconds");
     const cyclops::Frame settled = frame;
     for (unsigned i = 0; i < 100; ++i) cyclops::display(state, input, frame);
     require(std::memcmp(&settled, &frame, sizeof(frame)) == 0, "idle frame stays still");
     input.reduced_motion = 1; input.note_serial++;
     cyclops::display(state, input, frame);
-    require(state.blink == 0, "reduced motion suppresses note blink");
+    require(state.impulse == 0, "reduced motion suppresses iris movement");
     input.reduced_motion = 0; input.track++; input.note_serial += 50;
     cyclops::display(state, input, frame);
-    require(state.blink == 0, "track change establishes a fresh baseline");
+    require(state.impulse == 0, "track change establishes a fresh baseline");
     for (unsigned corner = 0; corner < 256; ++corner) {
         for (unsigned j = 0; j < 8; ++j) input.slots[j] = corner & (1u << j) ? 2147483647 : 0;
         for (unsigned page = 0; page < 2; ++page) {
@@ -43,6 +44,11 @@ int main() {
             for (unsigned i = 0; i < 16; ++i) {
                 cyclops::display(state, input, frame);
                 require(opxy::draw::valid(frame), "all controls and both page transitions are valid");
+                const int iris = frame.nodes[10].scale * 33;
+                const int aperture = opxy::draw::floor_q10(frame.paths[0].points[16].y * frame.nodes[0].scale);
+                const int offset = frame.nodes[10].y - frame.nodes[0].y;
+                require(iris + (offset < 0 ? -offset : offset) < aperture,
+                        "iris stays inside the lids across controls and note impulses");
             }
         }
     }

@@ -3,7 +3,7 @@
 
 namespace cyclops {
 inline void display_reset(DisplayState& state) {
-    state.header.reset(); state.initialized = 0; state.track = state.serial = 0; state.blink = 0;
+    state.header.reset(); state.initialized = 0; state.track = state.serial = 0; state.impulse = 0;
 }
 namespace {
 inline void number(char* out, opxy::u32 n) {
@@ -38,41 +38,54 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     page_header(state.header, input, frame, titles, values, 2);
 
     const bool baseline = !state.initialized || state.track != input.track;
-    if (baseline || input.reduced_motion) state.blink = 0;
-    else if (state.serial != input.note_serial) state.blink = unit;
+    if (baseline || input.reduced_motion) state.impulse = 0;
+    else if (state.serial != input.note_serial) state.impulse = unit;
     else {
         const opxy::i32 dt = clamp(input.elapsed, 0, 154);
-        state.blink = dt >= 154 ? 0 : floor_q10(state.blink * static_cast<opxy::i32>(page_header_detail::remaining(dt) >> 6));
-        if (state.blink < 8) state.blink = 0;
+        state.impulse = dt >= 154 ? 0 : floor_q10(state.impulse * static_cast<opxy::i32>(page_header_detail::remaining(dt) >> 6));
+        if (state.impulse < 8) state.impulse = 0;
     }
     state.initialized = 1; state.track = input.track; state.serial = input.note_serial;
     const opxy::i32 cut = dsp::control(input.slots[0]) >> 21;
     const opxy::i32 res = dsp::control(input.slots[1]) >> 21;
     const opxy::i32 drive = dsp::control(input.slots[2]) >> 21;
     const opxy::i32 gaze = (dsp::control(input.slots[5]) >> 21) - 512;
-    const opxy::i32 open = unit - state.blink;
-    const opxy::i32 radius_y = 2 * unit + floor_q10((22 * unit + cut * 4) * open);
-    Frame::path_type& eye = frame.paths[0];
-    eye.key = static_cast<opxy::u32>(radius_y + 1);
-    for (unsigned i = 0; i < Frame::point_count; ++i) {
-        const opxy::i32 angle = static_cast<opxy::i32>(i * 3600 / Frame::point_count);
-        eye.points[i].x = 61 * sine(angle + 900);
-        eye.points[i].y = floor_q10(radius_y * sine(angle));
+    // A note wakes the iris and lifts the lids; repeated notes never black out
+    // the eye. Controls establish the resting pose, with no idle animation.
+    const opxy::i32 impulse = state.impulse;
+    const opxy::i32 radius_y = 22 * unit + cut * 8 - res * 3 + impulse;
+    for (unsigned path = 0; path < 2; ++path) {
+        Frame::path_type& eye = frame.paths[path];
+        eye.key = static_cast<opxy::u32>(radius_y * 2 + path + 1);
+        for (unsigned i = 0; i < Frame::point_count; ++i) {
+            const opxy::i32 angle = static_cast<opxy::i32>(i * 3600 / Frame::point_count);
+            eye.points[i].x = (path ? 57 : 61) * sine(angle + 900);
+            eye.points[i].y = floor_q10((radius_y - (path ? 3 * unit : 0)) * sine(angle));
+        }
     }
-    for (unsigned i = 0; i < Frame::node_count; ++i) if (i < 2 || i >= 10) hide(frame, i);
-    const opxy::i32 x = 240 * unit + gaze * 16;
-    const opxy::i32 y = 119 * unit + state.blink * 2;
-    place(frame, 0, 240 * unit, 119 * unit, unit, 14, stroke);
-    // Iris and pupil shrink inside the narrowing eye on each note.
-    const opxy::i32 iris_scale = floor_q10((620 + cut / 3) * open) + 24;
-    place(frame, 10, x, y, iris_scale, 6 + static_cast<unsigned>(drive * 4 / unit), fill_and_stroke);
-    place(frame, 11, x, y, floor_q10(iris_scale * (1050 - res / 2)), 0, fill_and_stroke);
-    if (open > 200) {
-        place(frame, 12, x - 6 * open, y - 6 * open, iris_scale, 15, fill_and_stroke);
-        place(frame, 15, x + 6 * open, y + 6 * open, iris_scale / 2 + 1, 11, fill_and_stroke);
-    }
-    place(frame, 13, 240 * unit, (84 * unit) + state.blink * 3, unit, 9 + static_cast<unsigned>(drive * 5 / unit), fill_and_stroke);
-    turn(frame, 13, rotation((dsp::control(input.slots[4]) >> 23) - 128));
-    place(frame, 14, 240 * unit, 177 * unit + state.blink * 2, unit, 11, stroke);
+    const opxy::i32 x = 240 * unit + gaze * 13;
+    const opxy::i32 y = 123 * unit - impulse / 2;
+    const opxy::i32 iris = 695 + cut / 7 - res / 12 + impulse / 12;
+    place(frame, 0, 240 * unit, 123 * unit, 1280, 9, stroke);
+    place(frame, 1, 240 * unit, 123 * unit, 1280, 3, stroke);
+    place(frame, 10, x, y, iris, 8 + static_cast<unsigned>(drive * 4 / unit), fill_and_stroke);
+    place(frame, 11, x, y, iris, 1, fill_and_stroke);
+    place(frame, 12, x, y, iris, 6 + static_cast<unsigned>(drive * 5 / unit), fill_and_stroke);
+    place(frame, 13, x, y, iris, 12, stroke);
+    turn(frame, 13, rotation(35 + cut / 5 + impulse / 9));
+    place(frame, 14, x, y, iris, 2, fill_and_stroke);
+    place(frame, 15, x, y, floor_q10(iris * (unit - res / 4)), 0, fill_and_stroke);
+    place(frame, 16, x, y, iris, 15, fill_and_stroke);
+    place(frame, 17, x, y, iris, 11, fill_and_stroke);
+    place(frame, 18, x, y, iris, 10, stroke);
+    place(frame, 19, x, y, iris, 6, stroke);
+    place(frame, 20, x, y, iris - 48 + impulse / 32, 3 + static_cast<unsigned>(impulse * 5 / unit), stroke);
+    const opxy::i32 brow = res - impulse;
+    place(frame, 21, 240 * unit, 87 * unit + brow * 2, unit, 0, keep);
+    place(frame, 22, 240 * unit, 87 * unit + brow * 2, unit, 0, keep);
+    const opxy::i32 tilt = (dsp::control(input.slots[4]) >> 24) - 64;
+    turn(frame, 21, rotation(tilt));
+    turn(frame, 22, rotation(-tilt));
+    place(frame, 23, 240 * unit, 178 * unit + impulse, unit, 0, keep);
 }
 }

@@ -91,11 +91,13 @@ architecture described in [Moog's Minitaur manual](https://api.moogmusic.com/sit
 No Moog source code, firmware or artwork is included. Cyclops is not affiliated
 with or endorsed by Moog Music.
 
-The cyclops opens its eye and iris with Cutoff, tightens its pupil with Reso,
-brightens with Drive and looks between the oscillators with Balance. Detune
-tilts its brow. Notes trigger a short blink that eases back to rest within
-0.2 seconds. Idle screens stay still; reduced motion disables the blink and
-page transitions snap. Track changes establish fresh note baselines.
+The display is a carved basalt guardian with swept horns, layered facial
+planes and a recessed, radial iris. Cutoff opens the eye, Resonance contracts
+the pupil and lowers the brow, Drive brightens the iris, and Balance shifts
+its gaze. Detune angles the brow plates. Notes briefly lift the lids and
+rotate/brighten the iris, settling within 0.2 seconds without closing the eye.
+Idle screens stay still; reduced motion suppresses note movement, and track
+changes establish fresh note baselines.
 
 ## Validation and hardware
 
@@ -109,7 +111,7 @@ The optimized engine preserves the original audio exactly. It packs each
 pole's even state and fractional charge into one accumulator, explicitly
 unrolls the fixed four stages, prepares waveform/pitch paths once per block,
 and caches exact saturation values in 16 KiB. Voice state is 80 bytes (was 96).
-The native module uses about 189 KiB of the shared 2032 KiB region.
+The native module uses about 191 KiB of the shared 2032 KiB region.
 
 The latest SDK host estimate is about **11,600 instructions per voice per
 64-sample block**, below the advisory 15,000 target. A longer paired benchmark
@@ -126,7 +128,7 @@ python machines/cyclops/tools/benchmark.py --baseline 2c40746 > local/cyclops-pe
 
 Host timings vary and do not measure Blackfin cycles, stock processing or
 whole-project utilization. Hardware CPU profiling and normal playback validation
-remain pending; no catalog CPU record is claimed from these estimates.
+remain pending for this revision; no catalog CPU record is claimed from these estimates.
 
 For hardware work, follow the collection's
 [development guide](../../docs/development.md#repeatable-device-updates):

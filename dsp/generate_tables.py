@@ -3,10 +3,16 @@ import math
 from pathlib import Path
 
 root = Path(__file__).resolve().parent
+decay_times = [4, 5, 6, 7]
+for octave in range(3, 13):
+    base = 1 << octave
+    decay_times.extend(base + i * (base // 8) for i in range(8))
+decay_times.append(8192)
 tables = {
     'sine': ('opxy::i16', [round(32767 * math.sin(2 * math.pi * i / 512)) for i in range(513)]),
     'tuning': ('opxy::u32', [round(65536 * 2 ** (((i - 64) / (64 if i <= 64 else 63)))) for i in range(128)]),
-    'decay': ('opxy::i32', [round(2147483647 * math.exp(math.log(0.001) / (max(4, 4 * i) * 44.1))) for i in range(1538)]),
+    'decay': ('opxy::i32', [round(2147483647 * math.exp(math.log(0.001) / (milliseconds * 44.1)))
+                          for milliseconds in decay_times]),
     'tone': ('opxy::i32', [round(32767 * (1 - math.exp(-2 * math.pi * (1500 + 17000 * i / 127) / 44100))) for i in range(128)])
 }
 header = ['#pragma once', '#include <opxy/types.hpp>', 'namespace x0x { namespace tables {']

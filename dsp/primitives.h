@@ -31,8 +31,12 @@ static inline i32 noise(u32& seed) {
 static inline i32 rate(u32 milliseconds) {
     if (milliseconds < 4) milliseconds = 4;
     if (milliseconds > 6144) milliseconds = 6144;
-    const u32 at = milliseconds >> 2, fraction = milliseconds & 3;
-    return tables::decay[at] + (tables::decay[at + 1] - tables::decay[at]) / 4 * i32(fraction);
+    if (milliseconds < 8) return tables::decay[milliseconds - 4];
+    u32 shift = 0;
+    while ((milliseconds >> shift) >= 16) ++shift;
+    const u32 at = 4 + shift * 8 + (milliseconds >> shift) - 8;
+    const u32 fraction = milliseconds & ((1u << shift) - 1);
+    return tables::decay[at] + (tables::decay[at + 1] - tables::decay[at]) * i32(fraction) / i32(1u << shift);
 }
 static inline i32 envelope(i32 value, i32 coefficient) { return opxy::q31::multiply(value, coefficient); }
 static inline i32 drive(i32 sample, u32 amount) {

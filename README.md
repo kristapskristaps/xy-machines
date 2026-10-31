@@ -122,6 +122,11 @@ logarithmic curve and decoded/interpolated at playback. See
 `python assets/generate.py --cache <external-cache>` with ffmpeg installed;
 `python dsp/generate_tables.py` rebuilds the fixed-point math tables.
 
+The envelope lookup uses 85 knots spaced more closely at short durations,
+saving 5,812 bytes compared with a uniform four-millisecond table.
+`tests/envelopes.cpp` checks all 6,141 supported millisecond durations: the
+coefficient-derived decay time stays within 0.35% of the requested time.
+
 `tests/sound.cpp` checks all 47 combinations, 323 audible shaping controls,
 output bounds, voice completion, retriggering and the measured two-octave tuning
 span. `tests/numerics.cpp` covers 6,016 control corners, buffer ownership and DSP

@@ -39,13 +39,20 @@ Highpass and Lowpass shape each trip around the loop, including in ping-pong.
 Even with Highpass off, a 10 Hz DC blocker prevents static offset accumulating.
 
 A unity-slope region keeps quiet repeats clean. Louder signals enter a smooth
-quadratic saturation knee inside the loop; the return is bounded below half
-full scale before Level. The input is attenuated by 6 dB for headroom. Level
+quadratic saturation knee inside the loop. The input is attenuated by 6 dB for
+internal headroom, and that gain is restored at the return: with Level at 100,
+a quiet first repeat has the same amplitude as its input. The wet return is
+bounded below full scale. Level
 changes the wet return without killing the circulating sound; Dry belongs to the
 stock source mixer. The total dry-plus-wet mix still depends on the other tracks
 and mixer settings. There is no hard cutoff at unity and no automatic feedback
 reduction. Reduce Feedback to dissipate a buildup, or set it to zero to stop
 recirculation after the existing line plays out.
+
+The initial build omitted this headroom recovery, making every repeat 6 dB too
+quiet. This correction leaves the loop's gain, decay and saturation unchanged;
+existing projects keep their controls but have a louder wet return. Halve Level
+to match the previous build's return loudness, including above-unity oscillation.
 
 At full PingPong, stereo input is averaged into the first left repeat; subsequent
 repeats cross right, left, right. At zero, both channels retain their own input
@@ -80,10 +87,12 @@ mkdir -p local/rebound
 c++ -std=c++11 -O2 -I../xy-machines-sdk/sdk/include \
   machines/rebound/tools/audition.cpp -o local/rebound/audition
 local/rebound/audition bounce local/rebound/bounce.wav
+local/rebound/audition gentle local/rebound/gentle.wav
 local/rebound/audition ride local/rebound/feedback-ride.wav
 ```
 
-`bounce` plays a short phrase into the default-style delay. `ride` starts at
+`bounce` plays a short phrase into the default-style delay; `gentle` uses 25%
+feedback to hear ordinary short echoes. `ride` starts at
 90% feedback, rises to 130%, bends the time while oscillating, then drops to 45%
 at ten seconds. These recordings exercise DSP on the host; they do not emulate
 the stock send mixer or measure hardware CPU.

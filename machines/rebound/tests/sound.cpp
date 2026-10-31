@@ -42,8 +42,8 @@ struct Fixture {
             for (unsigned i = 0; i < 64; ++i) input(b * 64 + i, l[i], r[i]);
             rebound::process(state, buffer, transport, l, r, p);
             for (unsigned i = 0; i < 64; ++i) {
-                require(std::abs(static_cast<opxy::i64>(l[i])) <= 1073741823LL &&
-                        std::abs(static_cast<opxy::i64>(r[i])) <= 1073741823LL, "wet return exceeds ceiling");
+                require(std::abs(static_cast<opxy::i64>(l[i])) <= 2147483646LL &&
+                        std::abs(static_cast<opxy::i64>(r[i])) <= 2147483646LL, "wet return exceeds ceiling");
                 left.push_back(l[i] / 2147483648.0);
                 right.push_back(r[i] / 2147483648.0);
             }
@@ -89,7 +89,7 @@ int main() {
     bounce.run(300, impulse);
     const size_t d = 4410;
     require(both(bounce, 0, d) == 0, "stale scratch or dry audio heard before first repeat");
-    require(std::fabs(bounce.left[d] - 0.1) < 1e-6, "first left repeat timing/amplitude");
+    require(std::fabs(bounce.left[d] - 0.2) < 1e-6, "first left repeat timing/amplitude");
     require(peak(bounce.right, d, d + 8) < 1e-7, "first repeat leaked right");
     require(std::fabs(bounce.right[2*d] / bounce.left[d] - 0.5) < 0.002, "50 percent loop gain");
     require(std::fabs(bounce.left[3*d] / bounce.right[2*d] - 0.5) < 0.002, "third repeat did not cross back");
@@ -97,13 +97,30 @@ int main() {
 
     Fixture stereo(0, 0);
     stereo.run(150, [](unsigned n, i32& l, i32& r) { l = n == 0 ? normalized(0.2) : 0; r = n == 0 ? normalized(-0.1) : 0; });
-    require(std::fabs(stereo.left[d] - 0.1) < 1e-6 && std::fabs(stereo.right[d] + 0.05) < 1e-6,
+    require(std::fabs(stereo.left[d] - 0.2) < 1e-6 && std::fabs(stereo.right[d] + 0.1) < 1e-6,
             "zero PingPong must preserve stereo input");
     require(both(stereo, 2*d, stereo.left.size()) == 0, "zero feedback repeats twice");
     Fixture halfway(0, 0.5);
     halfway.run(150, impulse);
-    require(std::fabs(halfway.left[d] - 0.1) < 1e-6 && std::fabs(halfway.right[d] - 0.05) < 1e-6,
+    require(std::fabs(halfway.left[d] - 0.2) < 1e-6 && std::fabs(halfway.right[d] - 0.1) < 1e-6,
             "partial PingPong injection");
+
+    // Feedback determines decay, not the level of the first repeat. Check real
+    // wet amplitudes as well as ratios: a missing headroom recovery passes ratios.
+    for (double gain : {0.0, 10.0, 25.0, 50.0, 75.0}) {
+        Fixture ordinary(gain, 0);
+        ordinary.p[3] = normalized(0.65);
+        ordinary.run(220, [](unsigned n, i32& l, i32& r) {
+            l = r = n == 0 ? normalized(0.4) : 0;
+        });
+        require(std::fabs(ordinary.left[d] - 0.4 * 0.65) < 1e-6 &&
+                std::fabs(ordinary.right[d] - 0.4 * 0.65) < 1e-6,
+                "normal delay must return the first repeat at the requested wet level");
+        require(std::fabs(ordinary.left[2*d] - 0.4 * 0.65 * gain / 100) < 0.0005,
+                "low feedback repeats are too quiet or have the wrong decay");
+        require(std::fabs(ordinary.left[3*d] - 0.4 * 0.65 * gain * gain / 10000) < 0.001,
+                "third normal repeat has the wrong level");
+    }
 
     const double beats[] = {0.125, 0.1875, 0.25, 0.375, 0.5, 0.75, 1, 2};
     for (unsigned i = 0; i < 8; ++i)
@@ -126,7 +143,8 @@ int main() {
 
     Fixture hot(150); hot.p[0] = option(0, 8);
     hot.run(5000, burst);
-    require(both(hot, 2205, 4500) < 0.02, "quiet seed was unexpectedly boosted");
+    require(std::fabs(both(hot, 2205, 2205 + 256) - 0.02) < 1e-6,
+            "the first repeat must retain the quiet seed's level above unity too");
     require(both(hot, 280000, 320000) > 0.2, "above-unity feedback did not build into sustained oscillation");
     hot.p[1] = option(feedback_index(50), 191);
     hot.run(3500, silence);

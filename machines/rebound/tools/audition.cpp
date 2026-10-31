@@ -14,8 +14,8 @@ static void word(FILE* output, unsigned value, unsigned bytes) {
     for (unsigned i = 0; i < bytes; ++i) std::fputc((value >> (8*i)) & 255, output);
 }
 int main(int argc, char** argv) {
-    if (argc != 3 || (std::strcmp(argv[1], "bounce") && std::strcmp(argv[1], "ride"))) {
-        std::fprintf(stderr, "usage: audition bounce|ride output.wav\n");
+    if (argc != 3 || (std::strcmp(argv[1], "bounce") && std::strcmp(argv[1], "ride") && std::strcmp(argv[1], "gentle"))) {
+        std::fprintf(stderr, "usage: audition bounce|ride|gentle output.wav\n");
         return 1;
     }
     FILE* output = std::fopen(argv[2], "wb");
@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     std::fwrite("data", 1, 4, output); word(output, frames*4, 4);
     std::vector<opxy::i32> words(rebound::buffer_words);
     rebound::State state; rebound::initialize(state);
-    opxy::i32 p[8] = {option(ride ? 2 : 4, 8), option(ride ? 100 : 65, 191),
+    opxy::i32 p[8] = {option(ride ? 2 : 4, 8), option(ride ? 100 : std::strcmp(argv[1], "gentle") == 0 ? 25 : 65, 191),
                      2147483647, 1395864370, option(50, 101), 0, 2147483647, 2147483647};
     const opxy::Transport transport = {1200, 0, true};
     for (unsigned start = 0; start < frames; start += 64) {

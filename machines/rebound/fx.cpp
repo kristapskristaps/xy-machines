@@ -132,8 +132,10 @@ void process(State& state, opxy::Buffer buffer, const opxy::Transport& transport
             4LL * multiply(blend(fb_r, fb_l, state.pingpong), state.feedback_half));
         state.write = (state.write + 1) & (line_frames - 1);
         if (state.written < line_frames) ++state.written;
-        left[i] = multiply(out_l, state.level);
-        right[i] = multiply(out_r, state.level);
+        // Restore the input's 6 dB headroom pad at the wet return. Delay samples
+        // stay below half scale, so doubling after Level cannot overflow Q31.
+        left[i] = 2 * multiply(out_l, state.level);
+        right[i] = 2 * multiply(out_r, state.level);
     }
 }
 }

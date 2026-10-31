@@ -111,7 +111,7 @@ int main() {
             for (unsigned i = 0; i < 64; ++i) pitch[i] = increment(hz);
             render(voice, shared, 1, output, p, pitch);
             for (unsigned i = 0; i < 64; ++i) require(output[i] >= -peak && output[i] <= peak, "corner stability");
-            for (unsigned j = 0; j < 4; ++j) require(std::abs(voice.ladder[j]) <= 4 * unity, "bounded ladder state");
+            for (unsigned j = 0; j < 4; ++j) require(std::abs(2 * (voice.ladder[j] >> 15)) <= 2 * unity, "bounded ladder state");
         }
     }
     for (unsigned b = 0; b < 2048; ++b) {

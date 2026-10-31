@@ -5,10 +5,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def array(name, values, width=10):
+def array(name, values, width=10, kind="opxy::i32"):
     rows = ["    " + ", ".join(str(v) for v in values[i:i + width]) + ","
             for i in range(0, len(values), width)]
-    return f"static const opxy::i32 {name}[{len(values)}] = {{\n" + "\n".join(rows) + "\n};\n"
+    return f"static const {kind} {name}[{len(values)}] = {{\n" + "\n".join(rows) + "\n};\n"
 
 
 def generate():
@@ -34,7 +34,13 @@ def generate():
     text += array("cutoff_hz", [round(f) for f in hz])
     text += array("pole", [round((lambda g: g / (1 + g))(math.tan(math.pi * f / 44100)) * 32767) for f in hz])
     text += array("log2_fraction", [round(math.log2(1 + i / 256) * 65536) for i in range(257)])
-    text += array("tanh_q14", [round(math.tanh(i / 64) * (1 << 14)) for i in range(513)])
+    tanh = [round(math.tanh(i / 64) * (1 << 14)) for i in range(513)]
+    text += array("tanh_q14", tanh)
+    # Exact expansion of the integer interpolant, not a new curve. Cover the
+    # common +/-0.5 input range; keep the compact knots for stronger overloads.
+    dense = [tanh[a >> 8] + ((tanh[(a >> 8) + 1] - tanh[a >> 8]) * (a & 255) >> 8)
+             for a in range(8193)]
+    text += array("tanh_fast", dense, kind="opxy::i16")
     text += array("detune_q20", [round(2 ** ((i * 50 / 128) / 1200) * (1 << 20)) for i in range(129)])
     text += "}}\n"
     (ROOT / "tables.h").write_text(text)

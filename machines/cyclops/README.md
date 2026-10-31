@@ -78,14 +78,34 @@ page transitions snap. Track changes establish fresh note baselines.
 
 ## Validation and hardware
 
-The machine tests check tuning, harmonic content, suppression of a folded
-oscillator harmonic, ladder rolloff and resonance, key tracking, control
-corners, rapid automation, deterministic retriggers and display behavior.
-Host tests and browser playback do not establish hardware CPU cost or device
-acceptance. Host estimates exceed the SDK’s 15,000-instruction target per
-voice block. Device profiling must determine the actual cost before catalog
-submission or relying on many simultaneous voices.
-CPU profiling and normal hardware playback remain pending.
+The machine tests check tuning, harmonic content, folded-harmonic suppression,
+ladder rolloff and resonance, key tracking, control corners, rapid automation,
+quiet-note/DC behavior and animation. Frozen fingerprints cover all eight
+original presets plus automation and pitch changes. The expanded saturation
+cache is checked exhaustively against the original integer interpolant.
+
+The optimized engine preserves the original audio exactly. It packs each
+pole's even state and fractional charge into one accumulator, explicitly
+unrolls the fixed four stages, prepares waveform/pitch paths once per block,
+and caches exact saturation values in 16 KiB. Voice state is 80 bytes (was 96).
+The native module uses about 189 KiB of the shared 2032 KiB region.
+
+The latest SDK host estimate is about **14,100 instructions per voice per
+64-sample block**, below the advisory 15,000 target. A longer paired benchmark
+against the imported `2c40746` engine covers 384 cases, including both
+oscillators, control extremes, high notes, pitch bends and simultaneous
+waveform/overload automation. Its median host-time reduction is about **34%**;
+the highest calibrated estimate was about **14,000 instructions per block**.
+The paired tool runs before/after in alternating order, warms each case and
+uses the pinned SDK reference loop within the same process:
+
+```sh
+python machines/cyclops/tools/benchmark.py --baseline 2c40746 > local/cyclops-performance.json
+```
+
+Host timings vary and do not measure Blackfin cycles, stock processing or
+whole-project utilization. Hardware CPU profiling and normal playback validation
+remain pending; no catalog CPU record is claimed from these estimates.
 
 For hardware work, follow the collection's
 [development guide](../../docs/development.md#repeatable-device-updates):

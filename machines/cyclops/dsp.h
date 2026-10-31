@@ -25,7 +25,7 @@ inline i32 linear(const i32* table, u32 position, unsigned bits) {
 }
 inline i32 saturate(i32 x) {
     const u32 a = static_cast<u32>(x < 0 ? -x : x);
-    const i32 y = a >= (8u << 14) ? unity : linear(tables::tanh_q14, a, 8);
+    const i32 y = a <= 8192u ? tables::tanh_fast[a] : a >= (8u << 14) ? unity : linear(tables::tanh_q14, a, 8);
     return x < 0 ? -y : y;
 }
 inline i32 log2_increment(u32 value) {
@@ -40,6 +40,7 @@ inline i32 log2_increment(u32 value) {
 inline i32 cutoff_position(const i32* p, u32 pitch) {
     // C2 (65.406 Hz) is the key-tracking pivot. Q16 table steps.
     const i32 base = multiply(control(p[0]), 19005440); // 290 * 65536
+    if (!p[7]) return base;
     const i32 octaves = log2_increment(pitch) - 1481302;
     const i32 tracked = multiply(octaves, control(p[7])) * 32;
     return clamp(base + tracked, 0, 19005440);
@@ -48,7 +49,8 @@ inline i32 pole(i32 position) { return interpolate(tables::pole, static_cast<u32
 inline u32 tuning(i32 detune) {
     return static_cast<u32>(interpolate(tables::detune_q20, static_cast<u32>(control(detune)) >> 7, 17));
 }
-inline u32 second_increment(u32 pitch, u32 ratio, u32 octave) {
+// Glide needs this conversion per sample; avoid a native call in that loop.
+__attribute__((always_inline)) inline u32 second_increment(u32 pitch, u32 ratio, u32 octave) {
     // Split Q20 product avoids 64-bit runtime helpers on Blackfin.
     const u32 delta = ratio - (1 << 20);
     u32 increment = pitch;
@@ -84,6 +86,34 @@ inline i32 oscillator(u32 phase, const Band& band, i32 square) {
     const i32 a = wave(phase, band, false), b = wave(phase, band, true);
     return a + ((b - a) * square >> 15);
 }
+// A stable waveform uses one bank; select its mip pointers before rendering.
+struct Oscillator {
+    const i32* rich;
+    const i32* lean;
+    i32 fade;
+    Oscillator(const Band& band, i32 square) : fade(band.fade) {
+        const i32* const* bank = square ? tables::square : tables::saw;
+        rich = bank[band.rich];
+        lean = bank[band.rich ? band.rich - 1 : 0];
+    }
+    i32 read(u32 phase) const {
+        const i32 a = linear(rich, phase >> 12, 10);
+        if (!fade) return a;
+        const i32 b = linear(lean, phase >> 12, 10);
+        return a + ((b - a) * fade >> 15);
+    }
+};
+inline i32 smooth_wave(i32 current, i32 target) {
+    current += (target - current) >> 7;
+    const i32 left = target - current;
+    return left > -128 && left < 128 ? target : current;
+}
+inline i32 morph(const Oscillator& saw, const Oscillator& pulse, u32 phase, i32 square) {
+    const i32 b = pulse.read(phase);
+    if (square == 32767) return b;
+    const i32 a = saw.read(phase);
+    return a + ((b - a) * square >> 15);
+}
 struct Ladder {
     i32 g, resonance, inverse, weights[4];
     Ladder(i32 coefficient, i32 amount) : g(coefficient) {
@@ -95,23 +125,42 @@ struct Ladder {
         const u32 denominator = 32768u + static_cast<u32>(feedback);
         inverse = static_cast<i32>(0x40000000u / denominator);
     }
-    i32 step(Voice& voice, i32 input) const {
+    bool needs_limits(const Voice& voice) const {
+        if (g > 16384) return true;
+        for (unsigned i = 0; i < 4; ++i)
+            if ((voice.ladder[i] >> 15) < -12288 || (voice.ladder[i] >> 15) > 12288) return true;
+        return false;
+    }
+    template <bool Limited>
+    __attribute__((always_inline)) inline i32 step(Voice& voice, i32 input) const {
         // TPT four-pole ladder: solve instantaneous feedback before updating
         // the trapezoidal integrators. A nonlinear input limits resonance.
-        i32 memory = 0;
-        for (unsigned s = 0; s < 4; ++s) memory += voice.ladder[s] * weights[s];
-        memory >>= 15;
-        i32 sample = saturate((((input - (memory * resonance >> 13)) >> 2) * inverse) >> 13);
-        for (unsigned s = 0; s < 4; ++s) {
-            // Retain sub-LSB integrator charge so low cutoff and quiet notes
-            // do not stick in the dead band of a Q14 multiply.
-            const i32 charge = (sample - voice.ladder[s]) * g + voice.residue[s];
-            const i32 v = charge >> 15;
-            voice.residue[s] = charge - v * 32768;
-            sample = v + voice.ladder[s];
-            voice.ladder[s] = clamp(sample + v, -2 * unity, 2 * unity);
+        i32 corrected = (input >> 2) * 4;
+        if (resonance) {
+            const i32 memory = ((voice.ladder[0] >> 15) * weights[0]
+                              + (voice.ladder[1] >> 15) * weights[1]
+                              + (voice.ladder[2] >> 15) * weights[2]
+                              + (voice.ladder[3] >> 15) * weights[3]) >> 14;
+            corrected = (((input - (memory * resonance >> 13)) >> 2) * inverse) >> 13;
         }
+        i32 sample = saturate(corrected);
+        sample = stage<0, Limited>(voice, sample);
+        sample = stage<1, Limited>(voice, sample);
+        sample = stage<2, Limited>(voice, sample);
+        return stage<3, Limited>(voice, sample);
+    }
+    template <unsigned Index, bool Limited>
+    __attribute__((always_inline)) inline i32 stage(Voice& voice, i32 sample) const {
+        // Pole states start even, update by 2*v, and clamp to even rails.
+        // A = (z/2)*32768 + residue therefore retains the old rounding exactly.
+        const i32 half = voice.ladder[Index] >> 15;
+        const i32 charge = voice.ladder[Index] + (sample - 2 * half) * g;
+        const i32 next_half = charge >> 15;
+        sample = half + next_half;
+        voice.ladder[Index] = Limited
+            ? clamp(next_half, -unity, unity) * 32768 + (charge & 32767) : charge;
         return sample;
     }
+    i32 step(Voice& voice, i32 input) const { return step<true>(voice, input); }
 };
 }}

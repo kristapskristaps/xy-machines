@@ -15,11 +15,11 @@ static const DrummerPose drummer_poses[] = {
     {240,86,drummer_head}, // ear folds
     {240,86,drummer_head}, // head
     {240,86,drummer_head}, // forehead and hair
-    {240,86,drummer_head}, // brows
-    {240,86,drummer_head}, // eye creases
-    {240,86,drummer_head}, // smile
-    {240,86,drummer_head}, // large eyes
-    {240,86,drummer_head}, // eye highlights
+    {240,86,drummer_head}, // rounded sunglasses frame
+    {240,86,drummer_head}, // happy cheek dimples
+    {240,86,drummer_head}, // gentle smile
+    {240,86,drummer_head}, // round sunglass lenses
+    {240,86,drummer_head}, // lens reflections
     {240,86,drummer_head}, // nose
     {240,86,drummer_head}, // cheeks
     {202,120,drummer_left_arm}, // left arm

@@ -10,7 +10,7 @@ The contact table solves each shoulder–hand–stick chain against its playing
 surface. Independent shoulder and wrist springs provide follow-through;
 forward kinematics keeps the stick at the hand throughout its rebound.
 
-The character follows the user's cartoon reference: large black eyes with
-bright highlights, a round face, long curved ears and a wrapped robe. Paths
+The character follows the user's cartoon reference: a round face, long curved
+ears and a wrapped robe, with round sunglasses and a gentle smile. Paths
 are authored here as native-compatible vectors, with no raster dependency.
 The scene stays monochrome apart from small blue/red details on the drum kit.

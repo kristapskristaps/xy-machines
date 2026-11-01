@@ -43,13 +43,13 @@ int main() {
             std::puts("FAIL: saturation curve changed"); return 1;
         }
     }
-    // Captured from the original 2c40746 engine, before optimization.
+    // Captured from the auditioned B filter experiment before CPU optimization.
     const opxy::u32 expected[8] = {
-        3371572677u, 2828312005u, 3780812229u, 1659018693u,
-        1238310341u, 1925062085u, 2959449541u, 3563003333u
+        2732072389u, 139173317u, 3189185989u, 2357042629u,
+        3703184837u, 2722373061u, 2208374213u, 46702021u
     };
     for (unsigned patch = 0; patch < 8; ++patch) if (fingerprint(patch) != expected[patch]) {
-        std::printf("FAIL: original patch %u output changed\n", patch); return 1;
+        std::printf("FAIL: auditioned B patch %u output changed\n", patch); return 1;
     }
     // The original two-word recurrence independently checks packing, rounding,
     // and clipping at both rails; only even states are reachable from start().
@@ -107,5 +107,5 @@ int main() {
                 }
         }
     }
-    std::puts("PASS: original preset/automation fingerprints and 64-sample rail proof");
+    std::puts("PASS: auditioned B preset/automation fingerprints and 64-sample rail proof");
 }

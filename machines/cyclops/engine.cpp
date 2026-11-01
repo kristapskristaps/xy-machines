@@ -8,7 +8,7 @@ void render_audio(Voice& voice, opxy::Output output, opxy::Pitch pitch,
                   const dsp::Band& first, const dsp::Band& second,
                   const dsp::Oscillator& osc_a, const dsp::Oscillator& osc_b,
                   const dsp::Ladder& filter, const i32* target_wave,
-                  u32 ratio, u32 octave, i32 balance, i32 drive, i32 compensation) {
+                  u32 ratio, u32 octave, i32 balance, i32 drive) {
     using namespace dsp;
     const Ladder coefficients = filter;
     const Oscillator main_a = Moving ? Oscillator(first, 0) : osc_a;
@@ -29,16 +29,13 @@ void render_audio(Voice& voice, opxy::Output output, opxy::Pitch pitch,
             ? morph(main_b, pulse_b, voice.phase[1], voice.wave[1]) : main_b.read(voice.phase[1]);
         const i32 mixed = a + ((b - a) * balance >> 15);
         const i32 driven = mixed * drive >> 8;
-        i32 filtered = coefficients.step<Limited>(voice, driven);
+        const i32 filtered = coefficients.step<Limited>(voice, driven);
         voice.phase[0] += increment;
         voice.phase[1] += other;
-        // Mild compensation keeps a resonant bass patch useful.
-        filtered += (filtered * compensation >> 15);
-        const i32 limited = saturate(filtered);
         const i32 charge = voice.dc_output * 32721 + voice.dc_residue;
-        const i32 dc = limited - voice.dc_input + (charge >> 15); // 10 Hz
+        const i32 dc = filtered - voice.dc_input + (charge >> 15); // 10 Hz
         voice.dc_residue = static_cast<i32>(static_cast<u32>(charge) & 32767u);
-        voice.dc_input = limited;
+        voice.dc_input = filtered;
         voice.dc_output = dc;
         output[i] = clamp(dc, -unity, unity) * 32768;
     }
@@ -48,10 +45,10 @@ void dispatch_audio(Voice& voice, opxy::Output output, opxy::Pitch pitch,
                     const dsp::Band& first, const dsp::Band& second,
                     const dsp::Oscillator& osc_a, const dsp::Oscillator& osc_b,
                     const dsp::Ladder& filter, const i32* target_wave,
-                    u32 ratio, u32 octave, i32 balance, i32 drive, i32 compensation,
+                    u32 ratio, u32 octave, i32 balance, i32 drive,
                     bool limited) {
-    if (limited) render_audio<Moving, Constant, true>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, compensation);
-    else render_audio<Moving, Constant, false>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, compensation);
+    if (limited) render_audio<Moving, Constant, true>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive);
+    else render_audio<Moving, Constant, false>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive);
 }
 
 }
@@ -92,18 +89,17 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     const i32 balance = p[5] >> 16;
     const Oscillator osc_a(first, target_wave[0]), osc_b(second, target_wave[1]);
     const bool changing_waves = voice.wave[0] != target_wave[0] || voice.wave[1] != target_wave[1];
-    const i32 compensation = p[1] >> 16;
     bool constant = true;
     for (unsigned i = 1; i < opxy::block_frames; ++i) constant = constant && pitch[i] == pitch[0];
     // Below quarter-rate cutoff, each integrator is a convex update. With
     // 8192 counts of state headroom, 64 samples of rounding cannot hit a rail.
     const bool limited = filter.needs_limits(voice);
     if (changing_waves) {
-        if (constant) dispatch_audio<true, true>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, compensation, limited);
-        else dispatch_audio<true, false>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, compensation, limited);
+        if (constant) dispatch_audio<true, true>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, limited);
+        else dispatch_audio<true, false>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, limited);
     } else {
-        if (constant) dispatch_audio<false, true>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, compensation, limited);
-        else dispatch_audio<false, false>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, compensation, limited);
+        if (constant) dispatch_audio<false, true>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, limited);
+        else dispatch_audio<false, false>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, limited);
     }
 }
 }

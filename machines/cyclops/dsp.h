@@ -115,8 +115,8 @@ inline i32 morph(const Oscillator& saw, const Oscillator& pulse, u32 phase, i32 
     return a + ((b - a) * square >> 15);
 }
 struct Ladder {
-    i32 g, resonance, inverse, weights[4];
-    Ladder(i32 coefficient, i32 amount) : g(coefficient) {
+    i32 g, resonance, inverse, weights[4], compensation;
+    Ladder(i32 coefficient, i32 amount) : g(coefficient), compensation(control(amount) >> 16) {
         resonance = multiply(control(amount), 31949); // Q13 feedback 0..3.90
         const i32 g2 = g * g / 32768, g4 = g2 * g2 / 32768;
         const i32 feedback = g4 * resonance >> 13;
@@ -147,6 +147,10 @@ struct Ladder {
         sample = stage<0, Limited>(voice, sample);
         sample = stage<1, Limited>(voice, sample);
         sample = stage<2, Limited>(voice, sample);
+        // Keep overload and resonance compensation inside the ladder: the
+        // final pole filters the generated harmonics before they leave it.
+        sample += (sample * compensation >> 15);
+        sample = saturate(sample);
         return stage<3, Limited>(voice, sample);
     }
     template <unsigned Index, bool Limited>

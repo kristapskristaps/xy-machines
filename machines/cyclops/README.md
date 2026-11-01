@@ -103,32 +103,30 @@ changes establish fresh note baselines.
 
 The machine tests check tuning, harmonic content, folded-harmonic suppression,
 ladder rolloff and resonance, key tracking, control corners, rapid automation,
-quiet-note/DC behavior and animation. Frozen fingerprints cover all eight
-original presets plus automation and pitch changes. The expanded saturation
+quiet-note/DC behavior and animation. Frozen fingerprints cover the auditioned B response at all eight
+original preset settings plus automation and pitch changes. The expanded saturation
 cache is checked exhaustively against the original integer interpolant.
 
-The optimized engine preserves the original audio exactly. It packs each
-pole's even state and fractional charge into one accumulator, explicitly
-unrolls the fixed four stages, prepares waveform/pitch paths once per block,
-and caches exact saturation values in 16 KiB. Voice state is 80 bytes (was 96).
-The native module uses about 191 KiB of the shared 2032 KiB region.
+The B filter response puts resonance compensation and the second saturation
+before the final ladder pole, inside the feedback path. This lets the final
+pole filter the saturation harmonics. Oscillators, control mappings and preset
+values are unchanged; the sound intentionally differs from the first release.
+This remains a digital approximation rather than a measured Minitaur model.
 
-The latest SDK host estimate is about **11,600 instructions per voice per
-64-sample block**, below the advisory 15,000 target. A longer paired benchmark
-against the imported `2c40746` engine covers 384 cases, including both
-oscillators, control extremes, high notes, pitch bends and simultaneous
-waveform/overload automation. Its median host-time reduction is about **34%**;
-the highest calibrated estimate was about **14,000 instructions per block**.
-The paired tool runs before/after in alternating order, warms each case and
-uses the pinned SDK reference loop within the same process:
+The engine packs each pole's even state and fractional charge into one
+accumulator, unrolls the four stages, prepares waveform/pitch paths once per
+block, and caches exact saturation values. Voice state is 80 bytes.
+Compatibility fingerprints bind the optimized render to the B audition.
+
+Use the paired host benchmark to compare CPU cost against a collection revision:
 
 ```sh
-python machines/cyclops/tools/benchmark.py --baseline 2c40746 > local/cyclops-performance.json
+python machines/cyclops/tools/benchmark.py --baseline ec940a5 > local/cyclops-performance.json
 ```
 
-Host timings vary and do not measure Blackfin cycles, stock processing or
-whole-project utilization. Hardware CPU profiling and normal playback validation
-remain pending for this revision; no catalog CPU record is claimed from these estimates.
+Host timings do not measure Blackfin cycles, stock processing or whole-project
+utilization. The new response needs hardware CPU profiling and normal playback
+validation; no catalog CPU record is claimed from host estimates.
 
 For hardware work, follow the collection's
 [development guide](../../docs/development.md#repeatable-device-updates):

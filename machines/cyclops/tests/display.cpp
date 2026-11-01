@@ -17,22 +17,24 @@ int main() {
     cyclops::display(state, input, frame);
     require(opxy::draw::valid(frame), "initial display frame");
     require(state.impulse == 0, "activation does not fabricate a note");
-    const int open = frame.paths[0].points[16].y;
+    const int resting_y = frame.nodes[12].y;
+    const unsigned resting_glint = frame.nodes[1].shade;
     input.note_serial++;
     cyclops::display(state, input, frame);
-    require(frame.paths[0].points[16].y > open, "note gently opens the eye");
-    require(frame.paths[0].points[16].y < open * 11 / 10, "note response remains restrained");
+    require(frame.nodes[12].y > resting_y, "note gently nods the helmet");
+    require(frame.nodes[12].y - resting_y <= 2 * opxy::draw::unit, "nod remains under two pixels");
+    require(frame.nodes[1].shade > resting_glint, "note lights the visor reflection");
     for (unsigned i = 0; i < 12; ++i) {
         cyclops::display(state, input, frame);
         require(opxy::draw::valid(frame), "impulse remains a valid frame");
     }
-    require(state.impulse == 0, "iris impulse settles within 0.2 seconds");
+    require(state.impulse == 0, "helmet impulse settles within 0.2 seconds");
     const cyclops::Frame settled = frame;
     for (unsigned i = 0; i < 100; ++i) cyclops::display(state, input, frame);
     require(std::memcmp(&settled, &frame, sizeof(frame)) == 0, "idle frame stays still");
     input.reduced_motion = 1; input.note_serial++;
     cyclops::display(state, input, frame);
-    require(state.impulse == 0, "reduced motion suppresses iris movement");
+    require(state.impulse == 0, "reduced motion suppresses helmet movement");
     input.reduced_motion = 0; input.track++; input.note_serial += 50;
     cyclops::display(state, input, frame);
     require(state.impulse == 0, "track change establishes a fresh baseline");
@@ -44,14 +46,15 @@ int main() {
             for (unsigned i = 0; i < 16; ++i) {
                 cyclops::display(state, input, frame);
                 require(opxy::draw::valid(frame), "all controls and both page transitions are valid");
-                const int iris = frame.nodes[10].scale * 33;
-                const int aperture = opxy::draw::floor_q10(frame.paths[0].points[16].y * frame.nodes[0].scale);
-                const int offset = frame.nodes[10].y - frame.nodes[0].y;
-                require(iris + (offset < 0 ? -offset : offset) < aperture,
-                        "iris stays inside the lids across controls and note impulses");
+                for (unsigned node = 13; node < 24; ++node)
+                    require(frame.nodes[node].x == frame.nodes[12].x &&
+                            frame.nodes[node].y == frame.nodes[12].y &&
+                            frame.nodes[node].cos == frame.nodes[12].cos &&
+                            frame.nodes[node].sin == frame.nodes[12].sin,
+                            "helmet facets stay attached across controls and notes");
             }
         }
     }
-    std::printf("%s: eye response, idle, reduced motion, track baselines, controls and pages\n", failures ? "FAIL" : "PASS");
+    std::printf("%s: helmet response, idle, reduced motion, track baselines, controls and pages\n", failures ? "FAIL" : "PASS");
     return failures ? 1 : 0;
 }

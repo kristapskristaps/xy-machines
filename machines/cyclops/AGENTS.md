@@ -1,4 +1,4 @@
-# Cyclops
+# Mando (saved ID: cyclops)
 
 This machine is `machines/cyclops`. Follow the repository root AGENTS.md
 and docs/development.md. Use `./xy test cyclops --native --cpu` and

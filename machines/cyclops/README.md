@@ -1,9 +1,10 @@
-# Cyclops
+# Mando
 
 A Minitaur-inspired bass synth for the OP-XY: two band-limited oscillators,
-nonlinear four-pole ladder filtering, and a single-eyed stone character that
-responds to notes and controls. Cyclops is an independent digital design,
-not a component-level circuit model or a measured reproduction of the hardware.
+nonlinear four-pole ladder filtering, and a silver Mandalorian-inspired helmet
+with a shoulder cape that responds to notes and controls. Mando is an independent
+digital design, not a component-level circuit model or a measured reproduction
+of the hardware.
 
 ## Play
 
@@ -42,9 +43,9 @@ units; the preview's Cutoff slider shows its normalized amount.
 | 2 | Keytrack | 0–100. No tracking through one octave of filter movement per played octave, pivoting at C2 (65.406 Hz). |
 
 Use the OP-XY's existing envelope, glide, LFO and FX controls for performance
-shaping. Its engine LFO destinations can address Cyclops Cutoff and every
+shaping. Its engine LFO destinations can address Mando Cutoff and every
 other declared parameter. There is no additional engine envelope or LFO;
-Cyclops does not reproduce Minitaur's independent filter ADSR, external input,
+Mando does not reproduce Minitaur's independent filter ADSR, external input,
 CV/MIDI implementation or global monophonic note-priority logic. Its eight
 voices follow the OP-XY's allocation and amplitude processing.
 
@@ -88,16 +89,19 @@ no floating point, OS services or per-sample general division.
 
 This follows the dual saw/square oscillators and resonant 24 dB/octave low-pass
 architecture described in [Moog's Minitaur manual](https://api.moogmusic.com/sites/default/files/2018-02/Minitaur_Manual.pdf).
-No Moog source code, firmware or artwork is included. Cyclops is not affiliated
+No Moog source code, firmware or artwork is included. Mando is not affiliated
 with or endorsed by Moog Music.
 
-The display is a carved basalt guardian with swept horns, layered facial
-planes and a recessed, radial iris. Cutoff opens the eye, Resonance contracts
-the pupil and lowers the brow, Drive brightens the iris, and Balance shifts
-its gaze. Detune angles the brow plates. Notes briefly lift the lids and
-rotate/brighten the iris, settling within 0.2 seconds without closing the eye.
-Idle screens stay still; reduced motion suppresses note movement, and track
-changes establish fresh note baselines.
+The display uses faceted silver armour, a recessed T-shaped visor, shoulder
+plates and a cape. Cutoff moves the visor reflection, Drive brightens the brow
+reflection, Resonance dims the dome highlight, and Balance slightly angles
+the helmet. Notes add a brief nod, visor glint and cape movement, settling
+within 0.2 seconds. Idle screens stay still; reduced motion suppresses note
+movement, and track changes establish fresh note baselines.
+
+The visible name is Mando. The saved machine ID, preset types and source path
+remain `cyclops`, preserving existing projects and the 16 native presets.
+This visual rename does not change the audio engine or parameter contracts.
 
 ## Validation and hardware
 
@@ -118,7 +122,7 @@ accumulator, unrolls the four stages and prepares waveform/pitch paths once per
 block. Wavetables store their original Q14 values in 16-bit words; a 32 KiB
 cache expands the exact integer saturation interpolant. Each voice caches
 filter coefficients until cutoff or resonance changes. Voice state is 116
-bytes, and the standalone native module uses about 173 KiB.
+bytes, and the standalone native module uses about 172 KiB.
 Compatibility fingerprints bind the optimized render to the B audition.
 
 Use the paired host benchmark to compare CPU cost against a collection revision:
@@ -140,7 +144,7 @@ validation; no catalog CPU record is claimed from host estimates.
 
 For hardware work, follow the collection's
 [development guide](../../docs/development.md#repeatable-device-updates):
-commit the source, select a kit containing Cyclops and the machines needed by
+commit the source, select a kit containing Mando and the machines needed by
 existing projects, and preserve the last installed layout. `./xy build` and
 `./xy stage` keep firmware outside every checkout. Device installation and
 diagnostics require the user's separate instruction.

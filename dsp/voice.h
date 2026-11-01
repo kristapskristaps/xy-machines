@@ -6,12 +6,6 @@
 #include "metallic.h"
 
 namespace x0x { namespace dsp {
-struct Settings {
-    u32 family, raw[8], duration, increments[6], sample_step, metal_reciprocals[6], attack_frames, attack_step;
-    i32 amplitude_rate, transient_rate, pitch_rate, filter, noise_filter;
-    i32 sample, alternate;
-    bool metal808;
-};
 static inline i32 sample_for(u32 model, u32 family) {
     static const i32 bank707[model_count] = {0,2,12,13,4,5,6,7,8,9,10,11,-1,-1,-1,-1,-1,14};
     if (family == 1) return model < model_count ? bank707[model] : -1;
@@ -71,6 +65,17 @@ static inline Settings settings(u32 model, opxy::Parameters parameters) {
     }
     return s;
 }
+static inline const Settings& voice_settings(Voice& v, opxy::Parameters parameters) {
+    bool changed = !v.configured || v.configured_model != v.model;
+    for (u32 i = 0; i < 8; ++i)
+        changed = changed || v.settings.raw[i] != raw_control(parameters[i]);
+    if (changed) {
+        v.settings = settings(v.model, parameters);
+        v.configured_model = v.model;
+        v.configured = 1;
+    }
+    return v.settings;
+}
 static inline i32 read(const pcm::Sample& sample, u32 cursor, u32 fraction) {
     if (cursor >= sample.frames) return 0;
     const i32 a = pcm::decode[sample.data[cursor]];
@@ -111,12 +116,12 @@ static inline i32 pcm_source(Voice& v, const Settings& s) {
     return signal;
 }
 static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
-    const i32 tonal = sine(v.phase[0]);
     const i32 transient = v.transient >> 16;
     const i32 body_amount = i32(s.raw[body]) * 258;
     i32 signal = 0;
     switch (v.model) {
     case kick: {
+        const i32 tonal = sine(v.phase[0]);
         const i32 harmonic = sine(v.phase[0] * 2);
         signal = s.family == 3 ? (tonal * 3 + triangle(v.phase[0] + 0x40000000u)) / 4 : tonal;
         signal = (signal * 3 + multiply(harmonic, body_amount)) / 4;
@@ -126,7 +131,7 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     }
     case snare: {
         const i32 shell = s.family == 3 ? (triangle(v.phase[0] + 0x40000000u) + triangle(v.phase[1] + 0x40000000u)) / 2
-                                      : (tonal + sine(v.phase[1])) / 2;
+                                      : (sine(v.phase[0]) + sine(v.phase[1])) / 2;
         const i32 shell_gain = 8192 + multiply(24576, transient);
         signal = multiply(multiply(shell, shell_gain), body_amount) / 2;
         signal += multiply(random - v.noise_low, i32(s.raw[character]) * 220);
@@ -141,14 +146,16 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
         break;
     }
     case rim:
-        signal = (multiply(tonal,32767-body_amount)+multiply(sine(v.phase[1]),body_amount))*2/3;
+        signal = (multiply(sine(v.phase[0]),32767-body_amount)+multiply(sine(v.phase[1]),body_amount))*2/3;
         signal += multiply(multiply(random, transient), i32(s.raw[character]) * 512);
         break;
     case low_tom: case mid_tom: case high_tom:
-    case low_conga: case mid_conga: case high_conga:
+    case low_conga: case mid_conga: case high_conga: {
+        const i32 tonal = sine(v.phase[0]);
         signal = tonal + multiply(sine(v.phase[0]*3)-tonal,body_amount/2);
         if (v.model <= high_tom) signal += multiply(multiply(random, transient), s.family == 0 ? 7000 : 2500);
         break;
+    }
     case closed_hat: case open_hat: case cymbal: {
         if (s.metal808) {
             if (!v.metal.initialized) metal_start(v.metal,v.phase);
@@ -166,10 +173,12 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     case cowbell:
         signal = (square(v.phase[0]) + multiply(square(v.phase[1]), body_amount)) / 2;
         break;
-    case claves:
+    case claves: {
+        const i32 tonal = sine(v.phase[0]);
         signal = tonal + multiply(sine(v.phase[0]*2)-tonal,body_amount/2);
         signal += multiply(multiply(random, transient), i32(s.raw[character]) * 1024);
         break;
+    }
     case maracas:
         signal = limit((random-v.noise_low)*2+multiply(v.noise_low,body_amount)*2);
         break;
@@ -182,9 +191,14 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     } else if ((v.model >= low_tom && v.model <= high_tom) || (v.model >= low_conga && v.model <= high_conga)) {
         bend += scale(s.raw[character] * 350u, u32(v.pitch_envelope >> 15));
     }
-    for (u32 i = 0; i < 6; ++i) {
-        const u32 advance = scale(s.increments[i], bend);
-        v.phase[i] += advance > 0x60000000u ? 0x60000000u : advance;
+    if (bend == 65536) {
+        for (u32 i = 0; i < 6; ++i)
+            v.phase[i] += s.increments[i] > 0x60000000u ? 0x60000000u : s.increments[i];
+    } else {
+        // All six increments are equal for the kick/tom/conga pitch sweep.
+        const u32 advance = scale(s.increments[0], bend);
+        const u32 bounded = advance > 0x60000000u ? 0x60000000u : advance;
+        for (u32 i = 0; i < 6; ++i) v.phase[i] += bounded;
     }
     return limit(signal);
 }
@@ -193,20 +207,22 @@ static inline void render(Voice& v, opxy::Output output, opxy::Parameters parame
         for (u32 i = 0; i < opxy::block_frames; ++i) output[i] = 0;
         return;
     }
-    const Settings s = settings(v.model, parameters);
+    const Settings& s = voice_settings(v, parameters);
     if (v.pending) {
         v.pending = 0;
         v.amplitude = v.transient = v.pitch_envelope = 0x7fffffff;
     }
     bool silent = true, ended = false;
     const u32 end = s.duration * 441u / 10;
+    const u32 sample_length = s.sample < 0 ? 0 :
+        s.alternate >= 0 && pcm::samples[s.alternate].frames > pcm::samples[s.sample].frames
+            ? pcm::samples[s.alternate].frames : pcm::samples[s.sample].frames;
+    const u32 drive_amount = control_count(v.model) == 8 ? s.raw[x0x::drive] : 0;
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         i32 sample = 0;
         bool source_done = v.age >= end;
         if (s.sample >= 0) {
-            const u32 length = s.alternate >= 0 && pcm::samples[s.alternate].frames > pcm::samples[s.sample].frames
-                ? pcm::samples[s.alternate].frames : pcm::samples[s.sample].frames;
-            source_done = source_done || v.cursor >= length;
+            source_done = source_done || v.cursor >= sample_length;
         }
         ended = source_done;
         if (v.active && !source_done) {
@@ -225,7 +241,7 @@ static inline void render(Voice& v, opxy::Output output, opxy::Parameters parame
         }
         v.output_low += multiply(sample - v.output_low, s.filter);
         sample = v.output_low;
-        if (control_count(v.model) == 8) sample = drive(sample, s.raw[x0x::drive]);
+        sample = drive(sample, drive_amount);
         const i32 clean = limit(sample - v.dc_input + multiply(v.dc_output, 32600));
         v.dc_input = sample; v.dc_output = clean;
         output[i] = clean * 32768; // Declared half-scale Q31 peak.

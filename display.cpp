@@ -65,8 +65,17 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
         projected.reduced_motion = 1;
     }
     page_header(state.header, projected, frame, titles, values, 0);
+    // Give values 70 pixels and labels 50 within each encoder's 120-pixel cell.
+    // The authored 17px/12px value fonts fit long tuning and Shift captions.
+    for (opxy::u32 col = 0; col < 4; ++col) {
+        frame.nodes[2*col].x = opxy::i32(120*col*unit);
+        frame.nodes[2*col+1].x = opxy::i32((120*col+50)*unit);
+        frame.texts[4+col].x = frame.texts[12+col].x = opxy::i32((55+120*col)*unit);
+    }
     const opxy::u32 family = family_index(model,raw_control(input.slots[style]));
     const bool hit = state.initialized && state.track == input.track && state.note != input.note_serial;
+    const bool changed = !state.initialized || state.track != input.track || state.model != model || state.family != family;
+    const opxy::i32 previous_age = state.initialized ? state.age : 2048;
     if (!state.initialized || state.track != input.track || (!hit && (state.model != model || state.family != family))) {
         state.age = 2048;
         state.hit_model = model; state.hit_family = family;
@@ -83,6 +92,13 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     }
     state.initialized = 1; state.track = input.track; state.note = input.note_serial;
     state.model = model; state.family = family;
-    instrument_animation(frame,state.hit_model,state.hit_family,state.age,state.hit_duration,input.reduced_motion != 0,input.note_serial);
+    // The retained frame already contains the settled pose. Redraw on a hit,
+    // selection change, motion, or the end of the hit's brightness envelope.
+    if (changed || hit || state.age < 256 || previous_age < 256 ||
+        (previous_age < state.hit_duration) != (state.age < state.hit_duration))
+        instrument_animation(frame,state.hit_model,state.hit_family,state.age,state.hit_duration,input.reduced_motion != 0,input.note_serial);
+    // Selection stays readable while the drummer follows sequenced hits.
+    place(frame,family_node+family,22*unit,84*unit,unit,0,keep);
+    place(frame,drummer_node+drummer_layers+model,22*unit,68*unit,1280,0,keep);
 }
 }

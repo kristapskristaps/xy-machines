@@ -1,7 +1,7 @@
 #pragma once
 #include "display.h"
 #include "models.h"
-#include "beaver_animation.h"
+#include "drummer_animation.h"
 
 namespace x0x {
 const opxy::u32 body_node = 8, moving_node = body_node+model_count;
@@ -20,10 +20,9 @@ inline void instrument_animation(Frame& frame, opxy::u32 model, opxy::u32 family
     const opxy::i32 logo_scale = 440*kick_skin_scale(model,time,settles[family])/unit;
     place(frame,body_node+model,240*unit,172*unit,logo_scale,light,stroke);
     place(frame,moving_node+model,240*unit,172*unit,logo_scale,light,stroke);
-    place(frame,family_node+family,240*unit,172*unit,472,active ? (family%2 ? 6 : 5) : 2,stroke);
-    beaver_animation(frame,model,family,age,reduced,serial);
+    drummer_animation(frame,model,family,age,reduced,serial);
     if (!energy) return;
-    const BeaverHit& target = beaver_hits[model];
+    const DrummerHit& target = drummer_hits[model];
     const opxy::i32 spread = 15*unit+8*(unit-energy);
     for (opxy::u32 i = 0; i < 8; ++i) {
         const opxy::i32 degrees = opxy::i32(i)*450+opxy::i32(model%3)*100;

@@ -1,12 +1,15 @@
 #pragma once
 #include <opxy/audio.hpp>
 #include "dsp/metallic_state.h"
+#include "dsp/settings.h"
 namespace x0x {
 struct Voice {
     opxy::u32 model, age, pending, active, seed, phase[6], cursor, fraction;
     opxy::i32 amplitude, transient, pitch_envelope, noise_low, metal_low,
               output_low, dc_input, dc_output;
     dsp::MetalState metal;
+    dsp::Settings settings;
+    opxy::u32 configured, configured_model;
 };
 struct Shared {};
 void drum_defaults(opxy::u32 key, opxy::u8* model, opxy::u8* controls);

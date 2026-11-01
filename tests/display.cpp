@@ -5,14 +5,15 @@
 static void require(bool ok, const char* message) {
     if (!ok) { std::fprintf(stderr, "FAIL: %s\n", message); std::exit(1); }
 }
-static unsigned part_node(x0x::BeaverPart part) {
-    for (unsigned i = 0; i < x0x::beaver_layers; ++i)
-        if (x0x::beaver_poses[i].part == part) return x0x::beaver_node+i;
+static unsigned part_node(x0x::DrummerPart part) {
+    for (unsigned i = 0; i < x0x::drummer_layers; ++i)
+        if (x0x::drummer_poses[i].part == part) return x0x::drummer_node+i;
     std::abort();
 }
 int main() {
     using namespace x0x;
     DisplayState state = {}; Frame frame = {}; opxy::draw::Input input = {};
+    std::memset(&state,0xa5,sizeof(state));
     display_reset(state);
     for (opxy::u32 model = 0; model < model_count; ++model) {
         input.model = model;
@@ -70,11 +71,11 @@ int main() {
         const Frame hit = frame;
         const unsigned hands = playing_hands(model,input.note_serial);
         for (unsigned hand = 0; hand < 2; ++hand) if (hands & (1u<<hand)) {
-            const auto& stick = frame.nodes[part_node(hand ? beaver_right_stick : beaver_left_stick)];
+            const auto& stick = frame.nodes[part_node(hand ? drummer_right_stick : drummer_left_stick)];
             const int tx = hand ? 27 : -20, ty = -34;
             const int x = stick.x+tx*stick.cos-ty*stick.sin;
             const int y = stick.y+tx*stick.sin+ty*stick.cos;
-            require(std::abs(x-beaver_hits[model].x*1024)<3*1024 && std::abs(y-beaver_hits[model].y*1024)<3*1024,
+            require(std::abs(x-drummer_hits[model].x*1024)<3*1024 && std::abs(y-drummer_hits[model].y*1024)<3*1024,
                     "the active stick contacts the playing surface for every model/style");
         }
         unsigned hash = 2166136261u;
@@ -83,8 +84,8 @@ int main() {
             require(frame.nodes[body_node+model].scale <= 500 && frame.nodes[body_node+model].y == 172*1024,
                     "the band emblem stays inside the bass-drum head");
             for (unsigned hand = 0; hand < 2; ++hand) {
-                const auto& arm = frame.nodes[part_node(hand ? beaver_right_arm : beaver_left_arm)];
-                const auto& stick = frame.nodes[part_node(hand ? beaver_right_stick : beaver_left_stick)];
+                const auto& arm = frame.nodes[part_node(hand ? drummer_right_arm : drummer_left_arm)];
+                const auto& stick = frame.nodes[part_node(hand ? drummer_right_stick : drummer_left_stick)];
                 const int hx = hand ? 20 : -15, hy = hand ? -20 : -26;
                 require(stick.x == arm.x+hx*arm.cos-hy*arm.sin && stick.y == arm.y+hx*arm.sin+hy*arm.cos,
                         "each rebounding stick remains attached to its paw");
@@ -103,7 +104,7 @@ int main() {
         display(state,input,frame);
         require(!std::memcmp(rest.nodes+body_node,frame.nodes+body_node,(Frame::node_count-body_node)*sizeof(frame.nodes[0])),"idle artwork stays still");
         ++input.note_serial; display(state,input,frame);
-        require(!std::memcmp(hit.nodes+body_node,frame.nodes+body_node,(beaver_node-body_node)*sizeof(frame.nodes[0])),"retrigger restarts the emblem and impact animation");
+        require(!std::memcmp(hit.nodes+body_node,frame.nodes+body_node,(drummer_node-body_node)*sizeof(frame.nodes[0])),"retrigger restarts the emblem and impact animation");
         // Different note counters, including uint32 wrap, are all hit events.
         input.note_serial = 0xffffffffu; display(state,input,frame);
         input.note_serial = 0; display(state,input,frame);
@@ -114,8 +115,8 @@ int main() {
             require(frame.nodes[node].scale == 440 && frame.nodes[node].cos == 1024 && !frame.nodes[node].sin,
                     "reduced motion has static geometry for every model");
         }
-        for (unsigned layer = 0; layer < beaver_layers; ++layer) {
-            const auto& n = frame.nodes[beaver_node+layer]; const auto& pose = beaver_poses[layer];
+        for (unsigned layer = 0; layer < drummer_layers; ++layer) {
+            const auto& n = frame.nodes[drummer_node+layer]; const auto& pose = drummer_poses[layer];
             require(n.x == pose.x*1024 && n.y == pose.y*1024 && n.scale == 1024 && n.cos == 1024 && !n.sin,
                     "reduced motion returns the entire drummer to a still pose");
         }
@@ -141,6 +142,11 @@ int main() {
     require(frame.nodes[body_node+snare].shade == 9 && state.hit_family == 3,
             "sequencer animates the actual played drum and family");
     require(!std::strcmp(frame.header[0],"808"),"sequencer does not replace selected pad controls");
+    require(frame.nodes[family_node+2].x == 22*1024 && frame.nodes[family_node+2].y == 84*1024,
+            "selected family is a separate readable label rather than a ring around the emblem");
+    require(frame.nodes[drummer_node+drummer_layers+kick].x == 22*1024 &&
+            frame.nodes[drummer_node+drummer_layers+snare].x == opxy::draw::hidden_x*1024,
+            "selected drum label stays on the edited pad during sequencer hits");
     input.elapsed = 17; display(state,input,frame);
     require(state.hit_model == snare && state.age == 17,"played drum pose persists between display frames");
     std::puts("PASS: captions, both pages, Shift config, all 47 distinct type/style trigger animations, retrigger, rest and reduced motion");

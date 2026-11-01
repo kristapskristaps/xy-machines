@@ -22,9 +22,8 @@ is published. The existing `../open-xy` checkout is untouched.
 The draft passes public checks, and the full existing collection now links
 inside the shared module limit. Windows release-host qualification and
 hardware acceptance remain pending. The SDK changes keep the existing
-machine sources and DSP compiler settings intact. The browser audition
-served for user review remains on `codex/x0x-prototype` with its earlier
-SDK pin.
+machine sources and DSP compiler settings intact. The browser audition and
+native candidate use this same machine source and SDK pin.
 
 ## Controls
 
@@ -41,13 +40,18 @@ group cut each other off. Set open and closed hats to the same numbered group
 when assembling a kit. Repeated hits on the same pad use the SDK's short
 crossfade instead of piling up voices.
 
-The screen shows a sunglasses-wearing beaver and drum kit in grayscale, with small blue/red accents. All
+The screen shows a Grogu drummer with large eyes, long ears and a wrapped robe,
+in grayscale with small blue/red accents on the kit. A separate label shows
+the selected drum and its 606/707/808/909 style, including single-family sounds;
+sequencer hits animate the played drum without changing that selection label.
+The parameter bar gives labels 50 pixels and values 70 pixels within each
+encoder column, with 17px active values and 12px inactive values. All
 18 drum types have their own band-style emblem printed on the kick head. All
 47 type/style combinations react to note starts, with articulated shoulder and
 wrist movement, alternating hands where the surface is reachable, stick
 follow-through, cymbal/skin vibration, head nods, tail motion and a kick pedal.
 The generator solves strike poses offline; runtime keeps the sticks attached to
-the paws as the joints rebound at different rates. The 606 snaps, 707 steps,
+the hands as the joints rebound at different rates. The 606 snaps, 707 steps,
 808 rolls back smoothly and 909 recoils sharply. Movement settles within
 0.2 seconds, with hit brightness following the pad's decay. Reduced motion
 keeps static feedback. Entering a track or browsing a type/style establishes a
@@ -55,7 +59,7 @@ still pose instead of inventing a hit. Drawing follows the latest played pad on 
 while the header and encoders stay on the selected pad. It uses drawing ABI 5
 trigger snapshots; simultaneous hits between display frames can coalesce, and
 GUI control snapshots are not a history of audio-side step locks.
-Run `python artwork/beaver.py` to regenerate the vector scene, pivots and contact
+Run `python artwork/drummer.py` to regenerate the vector scene, pivots and contact
 poses. The same C++ animates the browser and native display; no bitmap is loaded
 by the machine.
 
@@ -149,6 +153,23 @@ and collect revision-bound CPU evidence. A host check or successful build
 proves neither hardware acceptance nor measured CPU cost.
 
 ## Sound implementation
+
+Voice settings are cached per voice and refreshed whenever its model or any
+7-bit control changes. Unbent oscillators advance directly; swept tonal voices
+share one increment calculation across their identical oscillators. The cache
+uses 140 additional bytes per voice (4,480 bytes for 32 voices). It preserves
+the working sound output: `tests/waveforms.cpp` checks 47 captured fingerprints,
+covering every control value, unchanged blocks, live edits and model changes.
+The retained display also reuses settled poses between triggers and updates
+their brightness when a tail ends.
+
+`tools/benchmark.cpp` reports host nanoseconds per sample for all 47 sounds,
+with steady controls or a changing Tone control (`changing` argument). Compile
+it with `-O2`, the SDK include path, `dsp/tables.cpp` and `dsp/sample_data.cpp`.
+An initial before/after host comparison reduced the sum of render times by
+about 4% with steady controls and 2% with changing controls. These figures are
+host comparisons, not measured OP-XY CPU percentages; native timing remains
+pending.
 
 - 606: swept tonal oscillators for kick/toms, dual-tone/noise snare and a six-oscillator
   metallic source for hats/cymbal.

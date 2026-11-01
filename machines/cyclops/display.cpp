@@ -4,6 +4,7 @@
 namespace cyclops {
 inline void display_reset(DisplayState& state) {
     state.header.reset(); state.initialized = 0; state.track = state.serial = 0; state.impulse = 0;
+    for (unsigned i = 0; i < 8; ++i) state.pose[i] = 0;
 }
 namespace {
 inline void number(char* out, opxy::u32 n) {
@@ -19,6 +20,14 @@ inline void frequency(char* out, opxy::u32 hz) {
     number(out, tenths / 10);
     unsigned n = 0; while (out[n]) ++n;
     out[n++] = '.'; out[n++] = static_cast<char>('0' + tenths % 10); out[n++] = 'k'; out[n] = 0;
+}
+inline void attached(Frame& frame, unsigned node, opxy::i32 x, opxy::i32 y,
+                     opxy::i32 dx, opxy::i32 dy, opxy::draw::Turn parent,
+                     opxy::i32 scale = opxy::draw::unit) {
+    using namespace opxy::draw;
+    place(frame, node, x + floor_q10(dx * parent.cos - dy * parent.sin),
+          y + floor_q10(dx * parent.sin + dy * parent.cos), scale, 0, keep);
+    turn(frame, node, parent);
 }
 }
 inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& frame) {
@@ -38,18 +47,27 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     page_header(state.header, input, frame, titles, values, 2);
 
     const bool baseline = !state.initialized || state.track != input.track;
+    const opxy::i32 dt = clamp(input.elapsed, 0, 154);
+    const opxy::i32 remaining = static_cast<opxy::i32>(page_header_detail::remaining(dt) >> 6);
+    for (unsigned i = 0; i < 8; ++i) {
+        const opxy::i32 target = i == 6 ? dsp::option(input.slots[i], 3) * 512
+                                      : dsp::control(input.slots[i]) >> 21;
+        const opxy::i32 difference = state.pose[i] - target;
+        state.pose[i] = baseline || input.reduced_motion || dt >= 154 ? target
+                       : target + floor_q10(difference * remaining);
+        // Snap the subpixel tail so a full-range turn settles within 0.2 s.
+        if (state.pose[i] - target >= -4 && state.pose[i] - target <= 4) state.pose[i] = target;
+    }
     if (baseline || input.reduced_motion) state.impulse = 0;
     else if (state.serial != input.note_serial) state.impulse = unit;
     else {
-        const opxy::i32 dt = clamp(input.elapsed, 0, 154);
-        state.impulse = dt >= 154 ? 0 : floor_q10(state.impulse * static_cast<opxy::i32>(page_header_detail::remaining(dt) >> 6));
+        state.impulse = dt >= 154 ? 0 : floor_q10(state.impulse * remaining);
         if (state.impulse < 8) state.impulse = 0;
     }
     state.initialized = 1; state.track = input.track; state.serial = input.note_serial;
-    const opxy::i32 cut = dsp::control(input.slots[0]) >> 21;
-    const opxy::i32 res = dsp::control(input.slots[1]) >> 21;
-    const opxy::i32 drive = dsp::control(input.slots[2]) >> 21;
-    const opxy::i32 balance = (dsp::control(input.slots[5]) >> 21) - 512;
+    const opxy::i32 cut = state.pose[0], res = state.pose[1], drive = state.pose[2];
+    const opxy::i32 detune = state.pose[4], balance = state.pose[5] - 512;
+    const opxy::i32 octave = state.pose[6], keytrack = state.pose[7];
     const opxy::i32 impulse = state.impulse;
     // Eight edges, eight samples per edge: closed contours with 64 distinct
     // points, matching the native retained-path topology.
@@ -69,7 +87,8 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     }
     const opxy::i32 x = 240 * unit;
     const opxy::i32 y = 115 * unit + impulse * 3 / 2;
-    const Turn tilt = rotation(balance / 42 + impulse / 64);
+    const opxy::i32 angle = balance / 17 + impulse / 64;
+    const Turn tilt = rotation(angle);
     place(frame, 0, 299 * unit + impulse, 177 * unit, unit, 0, keep);
     place(frame, 10, 299 * unit + impulse, 177 * unit, unit, 0, keep);
     place(frame, 11, x, 184 * unit, unit, 0, keep);
@@ -77,11 +96,37 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
         place(frame, node, x, y, unit, 0, keep);
         turn(frame, node, tilt);
     }
-    place(frame, 1, x + cut * 21, y, unit, 3 + static_cast<unsigned>(impulse * 7 / unit), stroke);
-    turn(frame, 1, tilt);
+    attached(frame, 1, x, y, cut * 45, 0, tilt);
+    frame.nodes[1].shade = impulse > 64 ? 14 : 13;
+    frame.nodes[1].paint = stroke;
     place(frame, 19, x, y, unit, 10 + static_cast<unsigned>(drive * 3 / unit), fill_and_stroke);
     turn(frame, 19, tilt);
-    place(frame, 20, x, y, unit, 12 + static_cast<unsigned>((unit - res) * 2 / unit), fill_and_stroke);
+    place(frame, 20, x, y, unit, 12, fill_and_stroke);
     turn(frame, 20, tilt);
+
+    // All rifle layers share one pivot; the scope retains its lens centre
+    // while resonance tightens its focus ring.
+    const opxy::i32 gun_x = 306 * unit;
+    const opxy::i32 gun_y = 155 * unit - (octave - 512) * 10 + impulse * 2;
+    const Turn aim = rotation(140 + detune / 10);
+    for (unsigned node = 24; node <= 30; ++node) {
+        place(frame, node, gun_x, gun_y, unit, 0, keep);
+        turn(frame, node, aim);
+    }
+    attached(frame, 28, gun_x, gun_y, 0, -19 * unit, aim, 640 + drive * 3 / 4);
+    attached(frame, 30, gun_x, gun_y, 12 * unit, -44 * unit, aim, 1536 - res);
+    const opxy::i32 mast = 640 + keytrack;
+    attached(frame, 31, x, y, 53 * unit, -8 * unit, tilt, mast);
+    attached(frame, 32, x, y, 53 * unit, -8 * unit - mast * 15, tilt);
+    turn(frame, 32, rotation(angle - keytrack * 6 / 10));
+
+    const unsigned waves = dsp::option(input.slots[3], 4);
+    for (unsigned osc = 0; osc < 2; ++osc) {
+        const unsigned saw = 33 + osc * 2, pulse = saw + 1;
+        const bool square = osc ? (waves & 1) != 0 : waves >= 2;
+        const unsigned selected = square ? pulse : saw;
+        place(frame, selected, (osc ? 258 : 223) * unit, (osc ? 205 : 201) * unit, unit, 0, keep);
+        hide(frame, square ? saw : pulse);
+    }
 }
 }

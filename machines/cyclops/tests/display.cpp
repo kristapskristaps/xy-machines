@@ -38,6 +38,32 @@ int main() {
     input.reduced_motion = 0; input.track++; input.note_serial += 50;
     cyclops::display(state, input, frame);
     require(state.impulse == 0, "track change establishes a fresh baseline");
+    // Compare artwork only, so a changing number in the header cannot satisfy
+    // the requirement that every sound parameter has a visual response.
+    for (unsigned slot = 0; slot < 8; ++slot) {
+        cyclops::display_reset(state);
+        input = opxy::draw::Input(); input.elapsed = 17; input.track = 1;
+        cyclops::display(state, input, frame);
+        const cyclops::Frame low = frame;
+        input.slots[slot] = 2147483647;
+        for (unsigned i = 0; i < 12; ++i) cyclops::display(state, input, frame);
+        bool changed = std::memcmp(low.paths, frame.paths, sizeof(frame.paths)) != 0;
+        const unsigned artwork[] = {0,1,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
+                                    24,25,26,27,28,29,30,31,32,33,34,35,36};
+        for (unsigned i = 0; i < sizeof(artwork) / sizeof(artwork[0]); ++i)
+            changed |= std::memcmp(&low.nodes[artwork[i]], &frame.nodes[artwork[i]], sizeof(frame.nodes[0])) != 0;
+        require(changed, "each parameter changes artwork independently of the header");
+        const cyclops::Frame end = frame;
+        for (unsigned i = 0; i < 100; ++i) cyclops::display(state, input, frame);
+        require(std::memcmp(&end, &frame, sizeof(frame)) == 0, "parameter response settles and stays still");
+        input.reduced_motion = 1; input.slots[slot] = 0;
+        cyclops::display(state, input, frame);
+        require(std::memcmp(low.paths, frame.paths, sizeof(frame.paths)) == 0, "reduced motion snaps contours");
+        for (unsigned i = 0; i < sizeof(artwork) / sizeof(artwork[0]); ++i)
+            require(std::memcmp(&low.nodes[artwork[i]], &frame.nodes[artwork[i]], sizeof(frame.nodes[0])) == 0,
+                    "reduced motion snaps artwork to the resting pose");
+    }
+    input.reduced_motion = 0;
     for (unsigned corner = 0; corner < 256; ++corner) {
         for (unsigned j = 0; j < 8; ++j) input.slots[j] = corner & (1u << j) ? 2147483647 : 0;
         for (unsigned page = 0; page < 2; ++page) {

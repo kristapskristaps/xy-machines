@@ -92,12 +92,26 @@ architecture described in [Moog's Minitaur manual](https://api.moogmusic.com/sit
 No Moog source code, firmware or artwork is included. Mando is not affiliated
 with or endorsed by Moog Music.
 
-The display uses faceted silver armour, a recessed T-shaped visor, shoulder
-plates and a cape. Cutoff moves the visor reflection, Drive brightens the brow
-reflection, Resonance dims the dome highlight, and Balance slightly angles
-the helmet. Notes add a brief nod, visor glint and cape movement, settling
-within 0.2 seconds. Idle screens stay still; reduced motion suppresses note
-movement, and track changes establish fresh note baselines.
+The display uses faceted silver armour, a recessed T-shaped visor, a shoulder
+cape and a detailed forked rifle with a rail, scope and charge cells. Muted
+blue visor/scope lights and a small red charge indicator are the only colour
+accents; the armour and standard header remain monochrome.
+
+| Parameter | Visual response |
+| --- | --- |
+| Cutoff | Sweeps the blue reflection across the visor. |
+| Reso | Tightens the rifle scope's focus ring. |
+| Drive | Enlarges the red charge cells and brightens the helmet's brow reflection. |
+| Waves | Switches the two chest badges between saw and pulse, matching each oscillator. |
+| Detune | Changes the rifle's angle over the shoulder. |
+| Balance | Angles the helmet left or right. |
+| Octave | Raises or lowers the rifle into three positions. |
+| Keytrack | Extends and deploys the helmet's rangefinder. |
+
+Continuous visual changes ease to rest within about 0.2 seconds. Notes add
+a brief helmet nod, visor glint, rifle recoil and cape movement. Idle screens
+stay still; reduced motion jumps to the resting parameter pose and suppresses
+note movement. Track changes establish fresh note baselines.
 
 The visible name is Mando. The saved machine ID, preset types and source path
 remain `cyclops`, preserving existing projects and the 16 native presets.
@@ -122,7 +136,7 @@ accumulator, unrolls the four stages and prepares waveform/pitch paths once per
 block. Wavetables store their original Q14 values in 16-bit words; a 32 KiB
 cache expands the exact integer saturation interpolant. Each voice caches
 filter coefficients until cutoff or resonance changes. Voice state is 116
-bytes, and the standalone native module uses about 172 KiB.
+bytes, and the standalone native module uses about 174 KiB.
 Compatibility fingerprints bind the optimized render to the B audition.
 
 Use the paired host benchmark to compare CPU cost against a collection revision:

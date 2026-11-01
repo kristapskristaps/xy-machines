@@ -156,7 +156,7 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
         break;
     }
     case rim:
-        signal = divide<3>((multiply(sine(v.phase[0]),32767-body_amount)+multiply(sine(v.phase[1]),body_amount))*2);
+        signal = divide_signal<3>((multiply(sine(v.phase[0]),32767-body_amount)+multiply(sine(v.phase[1]),body_amount))*2);
         signal += multiply(multiply(random, transient), i32(s.raw[character]) * 512);
         break;
     case low_tom: case mid_tom: case high_tom:
@@ -174,7 +174,7 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
             break;
         }
         i32 metal = 0;
-        for (u32 i = 0; i < 6; ++i) metal += divide<6>(square(v.phase[i]));
+        for (u32 i = 0; i < 6; ++i) metal += square_sixth(v.phase[i]);
         v.metal_low += multiply(metal - v.metal_low, s.family == 0 ? 12000 : 9000);
         signal = limit((metal - v.metal_low) * (v.model == cymbal ? 3 : 4));
         if (v.model == cymbal) signal = (signal * 3 + multiply(random, body_amount)) / 4;

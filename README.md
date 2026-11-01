@@ -165,11 +165,14 @@ covering every control value, unchanged blocks, live edits and model changes.
 The retained display also reuses settled poses between triggers and updates
 their brightness when a tail ends.
 
-Exact reciprocal arithmetic replaces signed division by 3, 6 and 23 in the
-sample loop. Clap bursts use a bounded remainder and a corrected reciprocal;
-PCM clap delay is cached with its controls. These preserve integer rounding
-and the original output samples. `tests/arithmetic.cpp` checks two million
-full-word products/divisions, signed boundaries and every supported clap ratio.
+Exact reciprocal arithmetic replaces signed division in the sample loop.
+The reciprocals use each signal's proven range rather than a full-word high
+product; the 606 oscillator combines consecutive divisions by 23 and 6 into
+one division by 138. Clap bursts use a bounded remainder and a corrected
+reciprocal; PCM clap delay is cached with its controls. These preserve integer
+rounding and the original output samples. `tests/arithmetic.cpp` exhaustively
+checks each supported division range, every Drive sample/control pair and every
+supported clap ratio.
 
 `tools/benchmark.cpp` reports host nanoseconds per sample for all 47 sounds,
 with steady controls or a changing Tone control (`changing` argument). Compile

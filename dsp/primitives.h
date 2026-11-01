@@ -8,23 +8,22 @@ using opxy::u32;
 static inline i32 limit(i32 value, i32 bound = 32767) { return value < -bound ? -bound : value > bound ? bound : value; }
 // Q15 signals/coefficient products bounded to signed 32-bit arithmetic.
 static inline i32 multiply(i32 a, i32 b) { return a * b / 32768; }
-static inline u32 high_product(u32 a, u32 b) {
-    const u32 a0 = a & 65535u, a1 = a >> 16;
-    const u32 b0 = b & 65535u, b1 = b >> 16;
-    const u32 low = a0*b0;
-    const u32 middle = a1*b0 + (low >> 16);
-    const u32 upper = a0*b1 + (middle & 65535u);
-    return a1*b1 + (middle >> 16) + (upper >> 16);
-}
-// Exact reciprocal division avoids native software-divider calls in the sample
-// loop. Use unsigned magnitudes to retain truncation toward zero, including MIN.
-template <u32 divisor> static inline i32 divide(i32 value) {
-    static_assert(divisor == 3 || divisor == 6 || divisor == 23, "Exact reciprocal divisor");
+// Exact reciprocal division for bounded audio signals: |value| <= 65536 for
+// /3 and /6, or <= 23*32768 for the harmonic sum's /23 and /138. For each
+// reciprocal m/2^s, bound*(m*divisor-2^s) < 2^s guarantees exact rounding.
+template <u32 divisor> static inline i32 divide_signal(i32 value) {
+    static_assert(divisor == 3 || divisor == 6 || divisor == 23 || divisor == 138, "Signal divisor");
     const u32 magnitude = value < 0 ? 0u-u32(value) : u32(value);
-    const u32 reciprocal = divisor == 23 ? 0xb21642c9u : 0xaaaaaaabu;
-    const u32 shift = divisor == 23 ? 4 : divisor == 6 ? 2 : 1;
-    const i32 quotient = i32(high_product(magnitude,reciprocal) >> shift);
-    return value < 0 ? -quotient : quotient;
+    u32 quotient;
+    if (divisor == 3 || divisor == 6) {
+        quotient = magnitude*43691u >> (divisor == 3 ? 17 : 18);
+    } else {
+        const u32 reciprocal = divisor == 23 ? 729445u : 972593u;
+        // Split before multiplying: both products and their sum fit u32.
+        const u32 product = (magnitude >> 8)*reciprocal + ((magnitude & 255u)*reciprocal >> 8);
+        quotient = product >> (divisor == 23 ? 16 : 19);
+    }
+    return value < 0 ? -i32(quotient) : i32(quotient);
 }
 // Exact floor(numerator*32767/denominator), for 0 <= numerator <= denominator
 // <= 65535. Cache floor((32767<<16)/denominator) when the control changes.
@@ -47,7 +46,10 @@ static inline i32 triangle(u32 phase) {
 }
 // Three odd partials keep the metallic source's intentional square character
 // without an unbounded set of aliased harmonics.
-static inline i32 square(u32 phase) { return divide<23>(15 * sine(phase) + 5 * sine(phase * 3) + 3 * sine(phase * 5)); }
+static inline i32 square_partials(u32 phase) { return 15 * sine(phase) + 5 * sine(phase * 3) + 3 * sine(phase * 5); }
+static inline i32 square(u32 phase) { return divide_signal<23>(square_partials(phase)); }
+// Truncating /23 and then /6 is identical to truncating /138 once.
+static inline i32 square_sixth(u32 phase) { return divide_signal<138>(square_partials(phase)); }
 static inline i32 noise(u32& seed) {
     seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
     return i32(seed >> 17) - 16384;
@@ -68,6 +70,6 @@ static inline i32 drive(i32 sample, u32 amount) {
     const i32 boosted = limit(sample + sample*i32(amount)/16);
     const i32 half = boosted / 2;
     const i32 cube = (half * half / 16384) * half / 16384;
-    return boosted - divide<3>(2 * cube);
+    return boosted - divide_signal<3>(2 * cube);
 }
 }}

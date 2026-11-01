@@ -435,6 +435,36 @@
       "before_sha256": "9a2a44e133ef64643c1ded7e0b0a22f42926fc73ecb6c63eb81775a60699219e",
       "after_sha256": "92e329c0354aa425df367dfa653b91b002a05f0df63e45406cd68b10f0ed95e4",
       "reason": "Use the collection workflow, pinned SDK and layout-preserving hardware commands; no DSP changes."
+    },
+    "machines/x0x/AGENTS.md": {
+      "before_sha256": "d2f456f4095283abefef951f0ec9551c86017b47564348300728a29a895a4787",
+      "after_sha256": "a6357198770c2b78d3108cbb97cb27130684fc148918bcd290a52f11f1b3edb8",
+      "reason": "Use the collection SDK pin and root workflow; remove redundant nested CI/pin and adapt tooling paths without DSP, preset or artwork changes."
+    },
+    "machines/x0x/README.md": {
+      "before_sha256": "13b5bcead7f2c34681fe2d868ac82eb981f0f8f9259f8d992ead8ae7f098fbc7",
+      "after_sha256": "9ee79ada55bd28f3dfc0b4910133662b15ea6c96980c33488075c9aea555f98c",
+      "reason": "Use the collection SDK pin and root workflow; remove redundant nested CI/pin and adapt tooling paths without DSP, preset or artwork changes."
+    },
+    "machines/x0x/tools/generate_presets.py": {
+      "before_sha256": "fa535df604a7e2d86879e78c30d6c9b311a34210915963b38a30ac698b8e173d",
+      "after_sha256": "c10b3fb88e94d6181e32587939a6d340055003db1879bc8affde8e9607323000",
+      "reason": "Use the collection SDK pin and root workflow; remove redundant nested CI/pin and adapt tooling paths without DSP, preset or artwork changes."
+    },
+    "machines/x0x/.github/workflows/machine.yml": {
+      "before_sha256": "02988ebf20ec0c4dfd439b758ae0a2f5fa6a143b764e43ef04b6fa06c91b536b",
+      "after_sha256": null,
+      "reason": "Use the collection SDK pin and root workflow; remove redundant nested CI/pin and adapt tooling paths without DSP, preset or artwork changes."
+    },
+    "machines/x0x/SDK_REVISION": {
+      "before_sha256": "28ed699afa9beb30950acf88abe3b8810d50c1729f919686b21661463e44e8cb",
+      "after_sha256": null,
+      "reason": "Use the collection SDK pin and root workflow; remove redundant nested CI/pin and adapt tooling paths without DSP, preset or artwork changes."
+    },
+    "machines/x0x/machine.json": {
+      "before_sha256": "63b26c5ed6dada814c0354a533ccd4374c2b0f3bb0122fded71954a27e35d9bc",
+      "after_sha256": "26299880191897602daec9994d7694ed1f82d8ba5be7ed308c6fcf656b94944f",
+      "reason": "Upstream assigned synthesis drums to SDK 1.8 when merging the draft that reserved 1.9; retain all required draft interfaces through the exact collection SDK pin."
     }
   }
 }

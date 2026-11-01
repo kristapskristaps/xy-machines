@@ -5,9 +5,6 @@
       "path": "machines/acidline"
     },
     {
-      "path": "machines/mando"
-    },
-    {
       "path": "machines/halo"
     },
     {
@@ -89,6 +86,9 @@
       "path": "machines/hundekraft/hkwavetable"
     },
     {
+      "path": "machines/mando"
+    },
+    {
       "path": "machines/matter"
     },
     {
@@ -108,6 +108,9 @@
     },
     {
       "path": "machines/westfold"
+    },
+    {
+      "path": "machines/x0x"
     }
   ]
 }

@@ -76,8 +76,8 @@ def fingerprint(folder):
 def preview(args, sdk):
     machine = inventory().get(args.id)
     require(machine is not None, 'Unknown machine ID. Use ./xy list.')
-    require(machine['metadata']['kind'] == 'synth',
-            'The SDK browser workbench supports synths. See docs/development.md for effect/sample auditions.')
+    require(machine['metadata']['kind'] in ('synth', 'drum'),
+            'The SDK browser workbench supports synths and drums. See docs/development.md for effect/sample auditions.')
     folder = machine['path']
     def build():
         out = fresh(ROOT / 'local/previews', args.id)

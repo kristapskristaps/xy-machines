@@ -118,13 +118,14 @@ Normal tests skip the slower CPU sweep; `--cpu` enables its host estimate.
 Native effects are linked with Subvista because SDK startup requires an engine.
 Temporary native modules are not installable OS images.
 
-The SDK browser workbench currently supports synths and uses an audition gate;
+The SDK browser workbench supports synths and drums and uses an audition gate;
 it does not emulate native mono/glide, stock envelopes, filters or sends.
 Effects/sample engines use the same test/build commands plus existing auditions:
 
 - Hundekraft: see `machines/hundekraft/README.md` for its live stereo effect
   workbench, A/B, test phrases and local audio files.
 - Halo: `machines/halo/tools/audition.py` builds/serves its live workbench.
+- X0X: see `machines/x0x/README.md` for the 24-pad drum audition, seven kits and independent pad controls.
 - Rebound: `machines/rebound/tools/audition.cpp` renders clean ping-pong and
   above-unity feedback rides; see its README for the compile/render commands.
 - HK Granular's audition is a recording; native sample assignment still needs

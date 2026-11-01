@@ -1,55 +1,24 @@
-# Machine development
+# X0X
 
-This repository holds X0X (`x0x`). The machine is at the repository root.
-Read README.md and use the [Open-XY SDK](https://github.com/etcetc000/open-xy)
-at local draft `335a8d064b66f31d697fa6516e6bbae6d96cafa9` on
-`codex/native-gui-size`, checked out beside this repository as
-`../xy-sdk-gui-size`. This branch needs its `parameterEdit` callback.
-Windows release-host qualification and upstream SDK review remain pending.
-Adjust that path if the user already has the SDK elsewhere.
+This machine is `machines/x0x`. Follow the repository root AGENTS.md and
+[development guide](../../docs/development.md). The collection root
+`SDK_REPOSITORY` and `SDK_REVISION` pin its SDK; use the clean checkout
+configured by `./xy setup`, without modifying or resetting other checkouts.
 
-1. Read the [machine API](https://github.com/etcetc000/open-xy/blob/staging/docs/api.md),
-   follow the [UX conventions](https://github.com/etcetc000/open-xy/blob/staging/docs/ux.md)
-   for controls, pages, screens and motion, and read the relevant [core machines](https://github.com/etcetc000/open-xy-core-machines):
-   Macro Osc for two-page synths, Karplus or 2op FM for four-control synths,
-   Ring Mod or Ping Pong for effects, Timestretch
-   for sample engines. They are the worked examples; this repository holds the
-   user's implementation. Use the actual parameter count: four controls keep
-   the stock header. For five to eight controls, keep the generated shared
-   `opxy/page_header.hpp` header and its SVG bindings: fixed rows, lowercase
-   titles, active-row emphasis, any encoder press switches pages. Repeat the
-   same saved parameter in columns without alternates; never invent filler
-   parameters. Format captions in real units and keep artwork below y=38.
-   Preserve licences and attribution when reusing code.
+X0X needs the drum `parameterEdit` callback, drawing ABI 5 played-pad
+snapshots and bounded sample-free drum presets. Preserve these requirements
+when changing the SDK dependency. Use `./xy test x0x --native` and
+`./xy preview x0x --watch` from the repository root. Its full 24-pad audition
+is documented in README.md.
 
-This is a `kind: drum` machine. Drum type and both control pages must stay
-per pad. Do not replace the drum adapter with track-wide synth controls.
+Keep type, style, choke group and both control pages per pad. Preserve all 47
+valid type/style combinations, 7-bit controls, saved IDs and the seven kits.
+Sound, display and arithmetic tests belong here. DSP uses public opxy headers,
+with no platform conditionals, assembly, allocation, blocking, I/O or graphics
+in audio callbacks. Keep licences, recording credits and asset provenance.
 
-2. Implement through public `<opxy/...>` headers. Keep code, metadata, artwork
-   and sound tests here. Do not edit the SDK to make the machine work; explain
-   missing interfaces and propose a separate SDK PR against `staging`.
-   Contributor code has no assembly, raw firmware addresses, OS headers or
-   platform conditionals. Audio callbacks must not allocate, block, log, do I/O
-   or call graphics.
-3. Run `python ../xy-sdk-gui-size/sdk.py test --machine .` and extend `tests/` for the
-   machine's promised sound and behavior. Offer browser audition where supported.
-   Use the host CPU estimate to guide iteration; it is not a hardware measurement.
-4. After local testing and audition, propose hardware validation. Follow the SDK's
-   [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md)
-   and [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
-   Prepare a profiling-enabled build from committed source, request a device test
-   if not already authorized, and wait for confirmation of installation/reboot.
-   Collect a complete run (hardware profiling's "Collect a run"), generate the
-   report and explain its scope.
-   Never invent a CPU number from host checks. If hardware is unavailable, report
-   that validation remains pending; a maintainer can run the batch.
-5. If publication is requested, follow
-   [catalog submission](https://github.com/etcetc000/open-xy/blob/staging/docs/catalog.md#submit-a-machine).
-   New or changed draft/published entries require the hardware `cpu` record for
-   the exact pinned commit. A new machine revision needs a new measurement.
-   The catalog PR targets `staging` and changes only `catalog/machines.json`.
-
-Keep generated outputs outside this repository. Firmware, stock content and
-firmware-containing packages must stay outside every checkout, even ignored
-folders. Device operations require an explicit user instruction; building and
-testing locally do not authorize installing firmware or running diagnostics.
+Regenerate the vector scene with `python machines/x0x/artwork/drummer.py`.
+Pass the configured SDK explicitly to the preset generator and audition server.
+Use the root layout-preserving build/stage workflow for authorized hardware
+tests. Host checks do not establish device CPU cost; prior hardware results
+belong to the measured standalone revisions until the collection build is tested.

@@ -64,7 +64,7 @@ def generate(sdk, cxx):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--sdk',type=Path,default=ROOT.parent/'xy-sdk-gui-size')
+    parser.add_argument('--sdk',type=Path,required=True)
     parser.add_argument('--cxx',default='c++')
     args = parser.parse_args()
     generate(args.sdk.resolve(),args.cxx)

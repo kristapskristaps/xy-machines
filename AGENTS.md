@@ -20,7 +20,7 @@ Read the SDK's authoring, UX, API, build and profiling guides before machine wor
    Run `./xy test <id>` for quick checks. `./xy test --changed` includes staged,
    unstaged and untracked machine files relative to HEAD; `--base origin/main`
    includes branch changes. Inventory/SDK-pin changes select all machines.
-5. For synths use `./xy preview <id> --watch`. The localhost allowlist serves
+5. For synths and drums use `./xy preview <id> --watch`. The localhost allowlist serves
    fresh authenticated snapshots and reloads only successful builds. A failed
    edit keeps the previous audition available. Playing a key starts audio.
    The default chooses a free port; never stop another chat's server.
@@ -28,7 +28,7 @@ Read the SDK's authoring, UX, API, build and profiling guides before machine wor
    performance changes; this is an advisory host estimate, not Blackfin timing.
    Effect native checks include Subvista because the SDK startup check needs an engine.
 
-The SDK browser workbench supports synths. Effects/sample engines use the same
+The SDK browser workbench supports synths and drum machines. Effects/sample engines use the same
 test/build commands plus their specialist auditions listed in the development
 guide. Do not claim that browser tests reproduce native mono/glide, stock
 envelopes, sends, scheduling, device CPU or hardware display behaviour.

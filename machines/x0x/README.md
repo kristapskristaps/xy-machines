@@ -8,22 +8,18 @@ The first sound implementation covers all **47 valid drum-type/family combinatio
 original fixed-point synthesis inspired by their classic architectures, rather
 than calibrated circuit emulations. The 707 voices and 909 hats/cymbals use
 credited recordings. Host tests exercise the real SDK pad editor, storage codec
-and sound callbacks; on-device interaction, project/preset save/reload and CPU
-timing remain unverified.
+and sound callbacks. The imported standalone revision was exercised on the XY
+and measured with synthetic DSP workloads. That evidence does not qualify a
+new collection/SDK build or measure whole-project CPU.
 
 ## SDK
 
-This native stepping candidate pairs with the separate local SDK draft
-`335a8d064b66f31d697fa6516e6bbae6d96cafa9` on `codex/native-gui-size`,
-checked out as `../xy-sdk-gui-size`. It adds `resources.parameterEdit`
-to SDK 1.9's synthesis-drum support. CI can use this pin after that SDK commit
-is published. The existing `../open-xy` checkout is untouched.
-
-The draft passes public checks, and the full existing collection now links
-inside the shared module limit. Windows release-host qualification and
-hardware acceptance remain pending. The SDK changes keep the existing
-machine sources and DSP compiler settings intact. The browser audition and
-native candidate use this same machine source and SDK pin.
+Use the collection root's `SDK_REPOSITORY` and `SDK_REVISION`, configured by
+`./xy setup`. X0X requires the draft drum `parameterEdit` callback for one
+Style choice per encoder detent, drawing ABI 5 played-pad snapshots for
+sequencer animation, and bounded sample-free drum preset records. The pinned
+SDK includes these interfaces, native memory reductions and exact pad decoding.
+Windows release-host qualification remains pending.
 
 ## Controls
 
@@ -88,12 +84,14 @@ publication and choke routing; there is no sidecar project format.
 
 ## Validate and preview
 
-For the complete 24-pad browser audition, build a fresh preview and run the
-machine's allowlisted audition server:
+Run these commands from the collection root. `./xy test x0x --native` checks
+the machine and `./xy preview x0x --watch` opens the SDK workbench. For the
+complete 24-pad browser audition, use the clean SDK configured by setup (shown
+here at its default sibling path):
 
 ```sh
-python ../xy-sdk-gui-size/sdk.py preview --machine . --out ../xy-sdk-gui-size/local/x0x-browser-001 --cxx clang++
-python audition/serve.py --sdk ../xy-sdk-gui-size --preview ../xy-sdk-gui-size/local/x0x-browser-001 --port 8958
+python ../xy-machines-sdk/sdk.py preview --machine machines/x0x --out local/x0x-browser-001 --cxx clang++
+python machines/x0x/audition/serve.py --sdk ../xy-machines-sdk --preview local/x0x-browser-001 --port 8958
 ```
 
 Open http://127.0.0.1:8958/. Click a pad or a style to start audio. Style's
@@ -104,7 +102,7 @@ one-shot tails and supports eight concurrent audition voices. A beat loop
 helps compare tuning, envelopes and hat choke groups while playing.
 The Kit menu offers 808 Classic, 606 Dry, 707 Studio, 909 Club, Night Wire,
 Warehouse and Soft Machines. Loading one resets all 24 audition pads; each
-pad remains independently editable. `python tools/generate_presets.py` rebuilds
+pad remains independently editable. `python machines/x0x/tools/generate_presets.py --sdk ../xy-machines-sdk` rebuilds
 the audition bank and the matching device files in `presets/`. Device presets
 store all 24 pads with neutral track parameters, keeping model selection and
 both pages freely editable. Their open/closed hats share choke group 1.
@@ -117,13 +115,11 @@ encoding. For example, ride steps directly between 707 and 909. Other controls
 retain their unit steps. The draft SDK integration checks all 4,608 combinations
 of model, stored Style value and direction through its real pad editor.
 
-With Python 3.11+, NumPy 2.3.5 and Clang with WebAssembly linking installed:
+The integration checks also exercise the real SDK pad editor and native audio adapter:
 
 ```sh
-python ../xy-sdk-gui-size/sdk.py test --machine . --cxx clang++ --host-cxx c++
-python tests/sdk_integration.py --sdk ../xy-sdk-gui-size --cxx c++
-python ../xy-sdk-gui-size/sdk.py preview --machine . --out ../xy-sdk-gui-size/local/x0x-preview-001 --cxx clang++
-python ../xy-sdk-gui-size/tools/serve_harness.py --preview ../xy-sdk-gui-size/local/x0x-preview-001
+python machines/x0x/tests/sdk_integration.py --sdk ../xy-machines-sdk --cxx c++
+python machines/x0x/tests/native_audio.py --sdk ../xy-machines-sdk --cxx c++
 ```
 
 On macOS, pass `/opt/homebrew/opt/llvm/bin/clang++` as `--cxx` when Apple's
@@ -179,7 +175,8 @@ with steady controls or a changing Tone control (`changing` argument). Compile
 it with `-O2`, the SDK include path, `dsp/tables.cpp` and `dsp/sample_data.cpp`.
 Host measurements do not capture the Blackfin compiler's software-divider
 cost. Compare native hardware callback workloads before claiming an OP-XY CPU
-improvement; hardware timing of this revision remains pending.
+improvement. Historical standalone measurements do not qualify the reorganized
+collection revision; measure its exact package before catalog submission.
 
 - 606: swept tonal oscillators for kick/toms, dual-tone/noise snare and a six-oscillator
   metallic source for hats/cymbal.

@@ -40,7 +40,8 @@ group cut each other off. Set open and closed hats to the same numbered group
 when assembling a kit. Repeated hits on the same pad use the SDK's short
 crossfade instead of piling up voices.
 
-The screen shows a smiling Grogu drummer with round sunglasses, long ears and a wrapped robe,
+The screen shows a baby-faced Grogu drummer with Wayfarer-style sunglasses,
+long ears and a wrapped robe,
 in grayscale with small blue/red accents on the kit. A separate label shows
 the selected drum and its 606/707/808/909 style, including single-family sounds;
 sequencer hits animate the played drum without changing that selection label.

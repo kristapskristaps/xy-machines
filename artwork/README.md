@@ -11,6 +11,7 @@ surface. Independent shoulder and wrist springs provide follow-through;
 forward kinematics keeps the stick at the hand throughout its rebound.
 
 The character follows the user's cartoon reference: a round face, long curved
-ears and a wrapped robe, with round sunglasses and a gentle smile. Paths
+ears and a wrapped robe, with Wayfarer-style sunglasses and a small smile.
+The wide cheeks, smooth forehead and tiny nose keep the face baby-like. Paths
 are authored here as native-compatible vectors, with no raster dependency.
 The scene stays monochrome apart from small blue/red details on the drum kit.

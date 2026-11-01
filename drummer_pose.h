@@ -13,15 +13,12 @@ static const DrummerPose drummer_poses[] = {
     {283,198,drummer_right_foot}, // right foot
     {240,86,drummer_head}, // wide ears
     {240,86,drummer_head}, // ear folds
-    {240,86,drummer_head}, // head
-    {240,86,drummer_head}, // forehead and hair
-    {240,86,drummer_head}, // rounded sunglasses frame
-    {240,86,drummer_head}, // happy cheek dimples
-    {240,86,drummer_head}, // gentle smile
-    {240,86,drummer_head}, // round sunglass lenses
+    {240,86,drummer_head}, // baby face
+    {240,86,drummer_head}, // Wayfarer frame
+    {240,86,drummer_head}, // small smile
+    {240,86,drummer_head}, // Wayfarer lenses
     {240,86,drummer_head}, // lens reflections
-    {240,86,drummer_head}, // nose
-    {240,86,drummer_head}, // cheeks
+    {240,86,drummer_head}, // button nose
     {202,120,drummer_left_arm}, // left arm
     {202,120,drummer_left_arm}, // left fingers
     {187,94,drummer_left_stick}, // left stick

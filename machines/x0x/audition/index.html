@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>X0X · Drum audition</title><link rel="stylesheet" href="/x0x/style.css"></head>
+<body>
+<main>
+  <header><div class="brand">X0X<span>DRUM MACHINE</span></div><div class="edition">606 / 707 / 808 / 909<br><span>47 sounds · 24 independent pads</span></div></header>
+  <div class="instrument">
+    <section class="voice" aria-label="Selected pad controls">
+      <div class="section-top"><span id="selection">PAD 01 / KICK</span><button id="config" aria-pressed="false">Shift / config</button></div>
+      <div class="screen"><svg id="screen-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" role="img" aria-label="X0X instrument display"><rect width="480" height="220" fill="#000"/></svg></div>
+      <div class="pages" aria-label="Encoder page"><button id="page-0" aria-pressed="true">1 / voice</button><button id="page-1" aria-pressed="false">2 / shape</button><span>Press any encoder to switch page</span></div>
+      <div id="encoders" class="encoders"></div>
+      <div class="voice-select"><label>Drum type<select id="type"></select></label><label>Choke<select id="choke"><option value="0">None</option><option value="1">Group 1</option><option value="2">Group 2</option><option value="3">Group 3</option></select></label></div>
+      <div class="family-row"><button id="previous-family" class="arrow" aria-label="Previous style">−</button><div id="families" class="families" aria-label="Drum style"></div><button id="next-family" class="arrow" aria-label="Next style">+</button></div>
+      <p class="hint">One wheel step or arrow click = one available style.</p>
+    </section>
+    <section class="performance" aria-label="Drum pads and playback">
+      <label class="kit-preset">Kit <select id="preset" aria-label="Kit preset"></select></label>
+      <div class="section-top"><span>PLAY / SELECT A PAD</span><span class="key-hint">Keyboard keys shown below</span></div>
+      <div id="pads" class="pads"></div>
+      <div class="transport"><button id="hit" class="primary">Hit pad <kbd>space</kbd></button><button id="beat" aria-pressed="false">Play beat</button><button id="stop">Stop</button></div>
+      <div class="mix"><label>Tempo <input id="tempo" type="range" min="60" max="180" step="1" value="118"><output id="tempo-value">118</output></label><label>Volume <input id="volume" type="range" min="0" max="1" step="0.01" value="0.8"></label><meter id="level" min="0" max="1" value="0" aria-label="Output level"></meter></div>
+      <p class="sound-note">707 voices and 909 hats / cymbals use recordings. The analog voices are original synthesis inspired by the classic machines. <a href="/x0x/credits.txt" target="_blank" rel="noopener">Recording credits</a></p>
+    </section>
+  </div>
+  <footer><span id="status" role="status">Loading the full sound engine…</span><span>Click a pad to enable audio · Hold Shift for type / choke</span></footer>
+</main>
+<script type="module" src="/x0x/app.mjs"></script>
+</body></html>

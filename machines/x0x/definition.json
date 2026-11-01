@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "id": "x0x",
+  "name": "X0X",
+  "parameters": [
+    {
+      "id": "style",
+      "label": "style",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "tune",
+      "label": "tune",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "decay",
+      "label": "decay",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "tone",
+      "label": "tone",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "attack",
+      "label": "attack",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 0
+    },
+    {
+      "id": "character",
+      "label": "char",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 1
+    },
+    {
+      "id": "body",
+      "label": "body",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 2
+    },
+    {
+      "id": "drive",
+      "label": "drive",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent",
+      "control": 3
+    }
+  ],
+  "presets": {
+    "Init": {
+      "style": 0.5,
+      "tune": 0.5,
+      "decay": 0.5,
+      "tone": 0.5,
+      "attack": 0.5,
+      "character": 0.5,
+      "body": 0.5,
+      "drive": 0.5
+    }
+  },
+  "resources": {
+    "voiceBytes": 332,
+    "voiceAlignment": 4,
+    "voiceCapacity": 32,
+    "sharedBytes": 0,
+    "outputPeakQ31": 1073741824,
+    "display": {
+      "stateBytes": 56,
+      "stateAlignment": 4,
+      "paths": 0,
+      "points": 0,
+      "nodes": 109,
+      "texts": 16,
+      "palette": 10
+    },
+    "modelCount": 18,
+    "chokeSameKey": 1,
+    "parameterEdit": 1
+  }
+}

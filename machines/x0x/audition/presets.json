@@ -1,0 +1,100 @@
+[
+  {
+    "id": "default",
+    "name": "808 Classic",
+    "offsets": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "id": "606-dry",
+    "name": "606 Dry",
+    "offsets": [
+      -64,
+      0,
+      -14,
+      8,
+      0,
+      0,
+      -10,
+      0
+    ]
+  },
+  {
+    "id": "707-studio",
+    "name": "707 Studio",
+    "offsets": [
+      -32,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "id": "909-club",
+    "name": "909 Club",
+    "offsets": [
+      32,
+      0,
+      8,
+      6,
+      0,
+      8,
+      0,
+      12
+    ]
+  },
+  {
+    "id": "night-wire",
+    "name": "Night Wire",
+    "offsets": [
+      -64,
+      -8,
+      -20,
+      -12,
+      0,
+      24,
+      -10,
+      24
+    ]
+  },
+  {
+    "id": "warehouse",
+    "name": "Warehouse",
+    "offsets": [
+      32,
+      -10,
+      14,
+      -10,
+      0,
+      16,
+      16,
+      24
+    ]
+  },
+  {
+    "id": "soft-machines",
+    "name": "Soft Machines",
+    "offsets": [
+      0,
+      -5,
+      22,
+      -16,
+      10,
+      -12,
+      14,
+      0
+    ]
+  }
+]

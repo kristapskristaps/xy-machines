@@ -1,0 +1,185 @@
+[
+  {
+    "name": "kick_a",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/BassDrum1.wav",
+    "source_sha256": "c2a0be417d6738f6d0cd61a1cc56688dc3c1282d53e5907f90ddab0b67327333",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 2181,
+    "encoded_sha256": "b0eb27cf022df110c747058dd0e51e0c20abf53640c5d905d786c85dd638c8b6"
+  },
+  {
+    "name": "kick_b",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/BassDrum2.wav",
+    "source_sha256": "9bb280aa5edc2c1918a7e8bd4e7804c15a3b22618f2a0ca84ff3871f811d2167",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 2296,
+    "encoded_sha256": "d038861f6aef1e29692532bb0de6458846e9a69c187eadb332bf67f751f5d2dc"
+  },
+  {
+    "name": "snare_a",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/Snare1.wav",
+    "source_sha256": "1826656a2575a010e6e468faf3b6aa90e00ca4b7aed700fadb4cedd93c49d048",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 3093,
+    "encoded_sha256": "b6cedc588915c16a7f57057e996c94e6e3568884b65245973514ccd542ce209c"
+  },
+  {
+    "name": "snare_b",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/Snare2.wav",
+    "source_sha256": "ffb15e908132574006579fc564520e76e0fc25bb68b538a95fb952e3dbc2c1c3",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 3164,
+    "encoded_sha256": "88c09ad542f1d2cf7dfe7523b2509458d0d409ea140739cfdb92d2d1ce129550"
+  },
+  {
+    "name": "tom_low",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/LowTom.wav",
+    "source_sha256": "82892a20c05f9f0a2527305cda2ea54636bd0ee0bc45dbeff3bc43e6a9feaf96",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 14444,
+    "encoded_sha256": "05a117287b4ab7a1e5ce50b037427fb683b84310f03f551ab56671b039ec690b"
+  },
+  {
+    "name": "tom_mid",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/MedTom.wav",
+    "source_sha256": "9a21299061f54072572bf331c970a5193d0076db401bd9ce01445d5309c30975",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 14554,
+    "encoded_sha256": "131c8c6c6f0553525ff42e659c9453c0981244b5bde68b724754127d20edae83"
+  },
+  {
+    "name": "tom_high",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/HiTom.wav",
+    "source_sha256": "509a013ddcdb6b4595f2d4e47f1e350dd1217f6991f5d66317724e80551fa6b0",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 14562,
+    "encoded_sha256": "ab6b3b6944c5872e57cf70c74dbf544ba41fdd685af0ff3e5ecede542ab5fe89"
+  },
+  {
+    "name": "closed_hat",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/HhC.wav",
+    "source_sha256": "2e4054a219332925bafe7db8d4b18a42d535896387fc66b1bdc0b6e7efb574f0",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 2627,
+    "encoded_sha256": "1841c6e559a6effa830dcbd8150060ebcdeeef6c2d908476915088501b2e4ffb"
+  },
+  {
+    "name": "open_hat",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/HhO.wav",
+    "source_sha256": "dac451389b3466494efa720f383db0546e033eb5185a7e53cd84d3d85fc10f5e",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 7186,
+    "encoded_sha256": "a6f29aabc751db9fd2aec01a38b7e2ea7ebe97adf67e26af9345cd3b3892e26f"
+  },
+  {
+    "name": "crash",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/Crash.wav",
+    "source_sha256": "c9cdecdd45f85c6bb31d523db59f99e54d8ac2e3fc8573ac9275a7a312d545f6",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 27750,
+    "encoded_sha256": "c0e1d92ffb719a72337eeb252db30d91ec9fc35527541a68b8797519e18ac2d9"
+  },
+  {
+    "name": "ride",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/Ride.wav",
+    "source_sha256": "b290577087886326125a15282b537cabbe03782bbeb556600342d324d14ee463",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 13890,
+    "encoded_sha256": "d2b8589d722c42e44cd71615ed5a30d160b3bf5c2b2dca04cb7484c4a832f9fa"
+  },
+  {
+    "name": "cowbell",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/CowBell.wav",
+    "source_sha256": "ebf97120b4663b9fb1a23ef5542a67eaa8c9a81884f0b930feb60db19bd01243",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 3517,
+    "encoded_sha256": "48f410c44dade2356ac38eec6bb96502e0062829a17e915f51311a3091dafa23"
+  },
+  {
+    "name": "clap",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/HandClap.wav",
+    "source_sha256": "8ed6c7acfd138d4ec8c526b09e0493cd7279e65df83e5f80e1d5ff6b4831eb26",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 3548,
+    "encoded_sha256": "df5137c16c3795c65a911be42e904aa4f5979369d785480ce63b62cd4af8e1f1"
+  },
+  {
+    "name": "rim",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/RimShot.wav",
+    "source_sha256": "7098761c605af6bdb0f9e289ad1d3632c7990df9dccb57ea40fa8aafa6535e88",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 1774,
+    "encoded_sha256": "536c36b076a27fb30ccdb26638deb9c0e6230793fbfd4a5615a1ca10c9f987ca"
+  },
+  {
+    "name": "tambourine",
+    "url": "https://raw.githubusercontent.com/fluid-music/open-drums/475cc3314fe06f6d1af02e9790ad9707c1f2b26b/tr-707/TR707WAV/Tamb.wav",
+    "source_sha256": "7da01e23a69c2a85ddee9bd10d7bfd2cd9cc958baf41fdb92105b9905ea34e7c",
+    "licence": "Public domain",
+    "rate": 22050,
+    "frames": 3601,
+    "encoded_sha256": "f35ddaefb483613626bf139f9d60f4b0ce564fb4b616f31944607c86b84afa19"
+  },
+  {
+    "name": "closed_909",
+    "url": "https://cdn.freesound.org/previews/26/26532_19852-hq.mp3",
+    "source_sha256": "feedfce5fe6052d43f5a5995b0da68aaf86d99da638d76482997c4e15da66006",
+    "licence": "CC-BY-4.0",
+    "rate": 30000,
+    "frames": 4974,
+    "encoded_sha256": "770c6a29c69200157cadce46bc715d7c75fd0cea794b0bd8fe32615f714318b8",
+    "source_page": "https://freesound.org/people/altemark/sounds/26532/",
+    "attribution": "Recorded by Janne G:son Berg (2005); edited/published by altemark",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "name": "open_909",
+    "url": "https://cdn.freesound.org/previews/26/26650_19852-hq.mp3",
+    "source_sha256": "fcd5d1ac54136ae3928ea615cde043d7d5079868b1642cf53d22951e49a6fd5b",
+    "licence": "CC-BY-4.0",
+    "rate": 30000,
+    "frames": 17007,
+    "encoded_sha256": "0fb3af22533d314bd5a5d822cb8fb0ee663f10ba30fc505e20679012f67cb14b",
+    "source_page": "https://freesound.org/people/altemark/sounds/26650/",
+    "attribution": "Recorded by Janne G:son Berg (2005); edited/published by altemark",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "name": "crash_909",
+    "url": "https://cdn.freesound.org/previews/26/26568_19852-hq.mp3",
+    "source_sha256": "488494fbf2c650d8ae2b0b227204ec99fc1439b6b520bffaeef67a5032acaf01",
+    "licence": "CC-BY-4.0",
+    "rate": 30000,
+    "frames": 31216,
+    "encoded_sha256": "8940918a1c8442e92feeaaabb0c67fd07114e476f111f2344587a9eb298702b6",
+    "source_page": "https://freesound.org/people/altemark/sounds/26568/",
+    "attribution": "Recorded by Janne G:son Berg (2005); edited/published by altemark",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "name": "ride_909",
+    "url": "https://cdn.freesound.org/previews/26/26664_19852-hq.mp3",
+    "source_sha256": "84c9111a559502fa2f0147920d4d26be093690ab6f0746daae263448365f5cd0",
+    "licence": "CC-BY-4.0",
+    "rate": 30000,
+    "frames": 31241,
+    "encoded_sha256": "4edd8bded4218226c39b93d6f988f6448138c8a9671695c37d768ebfa7188bc3",
+    "source_page": "https://freesound.org/people/altemark/sounds/26664/",
+    "attribution": "Recorded by Janne G:son Berg (2005); edited/published by altemark",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/"
+  }
+]

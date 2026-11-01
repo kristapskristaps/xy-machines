@@ -128,10 +128,11 @@ python machines/cyclops/tools/benchmark.py --baseline a5d22b3 > local/cyclops-pe
 ```
 
 The 384-case paired benchmark against the unoptimized B response measured
-about 9% lower worst-case host render time. The longer 440 Hz control sweep
-estimated about 14,900 instructions per voice per 64-sample block; simultaneous
-overload/control automation reached about 16,400, above the 15,000 advisory
-aim. Short SDK estimates vary substantially between runs.
+about 10% lower worst-case host render time. The longer 440 Hz control sweep
+estimated about 15,300 instructions per voice per 64-sample block; simultaneous
+overload/control automation reached about 15,700. The short SDK run reported
+21,400, illustrating the host estimator's substantial variation. These readings
+remain above the 15,000 advisory aim; they do not qualify device CPU safety.
 
 Host timings do not measure Blackfin cycles, stock processing or whole-project
 utilization. The new response needs hardware CPU profiling and normal playback

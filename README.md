@@ -115,7 +115,7 @@ and documentation; it does not replace the licences of the machines.
 | ID | Name | Kind | Folder |
 | --- | --- | --- | --- |
 | acidline | Acidline | synth | [machines/acidline](machines/acidline/README.md) |
-| cyclops | Mando | synth | [machines/cyclops](machines/cyclops/README.md) |
+| mando | Mando | synth | [machines/mando](machines/mando/README.md) |
 | halo | Halo | effect | [machines/halo](machines/halo/README.md) |
 | hkarc | HK Arc | synth | [machines/hundekraft/hkarc](machines/hundekraft/hkarc/README.md) |
 | hkclouds | HK Clouds | effect | [machines/hundekraft/hkclouds](machines/hundekraft/hkclouds/README.md) |

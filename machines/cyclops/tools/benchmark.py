@@ -68,7 +68,7 @@ int main() {
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--baseline', default='2c40746', help='collection revision before optimization')
+    parser.add_argument('--baseline', default='a5d22b3', help='collection revision before B optimization')
     parser.add_argument('--sdk', type=Path, help='SDK checkout supplying public headers')
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=4000)
@@ -135,13 +135,17 @@ def main():
         row['estimated_after'] = round(row['after_ns'] / row['reference_ns'] * constants['REFERENCE_INSTRUCTIONS'])
     worst_before = max(rows,key=lambda row:row['before_ns'])
     worst_after = max(rows,key=lambda row:row['after_ns'])
+    modes = {mode: {
+        'max_estimated_before': max(row['estimated_before'] for row in rows if row['mode'] == mode),
+        'max_estimated_after': max(row['estimated_after'] for row in rows if row['mode'] == mode)
+    } for mode in sorted({row['mode'] for row in rows})}
     print(json.dumps(dict(baseline=args.baseline,host_timing_only=True,
                          worst_before=worst_before,worst_after=worst_after,
                          worst_reduction_percent=round(100*(1-worst_after['after_ns']/worst_before['before_ns']),1),
                          median_reduction_percent=round(100*statistics.median(1-row['after_ns']/row['before_ns'] for row in rows),1),
                          max_estimated_before=max(row['estimated_before'] for row in rows),
                          max_estimated_after=max(row['estimated_after'] for row in rows),
-                         scenarios=len(rows),results=rows),indent=2))
+                         scenarios=len(rows),modes=modes,results=rows),indent=2))
 
 
 if __name__ == '__main__':

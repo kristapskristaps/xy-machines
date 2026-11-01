@@ -23,12 +23,12 @@ def generate():
             saw = -2 / math.pi * sum(math.sin(k * phase) / k for k in range(1, harmonics + 1))
             values.append(round(saw * 0.40 * (1 << 14)))
         values.append(values[0])
-        text += array(f"saw_{band}", values)
+        text += array(f"saw_{band}", values, kind="opxy::i16")
         square = [values[n] - values[(n + 512) % 1024] for n in range(1024)]
         square.append(square[0])
-        text += array(f"square_{band}", square)
-    text += "static const opxy::i32* const saw[9] = {" + ", ".join(f"saw_{b}" for b in range(9)) + "};\n"
-    text += "static const opxy::i32* const square[9] = {" + ", ".join(f"square_{b}" for b in range(9)) + "};\n"
+        text += array(f"square_{band}", square, kind="opxy::i16")
+    text += "static const opxy::i16* const saw[9] = {" + ", ".join(f"saw_{b}" for b in range(9)) + "};\n"
+    text += "static const opxy::i16* const square[9] = {" + ", ".join(f"square_{b}" for b in range(9)) + "};\n"
     # 32 positions per octave. Last entry is interpolation padding.
     hz = [30 * 2 ** (i / 32) for i in range(292)]
     text += array("cutoff_hz", [round(f) for f in hz])
@@ -37,9 +37,9 @@ def generate():
     tanh = [round(math.tanh(i / 64) * (1 << 14)) for i in range(513)]
     text += array("tanh_q14", tanh)
     # Exact expansion of the integer interpolant, not a new curve. Cover the
-    # common +/-0.5 input range; keep the compact knots for stronger overloads.
+    # common +/-1 input range; keep the compact knots for stronger overloads.
     dense = [tanh[a >> 8] + ((tanh[(a >> 8) + 1] - tanh[a >> 8]) * (a & 255) >> 8)
-             for a in range(8193)]
+             for a in range(16385)]
     text += array("tanh_fast", dense, kind="opxy::i16")
     text += array("detune_q20", [round(2 ** ((i * 50 / 128) / 1200) * (1 << 20)) for i in range(129)])
     text += "}}\n"

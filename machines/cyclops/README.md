@@ -114,15 +114,24 @@ values are unchanged; the sound intentionally differs from the first release.
 This remains a digital approximation rather than a measured Minitaur model.
 
 The engine packs each pole's even state and fractional charge into one
-accumulator, unrolls the four stages, prepares waveform/pitch paths once per
-block, and caches exact saturation values. Voice state is 80 bytes.
+accumulator, unrolls the four stages and prepares waveform/pitch paths once per
+block. Wavetables store their original Q14 values in 16-bit words; a 32 KiB
+cache expands the exact integer saturation interpolant. Each voice caches
+filter coefficients until cutoff or resonance changes. Voice state is 116
+bytes, and the standalone native module uses about 173 KiB.
 Compatibility fingerprints bind the optimized render to the B audition.
 
 Use the paired host benchmark to compare CPU cost against a collection revision:
 
 ```sh
-python machines/cyclops/tools/benchmark.py --baseline ec940a5 > local/cyclops-performance.json
+python machines/cyclops/tools/benchmark.py --baseline a5d22b3 > local/cyclops-performance.json
 ```
+
+The 384-case paired benchmark against the unoptimized B response measured
+about 9% lower worst-case host render time. The longer 440 Hz control sweep
+estimated about 14,900 instructions per voice per 64-sample block; simultaneous
+overload/control automation reached about 16,400, above the 15,000 advisory
+aim. Short SDK estimates vary substantially between runs.
 
 Host timings do not measure Blackfin cycles, stock processing or whole-project
 utilization. The new response needs hardware CPU profiling and normal playback

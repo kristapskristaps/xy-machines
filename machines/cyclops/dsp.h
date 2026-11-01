@@ -18,22 +18,27 @@ inline i32 interpolate(const i32* table, u32 position, unsigned bits) {
     return table[index] + multiply(table[index + 1] - table[index], fraction);
 }
 // Signal tables use Q14; small coefficients avoid wide multiplies in audio.
-inline i32 linear(const i32* table, u32 position, unsigned bits) {
+template <class Sample>
+inline i32 linear(const Sample* table, u32 position, unsigned bits) {
     const u32 index = position >> bits;
     const i32 fraction = static_cast<i32>(position & ((1u << bits) - 1));
     return table[index] + ((table[index + 1] - table[index]) * fraction >> bits);
 }
 inline i32 saturate(i32 x) {
     const u32 a = static_cast<u32>(x < 0 ? -x : x);
-    const i32 y = a <= 8192u ? tables::tanh_fast[a] : a >= (8u << 14) ? unity : linear(tables::tanh_q14, a, 8);
+    const i32 y = a <= 16384u ? tables::tanh_fast[a] : a >= (8u << 14) ? unity : linear(tables::tanh_q14, a, 8);
     return x < 0 ? -y : y;
 }
 inline i32 log2_increment(u32 value) {
     if (!value) return 0;
     unsigned exponent = 0;
-    u32 normalized = value;
-    while (normalized > 1) { normalized >>= 1; ++exponent; }
-    normalized = value << (31 - exponent);
+    u32 leading = value;
+    if (leading >> 16) { leading >>= 16; exponent += 16; }
+    if (leading >> 8) { leading >>= 8; exponent += 8; }
+    if (leading >> 4) { leading >>= 4; exponent += 4; }
+    if (leading >> 2) { leading >>= 2; exponent += 2; }
+    if (leading >> 1) ++exponent;
+    const u32 normalized = value << (31 - exponent);
     const u32 position = (normalized - 0x80000000u) >> 7;
     return static_cast<i32>(exponent * 65536) + interpolate(tables::log2_fraction, position, 16);
 }
@@ -74,7 +79,7 @@ struct Band {
     }
 };
 inline i32 wave(u32 phase, const Band& band, bool square) {
-    const i32* const* bank = square ? tables::square : tables::saw;
+    const opxy::i16* const* bank = square ? tables::square : tables::saw;
     const i32 first = linear(bank[band.rich], phase >> 12, 10);
     if (!band.rich || !band.fade) return first;
     const i32 second = linear(bank[band.rich - 1], phase >> 12, 10);
@@ -88,11 +93,11 @@ inline i32 oscillator(u32 phase, const Band& band, i32 square) {
 }
 // A stable waveform uses one bank; select its mip pointers before rendering.
 struct Oscillator {
-    const i32* rich;
-    const i32* lean;
+    const opxy::i16* rich;
+    const opxy::i16* lean;
     i32 fade;
     Oscillator(const Band& band, i32 square) : fade(band.fade) {
-        const i32* const* bank = square ? tables::square : tables::saw;
+        const opxy::i16* const* bank = square ? tables::square : tables::saw;
         rich = bank[band.rich];
         lean = bank[band.rich ? band.rich - 1 : 0];
     }
@@ -109,14 +114,17 @@ inline i32 smooth_wave(i32 current, i32 target) {
     return left > -128 && left < 128 ? target : current;
 }
 inline i32 morph(const Oscillator& saw, const Oscillator& pulse, u32 phase, i32 square) {
+    if (square == 0) return saw.read(phase);
     const i32 b = pulse.read(phase);
     if (square == 32767) return b;
     const i32 a = saw.read(phase);
     return a + ((b - a) * square >> 15);
 }
-struct Ladder {
-    i32 g, resonance, inverse, weights[4], compensation;
-    Ladder(i32 coefficient, i32 amount) : g(coefficient), compensation(control(amount) >> 16) {
+struct Ladder : FilterCoefficients {
+    explicit Ladder(const FilterCoefficients& cached) : FilterCoefficients(cached) {}
+    Ladder(i32 coefficient, i32 amount) {
+        g = coefficient;
+        compensation = control(amount) >> 16;
         resonance = multiply(control(amount), 31949); // Q13 feedback 0..3.90
         const i32 g2 = g * g / 32768, g4 = g2 * g2 / 32768;
         const i32 feedback = g4 * resonance >> 13;

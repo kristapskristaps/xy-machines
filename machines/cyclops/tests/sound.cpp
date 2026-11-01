@@ -82,6 +82,14 @@ int main() {
     const double alias = magnitude(high, (count - bin * 3) * 44100.0 / count);
     require(alias < fundamental * .001, "band-limited saw rejects folded third harmonic by 60 dB");
 
+    opxy::i32 driven_parameters[8] = {q(.7), q(.3), q(.6), 0, 0, 0, q(.5), 0};
+    const double driven_hz = bin * 44100.0 / count;
+    const std::vector<double> shaped = render(driven_parameters, driven_hz);
+    const double shaped_fundamental = magnitude(shaped, driven_hz);
+    const double folded_third = magnitude(shaped, 44100 - 3 * driven_hz);
+    require(folded_third < shaped_fundamental * .0005,
+            "final ladder pole suppresses the driven folded third below -66 dBc");
+
     p[0] = q(1); p[5] = 0;
     const std::vector<double> a = render(p, 55);
     require(magnitude(a, 55) > .03 && magnitude(a, 55) > magnitude(a, 50) * 10, "A1 fundamental is in tune and audible");

@@ -4,7 +4,7 @@
 namespace cyclops {
 namespace {
 template <bool Moving, bool Constant, bool Limited>
-void render_audio(Voice& voice, opxy::Output output, opxy::Pitch pitch,
+void render_audio(Voice& voice, opxy::Output __restrict output, opxy::Pitch __restrict pitch,
                   const dsp::Band& first, const dsp::Band& second,
                   const dsp::Oscillator& osc_a, const dsp::Oscillator& osc_b,
                   const dsp::Ladder& filter, const i32* target_wave,
@@ -41,7 +41,7 @@ void render_audio(Voice& voice, opxy::Output output, opxy::Pitch pitch,
     }
 }
 template <bool Moving, bool Constant>
-void dispatch_audio(Voice& voice, opxy::Output output, opxy::Pitch pitch,
+void dispatch_audio(Voice& voice, opxy::Output __restrict output, opxy::Pitch __restrict pitch,
                     const dsp::Band& first, const dsp::Band& second,
                     const dsp::Oscillator& osc_a, const dsp::Oscillator& osc_b,
                     const dsp::Ladder& filter, const i32* target_wave,
@@ -60,12 +60,13 @@ inline void start(Voice& voice, Shared&, u32) {
     voice.ready = 0;
     voice.wave[0] = voice.wave[1] = 0;
     voice.dc_input = voice.dc_output = voice.dc_residue = 0;
+    voice.cached_filter.g = 0;
 }
 inline void initialize(Voice& voice, Shared& shared, u32 owner) { start(voice, shared, owner); }
 inline void destroy(Voice&, Shared&, u32) {}
 
-inline void render(Voice& voice, Shared&, u32, opxy::Output output,
-                   opxy::Parameters parameters, opxy::Pitch pitch) {
+inline void render(Voice& voice, Shared&, u32, opxy::Output __restrict output,
+                   opxy::Parameters parameters, opxy::Pitch __restrict pitch) {
     using namespace dsp;
     for (unsigned j = 0; j < 8; ++j) {
         const i32 target = control(parameters[j]);
@@ -79,18 +80,25 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         voice.wave[0] = target_wave[0]; voice.wave[1] = target_wave[1];
         voice.ready = 1;
     }
-    u32 highest = 0;
-    for (unsigned i = 0; i < opxy::block_frames; ++i) if (pitch[i] > highest) highest = pitch[i];
+    u32 highest = pitch[0];
+    bool constant = true;
+    for (unsigned i = 1; i < opxy::block_frames; ++i) {
+        if (pitch[i] > highest) highest = pitch[i];
+        constant = constant && pitch[i] == pitch[0];
+    }
     if (highest > 0x40000000u) highest = 0x40000000u;
     // Select safe harmonic limits for every pitch in this block.
     const Band first(highest), second(second_increment(highest, ratio, octave));
-    const Ladder filter(pole(cutoff_position(p, pitch[0])), p[1]);
+    const i32 coefficient = pole(cutoff_position(p, pitch[0]));
+    if (voice.cached_filter.g != coefficient || voice.cached_resonance != p[1]) {
+        voice.cached_filter = Ladder(coefficient, p[1]);
+        voice.cached_resonance = p[1];
+    }
+    const Ladder filter(voice.cached_filter);
     const i32 drive = 256 + multiply(p[2], 1792); // 1..8, Q8
     const i32 balance = p[5] >> 16;
     const Oscillator osc_a(first, target_wave[0]), osc_b(second, target_wave[1]);
     const bool changing_waves = voice.wave[0] != target_wave[0] || voice.wave[1] != target_wave[1];
-    bool constant = true;
-    for (unsigned i = 1; i < opxy::block_frames; ++i) constant = constant && pitch[i] == pitch[0];
     // Below quarter-rate cutoff, each integrator is a convex update. With
     // 8192 counts of state headroom, 64 samples of rounding cannot hit a rail.
     const bool limited = filter.needs_limits(voice);

@@ -8,6 +8,30 @@ using opxy::u32;
 static inline i32 limit(i32 value, i32 bound = 32767) { return value < -bound ? -bound : value > bound ? bound : value; }
 // Q15 signals/coefficient products bounded to signed 32-bit arithmetic.
 static inline i32 multiply(i32 a, i32 b) { return a * b / 32768; }
+static inline u32 high_product(u32 a, u32 b) {
+    const u32 a0 = a & 65535u, a1 = a >> 16;
+    const u32 b0 = b & 65535u, b1 = b >> 16;
+    const u32 low = a0*b0;
+    const u32 middle = a1*b0 + (low >> 16);
+    const u32 upper = a0*b1 + (middle & 65535u);
+    return a1*b1 + (middle >> 16) + (upper >> 16);
+}
+// Exact reciprocal division avoids native software-divider calls in the sample
+// loop. Use unsigned magnitudes to retain truncation toward zero, including MIN.
+template <u32 divisor> static inline i32 divide(i32 value) {
+    static_assert(divisor == 3 || divisor == 6 || divisor == 23, "Exact reciprocal divisor");
+    const u32 magnitude = value < 0 ? 0u-u32(value) : u32(value);
+    const u32 reciprocal = divisor == 23 ? 0xb21642c9u : 0xaaaaaaabu;
+    const u32 shift = divisor == 23 ? 4 : divisor == 6 ? 2 : 1;
+    const i32 quotient = i32(high_product(magnitude,reciprocal) >> shift);
+    return value < 0 ? -quotient : quotient;
+}
+// Exact floor(numerator*32767/denominator), for 0 <= numerator <= denominator
+// <= 65535. Cache floor((32767<<16)/denominator) when the control changes.
+static inline u32 ratio_q15(u32 numerator, u32 denominator, u32 reciprocal) {
+    const u32 quotient = numerator*reciprocal >> 16;
+    return quotient + ((quotient+1)*denominator <= numerator*32767u);
+}
 static inline u32 scale(u32 value, u32 q16) {
     return (value >> 16) * q16 + ((value & 65535u) * (q16 >> 8) >> 8);
 }
@@ -23,7 +47,7 @@ static inline i32 triangle(u32 phase) {
 }
 // Three odd partials keep the metallic source's intentional square character
 // without an unbounded set of aliased harmonics.
-static inline i32 square(u32 phase) { return (15 * sine(phase) + 5 * sine(phase * 3) + 3 * sine(phase * 5)) / 23; }
+static inline i32 square(u32 phase) { return divide<23>(15 * sine(phase) + 5 * sine(phase * 3) + 3 * sine(phase * 5)); }
 static inline i32 noise(u32& seed) {
     seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
     return i32(seed >> 17) - 16384;
@@ -36,7 +60,7 @@ static inline i32 rate(u32 milliseconds) {
     while ((milliseconds >> shift) >= 16) ++shift;
     const u32 at = 4 + shift * 8 + (milliseconds >> shift) - 8;
     const u32 fraction = milliseconds & ((1u << shift) - 1);
-    return tables::decay[at] + (tables::decay[at + 1] - tables::decay[at]) * i32(fraction) / i32(1u << shift);
+    return tables::decay[at] + i32(u32(tables::decay[at + 1] - tables::decay[at]) * fraction >> shift);
 }
 static inline i32 envelope(i32 value, i32 coefficient) { return opxy::q31::multiply(value, coefficient); }
 static inline i32 drive(i32 sample, u32 amount) {
@@ -44,6 +68,6 @@ static inline i32 drive(i32 sample, u32 amount) {
     const i32 boosted = limit(sample + sample*i32(amount)/16);
     const i32 half = boosted / 2;
     const i32 cube = (half * half / 16384) * half / 16384;
-    return boosted - 2 * cube / 3;
+    return boosted - divide<3>(2 * cube);
 }
 }}

@@ -43,7 +43,7 @@ static inline void metal_start(MetalState& state, u32* phases) {
 static inline i32 metal_source(MetalState& state, const u32* phases, const u32* increments,
                                const u32* reciprocals, bool cymbal, u32 tone, u32 body) {
     i32 cluster = 0;
-    for (u32 i = 0; i < 6; ++i) cluster += metal_pulse(phases[i],increments[i],reciprocals[i])/6;
+    for (u32 i = 0; i < 6; ++i) cluster += divide<6>(metal_pulse(phases[i],increments[i],reciprocals[i]));
     const i32 high = metal_filter(state.filters[1],high_band,cluster);
     const i32 bright = metal_filter(state.filters[3],hat_cut,high);
     i32 air = metal_filter(state.filters[4],air_cut,high);

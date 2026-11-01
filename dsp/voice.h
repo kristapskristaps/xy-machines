@@ -35,6 +35,11 @@ static inline Settings settings(u32 model, opxy::Parameters parameters) {
     s.sample = sample_for(model, s.family);
     s.alternate = s.family == 1 && (model == kick || model == snare) ? s.sample + 1 : -1;
     if (s.sample >= 0) s.sample_step = scale(pcm::samples[s.sample].rate * 65536u / 44100u, tables::tuning[s.raw[tune]]);
+    if (model == clap) {
+        s.clap_period = s.family == 3 ? 128+s.raw[character]*4 : 180+s.raw[character]*5;
+        s.clap_inverse = (32767u << 16) / s.clap_period;
+        if (s.sample >= 0) s.pcm_delay = pcm::samples[s.sample].rate * s.raw[character] / 4000;
+    }
     static const u32 base[model_count] = {53,180,800,835,98,131,175,205,205,205,440,540,2500,1200,165,220,330,1200};
     u32 hz = base[model];
     if (s.family == 0) {
@@ -90,7 +95,7 @@ static inline i32 pcm_source(Voice& v, const Settings& s) {
         signal += multiply(other - signal, i32(s.raw[body]) * 258);
     }
     if (v.model == clap && s.raw[character]) {
-        const u32 delay = sample.rate * s.raw[character] / 4000;
+        const u32 delay = s.pcm_delay;
         signal = limit(signal*3/4+(v.cursor >= delay ? read(sample,v.cursor-delay,v.fraction)/2 : 0));
     }
     // A low/high split exposes snappy/metal/click/noise without replacing the
@@ -139,14 +144,19 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
         break;
     }
     case clap: {
-        const u32 period = s.family == 3 ? 128 + s.raw[character] * 4 : 180 + s.raw[character] * 5;
-        const u32 local = v.age % period;
-        const i32 burst = v.age < 3 * period ? i32((period - local) * 32767 / period) : 4096 + body_amount*3/4;
+        i32 burst = 4096 + body_amount*3/4;
+        if (v.age < 3*s.clap_period) {
+            u32 local = v.age;
+            if (local >= s.clap_period) local -= s.clap_period;
+            if (local >= s.clap_period) local -= s.clap_period;
+            const u32 remaining = s.clap_period-local;
+            burst = i32(ratio_q15(remaining,s.clap_period,s.clap_inverse));
+        }
         signal = multiply(limit((random - v.noise_low) * 2), burst);
         break;
     }
     case rim:
-        signal = (multiply(sine(v.phase[0]),32767-body_amount)+multiply(sine(v.phase[1]),body_amount))*2/3;
+        signal = divide<3>((multiply(sine(v.phase[0]),32767-body_amount)+multiply(sine(v.phase[1]),body_amount))*2);
         signal += multiply(multiply(random, transient), i32(s.raw[character]) * 512);
         break;
     case low_tom: case mid_tom: case high_tom:
@@ -164,7 +174,7 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
             break;
         }
         i32 metal = 0;
-        for (u32 i = 0; i < 6; ++i) metal += square(v.phase[i]) / 6;
+        for (u32 i = 0; i < 6; ++i) metal += divide<6>(square(v.phase[i]));
         v.metal_low += multiply(metal - v.metal_low, s.family == 0 ? 12000 : 9000);
         signal = limit((metal - v.metal_low) * (v.model == cymbal ? 3 : 4));
         if (v.model == cymbal) signal = (signal * 3 + multiply(random, body_amount)) / 4;

@@ -158,19 +158,25 @@ proves neither hardware acceptance nor measured CPU cost.
 Voice settings are cached per voice and refreshed whenever its model or any
 7-bit control changes. Unbent oscillators advance directly; swept tonal voices
 share one increment calculation across their identical oscillators. The cache
-uses 140 additional bytes per voice (4,480 bytes for 32 voices). It preserves
+and cached clap constants use 152 additional bytes per voice (4,864 bytes for
+32 voices). They preserve
 the working sound output: `tests/waveforms.cpp` checks 47 captured fingerprints,
 covering every control value, unchanged blocks, live edits and model changes.
 The retained display also reuses settled poses between triggers and updates
 their brightness when a tail ends.
 
+Exact reciprocal arithmetic replaces signed division by 3, 6 and 23 in the
+sample loop. Clap bursts use a bounded remainder and a corrected reciprocal;
+PCM clap delay is cached with its controls. These preserve integer rounding
+and the original output samples. `tests/arithmetic.cpp` checks two million
+full-word products/divisions, signed boundaries and every supported clap ratio.
+
 `tools/benchmark.cpp` reports host nanoseconds per sample for all 47 sounds,
 with steady controls or a changing Tone control (`changing` argument). Compile
 it with `-O2`, the SDK include path, `dsp/tables.cpp` and `dsp/sample_data.cpp`.
-An initial before/after host comparison reduced the sum of render times by
-about 4% with steady controls and 2% with changing controls. These figures are
-host comparisons, not measured OP-XY CPU percentages; native timing remains
-pending.
+Host measurements do not capture the Blackfin compiler's software-divider
+cost. Compare native hardware callback workloads before claiming an OP-XY CPU
+improvement; hardware timing of this revision remains pending.
 
 - 606: swept tonal oscillators for kick/toms, dual-tone/noise snare and a six-oscillator
   metallic source for hats/cymbal.

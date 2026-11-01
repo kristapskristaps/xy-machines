@@ -15,14 +15,16 @@ i32 cutoff_target(i32 base,i32 envelope,i32 amount){
 }
 i32 soft(i32 x){
     x=limit(x,internal_peak);
-    const i32 half=x/2;
+    // Compute the odd curve's magnitude once. Nonnegative products need no
+    // signed rounding corrections; restoring the sign preserves integer truncation.
+    const i32 magnitude=x<0?-x:x;
+    const i32 half=magnitude/2;
     const i32 square=half*half/one;
-    const i32 cubic=x*square/65536;
+    const i32 cubic=magnitude*square/65536;
     // |cubic| <= 27648: this reciprocal gives exact truncation by three
     // throughout that range, without Blackfin's per-sample software divide.
-    const i32 magnitude=cubic<0?-cubic:cubic;
-    const i32 third=(magnitude*21846)>>16;
-    return x-(cubic<0?-third:third);
+    const i32 third=(cubic*21846)>>16;
+    return x-(x<0?-third:third);
 }
 i32 mix(i32 a,i32 b,i32 fraction){return a+multiply(b-a,fraction);}
 i32 lookup(const opxy::i16* row,u32 phase){
@@ -66,11 +68,11 @@ i32 decimate(i32 (&history)[32],u32 cursor,const opxy::i16 (&kernel)[31]){
 inline void initialize(Voice& v,Shared&,opxy::u32){v=Voice();v.cutoff=-1;}
 inline void start(Voice& v,Shared&,opxy::u32){v.envelope=one;}
 inline void destroy(Voice&,Shared&,opxy::u32){}
-inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Parameters p,opxy::Pitch pitch){
+template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,opxy::Parameters p,opxy::Pitch pitch){
     const i32 base=p[0]/131072,resonance=p[1]/131072;
     const i32 drive=p[2]/131072,env=p[3]/131072,decay_control=p[4]/131072;
     const u32 choice=(static_cast<u32>(p[5])>>16)*3>>15;
-    const i32 wave=static_cast<i32>(choice)*8192;
+    const i32 wave=Mode<0?static_cast<i32>(choice)*8192:Mode*8192;
     const i32 sub=p[6]/131072,tone=16383-p[7]/131072;
     const i32 cutoff=cutoff_target(base,v.envelope,env);
     if(v.cutoff<0){v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;}
@@ -96,20 +98,21 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
     highest/=2;
     u32 band=0;while(band<7 && highest<(0x80000000u>>(band+1)))++band;
     for(u32 i=0;i<64;++i){
-        g+=dg;v.drive+=dd;v.wave+=dw;v.sub+=ds;v.tone+=dt;tone_g+=tone_step;clip_gain+=clip_step;
+        g+=dg;v.drive+=dd;v.sub+=ds;v.tone+=dt;tone_g+=tone_step;clip_gain+=clip_step;
+        if(Mode<0)v.wave+=dw;
         input_gain+=input_step;feedback_gain+=feedback_step;body+=body_step;
         i32 reduced=0;
         const u32 increment=pitch[i];
         for(u32 sub=0;sub<2;++sub){
             i32 source;
-            if(v.wave==8192)source=lookup(tables::triangle[band],v.phase);
+            if(Mode==1 || (Mode<0 && v.wave==8192))source=lookup(tables::triangle[band],v.phase);
             else {
                 const i32 saw=lookup(tables::saw[band],v.phase);
                 source=saw;
-                if(v.wave>8192){
+                if(Mode==2 || (Mode<0 && v.wave>8192)){
                     const i32 square=(saw-lookup(tables::saw[band],v.phase+0x80000000u))/2;
-                    source=v.wave==one?square:mix(lookup(tables::triangle[band],v.phase),square,(v.wave-8192)*2);
-                }else if(v.wave)source=mix(saw,lookup(tables::triangle[band],v.phase),v.wave*2);
+                    source=(Mode==2 || v.wave==one)?square:mix(lookup(tables::triangle[band],v.phase),square,(v.wave-8192)*2);
+                }else if(Mode<0 && v.wave)source=mix(saw,lookup(tables::triangle[band],v.phase),v.wave*2);
             }
             i32 memory=0;
             memory=v.pole[0]+multiply(memory-v.pole[0],g);
@@ -158,4 +161,14 @@ inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Paramete
     v.envelope=multiply(v.envelope,interpolate(tables::decay,decay_control));
     v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;
 }
+inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Parameters p,opxy::Pitch pitch){
+    const u32 choice=(static_cast<u32>(p[5])>>16)*3>>15;
+    if(v.cutoff<0 || v.wave==static_cast<i32>(choice)*8192){
+        if(choice==0){render_mode<0>(v,output,p,pitch);return;}
+        if(choice==1){render_mode<1>(v,output,p,pitch);return;}
+        if(choice==2){render_mode<2>(v,output,p,pitch);return;}
+    }
+    render_mode<-1>(v,output,p,pitch);
+}
+
 }

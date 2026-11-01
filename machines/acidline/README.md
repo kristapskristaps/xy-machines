@@ -113,4 +113,11 @@ Host/native checks do not establish real-time hardware headroom. Keep firmware
 and stock content outside every checkout; device operations require a separate
 user instruction.
 
+Stable saw, triangle and square settings select their own render loop once per
+block; waveform transitions retain the original morphing path. The soft clip
+computes its magnitude before the polynomial, preserving the original curve
+with fewer signed-rounding corrections. `tests/equivalence.cpp` checks 73
+original audio/state fingerprints across controls, retriggers, pitch ramps and
+live modulation. The 2x oversampling and filter arithmetic remain intact.
+
 MIT; see LICENSE. DSP, tables and browser audition are original to this work.

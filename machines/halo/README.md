@@ -7,7 +7,9 @@ and Hold. Three presets start at different points in that connected space:
 
 The sound is inspired by the spacious character of OP-1 field Mother. Halo is
 its own algorithm, adapted from PunchKit DSP; it is not an emulation of Mother.
-See [PROVENANCE.md](PROVENANCE.md) and [LICENSE](LICENSE).
+Halo is distributed under the MIT License, Copyright (c) 2026 Kristaps Dreija.
+See [PROVENANCE.md](PROVENANCE.md), [LICENSE](LICENSE) and
+[third-party notices](THIRD_PARTY_NOTICES.md).
 
 ## Controls
 

@@ -1,8 +1,8 @@
 # Halo DSP provenance
 
 Halo is an original integrated effect adapted from the PunchKit Space processor,
-Copyright (c) 2026 Kristaps Dreija. The source repository and this adaptation are
-proprietary; see LICENSE. No Teenage Engineering firmware, artwork or algorithm
+Copyright (c) 2026 Kristaps Dreija. This Halo adaptation is distributed under the MIT License; see LICENSE. The
+reference PunchKit repository remains proprietary. No Teenage Engineering firmware, artwork or algorithm
 implementation is included. Mother is a sonic reference, not a claimed emulation.
 
 Reference: `punchkit-ios/EP133Manager/Sources/EP133App/RecorderSpaceEffects.swift`

@@ -1,11 +1,11 @@
 # Notices
 
-Halo includes adaptations of PunchKit DSP, Copyright (c) 2026 Kristaps Dreija,
-under the same proprietary terms as this repository. See LICENSE and PROVENANCE.md.
+Halo adapts PunchKit DSP, Copyright (c) 2026 Kristaps Dreija. The Halo source
+in this release, including those adaptations, is distributed under the MIT
+License in LICENSE. PunchKit source outside Halo is not included in this release.
 
-Open-XY is a separate SDK dependency. Its own licence and notices remain in the
-SDK checkout. The effect uses its public API and fixed-point arithmetic helpers.
-The generated repository instructions/workflow originate from its authoring tools.
+Open-XY is a separate SDK dependency under its own license and notices.
+Halo uses its public API and fixed-point arithmetic helpers.
 
 No Teenage Engineering firmware, stock artwork or effect implementation is
-included. The OP-1 field Mother name identifies the sonic reference only.
+included. OP-1 field Mother identifies the sonic reference only.

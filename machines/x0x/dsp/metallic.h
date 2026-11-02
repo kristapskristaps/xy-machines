@@ -4,11 +4,20 @@
 #include "metallic_coefficients.h"
 
 namespace x0x { namespace dsp {
+// Signals and coefficient magnitudes stay below 32768. Multiply magnitudes
+// through the DSP primitive, then restore each Q14 term's truncation toward zero.
+__attribute__((always_inline)) static inline i32 metal_product(i32 sample, i32 coefficient) {
+    if(!coefficient)return 0;
+    const i32 magnitude=sample<0?-sample:sample;
+    const i32 gain=coefficient<0?-coefficient:coefficient;
+    const i32 product=opxy::q31::multiply(magnitude*2,gain*65536);
+    return (sample<0)!=(coefficient<0)?-product:product;
+}
 // Each Q14 product fits i32. Scale before summing so resonant feedback never
 // needs a wider accumulator; clamp every stored signal to the same bound.
-static inline i32 metal_filter(MetalFilterState& s, const MetalCoefficients& c, i32 x) {
-    const i32 y = limit(c.b0*x/16384 + c.b1*s.x1/16384 + c.b2*s.x2/16384
-                      - c.a1*s.y1/16384 - c.a2*s.y2/16384);
+__attribute__((always_inline)) static inline i32 metal_filter(MetalFilterState& s, const MetalCoefficients& c, i32 x) {
+    const i32 y = limit(metal_product(x,c.b0) + metal_product(s.x1,c.b1) + metal_product(s.x2,c.b2)
+                      - metal_product(s.y1,c.a1) - metal_product(s.y2,c.a2));
     s.x2 = s.x1; s.x1 = x; s.y2 = s.y1; s.y1 = y;
     return y;
 }

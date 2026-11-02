@@ -212,31 +212,26 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     }
     return limit(signal);
 }
-static inline void render(Voice& v, opxy::Output output, opxy::Parameters parameters) {
-    if (!v.active && !v.pending) {
-        for (u32 i = 0; i < opxy::block_frames; ++i) output[i] = 0;
-        return;
-    }
-    const Settings& s = voice_settings(v, parameters);
+template <bool Sampled> static inline void render_block(Voice& v, opxy::Output output, const Settings& s) {
     if (v.pending) {
         v.pending = 0;
         v.amplitude = v.transient = v.pitch_envelope = 0x7fffffff;
     }
     bool silent = true, ended = false;
     const u32 end = s.duration * 441u / 10;
-    const u32 sample_length = s.sample < 0 ? 0 :
+    const u32 sample_length = !Sampled ? 0 :
         s.alternate >= 0 && pcm::samples[s.alternate].frames > pcm::samples[s.sample].frames
             ? pcm::samples[s.alternate].frames : pcm::samples[s.sample].frames;
     const u32 drive_amount = control_count(v.model) == 8 ? s.raw[x0x::drive] : 0;
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         i32 sample = 0;
         bool source_done = v.age >= end;
-        if (s.sample >= 0) {
+        if (Sampled) {
             source_done = source_done || v.cursor >= sample_length;
         }
         ended = source_done;
         if (v.active && !source_done) {
-            if (s.sample >= 0) sample = pcm_source(v, s);
+            if (Sampled) sample = pcm_source(v, s);
             else {
                 const i32 random = noise(v.seed);
                 v.noise_low += multiply(random - v.noise_low, s.noise_filter);
@@ -259,5 +254,16 @@ static inline void render(Voice& v, opxy::Output output, opxy::Parameters parame
         if (v.active) ++v.age;
     }
     if (silent && ended && v.age && !v.pending) v.active = 0;
+}
+static inline void render(Voice& v, opxy::Output output, opxy::Parameters parameters) {
+    if (!v.active && !v.pending) {
+        for (u32 i = 0; i < opxy::block_frames; ++i) output[i] = 0;
+        return;
+    }
+    const Settings& s = voice_settings(v, parameters);
+    // The selected model/style is fixed for this block. Keep PCM cursor checks
+    // and synthesized oscillators in separate sample loops.
+    if(s.sample>=0)render_block<true>(v,output,s);
+    else render_block<false>(v,output,s);
 }
 }}

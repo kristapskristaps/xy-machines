@@ -1,4 +1,4 @@
-#include "../dsp/primitives.h"
+#include "../dsp/metallic.h"
 #include <cstdio>
 #include <cstdlib>
 static void require(bool value, const char* message) {
@@ -12,6 +12,16 @@ int main() {
     for (i32 value=-23*32768;value<=23*32768;++value)
         require(divide_signal<23>(value)==value/23 && divide_signal<138>(value)==value/23/6,
                 "every harmonic sum preserves both square and sixth-square rounding");
+    const MetalCoefficients filters[]={low_band,high_band,low_cut,hat_cut,air_cut};
+    for(const auto& filter:filters){
+        const i32 coefficients[]={filter.b0,filter.b1,filter.b2,filter.a1,filter.a2};
+        for(auto coefficient:coefficients){
+            require(coefficient>-32768 && coefficient<32768,"metal filter coefficient fits its fractional scaling");
+            for(i32 sample=-32767;sample<=32767;++sample)
+                require(metal_product(sample,coefficient)==sample*coefficient/16384,
+                        "every metal filter product preserves signed truncation");
+        }
+    }
     for (i32 sample=-32767;sample<=32767;++sample) for (u32 amount=0;amount<128;++amount) {
         const i32 boosted=limit(sample+sample*i32(amount)/16), half=boosted/2;
         const i32 cube=(half*half/16384)*half/16384;
@@ -22,5 +32,5 @@ int main() {
         for (u32 numerator=0;numerator<=period;++numerator)
             require(ratio_q15(numerator,period,(32767u<<16)/period)==numerator*32767u/period,
                     "every clap burst ratio is unchanged");
-    std::puts("PASS: exhaustive signal/harmonic divisions, all Drive samples/controls and clap burst ratios");
+    std::puts("PASS: exhaustive signal/harmonic divisions, metal filter products, all Drive samples/controls and clap burst ratios");
 }

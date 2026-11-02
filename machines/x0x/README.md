@@ -162,17 +162,38 @@ The retained display also reuses settled poses between triggers and updates
 their brightness when a tail ends.
 
 Exact reciprocal arithmetic replaces signed division in the sample loop.
-The reciprocals use each signal's proven range rather than a full-word high
-product; the 606 oscillator combines consecutive divisions by 23 and 6 into
-one division by 138. Clap bursts use a bounded remainder and a corrected
+The harmonic sum uses one public fractional DSP multiply over its proven
+range; the 606 oscillator combines consecutive divisions by 23 and 6 into
+one division by 138. Smaller /3 and /6 signals keep their single-word
+reciprocals. Clap bursts use a bounded remainder and a corrected
 reciprocal; PCM clap delay is cached with its controls. These preserve integer
 rounding and the original output samples. `tests/arithmetic.cpp` exhaustively
 checks each supported division range, every Drive sample/control pair and every
 supported clap ratio.
 
+PCM and synthesized sources select separate sample loops once per callback.
+The 808 spectral filters multiply nonnegative magnitudes through the public
+DSP primitive and restore each term's sign before summing. Constant coefficients
+stay inlined, including the zero terms. This preserves the previous signed
+truncation, coefficient values and filter response, with no new voice state or
+tables. Arithmetic tests check every bounded sample against every coefficient.
+
 `tools/benchmark.cpp` reports host nanoseconds per sample for all 47 sounds,
 with steady controls or a changing Tone control (`changing` argument). Compile
 it with `-O2`, the SDK include path, `dsp/tables.cpp` and `dsp/sample_data.cpp`.
+For a paired comparison against the preceding collection revision, run from
+the repository root:
+
+```sh
+python machines/x0x/tools/benchmark.py --cxx /path/to/clang++ --blocks 4000
+```
+
+It checks identical output and complete voice state at every block across
+423 scenarios: all 47 sounds, default/minimum/maximum controls, retriggers,
+Tone automation and all-control automation. Five timing repeats alternate
+order. Timed voices restart when retired, so silence-only callbacks do not
+dominate short sounds; the separate equivalence pass still exercises retirement
+and inactive callbacks.
 Host measurements do not capture the Blackfin compiler's software-divider
 cost. Compare native hardware callback workloads before claiming an OP-XY CPU
 improvement. Historical standalone measurements do not qualify the reorganized

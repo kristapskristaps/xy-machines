@@ -9,21 +9,21 @@ static inline i32 limit(i32 value, i32 bound = 32767) { return value < -bound ? 
 // Q15 signals/coefficient products bounded to signed 32-bit arithmetic.
 static inline i32 multiply(i32 a, i32 b) { return a * b / 32768; }
 // Exact reciprocal division for bounded audio signals: |value| <= 65536 for
-// /3 and /6, or <= 23*32768 for the harmonic sum's /23 and /138. For each
-// reciprocal m/2^s, bound*(m*divisor-2^s) < 2^s guarantees exact rounding.
+// /3 and /6, or <= 23*32768 for the harmonic sum's /23 and /138. The smaller
+// signals fit a single unsigned product. Harmonic sums use one public Q31 DSP
+// multiply, restoring the sign after its nonnegative product.
 template <u32 divisor> static inline i32 divide_signal(i32 value) {
     static_assert(divisor == 3 || divisor == 6 || divisor == 23 || divisor == 138, "Signal divisor");
     const u32 magnitude = value < 0 ? 0u-u32(value) : u32(value);
-    u32 quotient;
-    if (divisor == 3 || divisor == 6) {
-        quotient = magnitude*43691u >> (divisor == 3 ? 17 : 18);
-    } else {
-        const u32 reciprocal = divisor == 23 ? 729445u : 972593u;
-        // Split before multiplying: both products and their sum fit u32.
-        const u32 product = (magnitude >> 8)*reciprocal + ((magnitude & 255u)*reciprocal >> 8);
-        quotient = product >> (divisor == 23 ? 16 : 19);
+    if(divisor==3 || divisor==6){
+        const u32 quotient=magnitude*43691u>>(divisor==3?17:18);
+        return value<0?-i32(quotient):i32(quotient);
     }
-    return value < 0 ? -i32(quotient) : i32(quotient);
+    const u32 reciprocal = (0x80000000u+divisor-1u)/divisor;
+    const u32 bound = divisor <= 6 ? 65536u : 23u*32768u;
+    static_assert(bound*(reciprocal*divisor-0x80000000u)<0x80000000u,"Exact bounded reciprocal");
+    const i32 quotient = opxy::q31::multiply(i32(magnitude),i32(reciprocal));
+    return value < 0 ? -quotient : quotient;
 }
 // Exact floor(numerator*32767/denominator), for 0 <= numerator <= denominator
 // <= 65535. Cache floor((32767<<16)/denominator) when the control changes.

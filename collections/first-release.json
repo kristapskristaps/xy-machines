@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "machines": [
+    {
+      "path": "../machines/acidline"
+    },
+    {
+      "path": "../machines/halo"
+    },
+    {
+      "path": "../machines/mando"
+    },
+    {
+      "path": "../machines/matter"
+    },
+    {
+      "path": "../machines/rebound"
+    },
+    {
+      "path": "../machines/subvista"
+    },
+    {
+      "path": "../machines/vader"
+    },
+    {
+      "path": "../machines/vapour"
+    },
+    {
+      "path": "../machines/weave"
+    },
+    {
+      "path": "../machines/westfold"
+    }
+  ]
+}

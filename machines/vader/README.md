@@ -2,7 +2,7 @@
 
 A playable 808 bass and kick synthesizer for the OP-XY, with a reactive helmet
 and reactor display. Original C++ synthesis, no samples or third-party DSP code.
-Requires Open-XY SDK 1.4 or later, with OS 1.2.1 for the native build.
+Requires Open-XY SDK 1.6 or later, with OS 1.2.1 for the native build.
 
 ## Sound
 
@@ -122,6 +122,28 @@ An independent frozen V2 renderer also verifies bit-identical audio across
 plus two million pitch-band selections. The optimized renderer reuses identical
 waveform lookups, replaces integer division with an exact corrected reciprocal,
 and stops click and pitch-sweep work only after it can no longer affect audio.
+Quantized-identical waveform banks share storage: all 216 mode/drive/band slots
+now reference 162 distinct arrays through a constant pointer grid. Every original
+sample is preserved, with about 53 KiB less native storage and no added voice
+state. Frozen bank fingerprints check each original slot independently of the
+renderer, which shares the generated tables.
+
+From the collection root, compare with the preceding revision:
+
+```sh
+python machines/vader/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
+python machines/vader/tools/benchmark.py --cxx /path/to/clang++ --full-grid --verify-only
+```
+
+The paired benchmark covers 510 scenarios: defaults, eight presets, control
+sweeps, page corners at six pitches and control/pitch motion. The wider check
+adds all 256 eight-control corners, for 2,046 scenarios. Each compares audio and
+complete voice state every block for 256 blocks; six long-hold cases instead
+compare 4,096 blocks with delayed Punch edits and pitch-drop reactivation.
+Both compare 4,096 display frames and states. Five timing repeats alternate
+before/after order. These are host checks; device profiling determines native
+CPU cost.
+
 Regenerate the checked-in analytic tables with `python tools/generate_tables.py`.
 The SDK adapters own voice allocation and registration; callbacks allocate no
 memory and do not perform I/O. Machine code, artwork and tests stay here.
@@ -146,6 +168,7 @@ and [hardware profiling workflow](https://github.com/etcetc000/open-xy/blob/stag
 Device installation, diagnostics and three revision-bound CPU runs require a
 separate user instruction. Hardware validation and catalog publication remain
 pending. A catalog submission needs the measured CPU record for the pinned
-commit and a catalog-only PR against `staging`.
+commit and a catalog-only PR against `main`, unless an unreleased SDK dependency
+requires `staging`.
 
 MIT licensed; see [LICENSE](LICENSE).

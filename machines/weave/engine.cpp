@@ -8,6 +8,17 @@ unsigned normalized(opxy::i32 word) {
     return word < 0 ? 0u : static_cast<opxy::u32>(word) >> 16;
 }
 unsigned model(opxy::i32 word) { return normalized(word) * 15u >> 15; }
+inline void advance_source(Voice& voice,const opxy::u8* controls,const opxy::u32* pitch) {
+    if(voice.cache_read==32) {
+        const opxy::u32 input=*pitch;
+        const opxy::u32 increment=(input/160u)*147u+((input%160u)*147u)/160u;
+        weave_dsp::macro_render(&voice.oscillator,controls,increment,voice.cache,32);
+        voice.cache_read=0;
+    }
+    const opxy::i16 sample=voice.cache[voice.cache_read++];
+    voice.history[voice.history_write]=voice.history[voice.history_write+24]=sample;
+    if(++voice.history_write==24)voice.history_write=0;
+}
 }
 
 void initialize(Voice& voice, Shared&, opxy::u32 owner) {
@@ -46,24 +57,23 @@ void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
     // key-scaling tables retain their meaning. A rational polyphase filter
     // supplies the SDK's 44.1 kHz stream without software floating point.
     for(unsigned i=0;i<opxy::block_frames;++i) {
-        voice.resample_phase+=160;
-        while(voice.resample_phase>=147) {
+        // A phase in 0..146 consumes one source sample, or occasionally two.
+        // Fold the first subtraction into the increment and test only the second.
+        voice.resample_phase+=13;
+        advance_source(voice,controls,pitch+i);
+        if(voice.resample_phase>=147) {
             voice.resample_phase-=147;
-            if(voice.cache_read==32) {
-                const opxy::u32 input=pitch[i];
-                const opxy::u32 increment=(input/160u)*147u+((input%160u)*147u)/160u;
-                weave_dsp::macro_render(&voice.oscillator,controls,increment,voice.cache,32);
-                voice.cache_read=0;
-            }
-            const opxy::i16 sample=voice.cache[voice.cache_read++];
-            voice.history[voice.history_write]=voice.history[voice.history_write+24]=sample;
-            if(++voice.history_write==24)voice.history_write=0;
+            advance_source(voice,controls,pitch+i);
         }
         opxy::i32 accumulated=0;
         const opxy::i16* history=voice.history+voice.history_write+23;
         const opxy::i16* coefficients=resample_coefficients[voice.resample_phase];
-        for(unsigned tap=0;tap<24;++tap) {
+        // Four taps share one loop branch, retaining the original sum order.
+        for(unsigned tap=0;tap<24;tap+=4) {
             accumulated+=static_cast<opxy::i32>(history[-static_cast<int>(tap)])*coefficients[tap];
+            accumulated+=static_cast<opxy::i32>(history[-static_cast<int>(tap+1)])*coefficients[tap+1];
+            accumulated+=static_cast<opxy::i32>(history[-static_cast<int>(tap+2)])*coefficients[tap+2];
+            accumulated+=static_cast<opxy::i32>(history[-static_cast<int>(tap+3)])*coefficients[tap+3];
         }
         const opxy::i32 sample=accumulated>>15;
         output[i]=(sample<-32768?-32768:sample>32767?32767:sample)*16384;

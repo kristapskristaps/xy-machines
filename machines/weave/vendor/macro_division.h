@@ -1,5 +1,23 @@
-// Open-XY adaptation: exact bounded division without a per-sample software divide.
+// Open-XY adaptation: exact division for block ramps and audio saturation.
 // Copyright (c) 2026 Kristaps Dreija. MIT; see ../LICENSE.
+// Source blocks have at most 32 samples. Chord, wavetable and modal renderers
+// split them into 12-sample chunks; six-op also advances double-length blocks.
+// Powers of two use literal division. Twelve needs a fractional reciprocal
+// and exact remainder correction because Blackfin otherwise calls its divider.
+__attribute__((always_inline)) static inline int32_t divide_block(int32_t value, int frames) {
+    if(frames==32)return value/32;
+    if(frames==64)return value/64;
+    if(frames==16)return value/16;
+    if(frames==12){
+        const int32_t quotient=opxy::q31::multiply(value,178956970);
+        const uint32_t remainder=static_cast<uint32_t>(value)-static_cast<uint32_t>(quotient)*12u;
+        return quotient+(value<0?static_cast<int32_t>(remainder)>0:remainder>=12u);
+    }
+    if(frames==8)return value/8;
+    if(frames==4)return value/4;
+    return value/frames;
+}
+
 static const int32_t division_seed[256] = {
     1071648760, 1067487017, 1063357473, 1059259757, 1055193500, 1051158343, 1047153931, 1043179912,
     1039235943, 1035321683, 1031436799, 1027580960, 1023753843, 1019955127, 1016184498, 1012441646,

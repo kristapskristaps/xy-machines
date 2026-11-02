@@ -19,3 +19,13 @@ existing block-rate work. The surrounding engine optionally reseeds the
 existing RNG at note/model triggers; it does not reset ringing DSP history.
 All sixty existing vendor fixtures retain their previous expected output with
 the new slots at zero. No LPG or additional audio processing stage is added.
+
+Block interpolation uses literal signed division for source lengths 32 and 16,
+the six-op renderer's doubled length 64, and internal 8/4-sample chunks.
+Internal 12-sample chunks use a Q31 reciprocal with exact remainder correction;
+other supported lengths retain ordinary division. This preserves truncation
+toward zero for negative ramps and all existing render fixtures. The block
+helper is adaptation code in `macro_division.h`; its tests cover lengths 1–64,
+full-range signed edges and randomized numerators.
+Single-operator FM rendering remains inlined at its routing-specific call
+sites, so source/add choices do not become branches inside every sample.

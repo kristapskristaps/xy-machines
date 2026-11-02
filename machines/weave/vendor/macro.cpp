@@ -145,7 +145,7 @@ static inline void ramp_init(struct ramp *r, int32_t *prev, int32_t target, int 
     if (*prev == RAMP_NEW)
         *prev = target;
     r->v = *prev * 256;
-    r->d = ((target - *prev) * 256) / n;
+    r->d = divide_block((target - *prev) * 256, n);
     *prev = target;
 }
 static inline int32_t ramp_next(struct ramp *r) { r->v += r->d; return r->v >> 8; }
@@ -2260,11 +2260,11 @@ static void ssynth_render(struct macro_ssynth *__restrict s, uint32_t inc, const
     g[2] = ((reg[4] - reg[3] + 2 * reg[5]) * gain) >> 7;
     g[3] = ((reg[6] - reg[5]) * gain) >> 7;
     for (i = 0; i < 4; i++) {                                    /* ParameterInterpolator: start, step */
-        d[i] = (g[i] - s->g[i]) / n;
+        d[i] = divide_block(g[i] - s->g[i], n);
         g[i] = s->g[i];
     }
     f = s->inc;
-    fd = ((int32_t)inc - (int32_t)f) / n;
+    fd = divide_block((int32_t)inc - (int32_t)f, n);
     for (i = 0; i < n; i++) {
         uint32_t old = ph;
         int32_t this_s = next, nseg;
@@ -2322,9 +2322,9 @@ static void wtv_render(struct macro_wtv *__restrict w, uint32_t inc, int32_t amp
         inc = 0x40000000u;
     amp = (amp * (32768 - (int32_t)(inc >> 16))) >> 15; /* 1 - 2f */
     wave = wave * 14 - (wave >> 13);                    /* x (15 - 1.0001) */
-    fd = ((int32_t)inc - (int32_t)f) / n;
-    ad = (amp - a) / n;
-    wd = (wave - wf) / n;
+    fd = divide_block((int32_t)inc - (int32_t)f, n);
+    ad = divide_block(amp - a, n);
+    wd = divide_block(wave - wf, n);
     /* y = d / (128 f), table units a table step, Q8: d x 2^25 / inc = d x r16 x 2^(z - 23), r16 = 2^48 / (inc << z) */
     for (z = 0, in = inc; !(in & 0x80000000u); z++)
         in <<= 1;
@@ -2552,8 +2552,8 @@ static void asaw_render(struct macro_asaw *__restrict o, uint32_t inc, int32_t g
     int32_t fd, g = o->gain, gd, next = o->next, i;
     if (inc > 0x40000000u)
         inc = 0x40000000u;
-    fd = ((int32_t)inc - (int32_t)f) / n;
-    gd = (gain - g) / n;
+    fd = divide_block((int32_t)inc - (int32_t)f, n);
+    gd = divide_block(gain - g, n);
     for (i = 0; i < n; i++) {
         uint32_t old = ph;
         int32_t this_s = next;
@@ -2606,8 +2606,8 @@ static void fsin_render(struct macro_fsin *__restrict o, uint32_t inc, int32_t a
     fp = (int32_t)mulhi(inc, 3373259426u);                       /* f pi, Q30 */
     fp2 = defined_shift(fmac1(fp, fp), 1);
     eps = defined_shift(fmac1(fp, (defined_shift(1, 30)) - (fmac1(fp2, 687194767) >> 1)), 2);   /* f pi (2 - 0.32 (f pi)^2) */
-    ed = (eps - e) / n;
-    ad = (amp - a) / n;
+    ed = divide_block(eps - e, n);
+    ad = divide_block(amp - a, n);
     nq = (fmac1(x, x) >> 1) + (fmac1(y, y) >> 1);               /* x^2 + y^2, Q28 */
     if (nq <= (defined_shift(1, 27)) || nq >= (defined_shift(1, 29))) {
         uint32_t r = nq >= (defined_shift(1, 30)) ? 0 : isqrt32((uint32_t)nq << 2);   /* sqrt, Q15 */
@@ -2748,11 +2748,11 @@ static void wt_render(struct macro_wavetable *__restrict w, const uint8_t *p, ui
         int32_t ip = w->pre[k] & ~0xffffff, fr = w->pre[k] & 0xffffff;
         fr += fmac1(wt_snap(fr) - fr, q >= (defined_shift(1, 24)) ? 0x7fffffff : defined_shift(q, 7));   /* (1.0 << 7 would wrap) */
         tg[k] = ip + fr;
-        d[k] = (tg[k] - w->tgt[k]) / n;
+        d[k] = divide_block(tg[k] - w->tgt[k], n);
         cur[k] = w->tgt[k];
         w->tgt[k] = tg[k];
     }
-    fd = ((int32_t)inc - (int32_t)f) / n;
+    fd = divide_block((int32_t)inc - (int32_t)f, n);
     /* y = d / (128 f), table units a table step, Q8: d x 2^25 / inc (as wtv_render) */
     for (z = 0, in = inc; !(in & 0x80000000u); z++)
         in <<= 1;
@@ -2895,10 +2895,10 @@ static void vso_render(struct macro_vso *__restrict o, int sync, uint32_t mf, ui
         pw31 = (int32_t)sf;
     else if (pw31 > 0x7fffffff - (int32_t)sf)
         pw31 = 0x7fffffff - (int32_t)sf;
-    mfd = ((int32_t)mf - (int32_t)m_f) / n;
-    sfd = ((int32_t)sf - (int32_t)s_f) / n;
-    pwd = (pw31 - pw) / n;
-    wsd = (ws - w) / n;
+    mfd = divide_block((int32_t)mf - (int32_t)m_f, n);
+    sfd = divide_block((int32_t)sf - (int32_t)s_f, n);
+    pwd = divide_block(pw31 - pw, n);
+    wsd = divide_block(ws - w, n);
     slopes(pw31, &up, &down);
     for (i = 0; i < n; i++) {
         int32_t this_s = next, sq, tri, reset = 0, trans = 0, step;
@@ -3005,9 +3005,9 @@ static void vsaw_render(struct macro_vsaw *__restrict o, uint32_t f, int32_t pw3
         pw31 = (int32_t)f;
     else if (pw31 > 0x7fffffff - (int32_t)f)
         pw31 = 0x7fffffff - (int32_t)f;
-    fd = ((int32_t)f - (int32_t)fr) / n;
-    pwd = (pw31 - pw) / n;
-    wsd = (ws - w) / n;
+    fd = divide_block((int32_t)f - (int32_t)fr, n);
+    pwd = divide_block(pw31 - pw, n);
+    wsd = divide_block(ws - w, n);
     slopes(pw31, &up, &down);
     for (i = 0; i < n; i++) {
         int32_t this_s = next, tri_a, notch_a, step, v;
@@ -3178,8 +3178,8 @@ static void va_render(struct macro_va *__restrict v, const uint8_t *p, uint32_t 
         m = sg > swg ? sg : swg;
         st = (int32_t)(((uint32_t)sg * 19661u / (uint32_t)m) << 8);   /* square gain 0.3 / max, Q24 */
         wt = (int32_t)(((uint32_t)swg * 32768u / (uint32_t)m) << 8);  /* saw gain 0.5 / max */
-        sgd = (st - v->sq_gain) / n;
-        wgd = (wt - v->saw_gain) / n;
+        sgd = divide_block(st - v->sq_gain, n);
+        wgd = divide_block(wt - v->saw_gain, n);
         for (i = 0; i < n; i++) {
             v->sq_gain += sgd;
             v->saw_gain += wgd;
@@ -3645,7 +3645,7 @@ static void string_one(struct macro_strv *__restrict v, uint32_t *rng, int trig,
         comp = string_shift[ci] + fmac1(string_shift[ci + 1 > 128 ? 128 : ci + 1] - string_shift[ci], defined_shift(cf, 15));
     }
     target = fmac1(delay, comp);
-    dinc = (target - v->delay) / n;
+    dinc = divide_block(target - v->delay, n);
     sp = defined_shift(fmac1(fmac1(nl, 0x40000000 - (nl >> 1)), 483183821), 3);   /* nl (2 - nl) 0.225, Q31 */
     sc = (delay >> 4) / 300;                                        /* 160 / 48000 x delay, Q16 */
     sc = sc < 65536 ? 65536 : sc > 137626 ? 137626 : sc;
@@ -4012,13 +4012,13 @@ static void dx_lfo_mods(const struct macro_dxvoice *l, int32_t *pm, int32_t *am)
 
 /* RenderOperators<1, src, add>, one operator: src -2 the input buffer, -1 none, 0 its own feedback. Written for
  * constant src and add, so each call site below gets its own loop. */
-static inline void dx_op1(struct macro_dxop *op, uint32_t f, int32_t a, const int src,
+__attribute__((always_inline)) static inline void dx_op1(struct macro_dxop *op, uint32_t f, int32_t a, const int src,
                                                        const int add, int32_t *fb, int fbamt, const int32_t *in,
                                                        int32_t *out, int size)
 {
     uint32_t ph = op->phase;
     int32_t amp = op->amp, ai, p0 = fb[0], p1 = fb[1], i, sh = 9 - fbamt;
-    ai = ((a > defined_shift(1, 29) ? defined_shift(1, 29) : a) - amp) / size;
+    ai = divide_block((a > defined_shift(1, 29) ? defined_shift(1, 29) : a) - amp, size);
     for (i = 0; i < size; i++) {
         int32_t pm = src == -2 ? in[i] : src == 0 ? (fbamt ? (p0 + p1) >> sh : 0) : 0, j, s;
         uint32_t x;
@@ -4053,7 +4053,7 @@ static void dx_ops(struct macro_dxop *ops, const uint32_t *f, const int32_t *a, 
         fr[k] = f[k];
         ph[k] = ops[k].phase;
         amp[k] = ops[k].amp;
-        ai[k] = (t - amp[k]) / size;
+        ai[k] = divide_block(t - amp[k], size);
     }
     for (i = 0; i < size; i++) {
         int32_t pm = src >= 0 ? (fbamt ? (p0 + p1) >> (9 - fbamt) : 0) : src == -2 ? in[i] : 0;

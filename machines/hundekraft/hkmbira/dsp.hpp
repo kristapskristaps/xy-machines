@@ -187,8 +187,7 @@ struct Dsp {
     coeff_cache[slot].valid = 1;
   }
 
-  template<bool First, bool Glide>
-  inline void pass2(int32_t *acc, part_t *x, part_t *y) {
+  inline void pass2(int32_t *acc, part_t *x, part_t *y, int first, int glide) {
     uint32_t pa = *x->ph, ca = x->c, pb = *y->ph, cb = y->c;
     int32_t aa = x->a, ab = y->a;
     const int32_t da = x->d, db = y->d, sa = x->st, sb = y->st;
@@ -197,12 +196,12 @@ struct Dsp {
       for (int j = i; j < i + 8; j++) {
         pa += ca;
         pb += cb;
-        if (Glide) {
+        if (glide) {
           ca += (uint32_t)da;
           cb += (uint32_t)db;
         }
         const int32_t s = (sine(pa) * ga + sine(pb) * gb) >> 15;
-        acc[j] = First ? s : acc[j] + s;
+        acc[j] = first ? s : acc[j] + s;
       }
       aa += sa * 8;
       ab += sb * 8;
@@ -211,8 +210,7 @@ struct Dsp {
     *y->ph = pb;
   }
 
-  template<bool First, bool Glide>
-  inline void pass1(int32_t *acc, part_t *x) {
+  inline void pass1(int32_t *acc, part_t *x, int first, int glide) {
     uint32_t pa = *x->ph, ca = x->c;
     int32_t aa = x->a;
     const int32_t da = x->d, sa = x->st;
@@ -220,10 +218,10 @@ struct Dsp {
       const int32_t ga = aa >> 9;
       for (int j = i; j < i + 8; j++) {
         pa += ca;
-        if (Glide)
+        if (glide)
           ca += (uint32_t)da;
         const int32_t s = (sine(pa) * ga) >> 16;
-        acc[j] = First ? s : acc[j] + s;
+        acc[j] = first ? s : acc[j] + s;
       }
       aa += sa * 8;
     }
@@ -236,26 +234,26 @@ struct Dsp {
       if (i + 1 < n) {
         if (glide) {
           if (first)
-            pass2<true, true>(acc, &l[i], &l[i + 1]);
+            pass2(acc, &l[i], &l[i + 1], 1, 1);
           else
-            pass2<false, true>(acc, &l[i], &l[i + 1]);
+            pass2(acc, &l[i], &l[i + 1], 0, 1);
         } else {
           if (first)
-            pass2<true, false>(acc, &l[i], &l[i + 1]);
+            pass2(acc, &l[i], &l[i + 1], 1, 0);
           else
-            pass2<false, false>(acc, &l[i], &l[i + 1]);
+            pass2(acc, &l[i], &l[i + 1], 0, 0);
         }
       } else {
         if (glide) {
           if (first)
-            pass1<true, true>(acc, &l[i]);
+            pass1(acc, &l[i], 1, 1);
           else
-            pass1<false, true>(acc, &l[i]);
+            pass1(acc, &l[i], 0, 1);
         } else {
           if (first)
-            pass1<true, false>(acc, &l[i]);
+            pass1(acc, &l[i], 1, 0);
           else
-            pass1<false, false>(acc, &l[i]);
+            pass1(acc, &l[i], 0, 0);
         }
       }
     }

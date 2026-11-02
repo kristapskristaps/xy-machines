@@ -24,19 +24,7 @@ From this machine folder, using Python 3.11+ and a Clang with WebAssembly suppor
 python ../../../../xy-machines-sdk/sdk.py test --machine . --cxx /opt/homebrew/opt/llvm/bin/clang++
 ```
 
-The partial renderer specializes its accumulation and pitch-glide loops once
-per block. Phase, eight-sample gain steps, sample rounding and voice state stay
-unchanged. `tests/partials.cpp` checks one through five partials, both glide
-states, phase wrap and accumulation against an independent sample reference.
-From the collection root, compare audio/state and paired host timings with:
-
-```sh
-python machines/hundekraft/hkmbira/tools/benchmark.py --baseline 64b4846 --sdk /path/to/pinned-sdk
-```
-
-The comparison covers control sweeps, all control corners, six pitches, live
-control/pitch motion, retriggers and reinitialization. Host timings do not
-establish device CPU. Collect three final hardware captures before submission.
+Native module compilation and host checks pass; hardware CPU and acceptance remain pending.
 
 The DSP has a 64-sample adapter latency. Modulation is independent per voice. The stock XY amp envelope follows the callback.
 

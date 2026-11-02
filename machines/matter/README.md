@@ -67,11 +67,7 @@ coefficient reconfiguration invalidates that reuse. Bowed rendering collects
 its active modes once per block. The excitation scaler uses an exact public
 fractional multiply in place of per-sample software division. These changes
 preserve the preceding revision's samples, rounding, resonator state, random
-sequence and resource ownership. The sampled-strike blend and final Body mix
-convert their nonnegative Q15 weights to Q31 and use the SDK fractional multiply;
-this keeps the exact result while removing a split integer product on Blackfin.
-Arithmetic tests cover every weight with signed edges and two million random
-signal/weight pairs.
+sequence and resource ownership.
 
 From the collection root, compare against the preceding revision with:
 
@@ -83,9 +79,8 @@ The paired host benchmark covers 180 scenarios: all six exciters, six pitches,
 default/minimum/maximum controls, position motion and simultaneous control/pitch
 motion. Each checks 256 blocks with three voices, including live model edits,
 retriggers, initialization/destruction and bow-resource stealing. It compares
-audio, the complete baseline voice state and the shared pool after every voice
-callback. Against the revision before the coefficient cache, only the original
-voice prefix exists; comparisons against a revision with that cache include it.
+audio, the complete original voice state and the shared pool after every voice
+callback; the added coefficient cache is excluded from the state comparison.
 Five timing repeats alternate before/after order. These timings are host evidence,
 not measured OP-XY CPU usage.
 

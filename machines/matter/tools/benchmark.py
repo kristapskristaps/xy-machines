@@ -43,7 +43,7 @@ bool equivalent(unsigned model,unsigned variant,unsigned increment) {
             if(block==128){matter_before::initialize(old[i],bs,i+1);matter::initialize(now[i],as,i+1);}
             matter_before::render(old[i],bs,i+1,before,parameters,pitch);
             matter::render(now[i],as,i+1,after,parameters,pitch);
-            static_assert(sizeof(matter_before::Voice)==sizeof(matter::Voice) || sizeof(matter_before::Voice)==offsetof(matter::Voice,exciter_timbre),"Compare the complete baseline voice, including its cache when present");
+            static_assert(sizeof(matter_before::Voice)==offsetof(matter::Voice,exciter_timbre),"Original voice prefix stays intact");
             bool voice_difference=false;
             for(unsigned j=0;j<3;++j)voice_difference=voice_difference||std::memcmp(&old[j],&now[j],sizeof(old[j]));
             if(sizeof(bs)!=sizeof(as)||std::memcmp(before,after,sizeof(before))||voice_difference||std::memcmp(&bs,&as,sizeof(bs))) {
@@ -120,7 +120,7 @@ def main():
         executable = scratch/'benchmark'
         subprocess.run([args.cxx,'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),str(scratch/'benchmark.cpp'),'-o',str(executable)],check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)],text=True).splitlines()]
-    print(json.dumps(dict(baseline=baseline,host_timing_only=True,exact_audio_complete_baseline_voice_and_shared_state_each_block=True,
+    print(json.dumps(dict(baseline=baseline,host_timing_only=True,exact_audio_original_voice_and_shared_state_each_block=True,
                          scenarios=len(rows),voices_per_equivalence_scenario=3,checked_blocks_per_scenario=256,
                          blocks_per_timing=args.blocks,repeats=5,
                          median_reduction_percent=round(100*(1-statistics.median(row['paired_ratio'] for row in rows)),1),results=rows),indent=2))

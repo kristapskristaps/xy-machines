@@ -1,4 +1,5 @@
 #pragma once
+#include <opxy/q31.hpp>
 #include "wide.hpp"
 // DSP adapted from Hundekraft 3.0.3. Retained copyright and terms: NOTICE,
 // LICENSE.
@@ -83,14 +84,22 @@ struct Dsp {
   }
 
   inline int32_t mul_q15(int32_t a, int32_t b) {
-    return (a >> 15) * b + (((a & 0x7FFF) * b) >> 15);
+    // Filter frequency and gain stay in [0, 32767]. Scaling that operand
+    // makes the SDK's Q31 multiply exactly the original Q15 product.
+    return opxy::q31::multiply(a, b * 65536);
   }
 
   inline int32_t div3(int32_t x) {
     const uint32_t a = (uint32_t)(x < 0 ? -x : x);
-    const int32_t q =
-        (int32_t)(((a >> 8) * 43691u + (((a & 255) * 43691u) >> 8)) >> 9);
+    // The sum of three signed 16-bit saws has magnitude at most 98304.
+    const int32_t q = opxy::q31::multiply(a, 715827883);
     return x < 0 ? -q : q;
+  }
+
+  uint32_t lfo_increment(int32_t motion) {
+    const uint32_t rate = exp2q((motion * 24800) >> 15);
+    // Split at the final shift: the low product fits in 31 bits.
+    return (rate >> 12) * 373000u + (((rate & 4095u) * 373000u) >> 12);
   }
 
   inline int32_t sine_lfo(uint32_t ph) {
@@ -130,7 +139,7 @@ struct Dsp {
                   k1 = knobs[1] < 0 ? 0 : knobs[1];
     const int32_t k2 = knobs[2] < 0 ? 0 : knobs[2],
                   k3 = knobs[3] < 0 ? 0 : knobs[3];
-    v->lfo += (uint32_t)((373000 * (int64_t)exp2q((k3 * 24800) >> 15)) >> 12);
+    v->lfo += lfo_increment(k3);
     const int32_t lfo = sine_lfo(v->lfo);
     v->rnd = v->rnd * 1664525u + 1013904223u;
     v->drift_v += ((int32_t)(v->rnd >> 20) - 2048) - (v->drift >> 6);
@@ -141,12 +150,12 @@ struct Dsp {
     if (v->drift < -32767)
       v->drift = -32767;
     const int32_t det = (k1 * 393) >> 15;
-    const int32_t dr = (int32_t)(((int64_t)v->drift * k3) >> 15) * 115 >> 15;
+    const int32_t dr = ((v->drift * k3) >> 15) * 115 >> 15;
     int step = elg_interval(k0);
     if (step > 4)
       step = 4;
     int32_t cx = (k2 * 29500) >> 15;
-    cx += (int32_t)(((int64_t)lfo * k3) >> 15) * 6144 >> 15;
+    cx += ((lfo * k3) >> 15) * 6144 >> 15;
     int32_t f = (187 * exp2q(cx)) >> 12;
     if (f > 27000)
       f = 27000;
@@ -156,7 +165,7 @@ struct Dsp {
     const int32_t drive = 4096 + ((k2 * 12288) >> 15);
     const int32_t swell =
         32767 -
-        ((int32_t)((((int64_t)(lfo + 32767) >> 1) * k3) >> 15) * 9830 >> 15);
+        (((((lfo + 32767) >> 1) * k3) >> 15) * 9830 >> 15);
     const int32_t trim_pos = k2 * 16, trim_index = trim_pos >> 15;
     const int32_t trim_a = elg_level_trim[step * 17 + trim_index];
     const int32_t trim =
@@ -164,7 +173,7 @@ struct Dsp {
                    (trim_pos & 32767)) >>
                   15);
     const int32_t voice_gain =
-        (int32_t)(((int64_t)swell * ((11000 * vel) >> 7)) >> 15);
+        (swell * ((11000 * vel) >> 7)) >> 15;
     const int32_t gain = (voice_gain * trim) >> 12;
     const int32_t target[5] = {det, dr, f, drive, gain};
     int32_t control[5], delta[5];
@@ -206,8 +215,11 @@ struct Dsp {
         band = -65535;
       const int32_t y = op1_sat16(mul_q15(low, gain));
       out[i] = (int16_t)y;
-      for (int j = 0; j < 5; j++)
-        control[j] += delta[j];
+      control[0] += delta[0];
+      control[1] += delta[1];
+      control[2] += delta[2];
+      control[3] += delta[3];
+      control[4] += delta[4];
       peak = y > peak ? y : -y > peak ? -y : peak;
     }
     v->ph[0] = p0;
@@ -217,7 +229,7 @@ struct Dsp {
     v->band = band;
     elg_blocks++;
     elg_level = peak;
-    elg_lfo = (int32_t)(((int64_t)lfo * k3) >> 15);
+    elg_lfo = (lfo * k3) >> 15;
   }
 };
 } // namespace port

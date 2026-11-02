@@ -75,8 +75,36 @@ python machines/rebound/tools/generate_tables.py --check
 The machine-local sound tests cover timing, stereo and intermediate routing,
 actual gain around unity, sustained growth and recovery, filter response, DC,
 independent return level, stale-buffer/reset behavior and extreme input/control
-sweeps. Run `tests/sound.cpp` with AddressSanitizer and UndefinedBehaviorSanitizer
-for additional host arithmetic and memory checks.
+sweeps. The arithmetic test compares the limiter with an independent 64-bit
+reference, including cancellation at the knee, and checks signed interpolation
+against wide multiplication and division. Run both `tests/*.cpp` with
+AddressSanitizer and UndefinedBehaviorSanitizer for additional host checks.
+
+The optimized callback bounds the feedback sum before expanding it in 32 bits,
+and scales interpolation magnitudes with Q31 multiplication before restoring
+the sign. These preserve the original rounding and saturation. Inlining the tap
+and limiter removes sample-loop calls and permits a native hardware loop; state
+and delay memory are unchanged. The native Mando/Rebound check adds 124 bytes
+to the module and reduces Rebound's reported audio stack from 160 to 132 bytes.
+
+Compare a revision with the complete stereo output, state and scratch after
+every block, then collect paired host timings:
+
+```sh
+python machines/rebound/tools/benchmark.py --baseline ad0136c --sdk /path/to/open-xy
+python machines/rebound/tools/benchmark.py --baseline ad0136c --sdk /path/to/open-xy \
+  --verify-only --full-grid
+```
+
+The default comparison covers 238 scenarios; the full grid covers 1,006, each
+for 256 blocks. They include cold/stale and primed delay lines, wraparound,
+reset, missing/short buffers, feedback around unity, full-scale stereo input,
+control and tempo automation. Timing uses primed delay lines, five alternating
+pairs and median ratios. Against `ad0136c`, both tested macOS compilers showed
+about 3% lower median host time. This is not a device CPU measurement.
+The SDK's separate advisory sweep varied around its 30,000-instruction host
+aim (including a 33,100 estimate); hardware timing must settle the budget before
+submission.
 
 Effects have no SDK browser preview. A host-only renderer runs the actual
 callback and adds a quiet dry test phrase for listening. Use your pinned SDK's

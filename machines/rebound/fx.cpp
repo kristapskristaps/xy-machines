@@ -6,7 +6,6 @@ namespace rebound {
 namespace {
 using opxy::i32;
 using opxy::u32;
-using opxy::i64;
 using opxy::q31::multiply;
 const i32 maximum = opxy::q31::maximum;
 const i32 shortest = 512 * 256;
@@ -25,16 +24,21 @@ i32 glide(i32 value, i32 target) {
     return value + (step ? step : (difference > 0) - (difference < 0));
 }
 
-// Unit slope below -12 dBFS, a quadratic knee, then a -6 dBFS ceiling.
-// Wide input accommodates input + gain above unity without Q31 wraparound.
-i32 saturate(i64 value) {
-    const i64 magnitude = value < 0 ? -value : value;
+// Injection is half scale; loop is a Q31 product of a half-scale signal and
+// at most 0.75. Quartering the injection keeps their sum within i32.
+__attribute__((always_inline)) inline i32 saturate_sum(i32 injection, i32 loop) {
     const i32 knee = 536870912, ceiling = 1073741823;
+    const i32 quarter = loop + opxy::q31::half(opxy::q31::half(injection));
+    if (quarter > 3 * (knee / 4)) return ceiling;
+    if (quarter < -3 * (knee / 4)) return -ceiling;
+    // Only expand after bounding the sum. Low bits restore signed floor division.
+    const i32 value = quarter * 4 + static_cast<i32>(static_cast<u32>(injection) & 3u);
+    const i32 magnitude = value < 0 ? -value : value;
     i32 result;
-    if (magnitude <= knee) result = static_cast<i32>(magnitude);
-    else if (magnitude >= 3LL * knee) result = ceiling;
+    if (magnitude <= knee) result = magnitude;
+    else if (magnitude >= 3 * knee) result = ceiling;
     else {
-        const i32 x = static_cast<i32>(magnitude - knee);
+        const i32 x = magnitude - knee;
         result = knee + x - multiply(x, x);
         if (result > ceiling) result = ceiling;
     }
@@ -68,13 +72,21 @@ i32 sample(const i32* line, const State& state, u32 age) {
     return age > state.written ? 0 : line[(state.write + line_frames - age) & (line_frames - 1)];
 }
 
-i32 tap(const i32* line, const State& state) {
+// The line stays within +/-1073741823, so a difference cannot reach INT_MIN.
+inline i32 fraction_of(i32 difference, i32 fraction) {
+    const i32 magnitude = difference < 0 ? -difference : difference;
+    const i32 scaled = multiply(magnitude, fraction * 8388608);
+    return difference < 0 ? -scaled : scaled;
+}
+
+__attribute__((always_inline)) inline i32 tap(const i32* line, const State& state) {
     const u32 age = static_cast<u32>(state.delay) >> 8;
     const i32 fraction = state.delay & 255;
-    const i32 a = sample(line, state, age), b = sample(line, state, age + 1);
-    // Both samples are bounded below +/- 0.5, so their difference cannot overflow.
-    const i32 difference = b - a;
-    return a + (difference / 256) * fraction + ((difference % 256) * fraction) / 256;
+    const i32 a = sample(line, state, age);
+    if (!fraction) return a;
+    const i32 b = sample(line, state, age + 1);
+    // Scale nonnegative magnitudes, then restore truncation toward zero.
+    return a + fraction_of(b - a, fraction);
 }
 
 i32 filtered(State& state, unsigned side, i32 input) {
@@ -126,10 +138,10 @@ void process(State& state, opxy::Buffer buffer, const opxy::Transport& transport
         const i32 mono = opxy::q31::half(in_l) + opxy::q31::half(in_r);
         // The filter stores half-scale samples and gain is stored half-scale;
         // multiplying then widening by four restores the actual loop gain.
-        l[state.write] = saturate(static_cast<i64>(blend(in_l, mono, state.pingpong)) +
-            4LL * multiply(blend(fb_l, fb_r, state.pingpong), state.feedback_half));
-        r[state.write] = saturate(static_cast<i64>(multiply(in_r, maximum - state.pingpong)) +
-            4LL * multiply(blend(fb_r, fb_l, state.pingpong), state.feedback_half));
+        l[state.write] = saturate_sum(blend(in_l, mono, state.pingpong),
+            multiply(blend(fb_l, fb_r, state.pingpong), state.feedback_half));
+        r[state.write] = saturate_sum(multiply(in_r, maximum - state.pingpong),
+            multiply(blend(fb_r, fb_l, state.pingpong), state.feedback_half));
         state.write = (state.write + 1) & (line_frames - 1);
         if (state.written < line_frames) ++state.written;
         // Restore the input's 6 dB headroom pad at the wet return. Delay samples

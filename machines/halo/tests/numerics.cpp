@@ -14,6 +14,25 @@ int main() {
         if(halo::line_sample(state,memory,16,age,0)!=static_cast<opxy::i32>((5000-age)*21))return 1;
         if(halo::line_sample(state,memory,16,age,1)!=-static_cast<opxy::i32>((5000-age)*17))return 1;
     }
+    // Every ring's wrap boundaries, including packed echo and stereo channels,
+    // must agree with ordinary modulo indexing before optimizing wrap arithmetic.
+    state.written=halo::echo_frames;
+    for(unsigned line=0;line<19;++line){
+        const auto layout=halo::lines[line];
+        const unsigned stride=line==16 || line==17?2:1;
+        for(unsigned i=0;i<layout.length;++i)memory[layout.offset+i]=static_cast<opxy::i32>((i*17239u+17u)*(line+1));
+        const unsigned positions[]={0,1,layout.length/2,layout.length-1};
+        for(auto position:positions){
+            state.positions[line]=position;
+            for(unsigned age=1;age<layout.length/stride;++age)for(unsigned channel=0;channel<(stride==2 || line==18?2u:1u);++channel){
+                const unsigned index=(position+layout.length-age*stride+(stride==2?channel:0))%layout.length;
+                const auto packed=memory[layout.offset+index];
+                const auto expected=line==18?static_cast<opxy::i16>(channel?static_cast<opxy::u32>(packed)>>16:static_cast<opxy::u32>(packed)&65535u)*512:packed;
+                if(halo::line_sample(state,memory,line,age,channel)!=expected)return 1;
+            }
+            if(halo::line_sample(state,memory,line,0) || halo::line_sample(state,memory,line,layout.length/stride))return 1;
+        }
+    }
     const double pi=3.141592653589793;
     for(unsigned division=0;division<8;++division)for(unsigned bpm=400;bpm<=2400;bpm+=100) {
         const opxy::i32 control=static_cast<opxy::i32>(division*268435456u);
@@ -24,6 +43,13 @@ int main() {
     // Check both conversion filters' DC gain and downsampling rejection.
     long long sum=0;for(auto coefficient:halo::tables::halfband)sum+=coefficient;
     if(sum!=2147483648LL)return 1;
+    if(halo::tables::halfband[0]!=0)return 1;
+    if(halo::tables::halfband[30]!=0)return 1;
+    if(halo::tables::halfband[15]!=1073741824)return 1;
+    for(unsigned tap=0;tap<31;++tap){
+        if(halo::tables::halfband[tap]!=halo::tables::halfband[30-tap])return 1;
+        if(tap%2 && tap!=15 && halo::tables::halfband[tap])return 1;
+    }
     // Compare the paired/mirrored filters to an independent circular convolution.
     unsigned rng=7;
     opxy::i32 down[62]={},up[32]={};

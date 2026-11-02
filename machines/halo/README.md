@@ -41,6 +41,12 @@ and shimmer storage use Q24 words. Each send borrows 231,424 bytes (226 KiB)
 of scratch memory and has its own 248-byte state. Reset cannot expose previous
 scratch audio. Hold maintains an audible tail; it is not a lossless recording.
 
+The conversion filters expand their seven nonzero mirrored tap pairs directly,
+preserving each product's rounding and accumulation order. Unpacked delay rings
+use masks for their power-of-two lengths; the packed three-second echo retains
+its original wrap. Network gains are scaled to Q31 once per callback. These
+changes preserve the original output, 248-byte send state and scratch layout.
+
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings
 belong to the machine-owned browser audition, not a custom native FX screen.
 
@@ -83,11 +89,26 @@ clang++ -std=c++11 -O2 -I ../../../xy-machines-sdk/sdk/include tests/parity.cpp 
 node tools/check_audition.mjs ../../../xy-machines-sdk/local/halo-audition-001 "$(/tmp/halo-parity)"
 ```
 
+`tests/equivalence.cpp` freezes complete stereo output plus final state and
+scratch from the preceding implementation across six long scenarios. The
+numerical tests also check every ring's wrap boundaries against modulo indexing.
+For paired host comparisons against that implementation, from the collection
+root run:
+
+```sh
+python machines/halo/tools/benchmark.py --cxx /path/to/clang++
+```
+
+The benchmark alternates timing order for five repeats across 60 preset,
+control, tail and automation scenarios, checking matching output hashes, state
+and scratch. Host timings do not establish the Blackfin benefit of removing
+tap loops and coefficient scaling; measure the exact revision on the device.
+
 The SDK needs a synth in a native collection. Compile alongside a sibling
 instrument or the core 2op FM example, with output outside every checkout:
 
 ```sh
-python ../../../xy-machines-sdk/sdk.py compile --machine . --machine ../../../xy-machines-sdk-plaits \
+python ../../../xy-machines-sdk/sdk.py compile --machine . --machine ../subvista \
   --profiling on --out "$HOME/Library/Application Support/OPXY-SDK/private/halo-module-001"
 ```
 

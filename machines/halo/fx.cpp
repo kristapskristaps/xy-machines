@@ -51,12 +51,15 @@ inline i32 line_sample(const State& state,const i32* memory,unsigned line,unsign
     const bool stereo=line==16 || line==17;
     if(age>=(stereo?l.length/2:l.length))return 0;
     if(stereo)age*=2;
-    unsigned index=state.positions[line];
-    index=index>=age?index-age:index+l.length-age;
-    if(stereo){index+=channel;if(index>=l.length)index-=l.length;}
-    const i32 packed=memory[l.offset+index];
-    if(line==18) return static_cast<opxy::i16>(channel?static_cast<u32>(packed)>>16:static_cast<u32>(packed)&65535u)*512;
-    return packed;
+    const unsigned position=state.positions[line];
+    if(line==18) {
+        const unsigned index=position>=age?position-age:position+l.length-age;
+        const u32 packed=static_cast<u32>(memory[l.offset+index]);
+        return static_cast<opxy::i16>(channel?packed>>16:packed&65535u)*512;
+    }
+    // All unpacked lines have power-of-two lengths, including stereo rings.
+    const unsigned index=(position-age+(stereo?channel:0))&(l.length-1);
+    return memory[l.offset+index];
 }
 inline i32 tap(const State& state,const i32* memory,unsigned line,i32 delay,unsigned channel=0) {
     const unsigned age=static_cast<u32>(delay)>>8;
@@ -67,12 +70,13 @@ inline i32 tap(const State& state,const i32* memory,unsigned line,i32 delay,unsi
 }
 inline void write(State& state,i32* memory,unsigned line,i32 value) {
     memory[lines[line].offset+state.positions[line]]=value;
-    if(++state.positions[line]==lines[line].length)state.positions[line]=0;
+    if(line==18){if(++state.positions[line]==lines[line].length)state.positions[line]=0;}
+    else state.positions[line]=(state.positions[line]+1)&(lines[line].length-1);
 }
 inline i32 allpass(State& state,i32* memory,unsigned line,i32 input,i32 delay,i32 gain) {
     const i32 delayed=line_sample(state,memory,line,static_cast<u32>(delay)>>8);
-    const i32 output=delayed-mul(input,gain);
-    write(state,memory,line,clamp(input+mul(output,gain),-3*unit,3*unit));
+    const i32 output=delayed-opxy::q31::multiply(input,gain);
+    write(state,memory,line,clamp(input+opxy::q31::multiply(output,gain),-3*unit,3*unit));
     return output;
 }
 inline i32 plate_allpass(State& state,i32* memory,unsigned line,i32 input,i32 delay,i32 modulation,i32 gain) {
@@ -100,7 +104,8 @@ inline i32 pitch_up(const State& state,const i32* memory,unsigned channel,unsign
     return mul(a,table(tables::window,phase))+mul(b,table(tables::window,other_phase));
 }
 struct Settings {
-    i32 color,input_gain,decay,damping,diffusion,shimmer,seed_echo,wet_echo,feedback,duck,release,modulation;
+    // Network gains are Q31; control shaping below retains its Q15 rounding.
+    i32 color,echo_color,input_gain,decay,damping,diffusion,shimmer,seed_echo,wet_echo,feedback,duck,release,modulation;
     i32 delays[2][4];
     unsigned pre_delay,grain_width;
 };
@@ -126,6 +131,11 @@ Settings settings(const State& state) {
     const i32 scale=18022+mul(distance,22938);
     for(unsigned channel=0;channel<2;++channel)for(unsigned line=0;line<4;++line)
         result.delays[channel][line]=static_cast<i32>(plate_delay[channel][line])*scale/128;
+    result.echo_color=(result.color/2+2400)*65536;
+    result.color*=65536;result.input_gain*=65536;result.decay*=65536;
+    result.damping*=65536;result.diffusion*=65536;result.shimmer*=65536;
+    result.seed_echo*=65536;result.wet_echo*=65536;result.feedback*=65536;
+    result.duck*=65536;result.release*=65536;result.modulation*=65536;
     return result;
 }
 void network(State& __restrict state,i32* __restrict memory,i32* __restrict input,i32* __restrict output,const Settings& __restrict config) {
@@ -133,10 +143,10 @@ void network(State& __restrict state,i32* __restrict memory,i32* __restrict inpu
     for(unsigned channel=0;channel<2;++channel) {
         state.input_high[channel]+=mul(input[channel]-state.input_high[channel],2198);
         const i32 high=input[channel]-state.input_high[channel];
-        state.input_low[channel]+=mul(high-state.input_low[channel],config.color);
-        input[channel]=mul(state.input_low[channel],config.input_gain);
+        state.input_low[channel]+=opxy::q31::multiply(high-state.input_low[channel],config.color);
+        input[channel]=opxy::q31::multiply(state.input_low[channel],config.input_gain);
         echoes[channel]=tap(state,memory,18,state.delay,channel);
-        state.echo_low[channel]+=mul(echoes[channel]-state.echo_low[channel],config.color/2+2400);
+        state.echo_low[channel]+=opxy::q31::multiply(echoes[channel]-state.echo_low[channel],config.echo_color);
         state.echo_high[channel]+=mul(state.echo_low[channel]-state.echo_high[channel],1580);
         echoes[channel]=state.echo_low[channel]-state.echo_high[channel];
         predelay[channel]=line_sample(state,memory,16,config.pre_delay+channel*8u,channel);
@@ -154,20 +164,20 @@ void network(State& __restrict state,i32* __restrict memory,i32* __restrict inpu
     i32 next_plate[2],wet[2];
     for(unsigned channel=0;channel<2;++channel) {
         const unsigned other=1-channel;
-        const i32 seeded=mul(predelay[channel],23593)+mul(input[channel],3277)+mul(echoes[channel],config.seed_echo);
+        const i32 seeded=mul(predelay[channel],23593)+mul(input[channel],3277)+opxy::q31::multiply(echoes[channel],config.seed_echo);
         i32 diffused=seeded;
         for(unsigned stage=0;stage<4;++stage)
             diffused=allpass(state,memory,channel*4+stage,diffused,static_cast<i32>(diffusion_delay[channel*4+stage]*256u),config.diffusion);
-        const i32 tank=soft(mul(diffused,23593)+mul(state.plate[other],config.decay)+mul(output[channel],config.shimmer));
+        const i32 tank=soft(mul(diffused,23593)+opxy::q31::multiply(state.plate[other],config.decay)+opxy::q31::multiply(output[channel],config.shimmer));
         state.phase[channel]+=channel?49474u:44022u;
         const i32 sine=table(tables::sine,state.phase[channel]>>16);
-        const i32 modulation=mul(sine,config.modulation)/4;
+        const i32 modulation=opxy::q31::multiply(sine,config.modulation)/4;
         const unsigned first=8+channel*4;
         const i32 ap1=plate_allpass(state,memory,first,tank,config.delays[channel][0],modulation,22282);
         const i32 d1=tap(state,memory,first+1,config.delays[channel][1]);
         write(state,memory,first+1,ap1);
-        state.damping[channel]+=mul(d1-state.damping[channel],config.damping);
-        const i32 ap2=plate_allpass(state,memory,first+2,mul(state.damping[channel],config.decay),config.delays[channel][2],-modulation/4,16384);
+        state.damping[channel]+=opxy::q31::multiply(d1-state.damping[channel],config.damping);
+        const i32 ap2=plate_allpass(state,memory,first+2,opxy::q31::multiply(state.damping[channel],config.decay),config.delays[channel][2],-modulation/4,16384);
         const i32 d2=tap(state,memory,first+3,config.delays[channel][3]);
         write(state,memory,first+3,ap2);
         next_plate[channel]=clamp(d2,-unit,unit);
@@ -175,15 +185,15 @@ void network(State& __restrict state,i32* __restrict memory,i32* __restrict inpu
         const i32 magnitude=input[channel]<0?-input[channel]:input[channel];
         state.body[channel]+=mul(magnitude-state.body[channel],76);
         const i32 transient=clamp((magnitude-state.body[channel]-state.body[channel]/3)*4,0,unit);
-        const i32 follower=transient>state.duck[channel]?5361:config.release;
-        state.duck[channel]+=mul(transient-state.duck[channel],follower);
-        const i32 duck_gain=32767-mul(state.duck[channel]/512,config.duck);
+        const i32 follower=transient>state.duck[channel]?5361*65536:config.release;
+        state.duck[channel]+=opxy::q31::multiply(transient-state.duck[channel],follower);
+        const i32 duck_gain=32767-opxy::q31::multiply(state.duck[channel]/512,config.duck);
         const i32 open=mul(tail,duck_gain);
-        wet[channel]=soft(mul(open,24000)+mul(echoes[channel],config.wet_echo));
+        wet[channel]=soft(mul(open,24000)+opxy::q31::multiply(echoes[channel],config.wet_echo));
     }
     opxy::u32 packed=0;
     for(unsigned channel=0;channel<2;++channel) {
-        const i32 echo_write=soft(input[channel]+mul(echoes[1-channel],config.feedback));
+        const i32 echo_write=soft(input[channel]+opxy::q31::multiply(echoes[1-channel],config.feedback));
         const i32 shaped=echo_write+state.echo_error[channel];
         const i32 quantized=clamp((shaped+256)>>9,-32768,32767);
         state.echo_error[channel]=shaped-quantized*512;
@@ -198,20 +208,28 @@ void network(State& __restrict state,i32* __restrict memory,i32* __restrict inpu
 inline i32 downsample(const i32* history,unsigned position) {
     const i32* latest=history+position+31;
     i32 output=latest[-15]/2;
-    for(unsigned tap_index=0;tap_index<15;tap_index+=2) {
-        const i32 pair=latest[-static_cast<int>(tap_index)]+latest[-static_cast<int>(30-tap_index)];
-        output+=opxy::q31::multiply(pair,tables::halfband[tap_index]);
-    }
+    // Only seven mirrored pairs are nonzero. Keep each product's rounding
+    // and the original accumulation order while removing the tap loop.
+    output+=opxy::q31::multiply(latest[-2]+latest[-28],tables::halfband[2]);
+    output+=opxy::q31::multiply(latest[-4]+latest[-26],tables::halfband[4]);
+    output+=opxy::q31::multiply(latest[-6]+latest[-24],tables::halfband[6]);
+    output+=opxy::q31::multiply(latest[-8]+latest[-22],tables::halfband[8]);
+    output+=opxy::q31::multiply(latest[-10]+latest[-20],tables::halfband[10]);
+    output+=opxy::q31::multiply(latest[-12]+latest[-18],tables::halfband[12]);
+    output+=opxy::q31::multiply(latest[-14]+latest[-16],tables::halfband[14]);
     return output;
 }
 inline i32 upsample(const i32* history,unsigned position,unsigned phase) {
     const i32* latest=history+position+16;
     if(phase) return latest[-7];
     i32 output=0;
-    for(unsigned i=0;i<8;++i) {
-        const i32 pair=latest[-static_cast<int>(i)]+latest[-static_cast<int>(15-i)];
-        output+=opxy::q31::multiply(pair,tables::halfband[i*2]*2);
-    }
+    output+=opxy::q31::multiply(latest[-1]+latest[-14],tables::halfband[2]*2);
+    output+=opxy::q31::multiply(latest[-2]+latest[-13],tables::halfband[4]*2);
+    output+=opxy::q31::multiply(latest[-3]+latest[-12],tables::halfband[6]*2);
+    output+=opxy::q31::multiply(latest[-4]+latest[-11],tables::halfband[8]*2);
+    output+=opxy::q31::multiply(latest[-5]+latest[-10],tables::halfband[10]*2);
+    output+=opxy::q31::multiply(latest[-6]+latest[-9],tables::halfband[12]*2);
+    output+=opxy::q31::multiply(latest[-7]+latest[-8],tables::halfband[14]*2);
     return output;
 }
 }

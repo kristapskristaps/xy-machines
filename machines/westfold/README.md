@@ -49,6 +49,38 @@ Offline generation projects the folding curve into 17 continuously interpolated 
 
 A bandwidth allowance reduces upper harmonics under modulation. Even overtones and modulation depth taper at very high pitches. The low-pass gate couples gain to two gentle filter poles, and a DC blocker removes offsets. Its exponential contour is interpolated over each 64-sample block; filter coefficients update every eight samples.
 
+The engine retains all eight audio banks. The display uses only bank 1, so its
+generated `display_tables.h` holds that bank and the lookups the drawing needs.
+This avoids copying seven unused banks into the display and removes about
+119 KiB from the native module. Both headers come from the same generator;
+their integer values are unchanged.
+
+An exactly zero smoothed Balance skips the unused folded branches; zero Overtone skips
+the unused even branch. The high-pitch guard also skips an even branch whose
+gain is zero. Controls, phase, modulation and gate state still advance on every
+sample. Band crossfades and the FM guard use exact bounded reciprocal arithmetic
+in place of three native software division sites. Voice storage and native
+audio stack usage are unchanged.
+
+From the collection root, compare against the preceding revision with:
+
+```sh
+python machines/westfold/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
+python machines/westfold/tools/benchmark.py --cxx /path/to/clang++ --full-grid --verify-only
+```
+
+The paired run covers 528 scenarios: defaults, all twelve presets, five positions
+of each control, both pages' control corners at six pitches, and control/pitch
+motion. The wider check adds all 256 eight-control corners, for 2,064 scenarios.
+Each compares audio and complete voice state after every block over 256 blocks,
+including retriggers and reinitialization. Both compare 4,096 complete display
+frames and display states against the preceding revision. The arithmetic test
+checks the compact drawing data against the original tables, every bounded
+reciprocal input, band transitions and one million random
+phase increments. Host timings remain advisory; use device profiling to measure
+the native CPU benefit.
+
+
 To regenerate the committed tables, metadata, presets and panel:
 
 ```sh
@@ -66,6 +98,6 @@ Prepare a profiling-enabled development module outside every checkout:
 python ../../../xy-machines-sdk/sdk.py compile --machine . --profiling on --out /absolute/external/path/westfold-module-001
 ```
 
-An installable image additionally needs the exact stock OS 1.2.0 from the owner’s device. Follow the SDK’s [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md) and [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md). Firmware and firmware-containing packages belong outside every checkout. No device installation or diagnostics are performed by the development commands above.
+An installable image additionally needs the exact stock OS 1.2.1 from the owner’s device. Follow the SDK’s [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md) and [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md). Firmware and firmware-containing packages belong outside every checkout. No device installation or diagnostics are performed by the development commands above.
 
 Westfold is MIT licensed; see [LICENSE](LICENSE) and the [Braids attribution](vendor/README.md).

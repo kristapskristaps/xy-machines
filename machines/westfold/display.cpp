@@ -1,5 +1,6 @@
 #include "display.h"
-#include "dsp.h"
+#include "dsp_common.h"
+#include "display_tables.h"
 
 namespace westfold {
 namespace {
@@ -30,14 +31,14 @@ void headers(const Input& input, Frame& frame) {
         if (slot == 3) {
             if (value >= 32600) copy(frame.header[i], 8, "hold");
             else {
-                const u32 ms = static_cast<u32>(dsp::lookup(tables::durations_ms, value));
+                const u32 ms = static_cast<u32>(dsp::lookup(draw_tables::durations_ms, value));
                 if (ms < 1000) number(frame.header[i], ms, "ms");
                 else decimal(frame.header[i], (ms + 50) / 100, "s");
             }
         } else if (slot == 4) {
-            decimal(frame.header[i], static_cast<u32>((dsp::lookup(tables::ratios, value) * 10 + 2048) / 4096), "");
+            decimal(frame.header[i], static_cast<u32>((dsp::lookup(draw_tables::ratios, value) * 10 + 2048) / 4096), "");
         } else if (slot == 6) {
-            const u32 rate = static_cast<u32>(dsp::lookup(tables::rates, value));
+            const u32 rate = static_cast<u32>(dsp::lookup(draw_tables::rates, value));
             const u32 tenths = (rate / 1024) * 4410 / 41943;
             if (tenths < 1000) decimal(frame.header[i], tenths, "Hz");
             else number(frame.header[i], (tenths + 5) / 10, "Hz");
@@ -45,18 +46,22 @@ void headers(const Input& input, Frame& frame) {
     }
 }
 
+i32 ribbon_wave(u32 fold,i32 fraction,u32 phase) {
+    return dsp::mix(dsp::read(draw_tables::waves[fold],phase),
+                    dsp::read(draw_tables::waves[fold+1],phase),fraction);
+}
+
 void ribbon(Frame::path_type& path, u32 key, i32 fold, i32 overtone, i32 balance,
             i32 amount, u32 phase, bool clean_wave) {
     if (path.key == key) return;
-    const dsp::Band band = {1, 0};
     const u32 index = static_cast<u32>(fold) >> 11;
     const i32 fraction = (fold & 2047) * 16;
     for (u32 i = 0; i < 32; ++i) {
         const u32 p = i * (0xffffffffu / 31u);
-        const u32 mod = static_cast<u32>(dsp::sine(p * 2u + phase) * amount / 2);
-        const i32 fundamental = dsp::clean(band, p + mod);
-        const i32 odd = dsp::wave(index, fraction, band, p + mod);
-        const i32 even = dsp::wave(index, fraction, band, (p + mod) * 2u);
+        const u32 mod = static_cast<u32>(dsp::read(draw_tables::sine, p * 2u + phase) * amount / 2);
+        const i32 fundamental = dsp::read(draw_tables::waves[0], p + mod);
+        const i32 odd = ribbon_wave(index, fraction, p + mod);
+        const i32 even = ribbon_wave(index, fraction, (p + mod) * 2u);
         const i32 y = clean_wave ? fundamental : dsp::mix(fundamental, dsp::mix(odd, even, overtone), balance);
         const i32 x = -58 * unit + static_cast<i32>(i) * 116 * unit / 31;
         const i32 height = y * 20 / 32768;
@@ -92,13 +97,13 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     const i32 fm = dsp::control(input.slots[5]);
     const i32 motion = dsp::control(input.slots[7]);
     if (!input.reduced_motion) {
-        const u32 rate = static_cast<u32>(dsp::lookup(tables::rates, dsp::control(input.slots[6])));
+        const u32 rate = static_cast<u32>(dsp::lookup(draw_tables::rates, dsp::control(input.slots[6])));
         state.phase += rate * static_cast<u32>(dt * 44100 / 1024);
     }
-    const u32 duration = static_cast<u32>(dsp::lookup(tables::durations_ms, decay));
+    const u32 duration = static_cast<u32>(dsp::lookup(draw_tables::durations_ms, decay));
     const u32 age_index = state.age * 125u / (duration ? duration : 1);
     state.gate = decay >= 32600 && input.held_notes && input.held_notes <= 128 ? 1024
-        : static_cast<u32>(tables::visual_decay[age_index > 255 ? 255 : age_index]);
+        : static_cast<u32>(draw_tables::visual_decay[age_index > 255 ? 255 : age_index]);
     if (input.reduced_motion) state.gate = input.held_notes && input.held_notes <= 128 ? 1024 : 0;
     const i32 cycle = input.reduced_motion ? 0 : dsp::slope(state.phase) * 2 - 32768;
     const i32 animated_fold = dsp::clamp(fold * (24576 + static_cast<i32>(state.gate) * 8) / 32768
@@ -117,7 +122,7 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     for (u32 i = 0; i < 32; ++i) {
         const i32 x = -34 * unit + static_cast<i32>(i) * 68 * unit / 31;
         const i32 y = i < 3 ? static_cast<i32>(i) * 11 / 2
-            : tables::visual_decay[(i - 3) * 8] * 11 / 1024;
+            : draw_tables::visual_decay[(i - 3) * 8] * 11 / 1024;
         contour.points[i] = {x, -y * unit - 100};
         contour.points[63 - i] = {x, -y * unit + 100};
     }
@@ -127,12 +132,12 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     const u32 fi = static_cast<u32>(animated_fold) >> 11;
     const i32 ff = (animated_fold & 2047) * 16;
     for (u32 harmonic = 1; harmonic <= 32; ++harmonic) {
-        const i32 odd = harmonic & 1 ? dsp::mix(tables::spectrum[fi][harmonic], tables::spectrum[fi + 1][harmonic], ff) : 0;
+        const i32 odd = harmonic & 1 ? dsp::mix(draw_tables::spectrum[fi][harmonic], draw_tables::spectrum[fi + 1][harmonic], ff) : 0;
         const u32 doubled = harmonic / 2;
-        const i32 even = !(harmonic & 1) ? dsp::mix(tables::spectrum[fi][doubled], tables::spectrum[fi + 1][doubled], ff) : 0;
+        const i32 even = !(harmonic & 1) ? dsp::mix(draw_tables::spectrum[fi][doubled], draw_tables::spectrum[fi + 1][doubled], ff) : 0;
         i32 level = dsp::mix(odd, even, overtone);
-        level = dsp::mix(harmonic & 1 ? tables::spectrum[0][harmonic] : 0, level, balance);
-        const i32 height = 80 + dsp::lookup(tables::visual_spectrum, level);
+        level = dsp::mix(harmonic & 1 ? draw_tables::spectrum[0][harmonic] : 0, level, balance);
+        const i32 height = 80 + dsp::lookup(draw_tables::visual_spectrum, level);
         place(frame, 3 + harmonic, static_cast<i32>(139 + harmonic * 6) * unit,
               193 * unit, height, harmonic & 1 ? 10 : 7, stroke);
     }

@@ -50,7 +50,7 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     const i32 even_guard = maximum_pitch <= 0x30000000u ? 32768
         : maximum_pitch >= 0x40000000u ? 0 : static_cast<i32>((0x40000000u - maximum_pitch) >> 13);
     const i32 fm_guard = maximum_pitch <= 0x10000000u ? 32768
-        : maximum_pitch >= 0x40000000u ? 0 : static_cast<i32>((0x40000000u - maximum_pitch) / 24576u);
+        : maximum_pitch >= 0x40000000u ? 0 : dsp::third((0x40000000u - maximum_pitch) >> 13);
     u32 previous_pitch = pitch[0] > 0x70000000u ? 0x70000000u : pitch[0];
     u32 mod_step = dsp::ratio_increment(previous_pitch, ratio);
     i32 coefficient = dsp::lookup(tables::gate_coefficients, voice.gate);
@@ -76,10 +76,16 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         fm += fm_step;
         const i32 offset = dsp::sine(voice.mod_phase) * fm;
         const u32 phase = voice.phase + static_cast<u32>(offset);
-        const i32 odd = dsp::wave(fold, fraction, band, phase);
-        const i32 even = dsp::wave(fold, fraction, band, phase * 2u) * even_guard >> 15;
-        const i32 shaped = dsp::mix(odd, even, c[0]);
-        const i32 signal = dsp::mix(dsp::clean(clean_band, phase), shaped, c[2]);
+        i32 signal = dsp::clean(clean_band, phase);
+        if(c[2]) {
+            const i32 odd = dsp::wave(fold, fraction, band, phase);
+            i32 shaped = odd;
+            if(c[0]) {
+                const i32 even = even_guard ? dsp::wave(fold, fraction, band, phase * 2u) * even_guard >> 15 : 0;
+                shaped = dsp::mix(odd, even, c[0]);
+            }
+            signal = dsp::mix(signal, shaped, c[2]);
+        }
 
         // Two gentle poles and gain close together as the strike fades.
         if (!(i & 7u)) coefficient = dsp::lookup(tables::gate_coefficients, gate);

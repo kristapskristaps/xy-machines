@@ -8,7 +8,7 @@ inline void initialize(Voice& voice, Shared&, opxy::u32) {
 }
 inline void start(Voice& voice, Shared&, opxy::u32) { voice.pending=1;voice.half=0;for(unsigned i=0;i<128;++i)voice.audio[i]=0; }
 inline void destroy(Voice&, Shared&, opxy::u32) {}
-inline void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
+inline __attribute__((always_inline)) void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
                    opxy::Parameters parameters, opxy::Pitch pitch) {
     port::Dsp& d=dsp(voice);
     port::int16_t q[8]={};

@@ -371,6 +371,7 @@ struct Dsp {
     v->y1 = v->y2 = v->y3 = v->y4 = 0;
   }
 
+  template<bool Blended = true>
   inline __attribute__((always_inline)) int16_t
   wavetable_sample(uint32_t *ph1, uint32_t *ph2, int32_t *y, uint32_t inc,
                    int32_t position, int32_t k1, int32_t g, int32_t k,
@@ -381,9 +382,9 @@ struct Dsp {
     const uint32_t dd = ((inc >> 7) * (uint32_t)(k1 >> 3)) >> 12;
     *ph1 += inc - dd;
     *ph2 += inc + dd;
-    int32_t x = (wavetable_osc(wa, wb, frac, *ph1) +
-                 wavetable_osc(wa, wb, frac, *ph2)) >>
-                2;
+    const int32_t a = Blended ? wavetable_osc(wa, wb, frac, *ph1) : wavetable_read(wa, *ph1);
+    const int32_t b = Blended ? wavetable_osc(wa, wb, frac, *ph2) : wavetable_read(wa, *ph2);
+    int32_t x = (a + b) >> 2;
     x = wavetable_soft((x * drive) >> 12);
     const int32_t u = wavetable_soft(x - ((k * y[3]) >> 12));
     y[0] += (g * (u - y[0])) >> 15;
@@ -394,7 +395,7 @@ struct Dsp {
     return sample > 32767 ? 32767 : sample < -32768 ? -32768 : (int16_t)sample;
   }
 
-  inline void wavetable_dsp_render(WavetableState *v, int16_t *out,
+  inline __attribute__((always_inline)) void wavetable_dsp_render(WavetableState *v, int16_t *out,
                                    const int16_t *knobs,
                                    const volatile uint32_t *pitch, int vel) {
     if (vel < 1 || vel > 127)
@@ -429,9 +430,15 @@ struct Dsp {
                     g = control[2] >> 7;
       const int32_t k = control[3] >> 7, drive = control[4] >> 7,
                     makeup = control[5] >> 7, level = control[6] >> 7;
-      for (int i = 0; i < 128; i++)
-        out[i] = wavetable_sample(&ph1, &ph2, y, pitch[i], position, k1, g, k,
-                                  drive, makeup, level);
+      if (!position) {
+        for (int i = 0; i < 128; i++)
+          out[i] = wavetable_sample<false>(&ph1, &ph2, y, pitch[i], position, k1, g, k,
+                                          drive, makeup, level);
+      } else {
+        for (int i = 0; i < 128; i++)
+          out[i] = wavetable_sample(&ph1, &ph2, y, pitch[i], position, k1, g, k,
+                                    drive, makeup, level);
+      }
     } else {
       for (int i = 0; i < 128; i++) {
         out[i] =
@@ -467,7 +474,7 @@ struct Dsp {
     (void)knobs;
   }
 
-  void engine_render(void *self, int16_t *out, const int16_t *knobs) {
+  inline __attribute__((always_inline)) void engine_render(void *self, int16_t *out, const int16_t *knobs) {
     for (int i = 0; i < 4; i++)
       wavetable_knobs[i] = knobs[i];
     const int vi = 0;

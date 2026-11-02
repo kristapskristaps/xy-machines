@@ -1,11 +1,19 @@
 // Artwork and animation reconstruction from Hundekraft 3.0.3. See VISUALS.md.
 #include "display.h"
-#include "dsp.hpp"
+#include "display_waves.hpp"
 #include "sine.hpp"
 #include "visual_geometry.h"
 #include "visual_runtime.h"
 
 namespace hkwavetable {
+inline opxy::i32 wave_at_display_point(opxy::i32 value, unsigned point) {
+  const opxy::i32 position = (value < 0 ? 0 : value) * 7;
+  const unsigned bank = static_cast<unsigned>(position) >> 15;
+  const opxy::i32 a = display_wave::samples[bank][point];
+  const opxy::i32 b = display_wave::samples[bank + (bank < 7)][point];
+  return a + (((b - a) * (position & 32767)) >> 15);
+}
+
 inline void display_reset(DisplayState &s) {
   s.header.reset();
   s.initialized = s.track = s.serial = s.released = 0;
@@ -61,17 +69,14 @@ inline void display(DisplayState &state, const opxy::draw::Input &input,
   scene.move(G_press, 0,
              (1024 - k[2]) * 10 + mul(sn(t * 7) + 1024, level) * 3 / 4);
   scene.axis(G_coil, 1024 - k[3] * 461 / 1024);
-  port::Dsp wave;
+  i32 ya = wave_at_display_point(input.slots[0] >> 16, 0) * px(3) / 30000;
   for (i32 i = 0; i < 24; ++i) {
-    const opxy::u32 a = static_cast<opxy::u32>(i) * 178956970u,
-                    b = static_cast<opxy::u32>(i + 1) * 178956970u;
-    const i32 ya =
-        wave.wavetable_shape(input.slots[0] >> 16, a) * px(3) / 30000;
     const i32 yb =
-        wave.wavetable_shape(input.slots[0] >> 16, b) * px(3) / 30000;
+        wave_at_display_point(input.slots[0] >> 16, static_cast<unsigned>(i + 1)) * px(3) / 30000;
     scene.line(px(33.16) + i * px(25.23) / 24, px(33.35) - ya,
                px(33.16) + (i + 1) * px(25.23) / 24, px(33.35) - yb, BLUE,
                px(1.8));
+    ya = yb;
   }
 
   scene.finish();

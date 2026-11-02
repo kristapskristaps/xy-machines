@@ -23,6 +23,37 @@ static halo_before::State before;
 static halo::State after;
 static int old_memory[halo_before::buffer_words],new_memory[halo::buffer_words];
 volatile unsigned sink=0;
+bool equivalent(const int* initial,unsigned mode) {
+    halo_before::initialize(before);halo::initialize(after);
+    for(unsigned i=0;i<halo::buffer_words;++i)old_memory[i]=new_memory[i]=0x3f3f3f3f;
+    int parameters[8],old_left[64],old_right[64],new_left[64],new_right[64];
+    unsigned phase=0,seed=7139;
+    for(unsigned j=0;j<8;++j)parameters[j]=initial[j];
+    opxy::Buffer old_buffer={old_memory,halo::buffer_words},new_buffer={new_memory,halo::buffer_words};
+    opxy::Transport transport={1200,0,true};
+    for(unsigned block=0;block<4096;++block) {
+        if(block==2048){halo_before::initialize(before);halo::initialize(after);}
+        if(mode==2) {
+            if(block%8==0)for(unsigned j=0;j<8;++j)parameters[j]=initial[j];
+            parameters[block%8]=static_cast<int>((seed=seed*1664525u+1013904223u)>>1);
+            transport.bpm_x10=block%3==0?0:block%3==1?400:3000;
+        }
+        for(unsigned i=0;i<64;++i) {
+            phase+=23192823u;
+            old_left[i]=mode==1 && block>=256?0:static_cast<int>(phase)/4;
+            old_right[i]=-old_left[i]/2;
+            if(block%113==0 && i==0)old_right[i]=536870912;
+            new_left[i]=old_left[i];new_right[i]=old_right[i];
+        }
+        halo_before::process(before,old_buffer,transport,old_left,old_right,parameters);
+        halo::process(after,new_buffer,transport,new_left,new_right,parameters);
+        if(std::memcmp(old_left,new_left,sizeof(old_left)) || std::memcmp(old_right,new_right,sizeof(old_right)) ||
+           std::memcmp(&before,&after,sizeof(before)) || std::memcmp(old_memory,new_memory,sizeof(old_memory))) {
+            std::fprintf(stderr,"FAIL: complete audio/state/scratch differs at block %u\n",block);return false;
+        }
+    }
+    return true;
+}
 template <class State,class Initialize,class Process>
 double timing(State& state,int* memory,const int* initial,unsigned mode,
               Initialize initialize,Process process,unsigned& hash) {
@@ -57,6 +88,10 @@ int main() {
     static_assert(sizeof(before)==sizeof(after),"same Halo state contract");
     static_assert(halo_before::buffer_words==halo::buffer_words,"same scratch contract");
     for(unsigned setting=0;setting<sizeof(settings)/sizeof(settings[0]);++setting)for(unsigned mode=0;mode<3;++mode) {
+        if(@VERIFY_ONLY@) {
+            if(!equivalent(settings[setting],mode))return 1;
+            std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"verified\":true}\n",labels[setting],modes[mode]);continue;
+        }
         double old_times[5],new_times[5],ratios[5];
         for(unsigned repeat=0;repeat<5;++repeat) {
             unsigned old_hash,new_hash;
@@ -86,6 +121,7 @@ def main():
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=2000)
+    parser.add_argument('--verify-only', action='store_true', help='compare all audio samples, state and scratch after every block')
     args = parser.parse_args()
     if args.blocks < 400:
         parser.error('Use at least 400 blocks to reduce timer noise.')
@@ -113,10 +149,15 @@ def main():
         source = SOURCE.replace('@BEFORE@', json.dumps(str(before/'fx.cpp'))).replace('@AFTER@', json.dumps(str(MACHINE/'fx.cpp')))
         source = source.replace('@SETTINGS@', ','.join('{'+','.join(map(str, row))+'}' for row in settings))
         source = source.replace('@LABELS@', ','.join(map(json.dumps, labels))).replace('@BLOCKS@', str(args.blocks))
+        source = source.replace('@VERIFY_ONLY@', 'true' if args.verify_only else 'false')
         (scratch/'benchmark.cpp').write_text(source)
         executable = scratch/'benchmark'
         subprocess.run([args.cxx, '-std=c++11', '-O2', '-I'+str(sdk/'sdk/include'), str(scratch/'benchmark.cpp'), '-o', str(executable)], check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)], text=True).splitlines()]
+    if args.verify_only:
+        print(json.dumps(dict(baseline=baseline, exact_audio_state_and_scratch_each_block=True,
+                             scenarios=len(rows), checked_blocks_per_scenario=4096, timing_executed=False), indent=2))
+        return
     print(json.dumps(dict(baseline=baseline, host_timing_only=True, matching_audio_hash_state_and_scratch=True,
                          scenarios=len(rows), blocks_per_timing=args.blocks, repeats=5,
                          median_reduction_percent=round(100*(1-statistics.median(row['paired_ratio'] for row in rows)), 1),

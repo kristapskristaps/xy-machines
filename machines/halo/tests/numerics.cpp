@@ -1,7 +1,20 @@
 #include "../fx.cpp"
 #include <cmath>
 #include <cstdio>
+#include <initializer_list>
 static opxy::i32 memory[halo::buffer_words];
+static bool tap_matches(const halo::State& state,unsigned line,opxy::i32 delay,unsigned channel) {
+    const unsigned age=static_cast<opxy::u32>(delay)>>8;
+    const auto a=halo::line_sample(state,memory,line,age,channel);
+    const auto b=halo::line_sample(state,memory,line,age+1,channel);
+    const long long scale=2147483648LL;
+    const long long product=static_cast<long long>(b-a)*(delay&255)*8388608LL;
+    const auto expected=a+static_cast<opxy::i32>(product/scale-(product<0 && product%scale!=0));
+    if(halo::tap(state,memory,line,delay,channel)==expected)return true;
+    std::printf("FAIL fractional tap line %u, position %u, written %u, delay %d, channel %u\n",
+                line,state.positions[line],state.written,delay,channel);
+    return false;
+}
 int main() {
     halo::State state={};
     // Interleaved rings retain the independent left/right sample at each age.
@@ -32,6 +45,34 @@ int main() {
             }
             if(halo::line_sample(state,memory,line,0) || halo::line_sample(state,memory,line,layout.length/stride))return 1;
         }
+    }
+    // Compare interpolation against the independently checked sample reader and
+    // a wide integer product, including unwritten history and both wrap edges.
+    unsigned tap_rng=371;
+    for(unsigned line=0;line<19;++line){
+        const auto layout=halo::lines[line];
+        const unsigned stride=line==16 || line==17?2:1;
+        const unsigned frames=layout.length/stride;
+        for(unsigned i=0;i<layout.length;++i)
+            memory[layout.offset+i]=static_cast<opxy::i32>((tap_rng=tap_rng*1664525u+1013904223u)&33554431u)-halo::unit;
+        const unsigned positions[]={0,1,layout.length/2,layout.length-1};
+        const unsigned histories[]={0,1,frames/2,frames-2,frames-1,frames,halo::echo_frames,0xffffffffu};
+        for(auto position:positions)for(auto written:histories){
+            state.positions[line]=position;state.written=written;
+            const unsigned ages[]={0,1,frames-2,frames-1,frames,frames+1,written?written-1:0,written,written+1};
+            for(auto age:ages)for(unsigned fraction:{0u,1u,127u,128u,255u})
+                for(unsigned channel=0;channel<(stride==2 || line==18?2u:1u);++channel)
+                    if(!tap_matches(state,line,static_cast<opxy::i32>((age<<8)|fraction),channel))return 1;
+        }
+        state.written=halo::echo_frames;
+        for(auto position:positions){
+            state.positions[line]=position;
+            for(unsigned age=0;age<=frames;++age)for(unsigned fraction:{0u,1u,127u,128u,255u})
+                for(unsigned channel=0;channel<(stride==2 || line==18?2u:1u);++channel)
+                    if(!tap_matches(state,line,static_cast<opxy::i32>((age<<8)|fraction),channel))return 1;
+        }
+        for(opxy::i32 delay:{-2147483647-1,-256,-1,2147483647})
+            if(!tap_matches(state,line,delay,0))return 1;
     }
     const double pi=3.141592653589793;
     for(unsigned division=0;division<8;++division)for(unsigned bpm=400;bpm<=2400;bpm+=100) {

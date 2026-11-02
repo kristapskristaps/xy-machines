@@ -46,6 +46,8 @@ preserving each product's rounding and accumulation order. Unpacked delay rings
 use masks for their power-of-two lengths; the packed three-second echo retains
 its original wrap. Network gains are scaled to Q31 once per callback. These
 changes preserve the original output, 248-byte send state and scratch layout.
+Fractional delay reads share one history bound and derive the second sample's
+index from the first, preserving zero-filled startup history and stereo packing.
 
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings
 belong to the machine-owned browser audition, not a custom native FX screen.
@@ -92,6 +94,8 @@ node tools/check_audition.mjs ../../../xy-machines-sdk/local/halo-audition-001 "
 `tests/equivalence.cpp` freezes complete stereo output plus final state and
 scratch from the preceding implementation across six long scenarios. The
 numerical tests also check every ring's wrap boundaries against modulo indexing.
+Fractional taps are checked against wide integer interpolation, including
+partially written history, both stereo channels and the last readable age.
 For paired host comparisons against that implementation, from the collection
 root run:
 
@@ -103,6 +107,9 @@ The benchmark alternates timing order for five repeats across 60 preset,
 control, tail and automation scenarios, checking matching output hashes, state
 and scratch. Host timings do not establish the Blackfin benefit of removing
 tap loops and coefficient scaling; measure the exact revision on the device.
+Use `--baseline <commit> --verify-only` to compare every output sample, state
+field and scratch word after each of 4,096 blocks per scenario, including reset
+with dirty scratch, tails and control/tempo automation.
 
 The SDK needs a synth in a native collection. Compile alongside a sibling
 instrument or the core 2op FM example, with output outside every checkout:

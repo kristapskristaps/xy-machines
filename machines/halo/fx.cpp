@@ -63,9 +63,28 @@ inline i32 line_sample(const State& state,const i32* memory,unsigned line,unsign
 }
 inline i32 tap(const State& state,const i32* memory,unsigned line,i32 delay,unsigned channel=0) {
     const unsigned age=static_cast<u32>(delay)>>8;
-    const i32 a=line_sample(state,memory,line,age,channel);
-    if(!(delay&255)) return a;
-    const i32 b=line_sample(state,memory,line,age+1,channel);
+    const Line& l=lines[line];
+    const bool stereo=line==16 || line==17;
+    const unsigned limit=(stereo?l.length/2:l.length)-1;
+    const unsigned available=state.written<limit?state.written:limit;
+    if(age>available)return 0;
+    const unsigned position=state.positions[line];
+    i32 a,b;
+    if(line==18) {
+        const unsigned index=position>=age?position-age:position+l.length-age;
+        const u32 first=age?static_cast<u32>(memory[l.offset+index]):0;
+        a=static_cast<opxy::i16>(channel?first>>16:first&65535u)*512;
+        if(!(delay&255))return a;
+        const unsigned previous=index?index-1:l.length-1;
+        const u32 second=age<available?static_cast<u32>(memory[l.offset+previous]):0;
+        b=static_cast<opxy::i16>(channel?second>>16:second&65535u)*512;
+    } else {
+        const unsigned stride=stereo?2:1;
+        const unsigned index=(position-age*stride+(stereo?channel:0))&(l.length-1);
+        a=age?memory[l.offset+index]:0;
+        if(!(delay&255))return a;
+        b=age<available?memory[l.offset+((index-stride)&(l.length-1))]:0;
+    }
     return a+mul(b-a,(delay&255)*128);
 }
 inline void write(State& state,i32* memory,unsigned line,i32 value) {

@@ -1,7 +1,7 @@
 # Subvista
 
 An eight-voice subtractive synth prototype for the Open-XY SDK, ID `subvista`.
-Machine code and tests live at this repository's root.
+Machine code and tests live in this folder within XY Machines.
 
 Two slightly detuned, band-limited wavetable oscillators blend saw and pulse,
 with a quiet sine sub-oscillator, into a resonant two-pole low-pass filter.
@@ -32,63 +32,55 @@ Host tests cover filter attenuation, 27 control combinations, pitch extremes,
 output bounds, deterministic retriggering, and 800 display frames including
 reduced motion. The host tests also pass AddressSanitizer and UBSan.
 
-The host CPU estimate is about 27,000 Blackfin instructions per voice block,
-above the SDK's 15,000 target. This is a browser prototype: optimize and measure
-on hardware before considering device polyphony or publication. No native
-firmware build or hardware validation has been performed.
+The filter uses the SDK's saturating Q31 add, preserving the previous clipping
+while using the native DSP operation. A separate sample loop handles Shape at
+zero, skipping the unused pulse lookups and blend. Both loops retain the same
+filter interpolation, wavetable arithmetic, oscillator phase and contour decay;
+voice memory and saved controls are unchanged. Exact i16 interpolation slopes
+are generated from the original waves in `tables.h`, replacing per-lookup
+subtraction and signed division. This adds 8 KiB of constant data. Regenerate
+`wave_slopes.h` with `python machines/subvista/tools/generate_slopes.py` from the
+collection root. Arithmetic tests check every committed slope against the
+original expression and interpolation across the waves. The oscillator helper
+stays inlined so native sample loops use hardware loop control without two
+oscillator function calls per sample.
 
-## This Mac's preview setup
+This revision declares SDK 1.8 because the public saturating add is currently
+available on upstream `staging`, rather than the released `main`. It builds with
+the collection's pinned SDK. Submit its catalog entry against `staging` until
+that interface reaches `main`; no SDK changes are bundled with the machine.
 
-The existing Apple Clang has wasm32 support. A local copy of the Homebrew LLD
-linker and its runtime libraries is in the SDK's ignored `local/wasm-tools/`;
-the full LLVM installation failed due to low disk space. The SDK itself is
-unchanged. From `../../../xy-machines-sdk`:
+## Develop and audition
 
-```sh
-export PATH="$PWD/local/wasm-tools/lld/23.1.4/bin:$PATH"
-PYTHON=/Users/tapsy/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3
-"$PYTHON" sdk.py test --machine ../subvista --cxx /usr/bin/clang++
-"$PYTHON" sdk.py preview --machine ../subvista --cxx /usr/bin/clang++ --out local/subvista-preview-002
-"$PYTHON" tools/serve_harness.py --preview local/subvista-preview-002
-```
-
-Use a fresh output directory on each rebuild. The current served snapshot is
-`local/subvista-preview-001` at http://127.0.0.1:8917/.
-
-
-## Develop
-
-Keep the [SDK](https://github.com/etcetc000/open-xy) beside this repository as
-`../../../xy-machines-sdk`, on `staging`; adjust the commands if yours is elsewhere. The
-[first-machine guide](https://github.com/etcetc000/open-xy/blob/staging/docs/first-machine.md)
-covers prerequisites. Read the
-[core machines](https://github.com/etcetc000/open-xy-core-machines) as worked
-examples and the [machine API](https://github.com/etcetc000/open-xy/blob/staging/docs/api.md)
-for the supported interfaces. Agent instructions are in [AGENTS.md](AGENTS.md).
-
-Build and audition the synth in the browser:
+Use the collection's pinned SDK through the root commands:
 
 ```sh
-python ../../../xy-machines-sdk/sdk.py preview --machine . --out ../previews/subvista-001
-python ../../../xy-machines-sdk/tools/serve_harness.py --preview ../previews/subvista-001
+./xy test subvista --native --cpu
+./xy preview subvista --watch
 ```
+
+For a paired comparison against the preceding collection revision:
 
 ```sh
-python ../../../xy-machines-sdk/sdk.py test --machine . --cxx clang++ --host-cxx g++
+python machines/subvista/tools/benchmark.py --cxx /path/to/clang++ --blocks 4000
 ```
 
-Extend `tests/` as the machine's behavior grows. This is a prototype, not a
-hardware-qualified instrument. Keep generated output outside this
-repository. The generated workflow checks source, sound tests and synth previews
-on Linux, and compiles the native module on Windows; it never uses a device.
-Its `OPEN_XY_REF` starts at `staging`; pin a compatible SDK commit for a release.
+It checks exact audio and complete voice state across 555 scenarios: the 81-point
+three-position control grid at six pitches, defaults, all five presets, control
+motion, sample-by-sample pitch motion, and both sides of every wavetable band
+transition. Each scenario compares 256 blocks including retriggers and
+reinitialization, then alternates five before/after timing repeats. The arithmetic
+test compares saturation with an independent wide sum at the signed boundaries
+and one million random pairs. Host timings and advisory CPU estimates do not
+measure the device's CPU or establish usable polyphony.
 
 ## Hardware and publication
 
 Follow the SDK's [firmware build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md)
 and [hardware profiling workflow](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
 Keep firmware and stock content outside every checkout. Commit the machine,
-build with profiling enabled, install when authorized and collect three runs.
+build with profiling enabled, install when authorized and collect the required sweep. Three captures help
+check repeatability.
 The host estimate printed by `test` cannot substitute for those measurements.
 
 For the builder, follow [catalog submission](https://github.com/etcetc000/open-xy/blob/staging/docs/catalog.md#submit-a-machine).

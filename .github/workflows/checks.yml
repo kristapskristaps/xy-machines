@@ -41,6 +41,18 @@ jobs:
       - name: Machine previews and host tests
         working-directory: xy-machines
         run: python tools/check.py --sdk ../open-xy --cxx clang++ --host-cxx g++
+      - name: Build first-release synth auditions
+        working-directory: xy-machines
+        run: |
+          for machine in acidline mando matter subvista vader weave westfold; do
+            python ../open-xy/sdk.py preview --machine "machines/$machine" --out "local/release-previews/$machine" --cxx clang++
+          done
+      - name: Upload first-release synth auditions
+        uses: actions/upload-artifact@v7
+        with:
+          name: first-ten-synth-previews
+          path: xy-machines/local/release-previews
+          if-no-files-found: error
   native:
     runs-on: windows-latest
     steps:

@@ -3,6 +3,9 @@
 This is a collection of separately licensed machines. There is no blanket
 relicensing of their DSP, artwork or vendored dependencies.
 
+- Halo source is MIT licensed, Copyright (c) 2026 Kristaps Dreija, including
+  its adapted DSP. The reference PunchKit repository remains proprietary. See
+  [Halo provenance](machines/halo/PROVENANCE.md) and its accompanying notices.
 - Each machine retains its original LICENSE, NOTICE, SDK-LICENSE, upstream
   records and vendor licence files where supplied.
 - The Hundekraft collection retains its collection-level LICENSE, NOTICE,

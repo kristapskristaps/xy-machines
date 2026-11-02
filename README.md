@@ -20,6 +20,29 @@ in a separate sibling checkout. No firmware or device data is included.
 An inventory does not imply that all machines fit one firmware image. Use a
 subset and preserve your device's existing layout when building firmware.
 
+## First release candidates
+
+The first release group is **Acidline, Halo, Mando, Matter, Rebound, Subvista,
+Vader, Vapour, Weave and Westfold**. Its source selection is
+[collections/first-release.json](collections/first-release.json). These are
+release candidates; catalog publication follows final source-bound hardware
+qualification and the required SDK integration.
+
+Each machine has its own README, license, controls and audition instructions.
+The seven synth previews are available in the **first-ten-synth-previews**
+artifact of a successful [Collection checks](https://github.com/kristapskristaps/xy-machines/actions/workflows/checks.yml)
+run. Download it and serve one preview folder with the pinned SDK's
+`tools/serve_harness.py --preview <folder>`. Halo, Rebound and Vapour provide
+local effect auditions in their READMEs; projects save their send settings.
+
+Use per-machine release tags such as `halo-v1.0.0`. Multiple machine tags may
+point to one qualified commit, with each catalog entry selecting its own folder.
+Release assets contain source, documentation, preset material and sanitized CPU
+readouts. Keep device firmware and raw diagnostic captures in private storage.
+
+X0X and the Hundekraft ports remain in the source inventory for development;
+they are outside this first release group.
+
 ## Check and develop
 
 The standard workflow is documented in **[docs/development.md](docs/development.md)**

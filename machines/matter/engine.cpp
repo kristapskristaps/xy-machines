@@ -8,6 +8,14 @@ using namespace matter_dsp;
 const uf one={0x40000000,0};
 i32 clamp(i32 x,i32 low,i32 high) { return x<low?low:x>high?high:x; }
 u32 control(i32 x) { return x<0?0u:static_cast<u32>(x)>>16; }
+// Excitation is clamped to +/-33554431 before this division. The rounded-up
+// Q31 reciprocal satisfies 5*m - 2^31 = 2; bound*2 < 2^31 proves exactness.
+i32 excitation_fifth(i32 value) {
+    static_assert(33554431u*2u<0x80000000u,"Exact bounded fifth");
+    const i32 magnitude=value<0?-value:value;
+    const i32 quotient=opxy::q31::multiply(magnitude,429496730);
+    return value<0?-quotient:quotient;
+}
 i32 q15(i32 a,i32 b) { return (a>>15)*b+((a&32767)*b>>15); }
 u32 random(Voice& voice) { return voice.random=voice.random*1664525u+1013904223u; }
 
@@ -93,13 +101,22 @@ i32 interpolate(const opxy::i16* data,u32 phase,unsigned bits) {
     return data[index]+q15(data[index+1]-data[index],fraction);
 }
 
-void excite(Voice& voice,u32 model,i32 contour,i32 timbre,i32* out) {
+template<unsigned model>
+void excite(Voice& voice,i32 contour,i32 timbre,i32* out) {
     const bool trigger=voice.trigger!=0;
     const unsigned cutoff_index=static_cast<unsigned>(timbre)>>7;
     const i32 amplitude=pulse_amplitude[cutoff_index];
     const u32 cutoff_increment=static_cast<u32>(cutoff[cutoff_index]);
     svf_c c={};
-    if(model<4) svf_hq(&c,tan_fast(cutoff_increment),uf_q(1,1));
+    if(model<4) {
+        if(voice.exciter_timbre!=static_cast<i32>(cutoff_index)) {
+            svf_hq(&c,tan_fast(cutoff_increment),uf_q(1,1));
+            voice.exciter_timbre=static_cast<i32>(cutoff_index);
+            voice.exciter_a1=c.a1;voice.exciter_a2=c.a2;voice.exciter_a3=c.a3;
+        } else {
+            c.a1=voice.exciter_a1;c.a2=voice.exciter_a2;c.a3=voice.exciter_a3;
+        }
+    }
     if(trigger) {
         voice.sample_phase=0;
         voice.plectrum_delay=0;
@@ -159,7 +176,7 @@ void excite(Voice& voice,u32 model,i32 contour,i32 timbre,i32* out) {
             excitation=(a+q15(b-a,static_cast<i32>(sample_fraction)))*16;
         }
         if(model<4) excitation=filter(voice.exc_s1,voice.exc_s2,c.a1,c.a2,c.a3,excitation,true);
-        if(model<=2 || model==5) excitation=clamp(excitation,-33554431,33554431)*4+clamp(excitation,-33554431,33554431)/5;
+        if(model<=2 || model==5) excitation=clamp(excitation,-33554431,33554431)*4+excitation_fifth(clamp(excitation,-33554431,33554431));
         out[i]=excitation;
     }
 }
@@ -176,6 +193,7 @@ void initialize(Voice& voice,Shared& shared,opxy::u32 owner) {
     voice.limiter=1<<23;
     voice.key[0]=-1;
     voice.position=-1;
+    voice.exciter_timbre=-1;
 }
 void start(Voice& voice,Shared&,opxy::u32) { voice.trigger=1; }
 
@@ -203,16 +221,29 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
     if(bowed) configure<true>(voice,increment,geometry,brightness,damping);
     else coefficients(voice,increment,geometry,brightness,damping);
     i32 excitation[opxy::block_frames];
-    excite(voice,model,contour,timbre,excitation);
+    switch(model) {
+    case 0: excite<0>(voice,contour,timbre,excitation);break;
+    case 1: excite<1>(voice,contour,timbre,excitation);break;
+    case 2: excite<2>(voice,contour,timbre,excitation);break;
+    case 3: excite<3>(voice,contour,timbre,excitation);break;
+    case 4: excite<4>(voice,contour,timbre,excitation);break;
+    default: excite<5>(voice,contour,timbre,excitation);break;
+    }
     i32 mixed[opxy::block_frames]={};
-    const i32 coefficient=position_coefficient(position);
     i32 targets[mode_count];
-    i32 y0=536870912,y1=coefficient/2;
-    for(unsigned mode_index=0;mode_index<mode_count;++mode_index) {
-        const i32 cosine=y0;
-        y0=fmac1(coefficient,y0)*4-y1;y1=cosine;
-        targets[mode_index]=(voice.active_modes[mode_index/32]>>(mode_index%32))&1u
-            ? clamp(cosine+536870912,0,1073741823)*2 : 0;
+    // Each completed block stores its pickup target in the modal gains.
+    // Reconfiguring coefficients invalidates position, including mode changes.
+    if(voice.position==position) {
+        for(unsigned i=0;i<mode_count;++i)targets[i]=voice.modes[i].gain;
+    } else {
+        const i32 coefficient=position_coefficient(position);
+        i32 y0=536870912,y1=coefficient/2;
+        for(unsigned mode_index=0;mode_index<mode_count;++mode_index) {
+            const i32 cosine=y0;
+            y0=fmac1(coefficient,y0)*4-y1;y1=cosine;
+            targets[mode_index]=(voice.active_modes[mode_index/32]>>(mode_index%32))&1u
+                ? clamp(cosine+536870912,0,1073741823)*2 : 0;
+        }
     }
     if(voice.position<0)
         for(unsigned i=0;i<mode_count;++i)voice.modes[i].gain=targets[i];
@@ -238,13 +269,16 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
     }
     voice.position=position;
     if(delays) {
+        unsigned active[8],active_count=0;
+        for(unsigned mode_index=0;mode_index<8;++mode_index)
+            if(voice.active_modes[0]&(1u<<mode_index))active[active_count++]=mode_index;
         for(unsigned i=0;i<opxy::block_frames;++i) {
             const i32 desired=contour*512;
             voice.bow_velocity+=(desired-voice.bow_velocity)/1024;
             i32 bow_sum=0,bow_output=0;
             const i32 input=excitation[i]+voice.bow_signal;
-            for(unsigned mode_index=0;mode_index<8;++mode_index) {
-                if(!(voice.active_modes[0]&(1u<<mode_index))) continue;
+            for(unsigned at=0;at<active_count;++at) {
+                const unsigned mode_index=active[at];
                 BowFilter& bow=voice.bowed[mode_index];
                 u32& write=voice.bow_write[mode_index];
                 const u32 length=voice.bow_length[mode_index];

@@ -18,6 +18,7 @@ struct Voice {
     opxy::i32 particle,particle_range,flow,exc_s1,exc_s2;
     opxy::i32 bow_signal,bow_velocity,limiter;
     opxy::i32 key[5],position;
+    opxy::i32 exciter_timbre,exciter_a1,exciter_a2,exciter_a3;
 };
 struct Shared { opxy::LeasePool<BowDelay,bow_capacity> bows; };
 void initialize(Voice&,Shared&,opxy::u32);

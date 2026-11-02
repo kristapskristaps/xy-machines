@@ -56,7 +56,33 @@ python ../../../xy-machines-sdk/tools/serve_harness.py --preview ../previews/mat
 Sound tests exercise the six exciters, pitch/control motion, output bounds and
 resource ownership. An independent double-precision implementation checks 13,824
 modal coefficient sets and pickup weighting. Sanitizer runs check numerical and
-memory safety.
+memory safety. `tests/arithmetic.cpp` checks every integer in the excitation
+scaler's bounded range against signed division by five.
+
+Exciter selection happens once per block, with a separate compiled sample loop
+for each family. Its low-pass coefficients are cached by the quantized Timbre
+index, adding 16 bytes per voice; any changed index refreshes them before that
+block renders. Completed modal gains supply the unchanged pickup weights;
+coefficient reconfiguration invalidates that reuse. Bowed rendering collects
+its active modes once per block. The excitation scaler uses an exact public
+fractional multiply in place of per-sample software division. These changes
+preserve the preceding revision's samples, rounding, resonator state, random
+sequence and resource ownership.
+
+From the collection root, compare against the preceding revision with:
+
+```sh
+python machines/matter/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
+```
+
+The paired host benchmark covers 180 scenarios: all six exciters, six pitches,
+default/minimum/maximum controls, position motion and simultaneous control/pitch
+motion. Each checks 256 blocks with three voices, including live model edits,
+retriggers, initialization/destruction and bow-resource stealing. It compares
+audio, the complete original voice state and the shared pool after every voice
+callback; the added coefficient cache is excluded from the state comparison.
+Five timing repeats alternate before/after order. These timings are host evidence,
+not measured OP-XY CPU usage.
 
 The limiter calculates its gain once per block. A smaller screen uses 31 animated
 nodes, static mesh lines and native text; idle motion settles after note release.

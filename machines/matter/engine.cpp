@@ -16,6 +16,8 @@ i32 excitation_fifth(i32 value) {
     const i32 quotient=opxy::q31::multiply(magnitude,429496730);
     return value<0?-quotient:quotient;
 }
+// A nonnegative Q15 fraction below one converts exactly to a Q31 operand.
+i32 fractional_mix(i32 signal,i32 fraction) { return opxy::q31::multiply(signal,fraction*65536); }
 i32 q15(i32 a,i32 b) { return (a>>15)*b+((a&32767)*b>>15); }
 u32 random(Voice& voice) { return voice.random=voice.random*1664525u+1013904223u; }
 
@@ -173,7 +175,7 @@ void excite(Voice& voice,i32 contour,i32 timbre,i32* out) {
             if(index<length1) a=interpolate(smp_sample_data+offset1,voice.sample_phase,16);
             if(index<length2) b=interpolate(smp_sample_data+offset2,voice.sample_phase,16);
             if(index<length1 || index<length2) voice.sample_phase+=strike_step;
-            excitation=(a+q15(b-a,static_cast<i32>(sample_fraction)))*16;
+            excitation=(a+fractional_mix(b-a,static_cast<i32>(sample_fraction)))*16;
         }
         if(model<4) excitation=filter(voice.exc_s1,voice.exc_s2,c.a1,c.a2,c.a3,excitation,true);
         if(model<=2 || model==5) excitation=clamp(excitation,-33554431,33554431)*4+excitation_fifth(clamp(excitation,-33554431,33554431));
@@ -302,7 +304,7 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
     i32 peak=0;
     for(unsigned i=0;i<opxy::block_frames;++i) {
         const i32 raw=excitation[i]/16;
-        const i32 sample=clamp(raw+q15((mixed[i]/4)-raw,body),-(15<<20),15<<20);
+        const i32 sample=clamp(raw+fractional_mix((mixed[i]/4)-raw,body),-(15<<20),15<<20);
         const i32 absolute=sample<0?-sample:sample;
         if(absolute>peak) peak=absolute;
         excitation[i]=sample;

@@ -47,20 +47,57 @@ Clouds; interpolation and envelope tests compare against independent
 floating-point formulas. There is no floating-point arithmetic in audio callbacks.
 
 ```sh
-python ../../../xy-machines-sdk/sdk.py test --machine .
+./xy test vapour --native --cpu
 ```
 
-The SDK currently needs a synth in a native collection. Compile Vapour alongside
-an instrument, for example a sibling Weave repository:
+Run these commands from the collection root with its configured pinned SDK.
+The native check includes a synth because the SDK startup check needs one.
+The sound tests cover stereo grains, dirty scratch, Freeze, reset and missing
+buffers. The arithmetic test exhausts the reachable normalization-difference
+range and checks diffusion gain against an independent wide reference; the
+existing grain test compares interpolation and envelopes with floating-point
+formulas. Run all `tests/*.cpp` with AddressSanitizer and
+UndefinedBehaviorSanitizer for additional host checks.
+
+The optimized callback uses an exact reciprocal for normalization's division
+by 100 and a bounded multiply/shift for the allpass gain. Diffusion is inlined
+for the two stereo channels. The native sample loops no longer call the
+normalization divider or diffusion function. The Mando/Vapour native check adds
+136 bytes to the module and reduces Vapour's reported audio stack from 748 to
+716 bytes. State, scratch allocation and the adapted vendor sources are unchanged.
+
+Compare complete stereo output, state and all scratch words after every block,
+then collect paired host timings:
 
 ```sh
-python ../../../xy-machines-sdk/sdk.py compile --machine . --machine ../../../xy-machines-sdk-plaits \
-  --out "$HOME/Library/Application Support/OPXY-SDK/private/vapour-module-001"
+python machines/vapour/tools/benchmark.py --baseline 75fcda3 --sdk /path/to/open-xy
+python machines/vapour/tools/benchmark.py --baseline 75fcda3 --sdk /path/to/open-xy \
+  --verify-only --full-grid
 ```
 
-CI uses the SDK's 2op FM worked example for that composition. Send effects do
-not currently have a browser audition module; render tests exercise their real
-callback with stereo input, dirty scratch, Freeze, resets and missing buffers.
+The default comparison covers 259 scenarios; the full grid covers 1,027, each
+for 256 blocks. Cases include eight primed grains, cold/stale scratch,
+wraparound, reset, missing/short buffers, Freeze transitions, full-scale stereo
+input and automation through Density/Texture boundaries. Timing uses primed
+grains, 512 warmup blocks and five alternating pairs. Against `75fcda3`, the
+tested macOS compilers showed roughly flat overall medians and about 20% lower
+host time in the primed maximum-Texture case. Device CPU remains unmeasured.
+
+Send effects have no SDK browser audition. The host renderer runs the actual
+callback and adds a quiet stereo test phrase:
+
+```sh
+mkdir -p /tmp/vapour-audition
+c++ -std=c++11 -O2 -I/path/to/open-xy/sdk/include \
+  machines/vapour/tools/audition.cpp -o /tmp/vapour-audition/render
+/tmp/vapour-audition/render cloud /tmp/vapour-audition/cloud.wav
+/tmp/vapour-audition/render freeze /tmp/vapour-audition/freeze.wav
+```
+
+`cloud` plays a phrase into dense grains with diffusion. `freeze` holds the
+recording at three seconds, transposes it down an octave at six seconds, then
+resumes recording at nine seconds with a new phrase. These recordings exercise
+host DSP; they do not emulate the stock mixer or establish hardware acceptance.
 
 Hardware timing and normal multi-track playback remain pending. Follow the
 SDK's [profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md)

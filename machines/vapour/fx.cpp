@@ -11,13 +11,26 @@ using namespace granular;
 const unsigned lengths[8]={174,248,371,612,208,283,338,558};
 const unsigned offsets[8]={0,174,422,793,1405,1613,1896,2234};
 
-i32 diffuse(State& state, Workspace& workspace, i32 x, unsigned channel) {
+inline i32 allpass_gain(i32 x) {
+    // Stored allpass samples stay within +/-131071, so this product fits i32.
+    return (x * 5) >> 3;
+}
+
+// The normalization target and state stay in [0, 65534]. For this difference
+// range, ceil(2^31 / 100) gives the exact quotient of a nonnegative magnitude.
+inline i32 normalization_step(i32 difference) {
+    const i32 magnitude = difference < 0 ? -difference : difference;
+    const i32 quotient = opxy::q31::multiply(magnitude, 21474837);
+    return difference < 0 ? -quotient : quotient;
+}
+
+__attribute__((always_inline)) inline i32 diffuse(State& state, Workspace& workspace, i32 x, unsigned channel) {
     for (unsigned stage=channel*4;stage<channel*4+4;++stage) {
         const unsigned index=offsets[stage]+state.diffusion_position[stage];
         const i32 delayed=state.diffusion_written>=lengths[stage] ? workspace.diffusion[index] : 0;
-        const i32 written=clamp(x+mul15(delayed,20480),-131071,131071);
+        const i32 written=clamp(x+allpass_gain(delayed),-131071,131071);
         workspace.diffusion[index]=written;
-        x=delayed-mul15(written,20480);
+        x=delayed-allpass_gain(written);
         u32& position=state.diffusion_position[stage];
         if (++position==lengths[stage]) position=0;
     }
@@ -133,7 +146,7 @@ void process(State& state, opxy::Buffer buffer, opxy::Channel left,
     const i32 diffusion=texture>24576u ? static_cast<i32>((texture-24576u)*4u) : 0;
     if(!diffusion) state.diffusion_written=0;
     for(unsigned i=0;i<opxy::block_frames;++i) {
-        state.normalization+=(gain-state.normalization)/100;
+        state.normalization+=normalization_step(gain-state.normalization);
         i32 l=clamp(normalized(mixed_left[i],state.normalization),-32768,32767);
         i32 r=clamp(normalized(mixed_right[i],state.normalization),-32768,32767);
         if(diffusion) {

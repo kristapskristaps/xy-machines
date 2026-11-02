@@ -12,7 +12,8 @@ in a separate sibling checkout. No firmware or device data is included.
   scripts, audition sources, original attribution and per-machine folders.
 - `collection.json`: all 37 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
-  `collections/hundekraft-test.json` selects exactly the 12 HK synths and 13 effects.
+  `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK effects
+  and HK Granular remain excluded from hardware test kits.
 - `provenance/`: source commits, branch/tag references, original file hashes,
   snapshot records and the documentation/tooling-only layout adaptations.
 

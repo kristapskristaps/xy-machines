@@ -214,16 +214,21 @@ static uint32_t inc_of_log2(int32_t x)
  * products: no 64-bit arithmetic. */
 struct coef { int32_t m, s; };
 
-/* leading zeros of v > 0 (in C, not the CPU's FF1, which the emulators the tests use do not know) */
-static int clz32(uint32_t v)
+/* De Bruijn normalization uses only 32-bit arithmetic; zero retains the original result of 31. */
+static inline int clz32(uint32_t v)
 {
-    int z = 0;
-    if (!(v & 0xffff0000u)) { z += 16; v <<= 16; }
-    if (!(v & 0xff000000u)) { z += 8; v <<= 8; }
-    if (!(v & 0xf0000000u)) { z += 4; v <<= 4; }
-    if (!(v & 0xc0000000u)) { z += 2; v <<= 2; }
-    if (!(v & 0x80000000u)) z += 1;
-    return z;
+    static const uint8_t zeros[32] = {
+        31, 22, 30, 21, 18, 10, 29, 2,
+        20, 17, 15, 13, 9, 6, 28, 1,
+        23, 19, 11, 3, 16, 14, 7, 24,
+        12, 4, 8, 25, 5, 26, 27, 0
+    };
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    return zeros[(v * 0x07c4acddu) >> 27];
 }
 
 static struct coef coef_norm(uint32_t v, int32_t s)    /* v x 2^-s, any v; any s (not yet for cmul) */
@@ -3273,7 +3278,7 @@ static struct uf uf_recip(struct uf a)
         o.e = -a.e;
         return o;
     }
-    r = (int32_t)((0x40000000u / (uint32_t)(a.m >> 15)) << 16);     /* 2^61 / m, in (2^30, 2^31) */
+    r = (int32_t)(divide_modal_seed((uint32_t)(a.m >> 15)) << 16); /* 2^61 / m, in (2^30, 2^31) */
     if (r <= 0)
         r = 0x7fffffff;
     for (k = 0; k < 2; k++) {

@@ -2,6 +2,11 @@
 #include <cstdio>
 int main(){
     unsigned rng=71;
+    for(unsigned divisor=32768;divisor<=65535;++divisor){
+        if(weave_dsp::divide_modal_seed(divisor)!=1073741824u/divisor){
+            std::printf("FAIL Modal seed / %u\n",divisor);return 1;
+        }
+    }
     const int edges[]={-2147483647-1,-2147483647,-65537,-33,-32,-31,-17,-16,-15,-1,0,1,15,16,17,31,32,33,65537,2147483647};
     for(int frames=1;frames<=64;++frames){
         for(auto value:edges)if(weave_dsp::divide_block(value,frames)!=value/frames){std::printf("FAIL block %d / %d\n",value,frames);return 1;}
@@ -19,5 +24,5 @@ int main(){
         const unsigned numerator=rng=rng*1664525u+1013904223u;
         if(weave_dsp::divide_audio(numerator,divisor)!=numerator/divisor)return 1;
     }
-    std::puts("PASS: exact signed block ramps for lengths 1..64, audio division across every divisor and randomized numerators");
+    std::puts("PASS: every Modal seed divisor, signed block ramps for lengths 1..64, audio division across every divisor and randomized numerators");
 }

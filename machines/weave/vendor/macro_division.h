@@ -52,6 +52,17 @@ static const int32_t division_seed[256] = {
     553631232, 552518405, 551410044, 550306120, 549206607, 548111479, 547020710, 545934273,
     544852144, 543774296, 542700704, 541631343, 540566188, 539505214, 538448397, 537395712,
 };
+// Modal's normalized mantissa gives a divisor in [32768, 65535]. Reuse the
+// reciprocal seeds: one refinement is at most one quotient low after a small
+// downward bias. The integer remainder restores the exact 2^30 / divisor.
+static inline uint32_t divide_modal_seed(uint32_t divisor) {
+    const int32_t normalized=static_cast<int32_t>(divisor<<15);
+    int32_t reciprocal=division_seed[(divisor>>7)-256];
+    const int32_t error=536870912-opxy::q31::multiply(normalized,reciprocal);
+    reciprocal+=4*opxy::q31::multiply(reciprocal,error);
+    const uint32_t quotient=static_cast<uint32_t>(reciprocal-4)>>15;
+    return quotient+(1073741824u-quotient*divisor>=divisor?1u:0u);
+}
 // The limiter and FM soft clip have divisors in [16384, 2097152].
 // Normalize, refine a Q29 reciprocal twice, and round it down conservatively.
 // Its quotient is at most one low; one exact remainder correction restores it.

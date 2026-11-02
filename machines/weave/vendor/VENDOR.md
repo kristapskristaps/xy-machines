@@ -29,3 +29,10 @@ helper is adaptation code in `macro_division.h`; its tests cover lengths 1–64,
 full-range signed edges and randomized numerators.
 Single-operator FM rendering remains inlined at its routing-specific call
 sites, so source/add choices do not become branches inside every sample.
+
+Coefficient normalization uses a 32-entry De Bruijn lookup with the same
+leading-zero results, including the original zero case. Modal's reciprocal
+seed reuses the existing division table and one refinement, followed by an
+exact remainder correction. Tests compare all 32,768 possible seed divisors
+against integer division; the filter coefficients and render arithmetic retain
+their previous values.

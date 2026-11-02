@@ -1,5 +1,6 @@
 #pragma once
 #include "wide.hpp"
+#include <opxy/q31.hpp>
 // DSP adapted from Hundekraft 3.0.3. Retained copyright and terms: NOTICE,
 // LICENSE.
 namespace hksid {
@@ -557,6 +558,13 @@ struct Dsp {
     return (x * (c >> 12) + ((x * (c & 4095)) >> 12)) >> 12;
   }
 
+  inline unsigned saw_slope(uint32_t step) {
+    // step is capped at 0x06000000. In this range, ceil(2^31 / 288)
+    // gives the exact quotient of (step >> 4) / 288.
+    return static_cast<unsigned>(opxy::q31::multiply(
+        static_cast<opxy::i32>(step >> 4), 7456541));
+  }
+
   void sid_reset(sid_state *s) {
     volatile unsigned char *bytes = (volatile unsigned char *)s;
     for (unsigned i = 0; i < sizeof(*s); i++)
@@ -573,17 +581,23 @@ struct Dsp {
     if (same)
       return;
     unsigned first = !s->configured;
+    const unsigned mode = sid_wave_mode(q[0]);
+    const bool coefficients = first || s->cached_inc != inc ||
+        ((s->mode >= 4) != (mode >= 4)) ||
+        (mode >= 4 && s->cached_q[1] != q[1]);
     s->configured = 1;
     s->cached_inc = inc;
     for (int j = 0; j < 4; j++)
       s->cached_q[j] = q[j];
-    s->mode = sid_wave_mode(q[0]);
+    s->mode = mode;
     s->secondary = q[1] >> 7;
     s->width = 2048 + ((int)q[1] * 61440 >> 15);
     s->cutoff = cutoff_target(q[2]);
     if (first)
       s->cutoff_live = s->cutoff;
     s->resonance = cRSID_Resonances8580[(unsigned)q[3] >> 11];
+    if (!coefficients)
+      return;
     uint32_t root = inc >> 4;
     if (root > 0x06000000u)
       root = 0x06000000u;
@@ -603,7 +617,7 @@ struct Dsp {
       s->step[j] = step;
       s->pulse_steep[j] =
           step >= 4096 ? 0x0fffffffu / (step ? step : 1) : 65535;
-      unsigned steep = (step >> 4) / 288;
+      unsigned steep = saw_slope(step);
       if (!steep)
         steep = 1;
       s->saw_steep[j] = steep;

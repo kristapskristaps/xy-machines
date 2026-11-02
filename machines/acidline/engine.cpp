@@ -29,7 +29,8 @@ i32 soft(i32 x){
 i32 mix(i32 a,i32 b,i32 fraction){return a+multiply(b-a,fraction);}
 i32 lookup(const opxy::i16* row,u32 phase){
     const u32 index=phase>>23;
-    return row[index]+multiply(row[index+1]-row[index],static_cast<i32>((phase&0x7fffffu)>>9));
+    const i32 fraction=static_cast<i32>((phase&0x7ffe00u)<<8);
+    return row[index]+opxy::q31::multiply(row[index+1]-row[index],fraction);
 }
 i32 distortion_gain(i32 amount){return 256+multiply(amount,amount)*23/64;}
 i32 distort(i32 x,i32 amount,i32 gain){
@@ -76,23 +77,29 @@ template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,
     const i32 sub=p[6]/131072,tone=16383-p[7]/131072;
     const i32 cutoff=cutoff_target(base,v.envelope,env);
     if(v.cutoff<0){v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;}
-    i32 g=interpolate(tables::pole,v.cutoff);
+    const i32 start_g=interpolate(tables::pole,v.cutoff);
     const i32 feedback=interpolate(tables::feedback,v.resonance);
     const i32 correction=inverse(v.cutoff,v.resonance);
     const i32 end_feedback=interpolate(tables::feedback,resonance),end_correction=inverse(cutoff,resonance);
-    const i32 dg=(interpolate(tables::pole,cutoff)-g)/64;
+    // These three coefficients stay below unity. Keep their ramps in Q31 so
+    // the oversampled filter can multiply unscaled samples directly.
+    i32 g=start_g*131072;
+    const i32 dg=(interpolate(tables::pole,cutoff)-start_g)/64*131072;
     i32 input_gain=correction/4+multiply(correction,v.drive)/2;
-    const i32 input_step=(end_correction/4+multiply(end_correction,drive)/2-input_gain)/64;
+    const i32 input_step=(end_correction/4+multiply(end_correction,drive)/2-input_gain)/64*131072;
     i32 feedback_gain=multiply(correction,feedback);
-    const i32 feedback_step=(multiply(end_correction,end_feedback)-feedback_gain)/64;
+    const i32 feedback_step=(multiply(end_correction,end_feedback)-feedback_gain)/64*131072;
+    input_gain*=131072;
+    feedback_gain*=131072;
     i32 body=interpolate(tables::body,v.resonance);
     const i32 body_step=(interpolate(tables::body,resonance)-body)/64;
     const i32 dd=(drive-v.drive)/64,dw=(wave-v.wave)/64;
     i32 clip_gain=distortion_gain(v.drive);
     const i32 clip_step=(distortion_gain(drive)-clip_gain)/64;
     const i32 ds=(sub-v.sub)/64,dt=(tone-v.tone)/64;
-    i32 tone_g=interpolate(tables::tone,v.tone);
-    const i32 tone_step=(interpolate(tables::tone,tone)-tone_g)/64;
+    const i32 start_tone_g=interpolate(tables::tone,v.tone);
+    i32 tone_g=start_tone_g*131072;
+    const i32 tone_step=(interpolate(tables::tone,tone)-start_tone_g)/64*131072;
     u32 highest=0;
     for(u32 i=0;i<64;++i)if(pitch[i]>highest)highest=pitch[i];
     highest/=2;
@@ -115,29 +122,29 @@ template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,
                 }else if(Mode<0 && v.wave)source=mix(saw,lookup(tables::triangle[band],v.phase),v.wave*2);
             }
             i32 memory=0;
-            memory=v.pole[0]+multiply(memory-v.pole[0],g);
-            memory=v.pole[1]+multiply(memory-v.pole[1],g);
-            memory=v.pole[2]+multiply(memory-v.pole[2],g);
-            memory=v.pole[3]+multiply(memory-v.pole[3],g);
-            i32 signal=multiply(source,input_gain)-multiply(memory,feedback_gain);
+            memory=v.pole[0]+opxy::q31::multiply(memory-v.pole[0],g);
+            memory=v.pole[1]+opxy::q31::multiply(memory-v.pole[1],g);
+            memory=v.pole[2]+opxy::q31::multiply(memory-v.pole[2],g);
+            memory=v.pole[3]+opxy::q31::multiply(memory-v.pole[3],g);
+            i32 signal=opxy::q31::multiply(source,input_gain)-opxy::q31::multiply(memory,feedback_gain);
             signal=soft(limit(signal,12288)*4);
             {
-                const i32 y=v.pole[0]+multiply(signal-v.pole[0],g);
+                const i32 y=v.pole[0]+opxy::q31::multiply(signal-v.pole[0],g);
                 v.pole[0]=limit(y+(y-v.pole[0]),internal_peak);
                 signal=y;
             }
             {
-                const i32 y=v.pole[1]+multiply(signal-v.pole[1],g);
+                const i32 y=v.pole[1]+opxy::q31::multiply(signal-v.pole[1],g);
                 v.pole[1]=limit(y+(y-v.pole[1]),internal_peak);
                 signal=y;
             }
             {
-                const i32 y=v.pole[2]+multiply(signal-v.pole[2],g);
+                const i32 y=v.pole[2]+opxy::q31::multiply(signal-v.pole[2],g);
                 v.pole[2]=limit(y+(y-v.pole[2]),internal_peak);
                 signal=y;
             }
             {
-                const i32 y=v.pole[3]+multiply(signal-v.pole[3],g);
+                const i32 y=v.pole[3]+opxy::q31::multiply(signal-v.pole[3],g);
                 v.pole[3]=limit(y+(y-v.pole[3]),internal_peak);
                 signal=y;
             }
@@ -147,10 +154,10 @@ template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,
             // Honor stock pitch modulation and portamento exactly, sample by sample.
             v.phase+=increment/2+(sub==1?increment%2:0);
         }
-        const i32 dc_removed=limit(reduced-v.dc_input+multiply(v.dc_output,16376),32768);
+        const i32 dc_removed=limit(reduced-v.dc_input+opxy::q31::multiply(v.dc_output,16376*131072),32768);
         v.dc_input=reduced;v.dc_output=dc_removed;
         if(v.tone>=16383)v.tone_memory=dc_removed;
-        else v.tone_memory+=multiply(dc_removed-v.tone_memory,tone_g);
+        else v.tone_memory+=opxy::q31::multiply(dc_removed-v.tone_memory,tone_g);
         const i32 main=v.tone_memory;
         const i32 low=v.sub?lookup(tables::sine,v.sub_phase):0;
         output[i]=mix(main,low,v.sub/2)*32768;

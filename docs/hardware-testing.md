@@ -6,17 +6,15 @@ can be transferred and reloaded while its engine contract remains unchanged.
 
 ## Choose a kit
 
-`collections/hundekraft-test.json` contains **12 synths and 13 send effects**.
-On 2026-10-30 it linked with upstream SDK 1.6 at **1,013.7 KiB of 2,032 KiB**,
-including the shared SDK module. This is a native module check, not bootable
-image verification, device acceptance or measured CPU. HK Granular is excluded;
-the separate standalone Granular engine has been removed from the active tree.
+`collections/hundekraft-test.json` selects **12 synths**. The 13 HK effects
+remain excluded after failing device listening tests; do not add them to a
+normal hardware kit. HK Granular is also excluded.
 
-`collections/standalone.json` selects the other six synths and three effects;
-`collections/hundekraft.json` also includes HK Granular. The full inventory has
-35 entries. SDK 1.6 supports 256 engine/screen slots, so the old advice about
-exhausting a small ID pool no longer applies. Every combined image must still
-pass the shared 2,032 KiB module limit. Do not assume all 35 fit together.
+`collections/standalone.json` selects seven synths, one drum machine and three
+effects. `collections/hundekraft.json` retains all 26 HK sources, including the
+excluded effects and sample engine. The complete inventory has 37 entries;
+it is not a hardware kit. Every combined image must pass the shared 2,032 KiB
+module limit. Do not assume the complete inventory fits together.
 
 ## Preserve projects and layout
 

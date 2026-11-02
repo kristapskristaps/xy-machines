@@ -120,4 +120,19 @@ with fewer signed-rounding corrections. `tests/equivalence.cpp` checks 73
 original audio/state fingerprints across controls, retriggers, pitch ramps and
 live modulation. The 2x oversampling and filter arithmetic remain intact.
 
+The filter and damping coefficient ramps use Q31 directly, avoiding repeated
+sample scaling inside the oversampled loop. Wavetable interpolation and DC
+removal use the same public fractional multiply with their original rounding.
+These changes add no tables or voice state. Compare against the preceding
+collection revision with:
+
+```sh
+python machines/acidline/tools/benchmark.py --cxx /path/to/clang++
+```
+
+The paired host benchmark verifies matching audio and final voice state across
+207 control/pitch scenarios, then alternates timing order for five repetitions.
+It reports host render times, not device CPU. Measure the optimized revision
+with a full hardware control sweep before catalog publication.
+
 MIT; see LICENSE. DSP, tables and browser audition are original to this work.

@@ -80,8 +80,14 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output __restrict output,
         voice.wave[0] = target_wave[0]; voice.wave[1] = target_wave[1];
         voice.ready = 1;
     }
-    u32 highest = 0;
-    for (unsigned i = 0; i < opxy::block_frames; ++i) if (pitch[i] > highest) highest = pitch[i];
+    u32 highest = pitch[0], lowest = pitch[0];
+    for (unsigned i = 1; i < opxy::block_frames; ++i) {
+        const u32 increment = pitch[i];
+        if (increment > highest) highest = increment;
+        if (increment < lowest) lowest = increment;
+    }
+    // All increments above the rail render identically after the existing clamp.
+    const bool constant = highest == lowest || lowest >= 0x40000000u;
     if (highest > 0x40000000u) highest = 0x40000000u;
     // Select safe harmonic limits for every pitch in this block.
     const Band first(highest), second(second_increment(highest, ratio, octave));
@@ -95,10 +101,6 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output __restrict output,
     const i32 balance = p[5] >> 16;
     const Oscillator osc_a(first, target_wave[0]), osc_b(second, target_wave[1]);
     const bool changing_waves = voice.wave[0] != target_wave[0] || voice.wave[1] != target_wave[1];
-    bool constant = true;
-    for (unsigned i = 1; i < opxy::block_frames; ++i) {
-        if (pitch[i] != pitch[0]) { constant = false; break; }
-    }
     // Below quarter-rate cutoff, each integrator is a convex update. With
     // 8192 counts of state headroom, 64 samples of rounding cannot hit a rail.
     const bool limited = filter.needs_limits(voice);

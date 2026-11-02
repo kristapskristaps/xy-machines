@@ -142,16 +142,32 @@ accumulator, unrolls the four stages and prepares waveform/pitch paths once per
 block. Wavetables store their original Q14 values in 16-bit words; a 32 KiB
 cache expands the exact integer saturation interpolant. Each voice caches
 filter coefficients until cutoff or resonance changes. Voice state is 116
-bytes, and the standalone native module uses about 177 KiB.
+bytes; the SDK compile report gives the native footprint for its selected revision.
 Compatibility fingerprints bind the optimized render to the B audition.
+
+Pitch maximum, minimum and block constancy are determined in one scan. Blocks
+whose increments all reach the existing maximum-pitch clamp use the constant
+pitch path too; oscillator and filter state retain the same samples and rounding.
+
 
 Use the paired host benchmark to compare CPU cost against a collection revision:
 
 ```sh
 python machines/mando/tools/benchmark.py --baseline a5d22b3 > local/mando-performance.json
+# For a current-layout comparison, including complete voice-state equivalence:
+python machines/mando/tools/benchmark.py --baseline 400ddee --verify-state --extended --cxx /path/to/clang++
 ```
 
-The 384-case paired benchmark against the unoptimized B response measured
+The benchmark accepts both the historical Cyclops path and current Mando path.
+It checks audio at every block over 256 blocks per scenario; `--verify-state`
+also compares complete voice state when the selected baseline has the current
+layout. `--extended` adds above-limit, full-range and clamp-crossing pitch motion,
+for 576 scenarios. Five timing repeats alternate order and report paired medians.
+The pitch regression test checks exact phase advance for constant, clipped,
+clamp-crossing, zero and random inputs, including a single differing sample in
+every position of the block.
+
+The historical 384-case benchmark against the unoptimized B response measured
 about 10% lower worst-case host render time. The longer 440 Hz control sweep
 estimated about 15,300 instructions per voice per 64-sample block; simultaneous
 overload/control automation reached about 15,700. The short SDK run reported

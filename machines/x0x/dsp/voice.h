@@ -212,7 +212,58 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     }
     return limit(signal);
 }
-template <bool Sampled> static inline void render_block(Voice& v, opxy::Output output, const Settings& s) {
+template <unsigned Filter> static inline void metal_filter_block(MetalState& state,
+        const MetalCoefficients& c, const i32* input, i32* output, u32 frames) {
+    MetalFilterState& filter = state.filters[Filter];
+    i32 x1=filter.x1,x2=filter.x2,y1=filter.y1,y2=filter.y2;
+    for(u32 i=0;i<frames;++i) {
+        const i32 x=input[i];
+        const i32 y=limit(metal_product(x,c.b0)+metal_product(x1,c.b1)+metal_product(x2,c.b2)
+                          -metal_product(y1,c.a1)-metal_product(y2,c.a2));
+        x2=x1;x1=x;y2=y1;y1=y;output[i]=y;
+    }
+    filter.x1=x1;filter.x2=x2;filter.y1=y1;filter.y2=y2;
+}
+template <bool Cymbal> static inline void metal_source_block(Voice& v,const Settings& s,
+        i32* output,u32 frames) {
+    if(!frames)return;
+    if(!v.metal.initialized)metal_start(v.metal,v.phase);
+    i32 cluster[opxy::block_frames],high[opxy::block_frames];
+    i32 bright[opxy::block_frames],air[opxy::block_frames];
+    for(u32 i=0;i<frames;++i) {
+        const i32 random=noise(v.seed);
+        v.noise_low+=multiply(random-v.noise_low,s.noise_filter);
+        i32 sum=0;
+        for(u32 oscillator=0;oscillator<6;++oscillator) {
+            sum+=divide_signal<6>(metal_pulse(v.phase[oscillator],s.increments[oscillator],s.metal_reciprocals[oscillator]));
+            v.phase[oscillator]+=s.increments[oscillator]>0x60000000u?0x60000000u:s.increments[oscillator];
+        }
+        cluster[i]=sum;
+    }
+    metal_filter_block<1>(v.metal,high_band,cluster,high,frames);
+    metal_filter_block<3>(v.metal,hat_cut,high,bright,frames);
+    metal_filter_block<4>(v.metal,air_cut,high,air,frames);
+    if(Cymbal) {
+        metal_filter_block<0>(v.metal,low_band,cluster,cluster,frames);
+        metal_filter_block<2>(v.metal,low_cut,cluster,high,frames);
+    }
+    const i32 fast_rate=Cymbal?rate(180):0,medium_rate=Cymbal?rate(700):0;
+    for(u32 i=0;i<frames;++i) {
+        v.metal.air_low+=multiply(air[i]-v.metal.air_low,25432);
+        const i32 filtered_air=air[i]-v.metal.air_low;
+        if(!Cymbal)output[i]=limit((multiply(bright[i],32767-i32(s.raw[tone])*160)
+                                 +multiply(filtered_air,i32(s.raw[tone])*512))*32);
+        else {
+            const i32 strike=multiply(high[i],v.metal.fast>>16);
+            const i32 shimmer=multiply(bright[i],8192+(v.metal.medium>>17));
+            v.metal.fast=envelope(v.metal.fast,fast_rate);
+            v.metal.medium=envelope(v.metal.medium,medium_rate);
+            output[i]=limit((multiply(strike,8192+i32(s.raw[body])*192)+shimmer
+                           +multiply(filtered_air,i32(s.raw[tone])*512))*18);
+        }
+    }
+}
+template <bool Sampled, bool Metal=false> static inline void render_block(Voice& v, opxy::Output output, const Settings& s) {
     if (v.pending) {
         v.pending = 0;
         v.amplitude = v.transient = v.pitch_envelope = 0x7fffffff;
@@ -223,6 +274,13 @@ template <bool Sampled> static inline void render_block(Voice& v, opxy::Output o
         s.alternate >= 0 && pcm::samples[s.alternate].frames > pcm::samples[s.sample].frames
             ? pcm::samples[s.alternate].frames : pcm::samples[s.sample].frames;
     const u32 drive_amount = control_count(v.model) == 8 ? s.raw[x0x::drive] : 0;
+    i32 metallic[Metal?opxy::block_frames:1];
+    if(Metal) {
+        const u32 remaining=v.age<end?end-v.age:0;
+        const u32 frames=v.active?(remaining<opxy::block_frames?remaining:opxy::block_frames):0;
+        if(v.model==cymbal)metal_source_block<true>(v,s,metallic,frames);
+        else metal_source_block<false>(v,s,metallic,frames);
+    }
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         i32 sample = 0;
         bool source_done = v.age >= end;
@@ -231,7 +289,8 @@ template <bool Sampled> static inline void render_block(Voice& v, opxy::Output o
         }
         ended = source_done;
         if (v.active && !source_done) {
-            if (Sampled) sample = pcm_source(v, s);
+            if (Metal) sample = metallic[i];
+            else if (Sampled) sample = pcm_source(v, s);
             else {
                 const i32 random = noise(v.seed);
                 v.noise_low += multiply(random - v.noise_low, s.noise_filter);
@@ -263,7 +322,8 @@ static inline void render(Voice& v, opxy::Output output, opxy::Parameters parame
     const Settings& s = voice_settings(v, parameters);
     // The selected model/style is fixed for this block. Keep PCM cursor checks
     // and synthesized oscillators in separate sample loops.
-    if(s.sample>=0)render_block<true>(v,output,s);
+    if(s.metal808)render_block<false,true>(v,output,s);
+    else if(s.sample>=0)render_block<true>(v,output,s);
     else render_block<false>(v,output,s);
 }
 }}

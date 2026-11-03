@@ -10,6 +10,9 @@ int main() {
     for(unsigned band=0;band<8;++band)for(unsigned index=0;index<512;++index) {
         const opxy::i32 slope=(subvista::tables::saw[band][index+1]-subvista::tables::saw[band][index])/32768;
         if(subvista::tables::slopes[band][index]!=slope)return 1;
+        const auto& pair=subvista::tables::pairs[band][index&255u];
+        if(pair.values[index>>8]!=subvista::tables::saw[band][index] ||
+           pair.slopes[index>>8]!=slope)return 1;
         for(unsigned fraction=0;fraction<32768;fraction+=127) {
             const opxy::u32 phase=(index<<23)|(fraction<<8)|255u;
             if(subvista::wave(phase,band)!=subvista::tables::saw[band][index]+slope*static_cast<opxy::i32>(fraction))return 1;

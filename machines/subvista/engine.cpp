@@ -1,6 +1,7 @@
 #include "core.h"
 #include "tables.h"
 #include "wave_slopes.h"
+#include "wave_pairs.h"
 #include <opxy/q31.hpp>
 namespace subvista {
 namespace {
@@ -17,10 +18,14 @@ i32 wave(u32 phase, u32 band) {
 }
 template<bool SawOnly>
 __attribute__((always_inline)) inline i32 oscillator(u32 phase, u32 band, i32 shape) {
-    const i32 saw = wave(phase, band);
-    if(SawOnly)return saw;
-    const i32 pulse = opxy::q31::half(saw - wave(phase + 0x80000000u, band));
-    return blend(saw, pulse, shape);
+    if(SawOnly)return wave(phase,band);
+    const tables::WavePair& point=tables::pairs[band][(phase>>23)&255u];
+    const i32 fraction=static_cast<i32>((phase&0x7fffffu)>>8);
+    const i32 first=point.values[0]+point.slopes[0]*fraction;
+    const i32 second=point.values[1]+point.slopes[1]*fraction;
+    const i32 saw=(phase>>31)?second:first;
+    const i32 other=(phase>>31)?first:second;
+    return blend(saw,opxy::q31::half(saw-other),shape);
 }
 tables::Coefficients coefficients(i32 cutoff, i32 resonance) {
     const u32 c = static_cast<u32>(cutoff) >> 25;

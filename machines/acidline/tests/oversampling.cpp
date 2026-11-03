@@ -7,7 +7,7 @@ int main(){
     // still rejects aliases. Same 6 kHz/14.1 kHz clipping fixture as the legacy test.
     const double pi=3.14159265358979323846;
     double old_real=0,old_imag=0,new_real=0,new_imag=0;
-    acidline::Voice cached={};acidline::prepare_shape(cached,11141,11469);
+    acidline::Voice cached={};do{acidline::prepare_shape(cached,11141,11469);}while(!cached.shape_ready);
     const int body=acidline::interpolate(acidline::tables::body,11141)*65536;
     const int drive_gain=acidline::distortion_gain(11469);
     double cached_real=0,cached_imag=0,direct_real=0,direct_imag=0,shape_energy=0,shape_error=0;

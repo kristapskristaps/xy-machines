@@ -83,8 +83,13 @@ sub/damping path once per block and omits zero ramp updates. Moving controls
 retain the general ramped path. Stable resonance/drive settings cache their
 combined body/clip transfer in a 1025-entry bipolar table. Linear interpolation
 replaces repeated shaping arithmetic; tests limit its point error to 1.56% of
-peak scale, and the cache is reused until those settings change. Moving controls
-keep the direct shaper, avoiding a rebuild on every knob-update block.
+peak scale. Preparation is bounded to 16 points per callback and needs 65 stable
+callbacks (about 94ms) to complete. Until then, the direct shaper renders the
+current controls; no partial table is read. Completion crossfades from direct
+to cached shaping over one block. Only resonance/drive changes invalidate the
+cache; Sub/Damp changes retain it. Moving resonance/drive invalidates without
+wasted generation, then building resumes when those controls settle. Retriggers
+reuse an already matching per-voice cache; fresh initialization resets it.
 
 This is an intentional sound change for the CPU budget. The new ladder is
 generally darker, its resonance and overdrive respond differently, and strong
@@ -96,7 +101,7 @@ of that renderer across the same scenes, alongside unchanged pitch and contour
 timing. The extreme 6 kHz clipping fixture reports the lost alias rejection.
 
 The saved machine ID, eight control slots, waveform choices and all factory
-preset values are unchanged. Voice state is 2148 bytes, including a 1025-point cached output transfer; the 16-slot pool remains unchanged. This revision needs a fresh hardware
+preset values are unchanged. Voice state is 2156 bytes, including a 1025-point cached output transfer; the 16-slot pool remains unchanged. This revision needs a fresh hardware
 control sweep before claiming the required 3.5% CPU target or catalog acceptance.
 
 ## Development
@@ -113,7 +118,9 @@ The C++ tests cover control extremes, peak bounds, filter attenuation,
 monotonic symmetric soft clipping, waveform spectra, octave-down sub,
 damping, exact stock pitch ramps, independent DSP states, display bounds,
 both header pages, idle/reduced-motion behavior, quantitative legacy level/brightness comparisons
-and the explicit 1x aliasing tradeoff. Preset tests check stock mono mode and unchanged
+and the explicit 1x aliasing tradeoff. Cache scheduling tests cover the per-block
+work bound, exact direct audio during preparation, all table entries, automation,
+transition continuity, reset/retrigger and independent voices. Preset tests check stock mono mode and unchanged
 sound parameters. The optional dedicated acid sequencer under `audition/`
 provides its own simple mono gate and glide; it does not emulate stock's
 allocator or envelopes.

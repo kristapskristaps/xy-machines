@@ -25,7 +25,7 @@ int main(){
     acidline::Voice cached={};
     for(int r=0;r<=4;++r)for(int d=0;d<=4;++d){
         const int resonance=r*16383/4,drive=d*16383/4;
-        acidline::prepare_shape(cached,resonance,drive);
+        do{acidline::prepare_shape(cached,resonance,drive);}while(!cached.shape_ready);
         const int body=acidline::interpolate(acidline::tables::body,resonance)*65536;
         const int gain=acidline::distortion_gain(drive);
         int previous=-32769;double reference_energy=0,error_energy=0;

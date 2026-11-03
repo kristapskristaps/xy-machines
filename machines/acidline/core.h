@@ -10,7 +10,7 @@ struct Voice {
     opxy::i32 sub, tone, tone_memory;
     opxy::i16 shape_curve[1025];
     opxy::i32 shape_resonance,shape_drive;
-    opxy::u32 shape_ready;
+    opxy::u32 shape_ready,shape_progress,shape_transition;
 };
 struct Shared {};
 }

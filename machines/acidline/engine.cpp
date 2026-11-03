@@ -81,17 +81,24 @@ __attribute__((noinline)) void ladder(Voice& v,opxy::Output output,i32 coefficie
     v.feedback_low=feedback_low;
     v.filter_coefficient=coefficient;v.filter_feedback=feedback;
 }
+const unsigned shape_tile_points=16;
+__attribute__((always_inline)) inline void reset_shape(Voice& v,i32 resonance,i32 drive){
+    v.shape_resonance=resonance;v.shape_drive=drive;
+    v.shape_ready=v.shape_progress=v.shape_transition=0;
+}
 __attribute__((noinline)) void prepare_shape(Voice& v,i32 resonance,i32 drive){
-    if(v.shape_ready && v.shape_resonance==resonance && v.shape_drive==drive)return;
+    if(v.shape_resonance!=resonance || v.shape_drive!=drive)reset_shape(v,resonance,drive);
+    if(v.shape_ready)return;
     const i32 body=interpolate(tables::body,resonance)*65536;
     const i32 gain=distortion_gain(drive);
-    for(unsigned i=0;i<1025;++i){
+    const unsigned end=v.shape_progress+shape_tile_points<1025?v.shape_progress+shape_tile_points:1025;
+    for(unsigned i=v.shape_progress;i<end;++i){
         const i32 input=static_cast<i32>(i*64)-32768;
         const i32 x=limit(multiply(input,body)*6,32768);
         const i32 y=distort(x,drive,gain);
         v.shape_curve[i]=static_cast<opxy::i16>(y>32767?32767:y);
     }
-    v.shape_resonance=resonance;v.shape_drive=drive;v.shape_ready=1;
+    v.shape_progress=end;v.shape_ready=end==1025;
 }
 __attribute__((always_inline)) inline i32 cached_shape(const Voice& v,i32 input){
     const u32 position=static_cast<u32>(input)+32768u;
@@ -100,7 +107,12 @@ __attribute__((always_inline)) inline i32 cached_shape(const Voice& v,i32 input)
     const i32 first=v.shape_curve[index],second=v.shape_curve[index+1];
     return first+((second-first)*static_cast<i32>(position&63u)>>6);
 }
-template<bool Moving,int SubMode,int DampMode>
+__attribute__((always_inline)) inline i32 transition_shape(const Voice& v,i32 input,
+        i32 body,i32 amount,i32 clip_gain,unsigned frame){
+    const i32 direct=distort(limit(multiply(input,body)*6,32768),amount,clip_gain);
+    return direct+gain14(cached_shape(v,input)-direct,static_cast<i32>(frame+1)*256);
+}
+template<bool Moving,int SubMode,int DampMode,int CacheMode=2>
 __attribute__((noinline)) void finish(Voice& v,opxy::Output output,opxy::Pitch pitch,
         i32 resonance,i32 drive,i32 sub,i32 tone){
     i32 amount=v.drive,blend_sub=v.sub,damping=v.tone;
@@ -114,7 +126,9 @@ __attribute__((noinline)) void finish(Voice& v,opxy::Output output,opxy::Pitch p
     const i32 dg=(interpolate(tables::tone,tone)-start_tone)/64*131072;
     for(unsigned i=0;i<opxy::block_frames;++i){
         if(Moving){amount+=dd;blend_sub+=ds;damping+=dt;body+=db;clip_gain+=dc;tone_g+=dg;}
-        const i32 shaped=Moving?distort(limit(multiply(output[i],body)*6,32768),amount,clip_gain):cached_shape(v,output[i]);
+        const i32 shaped=!Moving && CacheMode==2?cached_shape(v,output[i]):
+            !Moving && CacheMode==1?transition_shape(v,output[i],body,amount,clip_gain,i):
+            distort(limit(multiply(output[i],body)*6,32768),amount,clip_gain);
         const i32 dc_removed=limit(shaped-v.dc_input+multiply(v.dc_output,16376*131072),32768);
         v.dc_input=shaped;v.dc_output=dc_removed;
         if(DampMode<0?damping>=16383:!DampMode)v.tone_memory=dc_removed;
@@ -149,16 +163,28 @@ inline void render(Voice& v,Shared&,u32,opxy::Output output,opxy::Parameters p,o
         else oscillators<2>(v,output,pitch,band,wave,drive);
     }else oscillators<-1>(v,output,pitch,band,wave,drive);
     ladder(v,output,coefficient,feedback);
-    if(v.resonance==resonance && v.drive==drive && v.sub==sub && v.tone==tone){
-        prepare_shape(v,resonance,drive);
-        if(sub){
+    const bool shape_stable=v.resonance==resonance && v.drive==drive;
+    if(shape_stable)prepare_shape(v,resonance,drive);
+    else reset_shape(v,resonance,drive);
+    if(shape_stable && v.sub==sub && v.tone==tone){
+        if(!v.shape_ready){
+            if(sub){
+                if(tone<16383)finish<false,1,1,0>(v,output,pitch,resonance,drive,sub,tone);
+                else finish<false,1,0,0>(v,output,pitch,resonance,drive,sub,tone);
+            }else{
+                if(tone<16383)finish<false,0,1,0>(v,output,pitch,resonance,drive,sub,tone);
+                else finish<false,0,0,0>(v,output,pitch,resonance,drive,sub,tone);
+            }
+        }else if(!v.shape_transition){
+            finish<false,-1,-1,1>(v,output,pitch,resonance,drive,sub,tone);v.shape_transition=1;
+        }else if(sub){
             if(tone<16383)finish<false,1,1>(v,output,pitch,resonance,drive,sub,tone);
             else finish<false,1,0>(v,output,pitch,resonance,drive,sub,tone);
         }else{
             if(tone<16383)finish<false,0,1>(v,output,pitch,resonance,drive,sub,tone);
             else finish<false,0,0>(v,output,pitch,resonance,drive,sub,tone);
         }
-    }else finish<true,-1,-1>(v,output,pitch,resonance,drive,sub,tone);
+    }else{finish<true,-1,-1>(v,output,pitch,resonance,drive,sub,tone);v.shape_transition=0;}
     v.envelope=gain14(v.envelope,interpolate(tables::decay,decay));
     v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;
 }

@@ -35,37 +35,24 @@ tables::Coefficients coefficients(i32 cutoff, i32 resonance) {
         blend(blend(a.a3,b.a3,cf),blend(d.a3,e.a3,cf),rf)};
     return result;
 }
-template<bool SawOnly, bool Ramping>
+template<bool SawOnly>
 void render_block(Voice& v,opxy::Output output,opxy::Parameters parameters,opxy::Pitch pitch,
                   u32 band,i32 step1,i32 step2,i32 step3) {
-    u32 phase=v.phase,detuned=v.detuned,sub=v.sub;
-    i32 a1=v.a1,a2=v.a2,a3=v.a3;
-    i32 integrator1=v.integrator1,integrator2=v.integrator2;
-    const i32 shape=parameters[2];
     for (u32 i=0;i<opxy::block_frames;++i) {
-        if (Ramping) { a1 += step1; a2 += step2; a3 += step3; }
+        v.a1 += step1; v.a2 += step2; v.a3 += step3;
         const u32 increment = pitch[i], detune = increment + (increment >> 8);
-        const i32 input = opxy::q31::half(oscillator<SawOnly>(phase,band,shape))
-                        + opxy::q31::half(oscillator<SawOnly>(detuned,band,shape))
-                        + wave(sub,0)/8;
+        const i32 input = opxy::q31::half(oscillator<SawOnly>(v.phase,band,parameters[2]))
+                        + opxy::q31::half(oscillator<SawOnly>(v.detuned,band,parameters[2]))
+                        + wave(v.sub,0)/8;
         // Topology-preserving two-pole low-pass. Headroom bounds keep feedback defined.
-        const i32 difference = input-integrator2;
-        const i32 band = limit(add(multiply(a1,integrator1),multiply(a2,difference)),0x30000000);
-        const i32 low = limit(add(add(integrator2,multiply(a2,integrator1)),multiply(a3,difference)),0x30000000);
-        integrator1 = limit(add(band,band-integrator1),0x30000000);
-        integrator2 = limit(add(low,low-integrator2),0x30000000);
+        const i32 difference = input-v.integrator2;
+        const i32 band = limit(add(multiply(v.a1,v.integrator1),multiply(v.a2,difference)),0x30000000);
+        const i32 low = limit(add(add(v.integrator2,multiply(v.a2,v.integrator1)),multiply(v.a3,difference)),0x30000000);
+        v.integrator1 = limit(add(band,band-v.integrator1),0x30000000);
+        v.integrator2 = limit(add(low,low-v.integrator2),0x30000000);
         output[i] = limit(low,0x40000000);
-        phase += increment; detuned += detune; sub += increment/2;
+        v.phase += increment; v.detuned += detune; v.sub += increment/2;
     }
-    v.phase=phase;v.detuned=detuned;v.sub=sub;
-    v.a1=a1;v.a2=a2;v.a3=a3;
-    v.integrator1=integrator1;v.integrator2=integrator2;
-}
-template<bool SawOnly>
-void render_shape(Voice& v,opxy::Output output,opxy::Parameters parameters,opxy::Pitch pitch,
-                  u32 band,i32 step1,i32 step2,i32 step3) {
-    if (step1 || step2 || step3) render_block<SawOnly,true>(v,output,parameters,pitch,band,step1,step2,step3);
-    else render_block<SawOnly,false>(v,output,parameters,pitch,band,step1,step2,step3);
 }
 }
 inline void start(Voice& v, Shared&, opxy::u32) {
@@ -92,8 +79,8 @@ inline void render(Voice& v, Shared&, opxy::u32, opxy::Output output,
     u32 band=0;
     while (band<7 && highest<(0x80000000u>>(band+1))) ++band;
     // Shape is fixed for this callback; the saw endpoint needs no pulse lookup.
-    if(parameters[2]==0)render_shape<true>(v,output,parameters,pitch,band,step1,step2,step3);
-    else render_shape<false>(v,output,parameters,pitch,band,step1,step2,step3);
+    if(parameters[2]==0)render_block<true>(v,output,parameters,pitch,band,step1,step2,step3);
+    else render_block<false>(v,output,parameters,pitch,band,step1,step2,step3);
     v.envelope = multiply(v.envelope,2136937522);
 }
 }

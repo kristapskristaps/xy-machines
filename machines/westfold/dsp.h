@@ -3,6 +3,12 @@
 #include "tables.h"
 
 namespace westfold { namespace dsp {
+// Audio inputs fit signed16 and weights are≤32767. Truncating the difference
+// toward zero keeps the interpolation inside its input bounds and changes it
+// by at most one Q15 count while making both multiply operands signed16.
+inline i32 blend16(i32 a,i32 b,i32 amount) {
+    return a+(static_cast<opxy::i16>((b-a)/2)*static_cast<opxy::i16>(amount)>>14);
+}
 inline i32 sine(u32 phase) { return read(tables::sine, phase); }
 inline i32 wave(u32 fold, i32 fraction, const Band& band, u32 phase) {
     const i32 a = mix(read(tables::waves[band.index][fold], phase),

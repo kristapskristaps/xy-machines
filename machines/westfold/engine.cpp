@@ -82,16 +82,16 @@ inline void render(Voice& __restrict voice, Shared&, u32, opxy::Output __restric
             i32 shaped = odd;
             if(c[0]) {
                 const i32 even = even_guard ? dsp::wave(fold, fraction, band, phase * 2u) * even_guard >> 15 : 0;
-                shaped = dsp::mix(odd, even, c[0]);
+                shaped = dsp::blend16(odd, even, c[0]);
             }
-            signal = dsp::mix(signal, shaped, c[2]);
+            signal = dsp::blend16(signal, shaped, c[2]);
         }
 
         // Two gentle poles and gain close together as the strike fades.
         if (!(i & 7u)) coefficient = dsp::lookup(tables::gate_coefficients, gate);
         voice.low1 += ((signal - voice.low1) * coefficient >> 15);
         voice.low2 += ((voice.low1 - voice.low2) * coefficient >> 15);
-        const i32 filtered = dsp::mix(voice.low2, voice.low1, 8192 + gate / 2);
+        const i32 filtered = dsp::blend16(voice.low2, voice.low1, 8192 + gate / 2);
         const i32 amplitude = (gate * (8192 + gate * 3 / 4) >> 15);
         const i32 sample = (filtered * amplitude >> 15);
         const i32 blocked = sample - voice.dc_input + voice.dc_output * 32690 / 32768;

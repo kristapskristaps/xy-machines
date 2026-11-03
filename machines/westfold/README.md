@@ -62,24 +62,33 @@ sample. Band crossfades and the FM guard use exact bounded reciprocal arithmetic
 in place of three native software division sites. Voice storage and native
 audio stack usage are unchanged.
 
-From the collection root, compare against the preceding revision with:
+Odd/even, balance and output-filter blends now truncate their17-bit difference
+by dividing it by two toward zero before multiplication. Both operands then fit
+signed16; at most one Q15 sample count is lost, and each blend stays inside its
+input bounds. Native code replaces three more general products with signed16
+products, adding two simple operations per active blend for defined signed
+rounding. Fold/table/mip interpolation and phase/FM arithmetic remain exact.
+Phase, contour, gate, controls, normal voice count and display are unchanged.
+The original golden values run against the frozen exact97 reference; the current
+DSP has separate quality and bounds tests.
+
+From the collection root, quantify the intentional difference with:
 
 ```sh
-python machines/westfold/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
-python machines/westfold/tools/benchmark.py --cxx /path/to/clang++ --full-grid --verify-only
+python machines/westfold/tools/fidelity.py --out /private/output/westfold-quality
 ```
 
-The paired run covers 528 scenarios: defaults, all twelve presets, five positions
-of each control, both pages' control corners at six pitches, and control/pitch
-motion. The wider check adds all 256 eight-control corners, for 2,064 scenarios.
-Each compares audio and complete voice state after every block over 256 blocks,
-including retriggers and reinitialization. Both compare 4,096 complete display
-frames and display states against the preceding revision. The arithmetic test
-checks the compact drawing data against the original tables, every bounded
-reciprocal input, band transitions and one million random
-phase increments. Host timings remain advisory; use device profiling to measure
-the native CPU benefit.
-
+This compares the actual C++ renders against exact97 over the full256 control
+corners, defaults, all twelve presets, six pitches, smooth/random automation,
+retrigger and glide. It checks phase/envelope/gate/control state after every
+block and reports level, waveform and spectral error, plus reference/candidate
+WAV pairs. The1632-case measured comparison finds at most0.1112% audible relative RMS
+error,0.00000984FS absolute RMS error and0.0031dB audible level change. Factory
+preset relative RMS error is below0.037%. The quality gates are0.5% audible
+relative RMS error,0.0001FS absolute RMS error and0.02dB audible level change. A second405-case test covers factory
+settings and octave-band spectral distribution over longer renders. The parity
+error and signed16 output bounds are tested at endpoints and one million random
+input pairs. Host quality checks do not measure device CPU.
 
 To regenerate the committed tables, metadata, presets and panel:
 
@@ -106,6 +115,7 @@ The adjacent-point interpolator explicitly narrows its proven signed16 slope
 and Q15 fraction before multiplication. FM sine and depth operands also fit
 signed16. Native inspection confirms twelve general word products become
 signed16 products without changing the table layout, voice memory or hardware
-loops. All table slopes are checked against their signed16 bound; exact PCM and
-full voice state remain unchanged. Mip, fold and balance blends keep their
-original arithmetic. Hardware timing is required to assess the speed change.
+loops. All table slopes are checked against their signed16 bound. Three more
+output-blend products become signed16 in this deliberately approximate variant; the
+remaining mixes retain their original arithmetic. Hardware timing is required
+to assess the speed change.

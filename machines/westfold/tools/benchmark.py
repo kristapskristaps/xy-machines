@@ -1,4 +1,4 @@
-"""Compare Westfold's audio/state and paired host timings against a Git revision."""
+"""Compare bit-exact Westfold revisions; use fidelity.py for deliberate DSP changes."""
 import argparse
 import json
 from pathlib import Path

@@ -72,8 +72,8 @@ inline void start(Voice& voice, Shared& shared, u32 owner) { initialize(voice, s
 inline void destroy(Voice&, Shared&, u32) {}
 
 // Stock AMP, glide, filter and velocity remain in the OP-XY voice path.
-inline void render(Voice& voice, Shared&, u32, opxy::Output output,
-                   opxy::Parameters parameters, opxy::Pitch pitch) {
+inline void render(Voice& __restrict voice, Shared&, u32, opxy::Output __restrict output,
+                   opxy::Parameters __restrict parameters, opxy::Pitch __restrict pitch) {
     // Click is latched at note start. Below one mix unit it stays inaudible;
     // start() resets its noise/filter state before it can sound again.
     const bool click = voice.pending ? parameters[4] >= 262144 : voice.click >= 262144;

@@ -36,14 +36,38 @@ __attribute__((always_inline)) inline i32 diffuse(State& state, Workspace& works
     }
     return x;
 }
+inline u32 packed_sample(const State& state,const i32* ring,u32 index) {
+    index&=ring_frames-1;
+    return index<state.written ? static_cast<u32>(ring[index]) : 0;
+}
+inline i32 cubic(i32 xm1,i32 x0,i32 x1,i32 x2,i32 t) {
+    const i32 c=(x1-xm1)/2,v=x0-x1,w=c+v,a=w+v+(x2-x0)/2;
+    return clamp(mul15(mul15(mul15(a,t)-(w+a),t)+c,t)+x0,-32768,32767);
+}
+template<bool High>
+__attribute__((always_inline)) inline void read_stereo(const State& state,const i32* ring,u32 phase,i32& left,i32& right) {
+    const u32 index=phase>>16;
+    const i32 t=static_cast<i32>((phase&65535u)>>1);
+    const u32 a=packed_sample(state,ring,index),b=packed_sample(state,ring,index+1);
+    const i32 al=static_cast<opxy::i16>(a&65535u),ar=static_cast<opxy::i16>(a>>16);
+    const i32 bl=static_cast<opxy::i16>(b&65535u),br=static_cast<opxy::i16>(b>>16);
+    if (!High) {
+        left=al+gain15(bl-al,t);right=ar+gain15(br-ar,t);
+    } else {
+        const u32 c=packed_sample(state,ring,index+2),d=packed_sample(state,ring,index+3);
+        left=cubic(al,bl,static_cast<opxy::i16>(c&65535u),static_cast<opxy::i16>(d&65535u),t);
+        right=cubic(ar,br,static_cast<opxy::i16>(c>>16),static_cast<opxy::i16>(d>>16),t);
+    }
+}
 template<bool High>
 void render_grain(State& __restrict state, Workspace& __restrict workspace, const i32* __restrict ring, unsigned index, i32* left, i32* right) {
     Grain grain=workspace.grains[index];
     if (!grain.remaining) return;
     for (unsigned i=grain.pre_delay;i<opxy::block_frames && grain.remaining;++i) {
         const i32 gain=envelope(grain,High);
-        const i32 l=gain15(read(state,ring,grain.phase,0,High),gain);
-        const i32 r=gain15(read(state,ring,grain.phase,1,High),gain);
+        i32 source_l,source_r;read_stereo<High>(state,ring,grain.phase,source_l,source_r);
+        const i32 l=gain15(source_l,gain);
+        const i32 r=gain15(source_r,gain);
         const i32 pan_l=gain15(l,grain.left_gain),pan_r=gain15(r,grain.right_gain);
         left[i]+=pan_l+r-pan_r;
         right[i]+=pan_r+l-pan_l;

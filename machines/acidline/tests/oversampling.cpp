@@ -1,7 +1,48 @@
 #include "../engine.cpp"
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 int main(){
+    acidline::Voice guarded={};
+    for(unsigned stage=0;stage<4;++stage)for(int sign=-1;sign<=1;sign+=2){
+        const int bound=acidline::soft_peak_bound+static_cast<int>(stage)+1;
+        guarded.pole[stage]=sign*bound;
+        if(!acidline::pole_headroom(guarded))return 1;
+        guarded.pole[stage]=sign*(bound+1);
+        if(acidline::pole_headroom(guarded))return 1;
+        guarded.pole[stage]=0;
+    }
+    // Compare the dispatched fast/fallback kernels against the original generic
+    // clamped recurrence, including exact proof boundaries and unsafe states.
+    unsigned headroom_random=7139;
+    for(unsigned trial=0;trial<96;++trial){
+        acidline::Voice actual;acidline::Shared shared;
+        acidline::initialize(actual,shared,1);acidline::start(actual,shared,1);
+        for(unsigned stage=0;stage<4;++stage){
+            headroom_random=headroom_random*1664525u+1013904223u;
+            const int bound=acidline::soft_peak_bound+static_cast<int>(stage)+1;
+            actual.pole[stage]=trial<8?((trial>>stage)&1u?-bound:bound)
+                :trial<16?((trial>>stage)&1u?-49152:49152)
+                :static_cast<int>(headroom_random%static_cast<unsigned>(2*bound+1))-bound;
+        }
+        acidline::Voice reference=actual;
+        for(unsigned block=0;block<32;++block){
+            opxy::i32 parameters[8],output[64],expected[64];opxy::u32 pitch[64];
+            for(auto& parameter:parameters){
+                headroom_random=headroom_random*1664525u+1013904223u;
+                parameter=static_cast<opxy::i32>(headroom_random>>1);
+            }
+            parameters[5]=static_cast<opxy::i32>((2*((block/8)%3)+1)*(2147483647u/6));
+            for(auto& increment:pitch){headroom_random=headroom_random*1664525u+1013904223u;increment=headroom_random;}
+            const bool safe=acidline::pole_headroom(actual);
+            acidline::render(actual,shared,1,output,parameters,pitch);
+            acidline::render_mode<-1,true>(reference,expected,parameters,pitch);
+            if(std::memcmp(output,expected,sizeof(output)) || std::memcmp(&actual,&reference,sizeof(actual)) ||
+               (safe && !acidline::pole_headroom(actual))){
+                std::printf("FAIL pole headroom recurrence trial %u block %u\n",trial,block);return 1;
+            }
+        }
+    }
     // A full convolution is an independent oracle for the unrolled half-band.
     unsigned random=1234567;
     for(unsigned trial=0;trial<10000;++trial){

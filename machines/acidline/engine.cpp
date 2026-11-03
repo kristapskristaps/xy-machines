@@ -6,7 +6,15 @@ namespace {
 using opxy::i32;using opxy::u32;
 const i32 one=16384;
 const i32 internal_peak=49152;
+const i32 soft_peak_bound=40000;
 i32 limit(i32 x,i32 bound){return x < -bound ? -bound : x > bound ? bound : x;}
+bool pole_headroom(const Voice& v){
+    for(unsigned stage=0;stage<4;++stage){
+        const i32 bound=soft_peak_bound+static_cast<i32>(stage)+1;
+        if(v.pole[stage]<-bound || v.pole[stage]>bound)return false;
+    }
+    return true;
+}
 // The public fractional multiply maps to Blackfin's DSP instruction. Inputs
 // here stay below 2^17 and 2^16, so both scalings fit signed 32 bits.
 i32 multiply(i32 sample,i32 coefficient){return opxy::q31::multiply(sample*8192,coefficient*16);}
@@ -70,7 +78,7 @@ i32 decimate(i32 (&history)[64],u32 cursor,const opxy::i16 (&kernel)[31]){
 inline void initialize(Voice& v,Shared&,opxy::u32){v=Voice();v.cutoff=-1;}
 inline void start(Voice& v,Shared&,opxy::u32){v.envelope=one;}
 inline void destroy(Voice&,Shared&,opxy::u32){}
-template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,opxy::Parameters p,opxy::Pitch pitch){
+template <int Mode,bool Limited> static inline void render_mode(Voice& v,opxy::Output output,opxy::Parameters p,opxy::Pitch pitch){
     const i32 base=p[0]/131072,resonance=p[1]/131072;
     const i32 drive=p[2]/131072,env=p[3]/131072,decay_control=p[4]/131072;
     const u32 choice=(static_cast<u32>(p[5])>>16)*3>>15;
@@ -131,22 +139,26 @@ template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,
             signal=soft(limit(signal,12288)*4);
             {
                 const i32 y=v.pole[0]+opxy::q31::multiply(signal-v.pole[0],g);
-                v.pole[0]=limit(y+(y-v.pole[0]),internal_peak);
+                const i32 next=y+(y-v.pole[0]);
+                v.pole[0]=Limited?limit(next,internal_peak):next;
                 signal=y;
             }
             {
                 const i32 y=v.pole[1]+opxy::q31::multiply(signal-v.pole[1],g);
-                v.pole[1]=limit(y+(y-v.pole[1]),internal_peak);
+                const i32 next=y+(y-v.pole[1]);
+                v.pole[1]=Limited?limit(next,internal_peak):next;
                 signal=y;
             }
             {
                 const i32 y=v.pole[2]+opxy::q31::multiply(signal-v.pole[2],g);
-                v.pole[2]=limit(y+(y-v.pole[2]),internal_peak);
+                const i32 next=y+(y-v.pole[2]);
+                v.pole[2]=Limited?limit(next,internal_peak):next;
                 signal=y;
             }
             {
                 const i32 y=v.pole[3]+opxy::q31::multiply(signal-v.pole[3],g);
-                v.pole[3]=limit(y+(y-v.pole[3]),internal_peak);
+                const i32 next=y+(y-v.pole[3]);
+                v.pole[3]=Limited?limit(next,internal_peak):next;
                 signal=y;
             }
             v.fir1[v.cursor1]=v.fir1[v.cursor1+32]=distort(limit(multiply(signal,body)*2,32768),v.drive,clip_gain);
@@ -170,13 +182,18 @@ template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,
     v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;
 }
 inline void render(Voice& v,Shared&,opxy::u32,opxy::Output output,opxy::Parameters p,opxy::Pitch pitch){
+    // The pole table and its ramps keep g in [0,1/2]. With integer x,s,
+    // s+2*floor((x-s)*g) stays between min(s,x-1) and max(s,x).
+    // soft() is bounded by 39936; these stage bounds leave an extra 64
+    // counts of margin and make the original 49152 clamps unreachable.
+    if(!pole_headroom(v)){render_mode<-1,true>(v,output,p,pitch);return;}
     const u32 choice=(static_cast<u32>(p[5])>>16)*3>>15;
     if(v.cutoff<0 || v.wave==static_cast<i32>(choice)*8192){
-        if(choice==0){render_mode<0>(v,output,p,pitch);return;}
-        if(choice==1){render_mode<1>(v,output,p,pitch);return;}
-        if(choice==2){render_mode<2>(v,output,p,pitch);return;}
+        if(choice==0){render_mode<0,false>(v,output,p,pitch);return;}
+        if(choice==1){render_mode<1,false>(v,output,p,pitch);return;}
+        if(choice==2){render_mode<2,false>(v,output,p,pitch);return;}
     }
-    render_mode<-1>(v,output,p,pitch);
+    render_mode<-1,false>(v,output,p,pitch);
 }
 
 }

@@ -119,6 +119,12 @@ computes its magnitude before the polynomial, preserving the original curve
 with fewer signed-rounding corrections. `tests/equivalence.cpp` checks 73
 original audio/state fingerprints across controls, retriggers, pitch ramps and
 live modulation. The 2x oversampling and filter arithmetic remain intact.
+Pole coefficients and their ramps stay below half scale, while the soft curve
+is bounded by 39,936. A per-block guard checks successive pole-state bounds of
+40,001 through 40,004; within them the original 49,152 state clamps cannot be
+reached. Four fast waveform paths omit those clamps, and a generic clamped
+path handles states outside the proof bounds. Rates, feedback, nonlinearities
+and rounding remain unchanged. Hardware CPU validation remains pending.
 
 The filter and damping coefficient ramps use Q31 directly, avoiding repeated
 sample scaling inside the oversampled loop. Wavetable interpolation and DC

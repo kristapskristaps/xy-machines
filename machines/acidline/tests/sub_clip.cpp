@@ -29,11 +29,19 @@ Spectrum measure(opxy::i32 wave,opxy::i32 sub,opxy::i32 damp){
 }
 }
 int main(){
+    for(auto coefficient:acidline::tables::pole)
+        require(coefficient>=0 && coefficient<=8192,"FAIL pole table exceeds half-scale headroom proof");
+    for(int control=0;control<16384;++control){
+        const int coefficient=acidline::interpolate(acidline::tables::pole,control);
+        require(coefficient>=0 && coefficient<=8192,"FAIL interpolated pole exceeds half-scale headroom proof");
+    }
     for(int x=-100000;x<=100000;++x){
         const int bounded=x<-49152?-49152:x>49152?49152:x;
         const int half=bounded/2,square=half*half/16384;
         require(acidline::soft(x)==bounded-(bounded*square/65536)/3,
             "FAIL division-free saturation differs from the original curve");
+        require(std::abs(acidline::soft(x))<=acidline::soft_peak_bound,
+            "FAIL soft clip exceeds pole headroom proof");
     }
     for(int amount=0;amount<=16383;amount+=1023){
         int previous=-32769;

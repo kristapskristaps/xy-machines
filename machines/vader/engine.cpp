@@ -50,6 +50,25 @@ i32 shaped(u32 mode, u32 drive, u32 band, i32 band_mix, u32 phase) {
     return lean + ((rich - lean) * band_mix >> 15);
 }
 
+struct Shaper {
+    const opxy::i16 *rich, *rich_next, *lean, *lean_next;
+    i32 drive_mix, band_mix;
+    Shaper(u32 mode,u32 drive,u32 band,i32 blend) : drive_mix(drive&32767u),band_mix(blend) {
+        const u32 level=drive>>15,next=level<8?level+1:8;
+        rich=waves[mode][level][band];rich_next=waves[mode][next][band];
+        lean=band && blend!=32768?waves[mode][level][band-1]:nullptr;
+        lean_next=band && blend!=32768?waves[mode][next][band-1]:nullptr;
+    }
+    i32 read(u32 phase) const {
+        const i32 a=lookup(rich,phase);
+        const i32 r=drive_mix?a+((lookup(rich_next,phase)-a)*drive_mix>>15):a;
+        if(!lean)return r;
+        const i32 c=lookup(lean,phase);
+        const i32 l=drive_mix?c+((lookup(lean_next,phase)-c)*drive_mix>>15):c;
+        return l+((r-l)*band_mix>>15);
+    }
+};
+
 u32 swept(u32 pitch, i32 sweep, u32 ratio) {
     const u32 excess = (((ratio - 65536u) >> 5) * static_cast<u32>(sweep >> 16)) >> 10;
     const u32 factor = 65536u + excess;
@@ -109,13 +128,15 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
             if (pitch[i] > maximum) maximum = pitch[i];
         mip(swept(maximum, voice.sweep, ratio), band, band_mix);
     }
+    const Shaper shaper(mode,static_cast<u32>(voice.drive),band,band_mix);
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.drive += drive_step;
         voice.sub += sub_step;
         voice.color += color_step;
         voice.boost += boost_step;
         const i32 pure = lookup(waves[0][0][0], voice.phase);
-        const i32 body = pure_body ? pure : shaped(mode, static_cast<u32>(voice.drive), band, band_mix, voice.phase);
+        const i32 body = pure_body ? pure : drive_step
+            ? shaped(mode,static_cast<u32>(voice.drive),band,band_mix,voice.phase) : shaper.read(voice.phase);
         // Q23 filter state resolves the bottom of the 20 Hz..open tone range.
         // The clean foundation bypasses both poles, preserving the sub at dark settings.
         voice.body += opxy::q31::multiply(body * 256 - voice.body, voice.color);

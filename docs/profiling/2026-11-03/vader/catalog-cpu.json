@@ -1,0 +1,18 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+    "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+    "runs": 1,
+    "block_percent": 3.755245,
+    "midpoint_percent": 2.92668,
+    "combined_percent": 2.142367,
+    "worst_setting": {
+      "control": 2,
+      "label": "Drive",
+      "value": 2147483647
+    },
+    "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/vader/report.md",
+    "collection_sha256": "9aa09831641a09f8765d82d636c50f6b8338106af90f03f987987178cc4f3f88"
+  }
+}

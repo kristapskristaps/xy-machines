@@ -28,6 +28,9 @@ Vader, Vapour, Weave and Westfold**. Its source selection is
 release candidates; catalog publication follows final source-bound hardware
 qualification and the required SDK integration.
 
+See the [hardware CPU measurements](docs/profiling/2026-11-03/README.md) for
+matched optimization comparisons, combined-source readouts and remaining integration work.
+
 Each machine has its own README, license, controls and audition instructions.
 The seven synth previews are available in the **first-ten-synth-previews**
 artifact of a successful [Collection checks](https://github.com/kristapskristaps/xy-machines/actions/workflows/checks.yml)
@@ -124,7 +127,7 @@ Imported build and hardware claims belong to their original source revisions.
 In particular, Vader's earlier measured commit remains in history; that CPU
 record is not automatically a measurement of this reorganized release. Perform
 revision-bound hardware profiling, or obtain an approved carry-over, before
-catalog publication. This migration does not install or test any device.
+catalog publication.
 
 ## Licences
 

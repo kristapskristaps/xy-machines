@@ -15,8 +15,8 @@ inline void start(Voice& voice, Shared&, u32) {
 inline void initialize(Voice& voice, Shared& shared, u32 owner) { start(voice, shared, owner); }
 inline void destroy(Voice&, Shared&, u32) {}
 
-inline void render(Voice& voice, Shared&, u32, opxy::Output output,
-                   opxy::Parameters parameters, opxy::Pitch pitch) {
+inline void render(Voice& __restrict voice, Shared&, u32, opxy::Output __restrict output,
+                   opxy::Parameters __restrict parameters, opxy::Pitch __restrict pitch) {
     i32 next[8], step[8];
     for (unsigned c = 0; c < 8; ++c) {
         const i32 target = dsp::control(parameters[c]);

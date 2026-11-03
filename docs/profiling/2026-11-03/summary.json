@@ -1,0 +1,256 @@
+{
+  "source_commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+  "os": "1.2.1",
+  "matched_comparisons": {
+    "rebound": {
+      "before_percent": 3.6194399938963913,
+      "after_percent": 2.4841687647821775,
+      "worst_reduction_percent": 31.365935919055648,
+      "median_fixed_reduction_percent": 31.365935919055644,
+      "fixed_cases": 1,
+      "regressed_fixed_cases": 0,
+      "captures_per_build": 3
+    },
+    "vader": {
+      "before_percent": 4.7318226901655605,
+      "after_percent": 3.8483253223468377,
+      "worst_reduction_percent": 18.671396323766526,
+      "median_fixed_reduction_percent": 3.250423533035568,
+      "fixed_cases": 68,
+      "regressed_fixed_cases": 0,
+      "captures_per_build": 3
+    },
+    "vapour": {
+      "before_percent": 4.9958037689784085,
+      "after_percent": 4.551766231784542,
+      "worst_reduction_percent": 8.88821014050092,
+      "median_fixed_reduction_percent": 8.888210140500918,
+      "fixed_cases": 1,
+      "regressed_fixed_cases": 0,
+      "captures_per_build": 3
+    },
+    "acidline": {
+      "before_percent": 10.193026626993209,
+      "after_percent": 9.359884031433586,
+      "worst_reduction_percent": 8.173652694610766,
+      "median_fixed_reduction_percent": 7.609041706462905,
+      "fixed_cases": 67,
+      "regressed_fixed_cases": 0,
+      "captures_per_build": 1
+    },
+    "westfold": {
+      "before_percent": 10.170138094148164,
+      "after_percent": 9.250019073777372,
+      "worst_reduction_percent": 9.047261815453849,
+      "median_fixed_reduction_percent": 8.31234256926951,
+      "fixed_cases": 73,
+      "regressed_fixed_cases": 0,
+      "captures_per_build": 1
+    },
+    "halo": {
+      "before_percent": 15.973144121461814,
+      "after_percent": 13.85824368657969,
+      "worst_reduction_percent": 13.240351547573557,
+      "median_fixed_reduction_percent": 13.240351547573557,
+      "fixed_cases": 1,
+      "regressed_fixed_cases": 0,
+      "captures_per_build": 1
+    },
+    "weave": {
+      "before_percent": 16.734569314106967,
+      "after_percent": 16.5972381170367,
+      "worst_reduction_percent": 0.8206437494301055,
+      "median_fixed_reduction_percent": 3.025367190193136,
+      "fixed_cases": 186,
+      "regressed_fixed_cases": 0,
+      "captures_per_build": 1
+    }
+  },
+  "reference_comparisons": {
+    "rebound": {
+      "karplus": {
+        "fixed_cases": 37,
+        "median_fixed_case_reduction_percent": -3.62116991643453,
+        "worst_before": 3.3417257953765165,
+        "worst_after": 3.4622720683604182,
+        "regressed_cases": 37
+      },
+      "pingpong": {
+        "fixed_cases": 1,
+        "median_fixed_case_reduction_percent": -0.04510599909788304,
+        "worst_before": 3.3829251544975967,
+        "worst_after": 3.3844510566872663,
+        "regressed_cases": 1
+      }
+    },
+    "vader/vapour": {
+      "karplus": {
+        "before": 3.347829404135195,
+        "after": 3.3493553063248647,
+        "worst_reduction_percent": -0.04557885141294182,
+        "median_fixed_reduction_percent": 0.04638218923933568,
+        "regressed_cases": 14,
+        "fixed_cases": 37
+      },
+      "pingpong": {
+        "before": 3.385976958876936,
+        "after": 3.3829251544975967,
+        "worst_reduction_percent": 0.09013068949977887,
+        "median_fixed_reduction_percent": 0.09013068949977887,
+        "regressed_cases": 0,
+        "fixed_cases": 1
+      }
+    },
+    "acidline": {
+      "karplus": {
+        "before": 3.3127336537727934,
+        "after": 3.364614328221561,
+        "worst_reduction_percent": -1.5660985720865828,
+        "median_fixed_reduction_percent": -1.4553990610328693,
+        "regressed_cases": 37,
+        "fixed_cases": 37
+      },
+      "pingpong": {
+        "before": 3.381399252307927,
+        "after": 3.3798733501182574,
+        "worst_reduction_percent": 0.04512635379061436,
+        "median_fixed_reduction_percent": 0.04512635379061436,
+        "regressed_cases": 0,
+        "fixed_cases": 1
+      }
+    },
+    "westfold/halo": {
+      "karplus": {
+        "before": 3.4393835355153737,
+        "after": 3.291371023117418,
+        "worst_reduction_percent": 4.3034605146406495,
+        "median_fixed_reduction_percent": 4.525288376220063,
+        "regressed_cases": 0,
+        "fixed_cases": 37
+      },
+      "pingpong": {
+        "before": 3.385976958876936,
+        "after": 3.3844510566872663,
+        "worst_reduction_percent": 0.04506534474988717,
+        "median_fixed_reduction_percent": 0.04506534474988717,
+        "regressed_cases": 0,
+        "fixed_cases": 1
+      }
+    },
+    "weave": {
+      "pingpong": {
+        "before": 3.390554665445945,
+        "after": 3.390554665445945,
+        "worst_reduction_percent": 0.0,
+        "median_fixed_reduction_percent": 0.0,
+        "regressed_cases": 0,
+        "fixed_cases": 1
+      }
+    }
+  },
+  "final_qualification": {
+    "rebound": {
+      "benchmark": "opxy-effect-callback-v1",
+      "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+      "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+      "runs": 1,
+      "block_percent": 2.360571,
+      "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/rebound/report.md",
+      "collection_sha256": "9aa09831641a09f8765d82d636c50f6b8338106af90f03f987987178cc4f3f88"
+    },
+    "vader": {
+      "benchmark": "opxy-synth-c8-sweep-v1",
+      "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+      "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+      "runs": 1,
+      "block_percent": 3.755245,
+      "midpoint_percent": 2.92668,
+      "combined_percent": 2.142367,
+      "worst_setting": {
+        "control": 2,
+        "label": "Drive",
+        "value": 2147483647
+      },
+      "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/vader/report.md",
+      "collection_sha256": "9aa09831641a09f8765d82d636c50f6b8338106af90f03f987987178cc4f3f88"
+    },
+    "vapour": {
+      "benchmark": "opxy-effect-callback-v1",
+      "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+      "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+      "runs": 1,
+      "block_percent": 4.559396,
+      "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/vapour/report.md",
+      "collection_sha256": "9aa09831641a09f8765d82d636c50f6b8338106af90f03f987987178cc4f3f88"
+    },
+    "halo": {
+      "benchmark": "opxy-effect-callback-v1",
+      "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+      "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+      "runs": 1,
+      "block_percent": 13.334859,
+      "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/halo/report.md",
+      "collection_sha256": "9aa09831641a09f8765d82d636c50f6b8338106af90f03f987987178cc4f3f88"
+    },
+    "acidline": {
+      "benchmark": "opxy-synth-c8-sweep-v1",
+      "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+      "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+      "runs": 1,
+      "block_percent": 9.323262,
+      "midpoint_percent": 8.610666,
+      "combined_percent": 7.344167,
+      "worst_setting": {
+        "control": 5,
+        "label": "Wave",
+        "value": 1789569705,
+        "option": "Square"
+      },
+      "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/acidline/report.md",
+      "collection_sha256": "7a454a4b044dcf31753eb414d3c32c01013d0b0a60cae6784803116db5400aef"
+    },
+    "westfold": {
+      "benchmark": "opxy-synth-c8-sweep-v1",
+      "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+      "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+      "runs": 1,
+      "block_percent": 9.132525,
+      "midpoint_percent": 8.731212,
+      "combined_percent": 4.122988,
+      "worst_setting": {
+        "control": 4,
+        "label": "FM Ratio",
+        "value": 1610612735
+      },
+      "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/westfold/report.md",
+      "collection_sha256": "7a454a4b044dcf31753eb414d3c32c01013d0b0a60cae6784803116db5400aef"
+    },
+    "weave": {
+      "benchmark": "opxy-synth-c8-sweep-v1",
+      "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+      "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+      "runs": 1,
+      "block_percent": 16.618601,
+      "midpoint_percent": 6.323339,
+      "combined_percent": 6.321813,
+      "worst_setting": {
+        "control": 0,
+        "label": "Model",
+        "value": 1789569705,
+        "option": "modal"
+      },
+      "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/weave/report.md",
+      "collection_sha256": "cf7c9d41c55dfc25782181bca4e2d92d0936ad28fcd01e5aa40cc8badc4bf004"
+    }
+  },
+  "matched_reports": 2598,
+  "final_qualification_reports": 507,
+  "capture_protocol_errors": 0,
+  "rejected_trials": [
+    "subvista local state and coefficient specialization",
+    "subvista bounded sums",
+    "mando render ownership",
+    "matter filter ownership"
+  ],
+  "normal_playback_acceptance": "pending"
+}

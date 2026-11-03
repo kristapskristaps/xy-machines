@@ -68,10 +68,6 @@ i32 delay_for(i32 size, i32 fine, u32 tempo) {
     return samples < shortest ? shortest : samples > longest ? longest : samples;
 }
 
-i32 sample(const i32* line, const State& state, u32 age) {
-    return age > state.written ? 0 : line[(state.write + line_frames - age) & (line_frames - 1)];
-}
-
 // The line stays within +/-1073741823, so a difference cannot reach INT_MIN.
 inline i32 fraction_of(i32 difference, i32 fraction) {
     const i32 magnitude = difference < 0 ? -difference : difference;
@@ -82,9 +78,11 @@ inline i32 fraction_of(i32 difference, i32 fraction) {
 __attribute__((always_inline)) inline i32 tap(const i32* line, const State& state) {
     const u32 age = static_cast<u32>(state.delay) >> 8;
     const i32 fraction = state.delay & 255;
-    const i32 a = sample(line, state, age);
+    if (age > state.written) return 0;
+    const u32 index = (state.write - age) & (line_frames - 1);
+    const i32 a = line[index];
     if (!fraction) return a;
-    const i32 b = sample(line, state, age + 1);
+    const i32 b = age < state.written ? line[(index - 1) & (line_frames - 1)] : 0;
     // Scale nonnegative magnitudes, then restore truncation toward zero.
     return a + fraction_of(b - a, fraction);
 }
@@ -100,6 +98,39 @@ i32 filtered(State& state, unsigned side, i32 input) {
 }
 
 void initialize(State& state) { state = State(); }
+
+template<bool Moving>
+void render(State& state, i32* l, i32* r, opxy::Channel left, opxy::Channel right,
+            i32 delay, i32 feedback, i32 pingpong, i32 level, i32 highpass, i32 lowpass) {
+    for (unsigned i = 0; i < opxy::block_frames; ++i) {
+        if (Moving) {
+            state.delay = glide(state.delay, delay);
+            state.feedback_half = glide(state.feedback_half, feedback);
+            state.pingpong = glide(state.pingpong, pingpong);
+            state.level = glide(state.level, level);
+            state.highpass = glide(state.highpass, highpass);
+            state.lowpass = glide(state.lowpass, lowpass);
+        }
+        const i32 out_l = tap(l, state), out_r = tap(r, state);
+        const i32 fb_l = filtered(state, 0, out_l), fb_r = filtered(state, 1, out_r);
+        // Attenuate injection before blending: arbitrary full-scale send inputs
+        // must not overflow when L and R have opposite signs.
+        const i32 in_l = opxy::q31::half(left[i]), in_r = opxy::q31::half(right[i]);
+        const i32 mono = opxy::q31::half(in_l) + opxy::q31::half(in_r);
+        // The filter stores half-scale samples and gain is stored half-scale;
+        // multiplying then widening by four restores the actual loop gain.
+        l[state.write] = saturate_sum(blend(in_l, mono, state.pingpong),
+            multiply(blend(fb_l, fb_r, state.pingpong), state.feedback_half));
+        r[state.write] = saturate_sum(multiply(in_r, maximum - state.pingpong),
+            multiply(blend(fb_r, fb_l, state.pingpong), state.feedback_half));
+        state.write = (state.write + 1) & (line_frames - 1);
+        if (state.written < line_frames) ++state.written;
+        // Restore the input's 6 dB headroom pad at the wet return. Delay samples
+        // stay below half scale, so doubling after Level cannot overflow Q31.
+        left[i] = 2 * multiply(out_l, state.level);
+        right[i] = 2 * multiply(out_r, state.level);
+    }
+}
 
 void process(State& state, opxy::Buffer buffer, const opxy::Transport& transport,
              opxy::Channel left, opxy::Channel right, opxy::Parameters parameters) {
@@ -123,31 +154,10 @@ void process(State& state, opxy::Buffer buffer, const opxy::Transport& transport
     }
     i32* const l = buffer.words;
     i32* const r = buffer.words + line_frames;
-    for (unsigned i = 0; i < opxy::block_frames; ++i) {
-        state.delay = glide(state.delay, delay);
-        state.feedback_half = glide(state.feedback_half, feedback);
-        state.pingpong = glide(state.pingpong, pingpong);
-        state.level = glide(state.level, level);
-        state.highpass = glide(state.highpass, highpass);
-        state.lowpass = glide(state.lowpass, lowpass);
-        const i32 out_l = tap(l, state), out_r = tap(r, state);
-        const i32 fb_l = filtered(state, 0, out_l), fb_r = filtered(state, 1, out_r);
-        // Attenuate injection before blending: arbitrary full-scale send inputs
-        // must not overflow when L and R have opposite signs.
-        const i32 in_l = opxy::q31::half(left[i]), in_r = opxy::q31::half(right[i]);
-        const i32 mono = opxy::q31::half(in_l) + opxy::q31::half(in_r);
-        // The filter stores half-scale samples and gain is stored half-scale;
-        // multiplying then widening by four restores the actual loop gain.
-        l[state.write] = saturate_sum(blend(in_l, mono, state.pingpong),
-            multiply(blend(fb_l, fb_r, state.pingpong), state.feedback_half));
-        r[state.write] = saturate_sum(multiply(in_r, maximum - state.pingpong),
-            multiply(blend(fb_r, fb_l, state.pingpong), state.feedback_half));
-        state.write = (state.write + 1) & (line_frames - 1);
-        if (state.written < line_frames) ++state.written;
-        // Restore the input's 6 dB headroom pad at the wet return. Delay samples
-        // stay below half scale, so doubling after Level cannot overflow Q31.
-        left[i] = 2 * multiply(out_l, state.level);
-        right[i] = 2 * multiply(out_r, state.level);
-    }
+    const bool moving = state.delay != delay || state.feedback_half != feedback ||
+        state.pingpong != pingpong || state.level != level ||
+        state.highpass != highpass || state.lowpass != lowpass;
+    if (moving) render<true>(state,l,r,left,right,delay,feedback,pingpong,level,highpass,lowpass);
+    else render<false>(state,l,r,left,right,delay,feedback,pingpong,level,highpass,lowpass);
 }
 }

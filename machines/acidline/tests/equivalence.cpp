@@ -3,13 +3,20 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstddef>
 using opxy::u32; using opxy::i32;
 using Hash=unsigned long long;
 static Hash mix(Hash hash,u32 word){return (hash^word)*1099511628211ull;}
 static Hash block_hash(Hash hash,const acidline::Voice& voice,const i32* audio){
     for(unsigned i=0;i<64;++i)hash=mix(hash,u32(audio[i]));
-    static_assert(sizeof(voice)%sizeof(u32)==0,"word-shaped voice state");
-    u32 words[sizeof(voice)/sizeof(u32)];std::memcpy(words,&voice,sizeof(voice));
+    for(unsigned i=0;i<32;++i)if(voice.fir1[i]!=voice.fir1[i+32]){
+        std::fprintf(stderr,"FAIL: mirrored half-band history\n");std::exit(1);
+    }
+    // Hash the original state layout; the extra history is an exact duplicate.
+    const unsigned prefix=offsetof(acidline::Voice,fir1)/sizeof(u32)+32;
+    static_assert(sizeof(voice)==(prefix+32+6)*sizeof(u32),"word-shaped voice state");
+    u32 words[prefix+6];std::memcpy(words,&voice,prefix*sizeof(u32));
+    std::memcpy(words+prefix,&voice.cursor1,6*sizeof(u32));
     for(auto word:words)hash=mix(hash,word);
     return hash;
 }

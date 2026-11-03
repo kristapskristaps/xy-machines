@@ -54,15 +54,16 @@ i32 inverse(i32 cutoff,i32 resonance){
 }
 // The 31-tap half-band has seven nonzero symmetric pairs. Keep the original
 // accumulation order and rounding while eliminating the runtime tap loop.
-i32 decimate(i32 (&history)[32],u32 cursor,const opxy::i16 (&kernel)[31]){
-    i32 sum=history[(cursor-15)&31u]*kernel[15];
-    sum+=(history[(cursor-2)&31u]+history[(cursor-28)&31u])*kernel[2];
-    sum+=(history[(cursor-4)&31u]+history[(cursor-26)&31u])*kernel[4];
-    sum+=(history[(cursor-6)&31u]+history[(cursor-24)&31u])*kernel[6];
-    sum+=(history[(cursor-8)&31u]+history[(cursor-22)&31u])*kernel[8];
-    sum+=(history[(cursor-10)&31u]+history[(cursor-20)&31u])*kernel[10];
-    sum+=(history[(cursor-12)&31u]+history[(cursor-18)&31u])*kernel[12];
-    sum+=(history[(cursor-14)&31u]+history[(cursor-16)&31u])*kernel[14];
+i32 decimate(i32 (&history)[64],u32 cursor,const opxy::i16 (&kernel)[31]){
+    const i32* latest=history+cursor+32;
+    i32 sum=latest[-15]*kernel[15];
+    sum+=(latest[-2]+latest[-28])*kernel[2];
+    sum+=(latest[-4]+latest[-26])*kernel[4];
+    sum+=(latest[-6]+latest[-24])*kernel[6];
+    sum+=(latest[-8]+latest[-22])*kernel[8];
+    sum+=(latest[-10]+latest[-20])*kernel[10];
+    sum+=(latest[-12]+latest[-18])*kernel[12];
+    sum+=(latest[-14]+latest[-16])*kernel[14];
     return sum/one;
 }
 }
@@ -148,7 +149,7 @@ template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,
                 v.pole[3]=limit(y+(y-v.pole[3]),internal_peak);
                 signal=y;
             }
-            v.fir1[v.cursor1]=distort(limit(multiply(signal,body)*2,32768),v.drive,clip_gain);
+            v.fir1[v.cursor1]=v.fir1[v.cursor1+32]=distort(limit(multiply(signal,body)*2,32768),v.drive,clip_gain);
             if(sub==1)reduced=decimate(v.fir1,v.cursor1,tables::halfband31);
             v.cursor1=(v.cursor1+1)&31u;
             // Honor stock pitch modulation and portamento exactly, sample by sample.

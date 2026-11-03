@@ -74,6 +74,9 @@ int main() {
                 require(vader_reference::shaped(mode,drive,band,mix,phase)==
                         vader::shaped(mode,drive,band,mix,phase),
                         "exact drive levels and mip interpolation boundaries");
+                require(vader_reference::shaped(mode,drive,band,mix,phase)==
+                        vader::Shaper(mode,drive,band,mix).read(phase),
+                        "exact cached waveform addresses and interpolation");
             }
     for(unsigned scenario=0;scenario<288;++scenario) compare(scenario,scenario<256?3000:5000);
     const int clicks[]={1,262143,262144,262145,2147483647};

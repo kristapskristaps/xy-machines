@@ -60,7 +60,14 @@ upstream browser's transfer implementation; do not add another device writer.
   unrelated content or silently overwrite edited user presets.
 - Use upstream `sdk.py device push` on Windows and the documented OpenMTP or
   browser installation path on macOS. Do not create another transfer script.
-  Confirm the physical flash/reboot before claiming an installed build.
+  Confirm any required physical flash and verify reboot completion before
+  claiming an installed build. Prefer an authorized software reboot over asking
+  the user to power-cycle. Stock OS 1.2.1 accepts TE SysEx command 0x03 with
+  payload 0x05: `F0 00 20 76 21 40 60 01 03 00 05 F7`. Send it once, after
+  captures finish and with the user's project saved/stopped. Verify USB
+  disconnect/reconnect and normal startup; for resident collections, also
+  verify the confirmed generation and full active payload readback. Never
+  infer reboot success from sending the packet or retry it blindly.
 - Once device work is authorized, continue necessary reversible steps without
   repeatedly requesting approval. Ask for physical MTP/flash/reboot readiness
   when needed; build/test/stage commands themselves never contact a device.

@@ -102,6 +102,11 @@ The 24-tap converter uses mirrored histories to remove ring-wrap work while
 retaining bit-identical audio. Both endpoint coefficients are zero in every
 phase; skipping those products leaves 22 multiplies per output sample without
 changing the filter or its history. Hardware CPU validation remains pending.
+Modal output gains are bounded by their quarter-scale amplitude table. Using
+that headroom retains their original rounding bit in one public fractional
+multiply instead of recomputing low product bits. The resonator filters and
+all other arithmetic retain their preceding implementation; hardware CPU
+validation of this change remains pending.
 Each output consumes one source sample, with a second only when the rational
 phase crosses its boundary. Fixed FIR offsets retain the original sum order.
 Block-rate ramps use exact constant-divisor paths

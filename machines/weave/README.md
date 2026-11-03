@@ -100,6 +100,10 @@ cubic interpolation drops only sub-LSB rounding work. Normal playback and
 worst-case model CPU still require device validation.
 The 24-tap converter uses mirrored histories to remove ring-wrap work while
 retaining bit-identical audio.
+The modal filters use the SDK's full fractional product to preserve the
+original per-product truncation and final rounding without calculating each
+product twice. This requires SDK 1.9 with `q31::multiply_full`; the resonator
+count, coefficients, state updates and decay remain unchanged.
 Each output consumes one source sample, with a second only when the rational
 phase crosses its boundary. Four FIR taps share each loop branch without
 changing their sum order. Block-rate ramps use exact constant-divisor paths

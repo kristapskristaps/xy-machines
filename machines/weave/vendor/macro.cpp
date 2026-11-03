@@ -3352,6 +3352,24 @@ static const int32_t modal_amp[24] = {               /* Resonator::Init(0.015): 
     279967553, 257189855, 234493120, 212040784, 189994496, 168513008,
 };
 
+// Modal coefficients and gains are nonnegative, so neither product can be
+// MIN * MIN. Retain the EMAC's per-product truncation below bit 23 and its
+// final rounding, using both words of each fractional product only once.
+static inline int32_t modal_multiply(int32_t coefficient, int32_t signal)
+{
+    const opxy::q31::Product p = opxy::q31::multiply_full(coefficient, signal);
+    return static_cast<int32_t>(static_cast<uint32_t>(p.high) + (p.low >> 31));
+}
+
+static inline int32_t modal_mac(int32_t a, int32_t x, int32_t b, int32_t y)
+{
+    const opxy::q31::Product p = opxy::q31::multiply_full(a, x);
+    const opxy::q31::Product q = opxy::q31::multiply_full(b, y);
+    const uint32_t tail = (p.low >> 24) + (q.low >> 24) + 128u;
+    return static_cast<int32_t>(static_cast<uint32_t>(p.high)
+                             + static_cast<uint32_t>(q.high) + (tail >> 8));
+}
+
 /* one mode over the block: SVF_STEP, its band-pass x gain added into out. On the ColdFire, by hand: the two
  * sums on ACC0 and ACC1 side by side, the same products and rounding as fmac2 / fmac1 (so the same samples). */
 static inline void modal_mode(struct macro_svf *f, const int32_t *mc, const int32_t *in, int32_t *out, int n)
@@ -3359,10 +3377,10 @@ static inline void modal_mode(struct macro_svf *f, const int32_t *mc, const int3
     int32_t s1 = f->s1, s2 = f->s2;
     int32_t a1 = mc[0], a2 = mc[1], a3 = mc[2], gain = mc[3], i;
     for (i = 0; i < n; i++) {
-        int32_t v3 = in[i] - s2, bp = fmac2(a1, s1, a2, v3), lp = s2 + fmac2(a2, s1, a3, v3);
+        int32_t v3 = in[i] - s2, bp = modal_mac(a1, s1, a2, v3), lp = s2 + modal_mac(a2, s1, a3, v3);
         s1 = bp + bp - s1;
         s2 = lp + lp - s2;
-        out[i] += fmac1(gain, bp);
+        out[i] += modal_multiply(gain, bp);
     }
     f->s1 = s1;
     f->s2 = s2;

@@ -20,8 +20,21 @@ int main() {
             weave_dsp::fmac1t(words[0],words[1]) != floor31(ax)) {
             std::puts("FAIL: fractional multiply differs from integer reference"); return 1;
         }
+        const int32_t a = static_cast<int32_t>(static_cast<uint32_t>(words[0]) >> 1);
+        const int32_t b = static_cast<int32_t>(static_cast<uint32_t>(words[2]) >> 1);
+        if (weave_dsp::modal_mac(a,words[1],b,words[3]) != weave_dsp::fmac2(a,words[1],b,words[3]) ||
+            weave_dsp::modal_multiply(a,words[1]) != weave_dsp::fmac1(a,words[1])) {
+            std::puts("FAIL: full-product modal arithmetic differs"); return 1;
+        }
     }
     const int32_t minimum = -2147483647 - 1;
     if (weave_dsp::product_hi(minimum,minimum) != 2147483647) return 1;
+    const int32_t coefficients[] = {0,1,32767,1073741824,2147483647};
+    const int32_t signals[] = {minimum,minimum+1,-1,0,1,2147483646,2147483647};
+    for (int32_t a : coefficients) for (int32_t x : signals) {
+        if (weave_dsp::modal_multiply(a,x) != weave_dsp::fmac1(a,x)) return 1;
+        for (int32_t b : coefficients) for (int32_t y : signals)
+            if (weave_dsp::modal_mac(a,x,b,y) != weave_dsp::fmac2(a,x,b,y)) return 1;
+    }
     std::puts("PASS: one million fractional multiply/reference cases");
 }

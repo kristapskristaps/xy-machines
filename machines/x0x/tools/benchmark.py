@@ -118,9 +118,10 @@ def main():
                         *[str(p) for p in sorted((before/'dsp').glob('*.cpp'))],
                         *[str(p) for p in sorted((MACHINE/'dsp').glob('*.cpp'))], '-o', str(executable)], check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)], text=True).splitlines()]
-    print(json.dumps(dict(baseline=baseline, host_timing_only=True, intentional_sound_change=True,
+    print(json.dumps(dict(baseline=baseline, host_timing_only=True, intentional_sound_change=not all(row["audio_and_state_identical"] for row in rows),
+                         exact_audio_and_state_each_block=all(row["audio_and_state_identical"] for row in rows),
                          timing_keeps_voices_active=True,
-                         scenarios=len(rows), checked_blocks_per_scenario=256, blocks_per_timing=args.blocks, repeats=5,
+                         scenarios=len(rows), max_identity_check_blocks_per_scenario=256, blocks_per_timing=args.blocks, repeats=5,
                          median_reduction_percent=round(100*(1-statistics.median(row['paired_ratio'] for row in rows)), 1),
                          worst_before=max(rows, key=lambda row: row['before_ns']),
                          worst_after=max(rows, key=lambda row: row['after_ns']), results=rows), indent=2))

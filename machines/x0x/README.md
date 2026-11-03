@@ -173,6 +173,17 @@ their original integer rounding. `tests/arithmetic.cpp` exhaustively
 checks each supported division range, every Drive sample/control pair and every
 supported clap ratio.
 
+Proven bounded products preserve both operands as signed16 through the native
+compiler. This covers oscillator/stem interpolation slopes, source envelope and
+body gains, bounded noise differences, attack/amplitude, the limited DC feedback
+state and all three analytic Drive products. Negative products retain the
+original truncation toward zero; this adds no precision or sound change beyond
+the synthesized stems. Full-scale low-pass/PCM differences and gains above 32767
+keep their original wider arithmetic. Exhaustive Drive tests and 423 paired
+PCM/full-state scenes authenticate equivalence to the stem-only revision.
+The complete PCM callback is compiled separately once per block to keep the
+native generated kernels bounded; outlining adds one call per PCM block.
+
 PCM and synthesized sources select separate sample loops once per callback.
 The 808 hats/cymbal read three periodic synthesized stems: bell, bright and air.
 They were rendered from the preceding six rectangular oscillators and five

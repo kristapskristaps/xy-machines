@@ -9,6 +9,9 @@ using opxy::u32;
 static inline i32 limit(i32 value, i32 bound = 32767) { return value < -bound ? -bound : value > bound ? bound : value; }
 // Q15 signals/coefficient products bounded to signed 32-bit arithmetic.
 static inline i32 multiply(i32 a, i32 b) { return a * b / 32768; }
+// Callers prove both operands fit signed16; keep the original truncation.
+static inline i32 product16(i32 a,i32 b){return static_cast<opxy::i16>(a)*static_cast<opxy::i16>(b);}
+static inline i32 multiply16(i32 a,i32 b){return product16(a,b)/32768;}
 // Exact reciprocal division for bounded audio signals: |value| <= 65536 for
 // /3 and /6, or <= 23*32768 for the harmonic sum's /23 and /138. The smaller
 // signals fit a single unsigned product. Harmonic sums use one public Q31 DSP
@@ -39,7 +42,7 @@ static inline u32 step(u32 hz) { return hz * 97392u; }
 static inline i32 sine(u32 phase) {
     const u32 index = phase >> 23;
     const i32 a = tables::sine[index], b = tables::sine[index + 1];
-    return a + multiply(b - a, i32((phase >> 8) & 32767));
+    return a + multiply16(b - a, i32((phase >> 8) & 32767));
 }
 static inline i32 triangle(u32 phase) {
     const u32 folded = phase & 0x7fffffffu;
@@ -51,7 +54,7 @@ static inline i32 square_partials(u32 phase) { return 15 * sine(phase) + 5 * sin
 static inline i32 metallic_shape(u32 phase,u32 shape) {
     const u32 index=phase>>22;
     const i32 a=tables::metallic_square[shape][index],b=tables::metallic_square[shape][index+1];
-    return a+multiply(b-a,i32((phase>>7)&32767));
+    return a+multiply16(b-a,i32((phase>>7)&32767));
 }
 static inline i32 square(u32 phase) { return metallic_shape(phase,0); }
 static inline i32 square_sixth(u32 phase) { return metallic_shape(phase,1); }
@@ -72,9 +75,9 @@ static inline i32 rate(u32 milliseconds) {
 static inline i32 envelope(i32 value, i32 coefficient) { return opxy::q31::multiply(value, coefficient); }
 static inline i32 drive(i32 sample, u32 amount) {
     if (!amount) return sample;
-    const i32 boosted = limit(sample + sample*i32(amount)/16);
+    const i32 boosted = limit(sample + product16(sample,i32(amount))/16);
     const i32 half = boosted / 2;
-    const i32 cube = (half * half / 16384) * half / 16384;
+    const i32 cube = product16(product16(half,half)/16384,half)/16384;
     return boosted - divide_signal<3>(2 * cube);
 }
 }}

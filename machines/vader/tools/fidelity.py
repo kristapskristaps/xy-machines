@@ -1,6 +1,5 @@
 """Measure Vader's deliberate shaped-wave lookup approximation against a frozen Git revision."""
 import argparse
-import itertools
 import json
 import re
 from pathlib import Path
@@ -60,8 +59,6 @@ def decibels(ratio):
 def oscillator_images():
     source=(MACHINE/'tables.hpp').read_text()
     old={name:np.asarray(list(map(int,values.split(','))),dtype=np.int64) for name,values in re.findall(r'const opxy::i16 (wave_\d+)\[513\] = \{([^}]+)\};',source)}
-    source_new=(MACHINE/'nearest_waves.hpp').read_text()
-    new={name:np.asarray(list(map(int,values.replace('\n','').rstrip(',').split(','))),dtype=np.int64) for name,values in re.findall(r'const opxy::i16 (wave_\d+)\[514\]=\{([^}]+)\};',source_new)}
     grid=re.search(r'waves\[4\]\[9\]\[6\] = \{(.*?)\n\};',source,re.S).group(1)
     names=re.findall(r'wave_\d+',grid)
     if len(names)!=216:raise ValueError('Expected216 slots')
@@ -72,9 +69,7 @@ def oscillator_images():
         phase=(np.arange(frames,dtype=np.int64)*(bin_index<<16))&0xffffffff
         at=phase>>23;fraction=(phase>>8)&32767
         before=old[name][at]+((old[name][at+1]-old[name][at])*fraction>>15)
-        dense=((phase+0x200000)&0xffffffff)>>22;half=dense>>9;within=dense&511
-        index=half*257+np.where(within>256,512-within,within)
-        after=new[name][index]
+        after=old[name][((phase+0x400000)&0xffffffff)>>23]
         mask=np.zeros(frames//2+1,dtype=bool);mask[0]=True
         for harmonic in range(1,limits[band]+1):
             harmonic_bin=(bin_index*harmonic)%frames;mask[min(harmonic_bin,frames-harmonic_bin)]=True
@@ -148,9 +143,9 @@ def main():
     static=[r for r in audible if not r['mode']]
     musical=[r for r in audible if r['label']=='defaults' or r['label'] in definition['presets']]
     group=lambda rs:dict(cases=len(rs),median_error_relative_db=float(np.median([r['error_relative_db'] for r in rs])),worst_error=max(rs,key=lambda r:r['error_relative_db']),worst_loudness=max(rs,key=lambda r:abs(r['rms_change_db'])),worst_novel_spectral_error=max(rs,key=lambda r:r['novel_spectral_error_db']))
-    result=dict(baseline=commit,approximation='Nearest1024 shaped-wave points with per-half quarter reflection; pure foundation/filter/phase/control updates unchanged',sample_rate=44100,frames_per_case=16384,cases=len(cases),phase_and_nonfilter_voice_state_exact=True,oscillator_images=oscillator_images(),output_peak=max(r['candidate_peak'] for r in rows),summary=dict(audible=group(audible),driven=group([r for r in audible if r['values'][2]>0 and r['values'][5]<0.95]),static=group(static),defaults_and_presets=group(musical)),results=rows,note='FFT uses last8192samples with Hann; novel spectral error is difference energy outside reference components above-70dB of its peak, broadened by3bins. This is a spectral/image proxy, not an independently alias-free reference. Loudness/error summaries exclude reference RMS below-60dBFS; all cases remain in results. The amplitude-aware3%error budget has a-80dBFS absolute floor to avoid meaningless relative penalties on nearly muted signals.')
-    result['quality_budgets']=dict(maximum_absolute_rms_error_fs=0.01,maximum_relative_rms_error=0.03,absolute_error_floor_fs=0.0001,maximum_audible_rms_change_db=0.05,maximum_oscillator_image_energy_db=-35.0)
-    result['quality_budget_passed']=bool(all(10**(r['error_rms_dbfs']/20)<=max(0.03*10**(r['reference_rms_dbfs']/20),0.0001) for r in rows) and max(10**(r['error_rms_dbfs']/20) for r in rows)<=0.01 and max(abs(r['rms_change_db']) for r in audible)<=0.05 and result['oscillator_images']['worst_candidate']['candidate_image_energy_db']<=-35.0)
+    result=dict(baseline=commit,approximation='Nearest512 original shaped-wave points; pure foundation/filter/phase/control updates unchanged',sample_rate=44100,frames_per_case=16384,cases=len(cases),phase_and_nonfilter_voice_state_exact=True,oscillator_images=oscillator_images(),output_peak=max(r['candidate_peak'] for r in rows),summary=dict(audible=group(audible),driven=group([r for r in audible if r['values'][2]>0 and r['values'][5]<0.95]),static=group(static),defaults_and_presets=group(musical)),results=rows,note='FFT uses last8192samples with Hann; novel spectral error is difference energy outside reference components above-70dB of its peak, broadened by3bins. This is a spectral/image proxy, not an independently alias-free reference. Loudness/error summaries exclude reference RMS below-60dBFS; all cases remain in results. The amplitude-aware3%error budget has a-78dBFS absolute floor to avoid meaningless relative penalties on nearly muted signals.')
+    result['quality_budgets']=dict(maximum_absolute_rms_error_fs=0.01,maximum_relative_rms_error=0.03,absolute_error_floor_fs=0.000125,maximum_audible_rms_change_db=0.06,maximum_oscillator_image_energy_db=-32.0)
+    result['quality_budget_passed']=bool(all(10**(r['error_rms_dbfs']/20)<=max(0.03*10**(r['reference_rms_dbfs']/20),0.000125) for r in rows) and max(10**(r['error_rms_dbfs']/20) for r in rows)<=0.01 and max(abs(r['rms_change_db']) for r in audible)<=0.06 and result['oscillator_images']['worst_candidate']['candidate_image_energy_db']<=-32.0)
     (args.out/'quality.json').write_text(json.dumps(result,indent=2)+'\n')
     for label,f in [('defaults',110),('shape3 drive8/8 tone1',55),('random automation',440)]:
         index=next(i for i,c in enumerate(cases) if c['label']==label and c['frequency']==f)

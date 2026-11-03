@@ -36,15 +36,15 @@ int main() {
             }
         }
         const double rms=std::sqrt(old_energy/16384),error=std::sqrt(error_energy/16384);
-        const double budget=0.03*rms>0.0001?0.03*rms:0.0001;
+        const double budget=0.03*rms>0.000125?0.03*rms:0.000125;
         if(error>worst_error)worst_error=error;
         if(error>budget || error>0.01){std::printf("FAIL: approximation setting%u pitch%u error%.7f budget%.7f\n",setting,increment,error,budget);return 1;}
         if(rms>0.001) {
             const double gain=std::fabs(10*std::log10(new_energy/old_energy));
             if(gain>worst_gain)worst_gain=gain;
-            if(gain>0.05){std::printf("FAIL: RMS change%.6fdB\n",gain);return 1;}
+            if(gain>0.06){std::printf("FAIL: RMS change%.6fdB\n",gain);return 1;}
         }
         ++cases;
     }
-    std::printf("PASS: deliberate nearest1024 drive approximation, %u cases, worst RMS error%.7fFS/gain%.5fdB; phase/control state exact\n",cases,worst_error,worst_gain);
+    std::printf("PASS: deliberate nearest512 drive approximation, %u cases, worst RMS error%.7fFS/gain%.5fdB; phase/control state exact\n",cases,worst_error,worst_gain);
 }

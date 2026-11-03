@@ -130,18 +130,25 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     }
     const Shaper shaper(mode,static_cast<u32>(voice.drive),band,band_mix);
     i32 pure_samples[opxy::block_frames];
+    // Stage phases in the output buffer before looking up the waveform. The
+    // sweep has no feedback from drive, body filtering or the click impulse.
+    u32 next_phase=voice.phase;
+    i32 live_sweep=voice.sweep;
+    for(u32 i=0;i<opxy::block_frames;++i) {
+        output[i]=static_cast<i32>(next_phase);
+        if(sweep) {
+            next_phase+=swept(pitch[i],live_sweep,ratio);
+            live_sweep=opxy::q31::multiply(live_sweep,decay);
+        } else next_phase+=pitch[i]>0x70000000u?0x70000000u:pitch[i];
+    }
+    voice.phase=next_phase;voice.sweep=live_sweep;
     for (u32 i = 0; i < opxy::block_frames; ++i) {
+        const u32 phase=static_cast<u32>(output[i]);
         voice.drive += drive_step;
-        const i32 pure = lookup(waves[0][0][0], voice.phase);
+        const i32 pure = lookup(waves[0][0][0], phase);
         pure_samples[i] = pure;
         output[i] = pure_body ? pure : drive_step
-            ? shaped(mode,static_cast<u32>(voice.drive),band,band_mix,voice.phase) : shaper.read(voice.phase);
-        if (sweep) {
-            voice.phase += swept(pitch[i], voice.sweep, ratio);
-            voice.sweep = opxy::q31::multiply(voice.sweep, decay);
-        } else {
-            voice.phase += pitch[i] > 0x70000000u ? 0x70000000u : pitch[i];
-        }
+            ? shaped(mode,static_cast<u32>(voice.drive),band,band_mix,phase) : shaper.read(phase);
     }
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.sub += sub_step;

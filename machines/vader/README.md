@@ -144,6 +144,14 @@ Both compare 4,096 display frames and states. Five timing repeats alternate
 before/after order. These are host checks; device profiling determines native
 CPU cost.
 
+Phase/sweep advancement, waveform generation and filtering use three exact block
+stages. The output buffer temporarily holds each phase, then the shaped body,
+then final audio. Private phase/sweep accumulators keep those independent state
+updates out of the multi-table lookup pass; the existing pure-sample array is
+unchanged. No extra scratch array or waveform data is added. Native code is
+small and keeps waveform-loop hardware control, but the extra pass and its
+memory traffic require a matched hardware comparison across every setting.
+
 Regenerate the checked-in analytic tables with `python tools/generate_tables.py`.
 The SDK adapters own voice allocation and registration; callbacks allocate no
 memory and do not perform I/O. Machine code, artwork and tests stay here.

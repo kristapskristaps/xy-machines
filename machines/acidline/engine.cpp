@@ -81,6 +81,25 @@ __attribute__((noinline)) void ladder(Voice& v,opxy::Output output,i32 coefficie
     v.feedback_low=feedback_low;
     v.filter_coefficient=coefficient;v.filter_feedback=feedback;
 }
+__attribute__((noinline)) void prepare_shape(Voice& v,i32 resonance,i32 drive){
+    if(v.shape_ready && v.shape_resonance==resonance && v.shape_drive==drive)return;
+    const i32 body=interpolate(tables::body,resonance)*65536;
+    const i32 gain=distortion_gain(drive);
+    for(unsigned i=0;i<1025;++i){
+        const i32 input=static_cast<i32>(i*64)-32768;
+        const i32 x=limit(multiply(input,body)*6,32768);
+        const i32 y=distort(x,drive,gain);
+        v.shape_curve[i]=static_cast<opxy::i16>(y>32767?32767:y);
+    }
+    v.shape_resonance=resonance;v.shape_drive=drive;v.shape_ready=1;
+}
+__attribute__((always_inline)) inline i32 cached_shape(const Voice& v,i32 input){
+    const u32 position=static_cast<u32>(input)+32768u;
+    if(position>=65536u)return input<0?v.shape_curve[0]:v.shape_curve[1024];
+    const unsigned index=position>>6;
+    const i32 first=v.shape_curve[index],second=v.shape_curve[index+1];
+    return first+((second-first)*static_cast<i32>(position&63u)>>6);
+}
 template<bool Moving,int SubMode,int DampMode>
 __attribute__((noinline)) void finish(Voice& v,opxy::Output output,opxy::Pitch pitch,
         i32 resonance,i32 drive,i32 sub,i32 tone){
@@ -95,7 +114,7 @@ __attribute__((noinline)) void finish(Voice& v,opxy::Output output,opxy::Pitch p
     const i32 dg=(interpolate(tables::tone,tone)-start_tone)/64*131072;
     for(unsigned i=0;i<opxy::block_frames;++i){
         if(Moving){amount+=dd;blend_sub+=ds;damping+=dt;body+=db;clip_gain+=dc;tone_g+=dg;}
-        const i32 shaped=distort(limit(multiply(output[i],body)*6,32768),amount,clip_gain);
+        const i32 shaped=Moving?distort(limit(multiply(output[i],body)*6,32768),amount,clip_gain):cached_shape(v,output[i]);
         const i32 dc_removed=limit(shaped-v.dc_input+multiply(v.dc_output,16376*131072),32768);
         v.dc_input=shaped;v.dc_output=dc_removed;
         if(DampMode<0?damping>=16383:!DampMode)v.tone_memory=dc_removed;
@@ -131,6 +150,7 @@ inline void render(Voice& v,Shared&,u32,opxy::Output output,opxy::Parameters p,o
     }else oscillators<-1>(v,output,pitch,band,wave,drive);
     ladder(v,output,coefficient,feedback);
     if(v.resonance==resonance && v.drive==drive && v.sub==sub && v.tone==tone){
+        prepare_shape(v,resonance,drive);
         if(sub){
             if(tone<16383)finish<false,1,1>(v,output,pitch,resonance,drive,sub,tone);
             else finish<false,1,0>(v,output,pitch,resonance,drive,sub,tone);

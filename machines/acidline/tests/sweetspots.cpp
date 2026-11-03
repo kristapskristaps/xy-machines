@@ -18,6 +18,29 @@ void phrase(const opxy::i32* parameters,double* samples){
 }
 }
 int main(){
+    // The cached transfer is an approximation of the preceding 1x shaper,
+    // not a new golden hash. Check its worst point error over the complete
+    // audio range and a drive/resonance grid, including both cache boundaries.
+    int maximum_curve_error=0;
+    acidline::Voice cached={};
+    for(int r=0;r<=4;++r)for(int d=0;d<=4;++d){
+        const int resonance=r*16383/4,drive=d*16383/4;
+        acidline::prepare_shape(cached,resonance,drive);
+        const int body=acidline::interpolate(acidline::tables::body,resonance)*65536;
+        const int gain=acidline::distortion_gain(drive);
+        int previous=-32769;double reference_energy=0,error_energy=0;
+        for(int x=-32768;x<=32768;++x){
+            const int direct=acidline::distort(acidline::limit(opxy::q31::multiply(x,body)*6,32768),drive,gain);
+            const int actual=acidline::cached_shape(cached,x);
+            const int error=std::abs(actual-direct);
+            if(error>maximum_curve_error)maximum_curve_error=error;
+            require(actual>=previous && actual>=-32768 && actual<=32768,"FAIL cached shaper monotonicity/headroom");
+            previous=actual;reference_energy+=double(direct)*direct;error_energy+=double(actual-direct)*(actual-direct);
+        }
+        require(std::sqrt(error_energy/reference_energy)<.005,"FAIL cached shaper exceeds 0.5% whole-range RMS error");
+    }
+    std::printf("Cached shaper maximum point error %d /32768\n",maximum_curve_error);
+    require(maximum_curve_error<=512,"FAIL cached shaper differs by over 1.56% peak scale");
     // Envelope depth has room to move through the upper knob range, instead
     // of becoming identical above the old early cutoff clamp.
     for(int base=0;base<16383;base+=511){

@@ -8,6 +8,9 @@ struct Voice {
     opxy::i32 filter_coefficient, filter_feedback, feedback_low, input_low;
     opxy::u32 sub_phase, sub_remainder;
     opxy::i32 sub, tone, tone_memory;
+    opxy::i16 shape_curve[1025];
+    opxy::i32 shape_resonance,shape_drive;
+    opxy::u32 shape_ready;
 };
 struct Shared {};
 }

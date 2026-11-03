@@ -80,7 +80,11 @@ filter envelope, linked pre-drive/post-clip, octave sub and damping remain.
 The filter adaptation and MIT notices are in [NOTICE.md](NOTICE.md).
 When resonance, drive, sub and damping are steady, the output stage selects its
 sub/damping path once per block and omits zero ramp updates. Moving controls
-retain the general ramped path; this scheduling change preserves the 1x audio.
+retain the general ramped path. Stable resonance/drive settings cache their
+combined body/clip transfer in a 1025-entry bipolar table. Linear interpolation
+replaces repeated shaping arithmetic; tests limit its point error to 1.56% of
+peak scale, and the cache is reused until those settings change. Moving controls
+keep the direct shaper, avoiding a rebuild on every knob-update block.
 
 This is an intentional sound change for the CPU budget. The new ladder is
 generally darker, its resonance and overdrive respond differently, and strong
@@ -92,8 +96,7 @@ of that renderer across the same scenes, alongside unchanged pitch and contour
 timing. The extreme 6 kHz clipping fixture reports the lost alias rejection.
 
 The saved machine ID, eight control slots, waveform choices and all factory
-preset values are unchanged. Voice state is 84 bytes after removing the FIR
-history; the 16-slot pool remains unchanged. This revision needs a fresh hardware
+preset values are unchanged. Voice state is 2148 bytes, including a 1025-point cached output transfer; the 16-slot pool remains unchanged. This revision needs a fresh hardware
 control sweep before claiming the required 3.5% CPU target or catalog acceptance.
 
 ## Development

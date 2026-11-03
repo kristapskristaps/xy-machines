@@ -10,6 +10,12 @@ static bool tap_matches(const halo::State& state,unsigned line,opxy::i32 delay,u
     const long long scale=2147483648LL;
     const long long product=static_cast<long long>(b-a)*(delay&255)*8388608LL;
     const auto expected=a+static_cast<opxy::i32>(product/scale-(product<0 && product%scale!=0));
+    if(line==18) {
+        opxy::i32 stereo[2];halo::echo_tap(state,memory,delay,stereo);
+        if(stereo[channel]!=expected) {
+            std::puts("FAIL: shared stereo echo tap differs from wide interpolation");return false;
+        }
+    }
     if(halo::tap(state,memory,line,delay,channel)==expected)return true;
     std::printf("FAIL fractional tap line %u, position %u, written %u, delay %d, channel %u\n",
                 line,state.positions[line],state.written,delay,channel);
@@ -153,11 +159,16 @@ int main() {
     std::printf("8 kHz rejection through the 4:1 cascade: %.1f dB\n",cascade_rejection);
     if(cascade_rejection> -55)return 1;
     // A 100 ms grain is phase-coherent for A3; check its octave at A4.
+    for(unsigned phase=0;phase<65536;++phase) {
+        const auto a=halo::table(halo::tables::window,phase);
+        const auto b=halo::table(halo::tables::window,(phase+32768u)&65535u);
+        if(a+b!=32767)return 1;
+    }
     halo::initialize(state);const unsigned width=halo::network_rate/10,step=16777216u/width;
     double energy[2]={};double re[2]={},im[2]={};
     for(unsigned i=0;i<66150;++i) {
         const double input=std::sin(2*pi*220*i/halo::network_rate)*halo::unit/4;
-        const opxy::i32 shifted=halo::pitch_up(state,memory,0,width);
+        const opxy::i32 shifted=halo::pitch_up(state,memory,0,halo::pitch_heads(state,width));
         if(i>11025)for(unsigned bin=0;bin<2;++bin){const double angle=2*pi*(bin?440:220)*i/halo::network_rate;re[bin]+=shifted*std::cos(angle);im[bin]+=shifted*std::sin(angle);}
         halo::write(state,memory,17,static_cast<opxy::i32>(input));halo::write(state,memory,17,static_cast<opxy::i32>(input));
         state.grain_phase=(state.grain_phase+step)&16777215u;if(state.written<halo::echo_frames)++state.written;

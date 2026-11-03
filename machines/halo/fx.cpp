@@ -92,6 +92,22 @@ inline i32 tap(const State& state,const i32* memory,unsigned line,i32 delay,unsi
     }
     return a+mul(b-a,(delay&255)*128);
 }
+inline void echo_tap(const State& state,const i32* memory,i32 delay,i32* output) {
+    const unsigned age=static_cast<u32>(delay)>>8;
+    const unsigned available=state.written<echo_frames-1?state.written:echo_frames-1;
+    if(age>available){output[0]=output[1]=0;return;}
+    const unsigned position=state.positions[18];
+    const unsigned index=position>=age?position-age:position+echo_frames-age;
+    const u32 first=age?static_cast<u32>(memory[lines[18].offset+index]):0;
+    output[0]=static_cast<opxy::i16>(first&65535u)*512;
+    output[1]=static_cast<opxy::i16>(first>>16)*512;
+    if(!(delay&255))return;
+    const unsigned previous=index?index-1:echo_frames-1;
+    const u32 second=age<available?static_cast<u32>(memory[lines[18].offset+previous]):0;
+    const i32 fraction=(delay&255)*128;
+    output[0]+=mul(static_cast<opxy::i16>(second&65535u)*512-output[0],fraction);
+    output[1]+=mul(static_cast<opxy::i16>(second>>16)*512-output[1],fraction);
+}
 inline void write(State& state,i32* memory,unsigned line,i32 value) {
     memory[lines[line].offset+state.positions[line]]=value;
     if(line==18){if(++state.positions[line]==lines[line].length)state.positions[line]=0;}
@@ -119,13 +135,19 @@ i32 echo_delay(i32 control,u32 bpm) {
     const u32 maximum=(echo_frames-3)*256u;
     return static_cast<i32>(delay>maximum?maximum:delay<512u?512u:delay);
 }
-inline i32 pitch_up(const State& state,const i32* memory,unsigned channel,unsigned width) {
+struct PitchHeads { i32 first_delay,second_delay,first_gain; };
+inline PitchHeads pitch_heads(const State& state,unsigned width) {
     const u32 phase=state.grain_phase>>8,other_phase=(phase+32768u)&65535u;
-    const i32 a_delay=static_cast<i32>(551u*256u+((65535u-phase)*width>>8));
-    const i32 b_delay=static_cast<i32>(551u*256u+((65535u-other_phase)*width>>8));
-    const i32 a=tap(state,memory,17,a_delay+static_cast<i32>(channel*2048u),channel);
-    const i32 b=tap(state,memory,17,b_delay+static_cast<i32>(channel*2048u),channel);
-    return mul(a,table(tables::window,phase))+mul(b,table(tables::window,other_phase));
+    return {static_cast<i32>(551u*256u+((65535u-phase)*width>>8)),
+            static_cast<i32>(551u*256u+((65535u-other_phase)*width>>8)),
+            table(tables::window,phase)};
+}
+inline i32 pitch_up(const State& state,const i32* memory,unsigned channel,const PitchHeads& heads) {
+    const i32 a=tap(state,memory,17,heads.first_delay+static_cast<i32>(channel*2048u),channel);
+    const i32 b=tap(state,memory,17,heads.second_delay+static_cast<i32>(channel*2048u),channel);
+    // Opposite window entries sum to 32767. Signed interpolation truncates
+    // symmetrically, so the interpolated heads retain that exact complement.
+    return mul(a,heads.first_gain)+mul(b,32767-heads.first_gain);
 }
 struct Settings {
     // Network gains are Q31; control shaping below retains its Q15 rounding.
@@ -197,12 +219,12 @@ __attribute__((always_inline)) inline void plate(State& state,i32* memory,const 
 }
 void network(State& __restrict state,i32* __restrict memory,i32* __restrict input,i32* __restrict output,const Settings& __restrict config) {
     i32 echoes[2],predelay[2],shifted[2];
+    echo_tap(state,memory,state.delay,echoes);
     for(unsigned channel=0;channel<2;++channel) {
         state.input_high[channel]+=mul(input[channel]-state.input_high[channel],2198);
         const i32 high=input[channel]-state.input_high[channel];
         state.input_low[channel]+=opxy::q31::multiply(high-state.input_low[channel],config.color);
         input[channel]=opxy::q31::multiply(state.input_low[channel],config.input_gain);
-        echoes[channel]=tap(state,memory,18,state.delay,channel);
         state.echo_low[channel]+=opxy::q31::multiply(echoes[channel]-state.echo_low[channel],config.echo_color);
         state.echo_high[channel]+=mul(state.echo_low[channel]-state.echo_high[channel],1580);
         echoes[channel]=state.echo_low[channel]-state.echo_high[channel];
@@ -214,7 +236,11 @@ void network(State& __restrict state,i32* __restrict memory,i32* __restrict inpu
         shifted[channel]=bright;
     }
     // Two overlapped, Hann-windowed heads read at twice the recording speed.
-    for(unsigned channel=0;channel<2;++channel)output[channel]=config.shimmer?pitch_up(state,memory,channel,config.grain_width):0;
+    if(config.shimmer) {
+        const PitchHeads heads=pitch_heads(state,config.grain_width);
+        output[0]=pitch_up(state,memory,0,heads);
+        output[1]=pitch_up(state,memory,1,heads);
+    } else output[0]=output[1]=0;
     // Stereo rings use adjacent channel words; positions count words here.
     write(state,memory,16,input[0]);write(state,memory,16,input[1]);
     write(state,memory,17,shifted[0]);write(state,memory,17,shifted[1]);

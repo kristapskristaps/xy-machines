@@ -50,6 +50,10 @@ its original wrap. Network gains are scaled to Q31 once per callback. These
 changes preserve the original output, 248-byte send state and scratch layout.
 Fractional delay reads share one history bound and derive the second sample's
 index from the first, preserving zero-filled startup history and stereo packing.
+The packed echo reads each stereo word once for both channels. Pitch-shift
+heads share their phase calculations and one interpolated window; the opposite
+window is its exact 32767 complement. Feedback order and interpolation rounding
+are unchanged.
 
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings
 belong to the machine-owned browser audition, not a custom native FX screen.

@@ -68,6 +68,12 @@ normalization divider or diffusion function. The Mando/Vapour native check adds
 Each grain now computes its available frame count once per block, keeping the
 same sample updates while removing the per-sample remaining-life check. Its
 hardware CPU effect remains to be measured.
+The callback's bounded cubic, mixed-grain, feedback and diffusion samples use
+one public fractional multiply instead of the generic Q15 helper's two split
+integer products. Rescaling the inputs retains the exact floor and every
+interpolation bit. Audio operands stay below 2^20 in magnitude and gains below
+65536; the generic vendor helper is unchanged. Hardware CPU validation of
+this arithmetic change remains pending.
 
 Compare complete stereo output, state and all scratch words after every block,
 then collect paired host timings:

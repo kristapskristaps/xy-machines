@@ -130,7 +130,7 @@ def main():
         paths = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', baseline, '--', 'machines/weave'], cwd=REPO, text=True).splitlines()
         for path in paths:
             relative = Path(path).relative_to('machines/weave')
-            if relative.as_posix() not in ('core.h', 'engine.cpp', 'resample.h') and not (relative.parts[0] == 'vendor' and relative.suffix in ('.cpp', '.h', '.hpp')):
+            if relative.as_posix() not in ('core.h', 'engine.cpp', 'resample.h', 'resample_packed.h') and not (relative.parts[0] == 'vendor' and relative.suffix in ('.cpp', '.h', '.hpp')):
                 continue
             target = before/relative; target.parent.mkdir(parents=True, exist_ok=True)
             content = subprocess.check_output(['git', 'show', baseline+':'+path], cwd=REPO, text=True)

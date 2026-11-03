@@ -1,6 +1,8 @@
 #include "core.h"
 #include "vendor/macro.cpp"
 #include "resample.h"
+#include "resample_packed.h"
+#include <opxy/packed16.hpp>
 
 namespace weave {
 namespace {
@@ -67,31 +69,20 @@ void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
         }
         opxy::i32 accumulated=0;
         const opxy::i16* history=voice.history+voice.history_write+23;
-        const opxy::i16* coefficients=resample_coefficients[voice.resample_phase];
-        // Both endpoint coefficients are zero in all 147 phases. Keep the
-        // remaining products in their original order and retain all history.
-        accumulated+=static_cast<opxy::i32>(history[-1])*coefficients[1];
-        accumulated+=static_cast<opxy::i32>(history[-2])*coefficients[2];
-        accumulated+=static_cast<opxy::i32>(history[-3])*coefficients[3];
-        accumulated+=static_cast<opxy::i32>(history[-4])*coefficients[4];
-        accumulated+=static_cast<opxy::i32>(history[-5])*coefficients[5];
-        accumulated+=static_cast<opxy::i32>(history[-6])*coefficients[6];
-        accumulated+=static_cast<opxy::i32>(history[-7])*coefficients[7];
-        accumulated+=static_cast<opxy::i32>(history[-8])*coefficients[8];
-        accumulated+=static_cast<opxy::i32>(history[-9])*coefficients[9];
-        accumulated+=static_cast<opxy::i32>(history[-10])*coefficients[10];
-        accumulated+=static_cast<opxy::i32>(history[-11])*coefficients[11];
-        accumulated+=static_cast<opxy::i32>(history[-12])*coefficients[12];
-        accumulated+=static_cast<opxy::i32>(history[-13])*coefficients[13];
-        accumulated+=static_cast<opxy::i32>(history[-14])*coefficients[14];
-        accumulated+=static_cast<opxy::i32>(history[-15])*coefficients[15];
-        accumulated+=static_cast<opxy::i32>(history[-16])*coefficients[16];
-        accumulated+=static_cast<opxy::i32>(history[-17])*coefficients[17];
-        accumulated+=static_cast<opxy::i32>(history[-18])*coefficients[18];
-        accumulated+=static_cast<opxy::i32>(history[-19])*coefficients[19];
-        accumulated+=static_cast<opxy::i32>(history[-20])*coefficients[20];
-        accumulated+=static_cast<opxy::i32>(history[-21])*coefficients[21];
-        accumulated+=static_cast<opxy::i32>(history[-22])*coefficients[22];
+        const opxy::u32* coefficients=resample_pairs[voice.resample_phase];
+        // The original absolute FIR bound keeps every pair and partial sum
+        // inside signed 32 bits; pairwise accumulation preserves the sum.
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-1],history[-2]),coefficients[0]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-3],history[-4]),coefficients[1]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-5],history[-6]),coefficients[2]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-7],history[-8]),coefficients[3]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-9],history[-10]),coefficients[4]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-11],history[-12]),coefficients[5]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-13],history[-14]),coefficients[6]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-15],history[-16]),coefficients[7]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-17],history[-18]),coefficients[8]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-19],history[-20]),coefficients[9]);
+        accumulated+=opxy::packed16::dot(opxy::packed16::pack(history[-21],history[-22]),coefficients[10]);
         const opxy::i32 sample=accumulated>>15;
         output[i]=(sample<-32768?-32768:sample>32767?32767:sample)*16384;
     }

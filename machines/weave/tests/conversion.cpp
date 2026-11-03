@@ -39,6 +39,7 @@ void reference_render(opxy::i32* out,const opxy::i32* p,const opxy::u32* pitch) 
 }
 }
 int main() {
+    unsigned phase=0;
     for(const auto& coefficients:weave::resample_coefficients){
         if(coefficients[0] || coefficients[23]) {
             std::puts("FAIL: omitted FIR endpoint has a nonzero coefficient");return 1;
@@ -46,6 +47,14 @@ int main() {
         opxy::i64 bound=0;
         for(auto coefficient:coefficients)bound+=static_cast<opxy::i64>(coefficient<0?-coefficient:coefficient)*32768;
         if(bound>2147483647){std::puts("FAIL: full-scale FIR accumulation can overflow");return 1;}
+        for(unsigned pair=0;pair<11;++pair) {
+            const opxy::u32 first=static_cast<opxy::u32>(coefficients[2*pair+1])&65535u;
+            const opxy::u32 second=static_cast<opxy::u32>(coefficients[2*pair+2])&65535u;
+            if(weave::resample_pairs[phase][pair]!=(first|(second<<16))) {
+                std::puts("FAIL: packed coefficient differs from the original filter");return 1;
+            }
+        }
+        ++phase;
     }
     weave::Shared shared={};
     weave::initialize(voice,shared,1);

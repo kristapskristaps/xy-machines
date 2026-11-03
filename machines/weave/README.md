@@ -101,7 +101,13 @@ worst-case model CPU still require device validation.
 The 24-tap converter uses mirrored histories to remove ring-wrap work while
 retaining bit-identical audio. Both endpoint coefficients are zero in every
 phase; skipping those products leaves 22 multiplies per output sample without
-changing the filter or its history. Hardware CPU validation remains pending.
+changing the filter or its history. The remaining coefficients are packed into
+signed pairs for eleven SDK `packed16::dot` operations per output sample.
+Every pair and full partial sum fits signed 32 bits, so the dot operation's
+saturation cannot change the result. The final shift and complete history are
+unchanged. Regenerate `resample_packed.h` from `resample.h` with
+`python machines/weave/tools/generate_resample_pairs.py`. This candidate requires
+the pinned SDK's packed arithmetic helper; hardware CPU validation is pending.
 The modal filters use the SDK's full fractional product to preserve the
 original per-product truncation and final rounding without calculating each
 product twice. This requires the pinned SDK with `q31::multiply_full`; the resonator

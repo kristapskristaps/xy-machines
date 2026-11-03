@@ -16,6 +16,20 @@ i32 lookup(const opxy::i16* table, u32 phase) {
     return table[at] + ((table[at + 1] - table[at]) * fraction >> 15);
 }
 
+struct WavePosition { u32 index;i32 fraction; };
+__attribute__((always_inline)) inline WavePosition packed_position(u32 phase) {
+    u32 index=phase>>23;
+    i32 fraction=static_cast<i32>((phase>>8)&32767u);
+    if(index&128u) {
+        index^=127u;
+        // Reversing endpoints is exactly fraction ->32768-fraction, including
+        // the integer carry. Negating a rounded interpolation would differ.
+        fraction=32768-fraction;
+    }
+    const WavePosition result={(index&127u)|((index>>1)&128u),fraction};
+    return result;
+}
+
 __attribute__((always_inline)) inline i32 packed_lookup(const u32* table,u32 index,i32 fraction) {
     const u32 point=table[index];
     const i32 value=static_cast<opxy::i16>(point);
@@ -47,16 +61,15 @@ void mip(u32 increment, u32& band, i32& mix) {
 }
 
 i32 shaped(u32 mode, u32 drive, u32 band, i32 band_mix, u32 phase) {
-    const u32 index=phase>>23;
-    const i32 fraction=static_cast<i32>((phase>>8)&32767u);
+    const WavePosition position=packed_position(phase);
     const u32 level = drive >> 15;
     const i32 mix = static_cast<i32>(drive & 32767u);
     const u32 next = level < 8 ? level + 1 : 8;
-    const i32 a = packed_lookup(packed::waves[mode][level][band], index, fraction);
-    const i32 rich = mix ? a + ((packed_lookup(packed::waves[mode][next][band], index, fraction) - a) * mix >> 15) : a;
+    const i32 a = packed_lookup(packed::waves[mode][level][band], position.index, position.fraction);
+    const i32 rich = mix ? a + ((packed_lookup(packed::waves[mode][next][band], position.index, position.fraction) - a) * mix >> 15) : a;
     if (!band || band_mix == 32768) return rich;
-    const i32 c = packed_lookup(packed::waves[mode][level][band - 1], index, fraction);
-    const i32 lean = mix ? c + ((packed_lookup(packed::waves[mode][next][band - 1], index, fraction) - c) * mix >> 15) : c;
+    const i32 c = packed_lookup(packed::waves[mode][level][band - 1], position.index, position.fraction);
+    const i32 lean = mix ? c + ((packed_lookup(packed::waves[mode][next][band - 1], position.index, position.fraction) - c) * mix >> 15) : c;
     return lean + ((rich - lean) * band_mix >> 15);
 }
 
@@ -70,13 +83,12 @@ struct Shaper {
         lean_next=band && blend!=32768?packed::waves[mode][next][band-1]:nullptr;
     }
     i32 read(u32 phase) const {
-        const u32 index=phase>>23;
-        const i32 fraction=static_cast<i32>((phase>>8)&32767u);
-        const i32 a=packed_lookup(rich,index,fraction);
-        const i32 r=drive_mix?a+((packed_lookup(rich_next,index,fraction)-a)*drive_mix>>15):a;
+        const WavePosition position=packed_position(phase);
+        const i32 a=packed_lookup(rich,position.index,position.fraction);
+        const i32 r=drive_mix?a+((packed_lookup(rich_next,position.index,position.fraction)-a)*drive_mix>>15):a;
         if(!lean)return r;
-        const i32 c=packed_lookup(lean,index,fraction);
-        const i32 l=drive_mix?c+((packed_lookup(lean_next,index,fraction)-c)*drive_mix>>15):c;
+        const i32 c=packed_lookup(lean,position.index,position.fraction);
+        const i32 l=drive_mix?c+((packed_lookup(lean_next,position.index,position.fraction)-c)*drive_mix>>15):c;
         return l+((r-l)*band_mix>>15);
     }
 };

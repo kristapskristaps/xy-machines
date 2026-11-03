@@ -148,9 +148,13 @@ The shaped oscillator packs each original sample and adjacent difference into
 one 32-bit point. The existing SDK Q31 multiply converts its high-half slope
 and shared 15-bit fraction with exactly the original integer rounding. Drive
 and mip interpolation still happen afterward in their original order. Pure
-sine playback retains the original table and lookup. This full-cycle layout
-adds about 163 KiB of constants; native CPU and cache effects require a fresh
-matched hardware comparison. Regenerate it from the committed analytic tables
+sine playback retains the original table and lookup. Every wave is exactly
+reflected within each half-cycle, including asymmetric shapes. Only the first
+quarter of each half is stored; reversing a quarter changes its interpolation
+fraction to `32768 - fraction` before multiplication. This preserves negative
+rounding without sign corrections or extra per-wave lookup branches. The packed
+bank has 256 words per wave, keeping its footprint near the original 513 short
+values. Native CPU and cache effects require a fresh matched hardware comparison. Regenerate it from the committed analytic tables
 with `python machines/vader/tools/generate_wave_points.py` from the collection root.
 
 Regenerate the checked-in analytic tables with `python tools/generate_tables.py`.

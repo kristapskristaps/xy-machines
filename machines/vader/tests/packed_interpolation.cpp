@@ -10,7 +10,8 @@ int main() {
             for(unsigned fraction:fractions) {
                 const opxy::u32 phase=(index<<23)|(fraction<<8)|255u;
                 const opxy::i32 expected=vader::lookup(original,phase);
-                const opxy::i32 actual=vader::packed_lookup(packed,index,fraction);
+                const auto position=vader::packed_position(phase);
+                const opxy::i32 actual=vader::packed_lookup(packed,position.index,position.fraction);
                 if(actual!=expected) {
                     std::printf("FAIL: packed interpolation %u/%u/%u index%u fraction%u\n",
                                 mode,level,band,index,fraction);return 1;

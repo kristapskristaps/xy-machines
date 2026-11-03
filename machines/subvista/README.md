@@ -41,7 +41,14 @@ are generated from the original waves in `tables.h`, replacing per-lookup
 subtraction and signed division. This adds 8 KiB of constant data. Regenerate
 `wave_slopes.h` with `python machines/subvista/tools/generate_slopes.py` from the
 collection root. Arithmetic tests check every committed slope against the
-original expression and interpolation across the waves. The oscillator helper
+original expression and interpolation across the waves.
+The pulse/blend path pairs each waveform point with its half-cycle partner,
+sharing the phase index and interpolation fraction. The pure-saw endpoint and
+quiet sub-oscillator retain their original separate wave/slope banks to avoid
+variable-half lookups. This adds a 24 KiB read-only paired bank; CPU improvement
+and memory-layout effects require a fresh hardware comparison. Regenerate the
+paired bank and slopes with `python machines/subvista/tools/generate_slopes.py`.
+The oscillator helper
 stays inlined so native sample loops use hardware loop control without two
 oscillator function calls per sample.
 

@@ -17,12 +17,14 @@ inline i32 interpolate(const i32* table, u32 position, unsigned bits) {
     const i32 fraction = static_cast<i32>((position & ((1u << bits) - 1)) << (31 - bits));
     return table[index] + multiply(table[index + 1] - table[index], fraction);
 }
-// Signal tables use Q14; small coefficients avoid wide multiplies in audio.
+// Signal tables use Q14, adjacent slopes fit signed16, and callers use only
+// 8- or10-bit fractions. Preserve those widths through the native multiply.
 template <class Sample>
 inline i32 linear(const Sample* table, u32 position, unsigned bits) {
     const u32 index = position >> bits;
-    const i32 fraction = static_cast<i32>(position & ((1u << bits) - 1));
-    return table[index] + ((table[index + 1] - table[index]) * fraction >> bits);
+    const opxy::i16 fraction = static_cast<opxy::i16>(position & ((1u << bits) - 1));
+    const opxy::i16 difference = static_cast<opxy::i16>(table[index+1]-table[index]);
+    return table[index] + (difference * fraction >> bits);
 }
 inline i32 saturate(i32 x) {
     const u32 a = static_cast<u32>(x < 0 ? -x : x);
@@ -145,11 +147,13 @@ struct Ladder : FilterCoefficients {
         // the trapezoidal integrators. A nonlinear input limits resonance.
         i32 corrected = (input >> 2) * 4;
         if (resonance) {
-            const i32 memory = ((voice.ladder[0] >> 15) * weights[0]
-                              + (voice.ladder[1] >> 15) * weights[1]
-                              + (voice.ladder[2] >> 15) * weights[2]
-                              + (voice.ladder[3] >> 15) * weights[3]) >> 14;
-            corrected = (((input - (memory * resonance >> 13)) >> 2) * inverse) >> 13;
+            // Bounded half-states and each positive weight fit signed16;
+            // sum(weights)≤32767 keeps the final memory in signed16 too.
+            const i32 memory = (static_cast<opxy::i16>(voice.ladder[0] >> 15) * static_cast<opxy::i16>(weights[0])
+                              + static_cast<opxy::i16>(voice.ladder[1] >> 15) * static_cast<opxy::i16>(weights[1])
+                              + static_cast<opxy::i16>(voice.ladder[2] >> 15) * static_cast<opxy::i16>(weights[2])
+                              + static_cast<opxy::i16>(voice.ladder[3] >> 15) * static_cast<opxy::i16>(weights[3])) >> 14;
+            corrected = (((input - (static_cast<opxy::i16>(memory) * static_cast<opxy::i16>(resonance) >> 13)) >> 2) * inverse) >> 13;
         }
         i32 sample = saturate(corrected);
         sample = stage<0, Limited>(voice, sample);

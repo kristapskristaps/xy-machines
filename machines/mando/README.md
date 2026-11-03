@@ -194,3 +194,12 @@ CPU record and use the catalog path `machines/mando`. A catalog-only PR targets
 `main`, unless it depends on SDK changes only available on `staging`.
 
 Source and generated tables are MIT licensed; see [LICENSE](LICENSE).
+
+Adjacent Q14 waveform/saturation slopes and their8-/10-bit fractions now use
+explicit signed16 multiplication. The ladder's four feedback-memory products
+and final memory/resonance product also have proven signed16 operands: half
+states stay bounded and the positive weight sum never exceeds32767. The wider
+pole recurrence is retained. Host width tests exhaust every positive Q15 pole
+coefficient and all committed table slopes. Native review confirms signed16
+multiply/MAC instructions with unchanged voice memory and hardware loops;
+CPU improvement still requires a measured hardware comparison.

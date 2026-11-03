@@ -9,8 +9,7 @@ struct FilterCoefficients {
 };
 struct Voice {
     u32 phase[2];
-    // Each accumulator stores half the even pole state in its high bits,
-    // and the unchanged 15-bit fractional charge in its low bits.
+    // Q22 trapezoidal pole states; eight guard bits retain low-cutoff accuracy.
     i32 ladder[4];
     i32 controls[8];
     u32 ready;

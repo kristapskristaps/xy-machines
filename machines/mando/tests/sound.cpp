@@ -87,6 +87,7 @@ int main() {
     const std::vector<double> shaped = render(driven_parameters, driven_hz);
     const double shaped_fundamental = magnitude(shaped, driven_hz);
     const double folded_third = magnitude(shaped, 44100 - 3 * driven_hz);
+    std::printf("Driven high-note folded third %.2f dBc\n",20*std::log10(folded_third/shaped_fundamental));
     require(folded_third < shaped_fundamental * .0005,
             "final ladder pole suppresses the driven folded third below -66 dBc");
 
@@ -119,7 +120,7 @@ int main() {
             for (unsigned i = 0; i < 64; ++i) pitch[i] = increment(hz);
             render(voice, shared, 1, output, p, pitch);
             for (unsigned i = 0; i < 64; ++i) require(output[i] >= -peak && output[i] <= peak, "corner stability");
-            for (unsigned j = 0; j < 4; ++j) require(std::abs(2 * (voice.ladder[j] >> 15)) <= 2 * unity, "bounded ladder state");
+            for (unsigned j = 0; j < 4; ++j) require(std::abs(voice.ladder[j]/256) <= 2 * unity, "bounded ladder state");
         }
     }
     for (unsigned b = 0; b < 2048; ++b) {

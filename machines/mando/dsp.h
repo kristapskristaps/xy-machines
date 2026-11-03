@@ -136,7 +136,7 @@ struct Ladder : FilterCoefficients {
     bool needs_limits(const Voice& voice) const {
         if (g > 16384) return true;
         for (unsigned i = 0; i < 4; ++i)
-            if ((voice.ladder[i] >> 15) < -12288 || (voice.ladder[i] >> 15) > 12288) return true;
+            if (voice.ladder[i] < -24576*256 || voice.ladder[i] > 24576*256) return true;
         return false;
     }
     template <bool Limited>
@@ -145,11 +145,12 @@ struct Ladder : FilterCoefficients {
         // the trapezoidal integrators. A nonlinear input limits resonance.
         i32 corrected = (input >> 2) * 4;
         if (resonance) {
-            const i32 memory = ((voice.ladder[0] >> 15) * weights[0]
-                              + (voice.ladder[1] >> 15) * weights[1]
-                              + (voice.ladder[2] >> 15) * weights[2]
-                              + (voice.ladder[3] >> 15) * weights[3]) >> 14;
-            corrected = (((input - (memory * resonance >> 13)) >> 2) * inverse) >> 13;
+            const i32 memory = (multiply(voice.ladder[0],weights[0]*65536)
+                              + multiply(voice.ladder[1],weights[1]*65536)
+                              + multiply(voice.ladder[2],weights[2]*65536)
+                              + multiply(voice.ladder[3],weights[3]*65536))>>8;
+            const i32 fed=input-multiply(memory*4,resonance*65536);
+            corrected = inverse==32768?fed:multiply(fed,inverse*65536);
         }
         i32 sample = saturate(corrected);
         sample = stage<0, Limited>(voice, sample);
@@ -163,15 +164,11 @@ struct Ladder : FilterCoefficients {
     }
     template <unsigned Index, bool Limited>
     __attribute__((always_inline)) inline i32 stage(Voice& voice, i32 sample) const {
-        // Pole states start even, update by 2*v, and clamp to even rails.
-        // A = (z/2)*32768 + residue therefore retains the old rounding exactly.
-        const i32 half = voice.ladder[Index] >> 15;
-        const i32 charge = voice.ladder[Index] + (sample - 2 * half) * g;
-        const i32 next_half = charge >> 15;
-        sample = half + next_half;
-        voice.ladder[Index] = Limited
-            ? clamp(next_half, -unity, unity) * 32768 + (charge & 32767) : charge;
-        return sample;
+        const i32 previous=voice.ladder[Index];
+        const i32 filtered=previous+multiply(sample*256-previous,g*65536);
+        const i32 next=2*filtered-previous;
+        voice.ladder[Index]=Limited?clamp(next,-2*unity*256,2*unity*256):next;
+        return filtered>>8;
     }
     i32 step(Voice& voice, i32 input) const { return step<true>(voice, input); }
 };

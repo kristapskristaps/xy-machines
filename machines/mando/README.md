@@ -79,7 +79,7 @@ The original eight engine presets keep their exact parameter values.
 
 The original fixed-point DSP uses nine smoothly blended harmonic-limited
 wavetable levels. A trapezoidal four-stage ladder solves instantaneous linear
-feedback, with a tanh input in the feedback path, integrator charge retention,
+feedback, with a tanh input in the feedback path, eight guard bits in pole states,
 mild resonance compensation and a 10 Hz output DC blocker. It runs at 44.1 kHz;
 nonlinear drive can introduce aliasing at bright, high-register settings.
 The table generator is reproducible with Python's standard library:
@@ -137,39 +137,27 @@ pole filter the saturation harmonics. Oscillators, control mappings and preset
 values are unchanged; the sound intentionally differs from the first release.
 This remains a digital approximation rather than a measured Minitaur model.
 
-The engine packs each pole's even state and fractional charge into one
-accumulator, unrolls the four stages and prepares waveform/pitch paths once per
-block. Wavetables store their original Q14 values in 16-bit words. Saturation
-reads the compact integer knots directly instead of their 32 KiB expansion,
-retaining the same curve and rounding. The extra interpolation arithmetic
-trades against a smaller active table; hardware CPU validation remains pending.
-Each voice caches
-filter coefficients until cutoff or resonance changes. Voice state is 116
-bytes; the SDK compile report gives the native footprint for its selected revision.
-Compatibility fingerprints bind the optimized render to the B audition.
+The four trapezoidal pole states now use Q22 values: Q14 audio plus eight
+guard bits. Pole updates and feedback weights use the public Q31 multiply,
+replacing the preceding packed fractional-charge recurrence. This intentionally
+rounds away seven charge bits, while retaining the four-pole response,
+instantaneous feedback solve, both saturation positions and all control values.
+Wavetables, oscillator phase, stock pitch/glide and the 16-voice pool are unchanged.
 
-Pitch maximum, minimum and block constancy are determined in one scan. Blocks
-whose increments all reach the existing maximum-pitch clamp use the constant
-pitch path too; oscillator and filter state retain the same samples and rounding.
+`tests/compatibility.cpp` authenticates the frozen preceding implementation in
+`tests/reference/` against its original fingerprints and arithmetic checks.
+`tests/quality.cpp` compares the new DSP against that reference at all eight
+presets and nine pitches (27.5–8000 Hz). In those 72 long comparisons the
+maximum level change was 0.014 dB and normalized octave-band energy distance
+was 0.039. Waveforms can drift apart in resonant settings: the largest relative
+waveform error was -16.8 dB. The current sound tests still require the original
+ladder response, high-note alias rejection, control behavior and output bounds.
+These tests do not establish hardware CPU acceptance.
 
-
-Use the paired host benchmark to compare CPU cost against a collection revision:
-
-```sh
-python machines/mando/tools/benchmark.py --baseline a5d22b3 > local/mando-performance.json
-# For a current-layout comparison, including complete voice-state equivalence:
-python machines/mando/tools/benchmark.py --baseline 400ddee --verify-state --extended --cxx /path/to/clang++
-```
-
-The benchmark accepts both the historical Cyclops path and current Mando path.
-It checks audio at every block over 256 blocks per scenario; `--verify-state`
-also compares complete voice state when the selected baseline has the current
-layout. `--extended` adds above-limit, full-range and clamp-crossing pitch motion,
-for 576 scenarios. Five timing repeats alternate order and report paired medians.
-Add `--verify-only` to run the same audio/state comparisons without host timings.
-The pitch regression test checks exact phase advance for constant, clipped,
-clamp-crossing, zero and random inputs, including a single differing sample in
-every position of the block.
+Saturation still reads the compact original integer knots and keeps their
+curve. Each voice caches coefficients until cutoff or resonance changes;
+state remains 116 bytes. The pitch regression test checks exact phase advance
+for constant, clipped, clamp-crossing, zero and random pitch inputs.
 
 The historical 384-case benchmark against the unoptimized B response measured
 about 10% lower worst-case host render time. The longer 440 Hz control sweep

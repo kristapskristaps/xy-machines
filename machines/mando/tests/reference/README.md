@@ -1,0 +1,1 @@
+Frozen Mando DSP from c4c96b0fe9873c88196f20c77c437994d21c6b11, retained under the machine MIT license. Compatibility hashes authenticate the original implementation. Production Q22-state DSP has quantitative sound tests instead of regenerated exact-output hashes.

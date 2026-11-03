@@ -29,6 +29,31 @@ Spectrum measure(opxy::i32 wave,opxy::i32 sub,opxy::i32 damp){
 }
 }
 int main(){
+    const unsigned fractions[]={0,1,2,7,15,16,31,32,63,64,127,128,255,256,511,512,
+        1023,1024,2047,2048,4095,4096,8191,8192,16382,16383};
+    for(unsigned band=0;band<8;++band){
+        for(unsigned index=0;index<256;++index)for(unsigned half=0;half<2;++half){
+            const auto packed=acidline::tables::saw_square[band][index][half];
+            const unsigned at=index+half*256;
+            require(static_cast<opxy::i16>(packed&65535u)==acidline::tables::saw[band][at] &&
+                static_cast<opxy::i16>(packed>>16)==acidline::tables::saw[band][at+1]-acidline::tables::saw[band][at],
+                "FAIL packed saw value or slope");
+        }
+        for(unsigned index=0;index<512;++index)for(auto fraction:fractions){
+            const opxy::u32 phase=(index<<23)+(fraction<<9);
+            const int expected=(acidline::lookup(acidline::tables::saw[band],phase)-
+                acidline::lookup(acidline::tables::saw[band],phase+0x80000000u))/2;
+            require(acidline::square_lookup(band,phase)==expected,"FAIL paired square interpolation boundary");
+        }
+    }
+    opxy::u32 phase_random=7139;
+    for(unsigned trial=0;trial<1000000;++trial){
+        phase_random=phase_random*1664525u+1013904223u;
+        const unsigned band=trial&7u;
+        const int expected=(acidline::lookup(acidline::tables::saw[band],phase_random)-
+            acidline::lookup(acidline::tables::saw[band],phase_random+0x80000000u))/2;
+        require(acidline::square_lookup(band,phase_random)==expected,"FAIL randomized paired square interpolation");
+    }
     for(int x=-100000;x<=100000;++x){
         const int bounded=x<-49152?-49152:x>49152?49152:x;
         const int half=bounded/2,square=half*half/16384;

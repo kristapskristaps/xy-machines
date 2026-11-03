@@ -114,7 +114,11 @@ and stock content outside every checkout; device operations require a separate
 user instruction.
 
 Stable saw, triangle and square settings select their own render loop once per
-block; waveform transitions retain the original morphing path. The soft clip
+block; waveform transitions retain the original morphing path. The square path
+stores half-cycle saw values beside their exact signed slopes. Two adjacent
+word reads share the phase fraction while retaining both interpolation roundings
+before their difference. This adds 16 KiB of tables and leaves the saw and
+triangle paths unchanged; hardware CPU validation remains pending. The soft clip
 computes its magnitude before the polynomial, preserving the original curve
 with fewer signed-rounding corrections. `tests/equivalence.cpp` checks 73
 original audio/state fingerprints across controls, retriggers, pitch ramps and
@@ -123,15 +127,16 @@ live modulation. The 2x oversampling and filter arithmetic remain intact.
 The filter and damping coefficient ramps use Q31 directly, avoiding repeated
 sample scaling inside the oversampled loop. Wavetable interpolation and DC
 removal use the same public fractional multiply with their original rounding.
-These changes add no tables or voice state. Compare against the preceding
+Voice state is unchanged. Compare against the preceding
 collection revision with:
 
 ```sh
 python machines/acidline/tools/benchmark.py --cxx /path/to/clang++
 ```
 
-The paired host benchmark verifies matching audio and final voice state across
-207 control/pitch scenarios, then alternates timing order for five repetitions.
+The paired host benchmark verifies matching audio and complete voice state after
+each of 256 blocks across 207 control/pitch scenarios, then alternates timing
+order for five repetitions. Use `--verify-only` to skip host timings.
 It reports host render times, not device CPU. Measure the optimized revision
 with a full hardware control sweep before catalog publication.
 

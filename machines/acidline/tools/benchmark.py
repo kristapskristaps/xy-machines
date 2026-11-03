@@ -46,16 +46,39 @@ double run(V& voice, S& shared, const int* initial, unsigned mode, unsigned bloc
     return std::chrono::duration<double,std::nano>(std::chrono::steady_clock::now()-begin).count()/blocks;
 }
 
+bool equivalent(const int* initial,unsigned mode) {
+    acidline_before::Voice before;acidline_before::Shared bs;
+    acidline::Voice after;acidline::Shared as;
+    acidline_before::initialize(before,bs,1);acidline::initialize(after,as,1);
+    int parameters[8],old_output[64],new_output[64];unsigned pitch[64],seed=7139;
+    for(unsigned j=0;j<8;++j)parameters[j]=initial[j];
+    for(unsigned block=0;block<256;++block) {
+        if(mode==2) {
+            if(block%8==0)for(unsigned j=0;j<8;++j)parameters[j]=initial[j];
+            seed=seed*1664525u+1013904223u;
+            parameters[block%8]=static_cast<int>(seed>>1);
+        }
+        for(unsigned i=0;i<64;++i)
+            pitch[i]=mode==0?5356535u:mode==1?342818246u:5356535u+(block%128)*720031u+i*10001u;
+        if(block%32==0){acidline_before::start(before,bs,1);acidline::start(after,as,1);}
+        acidline_before::render(before,bs,1,old_output,parameters,pitch);
+        acidline::render(after,as,1,new_output,parameters,pitch);
+        if(sizeof(before)!=sizeof(after)||std::memcmp(old_output,new_output,sizeof(old_output))||
+           std::memcmp(&before,&after,sizeof(before)))return false;
+    }
+    return true;
+}
 int main() {
     acidline_before::Voice before; acidline_before::Shared bs;
     acidline::Voice after; acidline::Shared as;
     const char* modes[]={"bass","high note","control and pitch automation"};
     for(unsigned s=0;s<sizeof(settings)/sizeof(settings[0]);++s) for(unsigned mode=0;mode<3;++mode) {
         unsigned long long old_hash,new_hash;
-        run(before,bs,settings[s],mode,128,acidline_before::initialize,acidline_before::start,acidline_before::render,old_hash);
-        run(after,as,settings[s],mode,128,acidline::initialize,acidline::start,acidline::render,new_hash);
-        if(sizeof(before)!=sizeof(after) || old_hash!=new_hash || std::memcmp(&before,&after,sizeof(before))) {
+        if(!equivalent(settings[s],mode)) {
             std::fprintf(stderr,"FAIL: audio/state differs at %s / %s\n",labels[s],modes[mode]);return 1;
+        }
+        if(@VERIFY_ONLY@) {
+            std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"verified\":true}\n",labels[s],modes[mode]);continue;
         }
         double old_times[5],new_times[5],ratios[5];
         for(unsigned repeat=0;repeat<5;++repeat) {
@@ -82,6 +105,7 @@ def main():
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=1000)
+    parser.add_argument('--verify-only', action='store_true', help='Compare all audio and Voice state blocks without host timings')
     args = parser.parse_args()
     if args.blocks < 400:
         parser.error('Use at least 400 blocks to reduce timer noise.')
@@ -110,14 +134,22 @@ def main():
         for name in ('core.h', 'tables.h', 'engine.cpp'):
             content = subprocess.check_output(['git', 'show', baseline+':machines/acidline/'+name], cwd=REPO, text=True)
             (before / name).write_text(content.replace('namespace acidline {', 'namespace acidline_before {'))
+        optional = subprocess.run(['git','show',baseline+':machines/acidline/saw_square.h'],cwd=REPO,text=True,capture_output=True)
+        if optional.returncode==0:
+            (before/'saw_square.h').write_text(optional.stdout.replace('namespace acidline {','namespace acidline_before {'))
         source = SOURCE.replace('@BEFORE@', json.dumps(str(before/'engine.cpp'))).replace('@AFTER@', json.dumps(str(MACHINE/'engine.cpp')))
         source = source.replace('@SETTINGS@', ','.join('{'+','.join(map(str, row))+'}' for row in settings))
         source = source.replace('@LABELS@', ','.join(map(json.dumps, labels))).replace('@BLOCKS@', str(args.blocks))
+        source = source.replace('@VERIFY_ONLY@','true' if args.verify_only else 'false')
         (scratch / 'benchmark.cpp').write_text(source)
         executable = scratch / 'benchmark'
         subprocess.run([args.cxx, '-std=c++11', '-O2', '-I'+str(sdk/'sdk/include'), str(scratch/'benchmark.cpp'), '-o', str(executable)], check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)], text=True).splitlines()]
-    print(json.dumps(dict(baseline=baseline, host_timing_only=True, exact_audio_and_final_state=True,
+    if args.verify_only:
+        print(json.dumps(dict(baseline=baseline,exact_audio_and_voice_state_each_block=True,
+                             scenarios=len(rows),checked_blocks_per_scenario=256,timing_executed=False),indent=2))
+        return
+    print(json.dumps(dict(baseline=baseline, host_timing_only=True, exact_audio_and_voice_state_each_block=True,
                          scenarios=len(rows), blocks_per_timing=args.blocks, repeats=5,
                          median_reduction_percent=round(100*(1-statistics.median(row['paired_ratio'] for row in rows)), 1),
                          worst_before=max(rows, key=lambda row: row['before_ns']),

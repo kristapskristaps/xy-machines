@@ -1,5 +1,6 @@
 #include "core.h"
 #include "tables.h"
+#include "saw_square.h"
 #include <opxy/q31.hpp>
 namespace acidline {
 namespace {
@@ -31,6 +32,18 @@ i32 lookup(const opxy::i16* row,u32 phase){
     const u32 index=phase>>23;
     const i32 fraction=static_cast<i32>((phase&0x7ffe00u)<<8);
     return row[index]+opxy::q31::multiply(row[index+1]-row[index],fraction);
+}
+__attribute__((always_inline)) inline i32 square_lookup(u32 band,u32 phase){
+    const u32* pair=tables::saw_square[band][(phase>>23)&255u];
+    const u32 first=pair[0],second=pair[1];
+    const i32 fraction=static_cast<i32>((phase&0x7ffe00u)<<8);
+    const i32 a=static_cast<opxy::i16>(first&65535u)+
+        opxy::q31::multiply(static_cast<opxy::i16>(first>>16),fraction);
+    const i32 b=static_cast<opxy::i16>(second&65535u)+
+        opxy::q31::multiply(static_cast<opxy::i16>(second>>16),fraction);
+    // Retain each interpolation's truncation before the half-cycle subtraction.
+    const i32 square=(a-b)/2;
+    return phase&0x80000000u?-square:square;
 }
 i32 distortion_gain(i32 amount){return 256+multiply(amount,amount)*23/64;}
 i32 distort(i32 x,i32 amount,i32 gain){
@@ -113,14 +126,16 @@ template <int Mode> static inline void render_mode(Voice& v,opxy::Output output,
         const u32 increment=pitch[i];
         for(u32 sub=0;sub<2;++sub){
             i32 source;
-            if(Mode==1 || (Mode<0 && v.wave==8192))source=lookup(tables::triangle[band],v.phase);
+            if(Mode==2)source=square_lookup(band,v.phase);
+            else if(Mode==1 || (Mode<0 && v.wave==8192))source=lookup(tables::triangle[band],v.phase);
+            else if(Mode<0 && v.wave>8192){
+                const i32 square=square_lookup(band,v.phase);
+                source=v.wave==one?square:mix(lookup(tables::triangle[band],v.phase),square,(v.wave-8192)*2);
+            }
             else {
                 const i32 saw=lookup(tables::saw[band],v.phase);
                 source=saw;
-                if(Mode==2 || (Mode<0 && v.wave>8192)){
-                    const i32 square=(saw-lookup(tables::saw[band],v.phase+0x80000000u))/2;
-                    source=(Mode==2 || v.wave==one)?square:mix(lookup(tables::triangle[band],v.phase),square,(v.wave-8192)*2);
-                }else if(Mode<0 && v.wave)source=mix(saw,lookup(tables::triangle[band],v.phase),v.wave*2);
+                if(Mode<0 && v.wave)source=mix(saw,lookup(tables::triangle[band],v.phase),v.wave*2);
             }
             i32 memory=0;
             memory=v.pole[0]+opxy::q31::multiply(memory-v.pole[0],g);

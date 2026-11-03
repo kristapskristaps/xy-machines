@@ -143,6 +143,12 @@ compare 4,096 blocks with delayed Punch edits and pitch-drop reactivation.
 Both compare 4,096 display frames and states. Five timing repeats alternate
 before/after order. These are host checks; device profiling determines native
 CPU cost.
+When drive is settled, the oscillator pass chooses its drive and mip blending
+paths once per block. The four lookup combinations each have a swept and settled-pitch version,
+preserving every lookup and integer interpolation while avoiding repeated
+decisions inside each sample. Moving drive and pure-sine playback keep their
+original paths. The larger native code
+footprint and CPU effect require a matched hardware measurement.
 
 Regenerate the checked-in analytic tables with `python tools/generate_tables.py`.
 The SDK adapters own voice allocation and registration; callbacks allocate no

@@ -67,6 +67,15 @@ struct Shaper {
         const i32 l=drive_mix?c+((lookup(lean_next,phase)-c)*drive_mix>>15):c;
         return l+((r-l)*band_mix>>15);
     }
+    template<bool DriveBlend,bool MipBlend>
+    __attribute__((always_inline)) inline i32 read_settled(u32 phase) const {
+        const i32 a=lookup(rich,phase);
+        const i32 r=DriveBlend?a+((lookup(rich_next,phase)-a)*drive_mix>>15):a;
+        if(!MipBlend)return r;
+        const i32 c=lookup(lean,phase);
+        const i32 l=DriveBlend?c+((lookup(lean_next,phase)-c)*drive_mix>>15):c;
+        return l+((r-l)*band_mix>>15);
+    }
 };
 
 u32 swept(u32 pitch, i32 sweep, u32 ratio) {
@@ -76,6 +85,32 @@ u32 swept(u32 pitch, i32 sweep, u32 ratio) {
     if (!excess) return static_cast<u32>(bounded);
     const i32 scaled = opxy::q31::multiply(bounded, static_cast<i32>(factor * 1024u));
     return scaled > 0x03800000 ? 0x70000000u : static_cast<u32>(scaled) * 32u;
+}
+
+// A block call keeps each specialized loop small enough for native loop control.
+template<bool DriveBlend,bool MipBlend,bool Sweep>
+__attribute__((noinline)) void render_settled(Voice& voice,opxy::Output output,
+        opxy::Pitch pitch,i32* pure_samples,const Shaper& shaper,u32 ratio,i32 decay) {
+    for(u32 i=0;i<opxy::block_frames;++i) {
+        pure_samples[i]=lookup(waves[0][0][0],voice.phase);
+        output[i]=shaper.read_settled<DriveBlend,MipBlend>(voice.phase);
+        if(Sweep) {
+            voice.phase+=swept(pitch[i],voice.sweep,ratio);
+            voice.sweep=opxy::q31::multiply(voice.sweep,decay);
+        } else voice.phase+=pitch[i]>0x70000000u?0x70000000u:pitch[i];
+    }
+}
+
+template<bool Sweep>
+__attribute__((always_inline)) inline void dispatch_settled(Voice& voice,opxy::Output output,
+        opxy::Pitch pitch,i32* pure_samples,const Shaper& shaper,u32 ratio,i32 decay) {
+    if(shaper.drive_mix) {
+        if(shaper.lean)render_settled<true,true,Sweep>(voice,output,pitch,pure_samples,shaper,ratio,decay);
+        else render_settled<true,false,Sweep>(voice,output,pitch,pure_samples,shaper,ratio,decay);
+    } else {
+        if(shaper.lean)render_settled<false,true,Sweep>(voice,output,pitch,pure_samples,shaper,ratio,decay);
+        else render_settled<false,false,Sweep>(voice,output,pitch,pure_samples,shaper,ratio,decay);
+    }
 }
 }
 
@@ -130,7 +165,12 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     }
     const Shaper shaper(mode,static_cast<u32>(voice.drive),band,band_mix);
     i32 pure_samples[opxy::block_frames];
-    for (u32 i = 0; i < opxy::block_frames; ++i) {
+    // These lookup choices stay fixed while drive is settled. Dispatch once
+    // per block so each sample only reads the waveform banks it needs.
+    if(!pure_body && !drive_step) {
+        if(sweep)dispatch_settled<true>(voice,output,pitch,pure_samples,shaper,ratio,decay);
+        else dispatch_settled<false>(voice,output,pitch,pure_samples,shaper,ratio,decay);
+    } else for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.drive += drive_step;
         const i32 pure = lookup(waves[0][0][0], voice.phase);
         pure_samples[i] = pure;

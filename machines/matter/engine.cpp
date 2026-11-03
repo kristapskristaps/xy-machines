@@ -25,6 +25,10 @@ u32 random(Voice& voice) { return voice.random=voice.random*1664525u+1013904223u
 i32 rounded_bow_product(i32 a,i32 b) {
     return (opxy::q31::multiply(a*2,b)+1)>>1;
 }
+template<unsigned Bits> inline i32 truncated_shift(i32 value) {
+    static_assert(Bits>0 && Bits<31,"Signed truncating shift");
+    return (value+((value>>31)&((1<<Bits)-1)))>>Bits;
+}
 
 template<bool Bowed>
 void configure(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping) {
@@ -190,7 +194,7 @@ void excite(Voice& voice,i32 contour,i32 timbre,i32* out) {
 // A complete bank has fixed consecutive mode indices. Dispatch once per block
 // so the sample loop does not repeatedly load an indirect active-mode list.
 template<bool FullBank>
-void bowed_block(Voice& voice,BowDelay& delays,i32 contour,const i32* excitation,i32* mixed,
+__attribute__((noinline)) void bowed_block(Voice& voice,BowDelay& delays,i32 contour,const i32* excitation,i32* mixed,
                  const unsigned* active,unsigned active_count) {
     for(unsigned i=0;i<opxy::block_frames;++i) {
         const i32 desired=contour*512;
@@ -207,9 +211,9 @@ void bowed_block(Voice& voice,BowDelay& delays,i32 contour,const i32* excitation
             bow_sum+=delayed;
             const i32 bp=filter(bow.s1,bow.s2,bow.a1,bow.a2,bow.a3,input+delayed);
             const i32 normalized=rounded_bow_product(bp,bow.normalization);
-            delays.samples[write][mode_index]=static_cast<opxy::i16>(clamp(normalized/512,-32768,32767));
+            delays.samples[write][mode_index]=static_cast<opxy::i16>(clamp(truncated_shift<9>(normalized),-32768,32767));
             write=(write+1)&1023u;
-            bow_output+=opxy::q31::multiply(normalized,voice.modes[mode_index].gain)/8;
+            bow_output+=truncated_shift<3>(opxy::q31::multiply(normalized,voice.modes[mode_index].gain));
         }
         // Velocity is at most 32767*512, each delayed sample at most 2^24,
         // and there are at most eight modes, keeping x below 9*2^24.

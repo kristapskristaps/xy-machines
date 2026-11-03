@@ -6,6 +6,13 @@ int main() {
                              16777216,268435456,536870911,536870912};
     const opxy::i32 factors[]={-2147483647-1,-2147483647,-1073741824,-1,0,1,
                               1073741824,2126008812,2147483647};
+    const opxy::i32 divided[]={-2147483647-1,-2147483647,-513,-512,-511,-9,-8,-7,-1,0,
+                              1,7,8,9,511,512,513,2147483647};
+    for(opxy::i32 x:divided) {
+        if(matter::truncated_shift<9>(x)!=x/512 || matter::truncated_shift<3>(x)!=x/8) {
+            std::printf("FAIL: signed truncating shift at %d\n",x);return 1;
+        }
+    }
     for(opxy::i32 a:bounds)for(opxy::i32 b:factors) {
         if(matter::rounded_bow_product(a,b)!=matter_dsp::fmac1(a,b)) {
             std::printf("FAIL: bounded bow product at %d * %d\n",a,b);return 1;
@@ -17,6 +24,9 @@ int main() {
         const opxy::i32 a=static_cast<opxy::i32>(rng%1073741825u)-536870912;
         rng=rng*1664525u+1013904223u;
         const opxy::i32 b=static_cast<opxy::i32>(rng);
+        if(matter::truncated_shift<9>(b)!=b/512 || matter::truncated_shift<3>(b)!=b/8) {
+            std::printf("FAIL: random signed truncating shift at %d\n",b);return 1;
+        }
         if(matter::rounded_bow_product(a,b)!=matter_dsp::fmac1(a,b)) {
             std::printf("FAIL: random bounded bow product at %d * %d\n",a,b);return 1;
         }

@@ -78,6 +78,11 @@ The bowed path also uses the proven headroom of its clamped filter output,
 in one public fractional multiply. This replaces the duplicate low-word
 products without changing the legacy rounding. Hardware CPU validation of
 this arithmetic change remains pending.
+The bowed banks compile as private non-inlined functions, isolating their
+register allocation from the common renderer. Exact biased shifts preserve
+the signed truncation of the original divisions by 512 and 8 while avoiding
+conditional division paths inside the mode loop. Hardware CPU validation of
+this combined change remains pending.
 
 From the collection root, compare against the preceding revision with:
 

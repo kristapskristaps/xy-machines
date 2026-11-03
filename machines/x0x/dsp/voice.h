@@ -87,21 +87,22 @@ static inline i32 read(const pcm::Sample& sample, u32 cursor, u32 fraction) {
     const i32 b = cursor + 1 < sample.frames ? pcm::decode[sample.data[cursor + 1]] : 0;
     return a + multiply(b - a, i32(fraction >> 1));
 }
-static inline i32 pcm_source(Voice& v, const Settings& s) {
+template <u32 Model=model_count> static inline i32 pcm_source(Voice& v, const Settings& s) {
+    const u32 model=Model<model_count?Model:v.model;
     const pcm::Sample& sample = pcm::samples[s.sample];
     i32 signal = read(sample, v.cursor, v.fraction);
     if (s.alternate >= 0) {
         const i32 other = read(pcm::samples[s.alternate], v.cursor, v.fraction);
         signal += multiply(other - signal, i32(s.raw[body]) * 258);
     }
-    if (v.model == clap && s.raw[character]) {
+    if (model == clap && s.raw[character]) {
         const u32 delay = s.pcm_delay;
         signal = limit(signal*3/4+(v.cursor >= delay ? read(sample,v.cursor-delay,v.fraction)/2 : 0));
     }
     // A low/high split exposes snappy/metal/click/noise without replacing the
     // recording's character. Both gains are neutral at their centre values.
     v.metal_low += multiply(signal - v.metal_low, 4096);
-    if (v.model != kick && !(v.model >= low_tom && v.model <= high_tom) && v.model != clap) {
+    if (model != kick && !(model >= low_tom && model <= high_tom) && model != clap) {
         const i32 high = limit(signal - v.metal_low);
         signal = limit(v.metal_low + multiply(high, i32(s.raw[character]) * 512));
     }
@@ -111,7 +112,7 @@ static inline i32 pcm_source(Voice& v, const Settings& s) {
                      + multiply(v.metal_low,32767+(i32(s.raw[body])-64)*384));
     }
     u32 increment = s.sample_step;
-    if (v.model == kick || (v.model >= low_tom && v.model <= high_tom)) {
+    if (model == kick || (model >= low_tom && model <= high_tom)) {
         const i32 bend = (i32(s.raw[character]) - 64) * (v.pitch_envelope >> 16) / 64;
         increment = scale(increment, u32(65536 + bend));
     }
@@ -120,11 +121,12 @@ static inline i32 pcm_source(Voice& v, const Settings& s) {
     v.fraction = next & 65535;
     return signal;
 }
-static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
+template <u32 Model=model_count> static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
+    const u32 model=Model<model_count?Model:v.model;
     const i32 transient = v.transient >> 16;
     const i32 body_amount = i32(s.raw[body]) * 258;
     i32 signal = 0;
-    switch (v.model) {
+    switch (model) {
     case kick: {
         const i32 tonal = sine(v.phase[0]);
         const i32 harmonic = sine(v.phase[0] * 2);
@@ -163,21 +165,21 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     case low_conga: case mid_conga: case high_conga: {
         const i32 tonal = sine(v.phase[0]);
         signal = tonal + multiply(sine(v.phase[0]*3)-tonal,body_amount/2);
-        if (v.model <= high_tom) signal += multiply(multiply(random, transient), s.family == 0 ? 7000 : 2500);
+        if (model <= high_tom) signal += multiply(multiply(random, transient), s.family == 0 ? 7000 : 2500);
         break;
     }
     case closed_hat: case open_hat: case cymbal: {
         if (s.metal808) {
             if (!v.metal.initialized) metal_start(v.metal,v.phase);
             signal = metal_source(v.metal,v.phase,s.increments,s.metal_reciprocals,
-                                  v.model == cymbal,s.raw[tone],s.raw[body]);
+                                  model == cymbal,s.raw[tone],s.raw[body]);
             break;
         }
         i32 metal = 0;
         for (u32 i = 0; i < 6; ++i) metal += square_sixth(v.phase[i]);
         v.metal_low += multiply(metal - v.metal_low, s.family == 0 ? 12000 : 9000);
-        signal = limit((metal - v.metal_low) * (v.model == cymbal ? 3 : 4));
-        if (v.model == cymbal) signal = (signal * 3 + multiply(random, body_amount)) / 4;
+        signal = limit((metal - v.metal_low) * (model == cymbal ? 3 : 4));
+        if (model == cymbal) signal = (signal * 3 + multiply(random, body_amount)) / 4;
         break;
     }
     case cowbell:
@@ -195,10 +197,10 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     default: break; // Ride and tambourine are PCM-only types.
     }
     u32 bend = 65536;
-    if (v.model == kick) {
+    if (model == kick) {
         const u32 depth = s.raw[character] * (s.family == 3 ? 2300u : s.family == 0 ? 1800u : 1300u);
         bend += scale(depth, u32(v.pitch_envelope >> 15));
-    } else if ((v.model >= low_tom && v.model <= high_tom) || (v.model >= low_conga && v.model <= high_conga)) {
+    } else if ((model >= low_tom && model <= high_tom) || (model >= low_conga && model <= high_conga)) {
         bend += scale(s.raw[character] * 350u, u32(v.pitch_envelope >> 15));
     }
     if (bend == 65536) {
@@ -263,7 +265,7 @@ template <bool Cymbal> static inline void metal_source_block(Voice& v,const Sett
         }
     }
 }
-template <bool Sampled, bool Metal=false> static inline void render_block(Voice& v, opxy::Output output, const Settings& s) {
+template <bool Sampled, bool Metal=false, u32 Model=model_count> static inline void render_block(Voice& v, opxy::Output output, const Settings& s) {
     if (v.pending) {
         v.pending = 0;
         v.amplitude = v.transient = v.pitch_envelope = 0x7fffffff;
@@ -273,7 +275,7 @@ template <bool Sampled, bool Metal=false> static inline void render_block(Voice&
     const u32 sample_length = !Sampled ? 0 :
         s.alternate >= 0 && pcm::samples[s.alternate].frames > pcm::samples[s.sample].frames
             ? pcm::samples[s.alternate].frames : pcm::samples[s.sample].frames;
-    const u32 drive_amount = control_count(v.model) == 8 ? s.raw[x0x::drive] : 0;
+    const u32 drive_amount = control_count(Model<model_count?Model:v.model) == 8 ? s.raw[x0x::drive] : 0;
     i32 metallic[Metal?opxy::block_frames:1];
     if(Metal) {
         const u32 remaining=v.age<end?end-v.age:0;
@@ -290,11 +292,11 @@ template <bool Sampled, bool Metal=false> static inline void render_block(Voice&
         ended = source_done;
         if (v.active && !source_done) {
             if (Metal) sample = metallic[i];
-            else if (Sampled) sample = pcm_source(v, s);
+            else if (Sampled) sample = pcm_source<Model>(v, s);
             else {
                 const i32 random = noise(v.seed);
                 v.noise_low += multiply(random - v.noise_low, s.noise_filter);
-                sample = synth_source(v, s, random);
+                sample = synth_source<Model>(v, s, random);
             }
             if (v.age < s.attack_frames)
                 sample = multiply(sample,i32(v.age*s.attack_step >> 16));
@@ -318,6 +320,10 @@ template <bool Sampled, bool Metal=false> static inline void render_block(Voice&
 __attribute__((noinline)) static void render_metal_block(Voice& v, opxy::Output output, const Settings& s) {
     render_block<false,true>(v,output,s);
 }
+template <u32 Model> static inline void render_selected(Voice& v,opxy::Output output,const Settings& s) {
+    if(s.sample>=0)render_block<true,false,Model>(v,output,s);
+    else render_block<false,false,Model>(v,output,s);
+}
 static inline void render(Voice& v, opxy::Output output, opxy::Parameters parameters) {
     if (!v.active && !v.pending) {
         for (u32 i = 0; i < opxy::block_frames; ++i) output[i] = 0;
@@ -326,8 +332,27 @@ static inline void render(Voice& v, opxy::Output output, opxy::Parameters parame
     const Settings& s = voice_settings(v, parameters);
     // The selected model/style is fixed for this block. Keep PCM cursor checks
     // and synthesized oscillators in separate sample loops.
-    if(s.metal808)render_metal_block(v,output,s);
-    else if(s.sample>=0)render_block<true>(v,output,s);
-    else render_block<false>(v,output,s);
+    if(s.metal808){render_metal_block(v,output,s);return;}
+    switch(v.model) {
+    case kick:render_selected<kick>(v,output,s);break;
+    case snare:render_selected<snare>(v,output,s);break;
+    case clap:render_selected<clap>(v,output,s);break;
+    case rim:render_selected<rim>(v,output,s);break;
+    case low_tom:render_selected<low_tom>(v,output,s);break;
+    case mid_tom:render_selected<mid_tom>(v,output,s);break;
+    case high_tom:render_selected<high_tom>(v,output,s);break;
+    case closed_hat:render_selected<closed_hat>(v,output,s);break;
+    case open_hat:render_selected<open_hat>(v,output,s);break;
+    case cymbal:render_selected<cymbal>(v,output,s);break;
+    case ride:render_selected<ride>(v,output,s);break;
+    case cowbell:render_selected<cowbell>(v,output,s);break;
+    case claves:render_selected<claves>(v,output,s);break;
+    case maracas:render_selected<maracas>(v,output,s);break;
+    case low_conga:render_selected<low_conga>(v,output,s);break;
+    case mid_conga:render_selected<mid_conga>(v,output,s);break;
+    case high_conga:render_selected<high_conga>(v,output,s);break;
+    case tambourine:render_selected<tambourine>(v,output,s);break;
+    default:render_block<false>(v,output,s);break;
+    }
 }
 }}

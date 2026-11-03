@@ -1,5 +1,6 @@
 #pragma once
 #include "tables.h"
+#include "metal_stems.h"
 #include <opxy/q31.hpp>
 
 namespace x0x { namespace dsp {
@@ -47,9 +48,13 @@ static inline i32 triangle(u32 phase) {
 // Three odd partials keep the metallic source's intentional square character
 // without an unbounded set of aliased harmonics.
 static inline i32 square_partials(u32 phase) { return 15 * sine(phase) + 5 * sine(phase * 3) + 3 * sine(phase * 5); }
-static inline i32 square(u32 phase) { return divide_signal<23>(square_partials(phase)); }
-// Truncating /23 and then /6 is identical to truncating /138 once.
-static inline i32 square_sixth(u32 phase) { return divide_signal<138>(square_partials(phase)); }
+static inline i32 metallic_shape(u32 phase,u32 shape) {
+    const u32 index=phase>>22;
+    const i32 a=tables::metallic_square[shape][index],b=tables::metallic_square[shape][index+1];
+    return a+multiply(b-a,i32((phase>>7)&32767));
+}
+static inline i32 square(u32 phase) { return metallic_shape(phase,0); }
+static inline i32 square_sixth(u32 phase) { return metallic_shape(phase,1); }
 static inline i32 noise(u32& seed) {
     seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
     return i32(seed >> 17) - 16384;

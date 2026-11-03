@@ -157,32 +157,41 @@ share one increment calculation across their identical oscillators. The cache
 and cached clap constants use 152 additional bytes per voice (1,216 bytes for
 eight voices). The native kit supports eight simultaneous voices; additional
 hits use the SDK's voice stealing, while all 24 pads and 47 type/style sounds
-remain available. The cached settings preserve
-the working sound output: `tests/waveforms.cpp` checks 47 captured fingerprints,
-covering every control value, unchanged blocks, live edits and model changes.
+remain available. The original 47 captured waveform fingerprints still
+authenticate frozen legacy helpers. Current renders are compared quantitatively for level and normalized
+edge energy across every control value, live edit and model change.
 The retained display also reuses settled poses between triggers and updates
 their brightness when a tail ends.
 
 Exact reciprocal arithmetic replaces signed division in the sample loop.
-The harmonic sum uses one public fractional DSP multiply over its proven
-range; the 606 oscillator combines consecutive divisions by 23 and 6 into
-one division by 138. Smaller /3 and /6 signals keep their single-word
-reciprocals. Clap bursts use a bounded remainder and a corrected
-reciprocal; PCM clap delay is cached with its controls. These preserve integer
-rounding and the original output samples. `tests/arithmetic.cpp` exhaustively
+The three-partial square sources use 1025-point interpolated tables instead of
+three sine interpolations for every oscillator. Their exhaustive phase-grid
+comparison differs by less than 0.1% RMS. Smaller /3 and /6 signals keep their
+single-word reciprocals. Clap bursts use a bounded remainder and a corrected
+reciprocal; PCM clap delay is cached with its controls. These divisions retain
+their original integer rounding. `tests/arithmetic.cpp` exhaustively
 checks each supported division range, every Drive sample/control pair and every
 supported clap ratio.
 
 PCM and synthesized sources select separate sample loops once per callback.
-The 808 spectral filters multiply nonnegative magnitudes through the public
-DSP primitive and restore each term's sign before summing. Constant coefficients
-stay inlined, including the zero terms. This preserves the previous signed
-truncation, coefficient values and filter response, with no new voice state or
-tables. Arithmetic tests check every bounded sample against every coefficient.
+The 808 hats/cymbal read three periodic synthesized stems: bell, bright and air.
+They were rendered from the preceding six rectangular oscillators and five
+spectral filters, not sampled from a drum machine. Three Character anchors
+retain different oscillator ratios; intermediate values crossfade adjacent
+anchors. Each half-second loop rounds oscillator frequencies to the nearest
+2 Hz and includes a duplicate interpolation endpoint. Envelopes, attack, decay,
+tone/body balances and drive stay live. Tune resamples the stems, so filter
+centres now transpose with oscillator pitch. The finite loops and Character
+crossfade change beating and phase compared with the former live generator.
+
+The nine i16 stems occupy 396918 bytes, plus 4100 bytes for the square shapes.
+Voice capacity and the 332-byte voice state are unchanged. This is a deliberate
+sound/performance tradeoff; a fresh device sweep must meet 3.5% before acceptance.
 
 `tools/benchmark.cpp` reports host nanoseconds per sample for all 47 sounds,
 with steady controls or a changing Tone control (`changing` argument). Compile
-it with `-O2`, the SDK include path, `dsp/tables.cpp` and `dsp/sample_data.cpp`.
+it with `-O2`, the SDK include path, `dsp/tables.cpp`, `dsp/sample_data.cpp` and
+`dsp/metal_stems.cpp`.
 For a paired comparison against the preceding collection revision, run from
 the repository root:
 
@@ -190,36 +199,31 @@ the repository root:
 python machines/x0x/tools/benchmark.py --cxx /path/to/clang++ --blocks 4000
 ```
 
-It checks identical output and complete voice state at every block across
-423 scenarios: all 47 sounds, default/minimum/maximum controls, retriggers,
-Tone automation and all-control automation. Five timing repeats alternate
-order. Timed voices restart when retired, so silence-only callbacks do not
-dominate short sounds; the separate equivalence pass still exercises retirement
-and inactive callbacks.
-Host measurements do not capture the Blackfin compiler's software-divider
-cost. Compare native hardware callback workloads before claiming an OP-XY CPU
-improvement. Historical standalone measurements do not qualify the reorganized
-collection revision; measure its exact package before catalog submission.
+It reports whether output/state are identical and compares 423 host scenarios:
+all 47 sounds, default/minimum/maximum controls, retriggers, Tone automation and
+all-control automation. Intentional stem/table changes mean equivalence is not
+required; sound checks live in the machine tests. Timed voices restart after
+retirement, so silence callbacks do not dominate short sounds. Host timings
+cannot qualify this revision's hardware CPU or catalog acceptance.
 
-The 808 metallic filter products use signed Q14 floor directly through the
-public DSP multiply, avoiding magnitude/sign restoration. A negative fractional
-term differs from the preceding truncation by at most one Q14 count. The
-original 47 waveform and 18 metallic-state hashes still authenticate frozen
-legacy helpers; new renders must stay within 2% RMS level and 3% relative RMS
-waveform difference. Models, oscillator phases, controls, voice capacity and
-filter clamps are unchanged. This rounding change needs hardware CPU measurement.
+The original 47 waveform and 18 metallic-state hashes have not been replaced.
+They authenticate frozen reference helpers; current audio must retain RMS
+level and normalized edge energy within a factor of two across those scenes.
+The 808 default spectral centroid must stay within 25% and its upper-band
+proportion within 43% of the live reference, alongside the original high-band
+and fundamental-suppression checks. Broader timbre and device listening still
+need evaluation at the revision being measured.
 
 - 606: swept tonal oscillators for kick/toms, dual-tone/noise snare and a six-oscillator
   metallic source for hats/cymbal.
 - 808: sine kick with pitch fall, tonal/noise snare, burst clap, tuned toms and
   congas, rim/claves, metallic hats/cymbal, dual-oscillator cowbell and maracas.
-  Hats/cymbal use six band-limited rectangular oscillators, with upper-overtone
-  bands near 3.44/7.1 kHz and separate high-pass branches. The cymbal has three
-  spectral branches with different envelope shapes, rather than added white
-  noise. Tone balances the high bands; Bell shapes the cymbal's lower strike.
-  These lightweight filters follow the spectral architecture described by
+  Hats/cymbal use pre-rendered six-oscillator spectral branches, with the
+  cymbal's bell/bright/air envelopes mixed independently rather than adding
+  white noise. Tone balances the high bands; Bell shapes the lower strike.
+  The source generator follows the architecture described by
   [Werner, Abel and Smith (2014)](https://www.icmc14-smc14.net/images/proceedings/OS24-B10-TheTR-808Cymbal.pdf),
-  with original code and coefficients, rather than their complete circuit model.
+  with original code and coefficients.
 - 707: all 15 original recordings, including the two kick and snare variants.
   Body blends the variants on those two voices. Other controls shape pitch,
   envelope, onset, spectral balance and transient/body character.
@@ -244,6 +248,9 @@ logarithmic curve and decoded/interpolated at playback. See
 `python assets/generate.py --cache <external-cache>` with ffmpeg installed;
 `python dsp/generate_tables.py` rebuilds the fixed-point math tables.
 `python dsp/generate_metallic.py` rebuilds the 808 spectral filter coefficients.
+Compile `tools/generate_stems.cpp` with the SDK include path and `dsp/tables.cpp`
+to an external executable, then redirect its output to `dsp/metal_stems.cpp` to
+regenerate the synthesized stems and square tables.
 
 The envelope lookup uses 85 knots spaced more closely at short durations,
 saving 5,812 bytes compared with a uniform four-millisecond table.
@@ -259,7 +266,8 @@ isolation. `tests/metallic.cpp` checks upper-band energy and suppression of the
 generator. These tests establish neither circuit accuracy nor device CPU cost.
 
 To render a four-kit demonstration and a timed catalogue of all 47 sounds,
-compile `audition/render.cpp` with `dsp/tables.cpp`, `dsp/sample_data.cpp` and the
+compile `audition/render.cpp` with `dsp/tables.cpp`, `dsp/sample_data.cpp`,
+`dsp/metal_stems.cpp` and the
 SDK include directory, then run the executable with two external WAV output
 paths. The demo plays 606, 707, 808 and 909 for eight seconds each. The catalogue
 prints its timestamps. Both use the actual machine DSP and per-pad defaults.

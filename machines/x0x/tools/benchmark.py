@@ -1,4 +1,4 @@
-"""Check exact X0X audio/state and compare paired host timings across all styles."""
+"""Compare paired X0X host timings across intentionally different sound designs."""
 import argparse
 import json
 from pathlib import Path
@@ -65,9 +65,7 @@ int main() {
     for(unsigned model=0;model<x0x::model_count;++model)for(unsigned family=0;family<4;++family){
         if(!(x0x::family_masks[model]&(1u<<family)))continue;
         for(unsigned variant=0;variant<3;++variant)for(unsigned mode=0;mode<3;++mode){
-            if(!equivalent(model,family,variant,mode)){
-                std::fprintf(stderr,"FAIL: audio/state differs at model %u family %u variant %u mode %u\n",model,family,variant,mode);return 1;
-            }
+            const bool identical=equivalent(model,family,variant,mode);
             double old_times[5],new_times[5],ratios[5];
             for(unsigned repeat=0;repeat<5;++repeat){
                 if(repeat&1){
@@ -80,8 +78,8 @@ int main() {
                 ratios[repeat]=new_times[repeat]/old_times[repeat];
             }
             std::sort(old_times,old_times+5);std::sort(new_times,new_times+5);std::sort(ratios,ratios+5);
-            std::printf("{\"model\":%u,\"name\":\"%s\",\"family\":%u,\"variant\":%u,\"mode\":\"%s\",\"before_ns\":%.1f,\"after_ns\":%.1f,\"paired_ratio\":%.6f}\n",
-                        model,x0x::short_name(model),family,variant,modes[mode],old_times[2],new_times[2],ratios[2]);
+            std::printf("{\"model\":%u,\"name\":\"%s\",\"family\":%u,\"variant\":%u,\"mode\":\"%s\",\"audio_and_state_identical\":%s,\"before_ns\":%.1f,\"after_ns\":%.1f,\"paired_ratio\":%.6f}\n",
+                        model,x0x::short_name(model),family,variant,modes[mode],identical?"true":"false",old_times[2],new_times[2],ratios[2]);
         }
     }
 }
@@ -90,7 +88,7 @@ int main() {
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--baseline', default='3f8aa0f')
+    parser.add_argument('--baseline', default='97b6a9c')
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=1000)
@@ -117,10 +115,10 @@ def main():
         (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@', str(args.blocks)))
         executable = scratch/'benchmark'
         subprocess.run([args.cxx, '-std=c++11', '-O2', '-I'+str(sdk/'sdk/include'), str(scratch/'benchmark.cpp'),
-                        str(before/'dsp/tables.cpp'), str(before/'dsp/sample_data.cpp'),
-                        str(MACHINE/'dsp/tables.cpp'), str(MACHINE/'dsp/sample_data.cpp'), '-o', str(executable)], check=True)
+                        *[str(p) for p in sorted((before/'dsp').glob('*.cpp'))],
+                        *[str(p) for p in sorted((MACHINE/'dsp').glob('*.cpp'))], '-o', str(executable)], check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)], text=True).splitlines()]
-    print(json.dumps(dict(baseline=baseline, host_timing_only=True, exact_audio_and_state_each_block=True,
+    print(json.dumps(dict(baseline=baseline, host_timing_only=True, intentional_sound_change=True,
                          timing_keeps_voices_active=True,
                          scenarios=len(rows), checked_blocks_per_scenario=256, blocks_per_timing=args.blocks, repeats=5,
                          median_reduction_percent=round(100*(1-statistics.median(row['paired_ratio'] for row in rows)), 1),

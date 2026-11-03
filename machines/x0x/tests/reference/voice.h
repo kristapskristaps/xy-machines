@@ -1,6 +1,7 @@
 // Frozen97b6a9c test reference; only function names prefixed. Shared tables/types are unchanged.
 #pragma once
 #include "metallic.h"
+#include "primitives.h"
 namespace x0x { namespace dsp {
 static inline i32 legacy_sample_for(u32 model, u32 family) {
     static const i32 bank707[model_count] = {0,2,12,13,4,5,6,7,8,9,10,11,-1,-1,-1,-1,-1,14};
@@ -170,14 +171,14 @@ static inline i32 legacy_synth_source(Voice& v, const Settings& s, i32 random) {
             break;
         }
         i32 metal = 0;
-        for (u32 i = 0; i < 6; ++i) metal += square_sixth(v.phase[i]);
+        for (u32 i = 0; i < 6; ++i) metal += legacy_square_sixth(v.phase[i]);
         v.metal_low += multiply(metal - v.metal_low, s.family == 0 ? 12000 : 9000);
         signal = limit((metal - v.metal_low) * (v.model == cymbal ? 3 : 4));
         if (v.model == cymbal) signal = (signal * 3 + multiply(random, body_amount)) / 4;
         break;
     }
     case cowbell:
-        signal = (square(v.phase[0]) + multiply(square(v.phase[1]), body_amount)) / 2;
+        signal = (legacy_square(v.phase[0]) + multiply(legacy_square(v.phase[1]), body_amount)) / 2;
         break;
     case claves: {
         const i32 tonal = sine(v.phase[0]);

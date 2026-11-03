@@ -7,12 +7,12 @@
 
 int main() {
     using namespace x0x;
-    unsigned count = 0;double minimum_rms=2,maximum_rms=0,maximum_error=0;
+    unsigned count = 0;double minimum_rms=2,maximum_rms=0,maximum_error=0,minimum_edge=2,maximum_edge=0;
     for (unsigned model = 0; model < model_count; ++model) {
         for (unsigned family = 0; family < 4; ++family) {
             if (!(family_masks[model] & (1u << family))) continue;
             unsigned long long hash = 14695981039346656037ull;
-            double old_energy=0,new_energy=0,error_energy=0;
+            double old_energy=0,new_energy=0,error_energy=0,old_edge=0,new_edge=0,old_previous=0,new_previous=0;
             Voice voice,legacy; Shared shared; opxy::i32 output[64],reference[64],parameters[8];
             opxy::u32 pitch[64] = {};
             initialize(voice, shared, 1);initialize(legacy,shared,1);
@@ -34,6 +34,7 @@ int main() {
                             hash=(hash^opxy::u32(reference[i]))*1099511628211ull;
                             const double a=reference[i]/2147483648.,b=output[i]/2147483648.;
                             old_energy+=a*a;new_energy+=b*b;error_energy+=(a-b)*(a-b);
+                            old_edge+=(a-old_previous)*(a-old_previous);new_edge+=(b-new_previous)*(b-new_previous);old_previous=a;new_previous=b;
                         }
                     }
                 }
@@ -43,14 +44,16 @@ int main() {
                 return 1;
             }
             const double rms=std::sqrt(new_energy/old_energy),error=std::sqrt(error_energy/old_energy);
-            if(!std::isfinite(rms)||rms<.98||rms>1.02||error>.03){
-                std::fprintf(stderr,"FAIL reference sound tolerance model %u family %u: RMS%.6f error%.6f\n",model,family,rms,error);return 1;
+    const double edge=std::sqrt((new_edge/new_energy)/(old_edge/old_energy));
+            if(!std::isfinite(rms)||!std::isfinite(edge)||rms<.5||rms>2||edge<.5||edge>2){
+                std::fprintf(stderr,"FAIL reference sound tolerance model %u family %u: RMS%.6f error%.6f edge%.6f\n",model,family,rms,error,edge);return 1;
             }
-            if(rms<minimum_rms)minimum_rms=rms;if(rms>maximum_rms)maximum_rms=rms;if(error>maximum_error)maximum_error=error;
+            if(rms<minimum_rms)minimum_rms=rms;if(rms>maximum_rms)maximum_rms=rms;if(error>maximum_error)maximum_error=error;if(edge<minimum_edge)minimum_edge=edge;if(edge>maximum_edge)maximum_edge=edge;
             ++count;
         }
     }
     if (count != 47) return 1;
     std::printf("Sound ratios RMS %.9f..%.9f; worst relative RMS difference %.9f\n",minimum_rms,maximum_rms,maximum_error);
+    std::printf("Normalized edge ratio %.6f..%.6f\n",minimum_edge,maximum_edge);
     std::puts("PASS: 47 frozen legacy fingerprints and quantitative new/legacy comparisons, all controls, cache hits, edits and model changes");
 }

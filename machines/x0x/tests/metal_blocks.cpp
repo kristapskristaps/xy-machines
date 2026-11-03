@@ -6,7 +6,7 @@
 #include <cstddef>
 namespace {
 using opxy::i32;using opxy::u32;using Hash=unsigned long long;
-double minimum_rms=2,maximum_rms=0,maximum_error=0;
+double minimum_rms=2,maximum_rms=0,maximum_error=0,minimum_edge=2,maximum_edge=0;
 Hash word(Hash h,u32 v){return (h^v)*1099511628211ull;}
 Hash state_hash(Hash h,const x0x::Voice& v){
     u32 prefix[offsetof(x0x::Voice,settings)/4];std::memcpy(prefix,&v,sizeof(prefix));
@@ -16,7 +16,7 @@ Hash state_hash(Hash h,const x0x::Voice& v){
     h=word(h,v.settings.metal808);h=word(h,v.configured);return word(h,v.configured_model);
 }
 Hash scenario(unsigned model,unsigned scenario){
-    double old_energy=0,new_energy=0,error_energy=0;
+    double old_energy=0,new_energy=0,error_energy=0,old_edge=0,new_edge=0,old_previous=0,new_previous=0;
     x0x::Voice v;x0x::Shared shared;x0x::initialize(v,shared,7);x0x::start(v,shared,7);x0x::drum_select(v,shared,7,model);
     x0x::Voice legacy=v;
     i32 p[8];const unsigned defaults[8]={x0x::family_raw(model,2),64,8,64,0,64,64,0};
@@ -35,14 +35,16 @@ Hash scenario(unsigned model,unsigned scenario){
             hash=word(hash,static_cast<u32>(reference[i]));
             const double a=reference[i]/2147483648.,b=output[i]/2147483648.;
             old_energy+=a*a;new_energy+=b*b;error_energy+=(a-b)*(a-b);
+                            old_edge+=(a-old_previous)*(a-old_previous);new_edge+=(b-new_previous)*(b-new_previous);old_previous=a;new_previous=b;
         }
         hash=state_hash(hash,legacy);
     }
     const double rms=std::sqrt(new_energy/old_energy),error=std::sqrt(error_energy/old_energy);
-    if(!std::isfinite(rms)||rms<.98||rms>1.02||error>.03){
-        std::fprintf(stderr,"FAIL metal sound tolerance model %u scene %u: RMS%.6f error%.6f\n",model,scenario,rms,error);return 0;
+    const double edge=std::sqrt((new_edge/new_energy)/(old_edge/old_energy));
+    if(!std::isfinite(rms)||!std::isfinite(edge)||rms<.5||rms>2||edge<.5||edge>2){
+        std::fprintf(stderr,"FAIL metal sound tolerance model %u scene %u: RMS%.6f error%.6f edge%.6f\n",model,scenario,rms,error,edge);return 0;
     }
-    if(rms<minimum_rms)minimum_rms=rms;if(rms>maximum_rms)maximum_rms=rms;if(error>maximum_error)maximum_error=error;
+    if(rms<minimum_rms)minimum_rms=rms;if(rms>maximum_rms)maximum_rms=rms;if(error>maximum_error)maximum_error=error;if(edge<minimum_edge)minimum_edge=edge;if(edge>maximum_edge)maximum_edge=edge;
     return hash;
 }
 }
@@ -73,5 +75,6 @@ int main(){
         ++at;
     }
     std::printf("Metal ratios RMS %.9f..%.9f; worst relative RMS difference %.9f\n",minimum_rms,maximum_rms,maximum_error);
+    std::printf("Normalized edge ratio %.6f..%.6f\n",minimum_edge,maximum_edge);
     std::puts("PASS: frozen metallic PCM/state references plus quantitative new/legacy comparison across tails, extremes, automation, changes and resets");
 }

@@ -40,6 +40,13 @@ static inline Settings settings(u32 model, opxy::Parameters parameters) {
         s.clap_inverse = (32767u << 16) / s.clap_period;
         if (s.sample >= 0) s.pcm_delay = pcm::samples[s.sample].rate * s.raw[character] / 4000;
     }
+    if(s.metal808){
+        s.sample_step=tables::tuning[s.raw[tune]];
+        const u32 character=s.raw[x0x::character];
+        s.metal_reciprocals[0]=character<64?0:1;
+        s.metal_reciprocals[1]=character<64?character*512:(character-64)*32768/63;
+        return s;
+    }
     static const u32 base[model_count] = {53,180,800,835,98,131,175,205,205,205,440,540,2500,1200,165,220,330,1200};
     u32 hz = base[model];
     if (s.family == 0) {
@@ -167,12 +174,6 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
         break;
     }
     case closed_hat: case open_hat: case cymbal: {
-        if (s.metal808) {
-            if (!v.metal.initialized) metal_start(v.metal,v.phase);
-            signal = metal_source(v.metal,v.phase,s.increments,s.metal_reciprocals,
-                                  v.model == cymbal,s.raw[tone],s.raw[body]);
-            break;
-        }
         i32 metal = 0;
         for (u32 i = 0; i < 6; ++i) metal += square_sixth(v.phase[i]);
         v.metal_low += multiply(metal - v.metal_low, s.family == 0 ? 12000 : 9000);
@@ -212,56 +213,39 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     }
     return limit(signal);
 }
-template <unsigned Filter> static inline void metal_filter_block(MetalState& state,
-        const MetalCoefficients& c, const i32* input, i32* output, u32 frames) {
-    MetalFilterState& filter = state.filters[Filter];
-    i32 x1=filter.x1,x2=filter.x2,y1=filter.y1,y2=filter.y2;
-    for(u32 i=0;i<frames;++i) {
-        const i32 x=input[i];
-        const i32 y=limit(metal_product(x,c.b0)+metal_product(x1,c.b1)+metal_product(x2,c.b2)
-                          -metal_product(y1,c.a1)-metal_product(y2,c.a2));
-        x2=x1;x1=x;y2=y1;y1=y;output[i]=y;
-    }
-    filter.x1=x1;filter.x2=x2;filter.y1=y1;filter.y2=y2;
+static inline i32 stem_read(u32 anchor,u32 branch,u32 cursor,u32 fraction){
+    const i32 a=tables::metal_stems[anchor][branch][cursor],b=tables::metal_stems[anchor][branch][cursor+1];
+    return a+multiply(b-a,i32(fraction>>1));
 }
-template <bool Cymbal> static inline void metal_source_block(Voice& v,const Settings& s,
+template <bool Cymbal,bool Blend> static inline void metal_source_block(Voice& v,const Settings& s,
         i32* output,u32 frames) {
     if(!frames)return;
-    if(!v.metal.initialized)metal_start(v.metal,v.phase);
-    i32 cluster[opxy::block_frames],high[opxy::block_frames];
-    i32 bright[opxy::block_frames],air[opxy::block_frames];
-    for(u32 i=0;i<frames;++i) {
-        const i32 random=noise(v.seed);
-        v.noise_low+=multiply(random-v.noise_low,s.noise_filter);
-        i32 sum=0;
-        for(u32 oscillator=0;oscillator<6;++oscillator) {
-            sum+=divide_signal<6>(metal_pulse(v.phase[oscillator],s.increments[oscillator],s.metal_reciprocals[oscillator]));
-            v.phase[oscillator]+=s.increments[oscillator]>0x60000000u?0x60000000u:s.increments[oscillator];
-        }
-        cluster[i]=sum;
-    }
-    metal_filter_block<1>(v.metal,high_band,cluster,high,frames);
-    metal_filter_block<3>(v.metal,hat_cut,high,bright,frames);
-    metal_filter_block<4>(v.metal,air_cut,high,air,frames);
-    if(Cymbal) {
-        metal_filter_block<0>(v.metal,low_band,cluster,cluster,frames);
-        metal_filter_block<2>(v.metal,low_cut,cluster,high,frames);
-    }
+    if(!v.metal.initialized){metal_start(v.metal,v.phase);v.cursor=v.fraction=0;}
+    u32 cursor=v.cursor,fraction=v.fraction;
+    if(cursor>=22050)cursor%=22050;
+    i32 fast=v.metal.fast,medium=v.metal.medium;
     const i32 fast_rate=Cymbal?rate(180):0,medium_rate=Cymbal?rate(700):0;
-    for(u32 i=0;i<frames;++i) {
-        v.metal.air_low+=multiply(air[i]-v.metal.air_low,25432);
-        const i32 filtered_air=air[i]-v.metal.air_low;
-        if(!Cymbal)output[i]=limit((multiply(bright[i],32767-i32(s.raw[tone])*160)
-                                 +multiply(filtered_air,i32(s.raw[tone])*512))*32);
-        else {
-            const i32 strike=multiply(high[i],v.metal.fast>>16);
-            const i32 shimmer=multiply(bright[i],8192+(v.metal.medium>>17));
-            v.metal.fast=envelope(v.metal.fast,fast_rate);
-            v.metal.medium=envelope(v.metal.medium,medium_rate);
+    const u32 anchor=s.metal_reciprocals[0];const i32 blend=i32(s.metal_reciprocals[1]);
+    for(u32 i=0;i<frames;++i){
+        i32 bright=stem_read(anchor,1,cursor,fraction),air=stem_read(anchor,2,cursor,fraction);
+        if(Blend){bright+=multiply(stem_read(anchor+1,1,cursor,fraction)-bright,blend);
+                  air+=multiply(stem_read(anchor+1,2,cursor,fraction)-air,blend);}
+        if(!Cymbal)output[i]=limit((multiply(bright,32767-i32(s.raw[tone])*160)
+                                  +multiply(air,i32(s.raw[tone])*512))*32);
+        else{
+            i32 bell=stem_read(anchor,0,cursor,fraction);
+            if(Blend)bell+=multiply(stem_read(anchor+1,0,cursor,fraction)-bell,blend);
+            const i32 strike=multiply(bell,fast>>16);
+            const i32 shimmer=multiply(bright,8192+(medium>>17));
+            fast=envelope(fast,fast_rate);medium=envelope(medium,medium_rate);
             output[i]=limit((multiply(strike,8192+i32(s.raw[body])*192)+shimmer
-                           +multiply(filtered_air,i32(s.raw[tone])*512))*18);
+                            +multiply(air,i32(s.raw[tone])*512))*18);
         }
+        const u32 next=fraction+s.sample_step;
+        cursor+=next>>16;fraction=next&65535;
+        if(cursor>=22050)cursor-=22050;
     }
+    v.cursor=cursor;v.fraction=fraction;v.metal.fast=fast;v.metal.medium=medium;
 }
 template <bool Sampled, bool Metal=false> static inline void render_block(Voice& v, opxy::Output output, const Settings& s) {
     if (v.pending) {
@@ -278,8 +262,13 @@ template <bool Sampled, bool Metal=false> static inline void render_block(Voice&
     if(Metal) {
         const u32 remaining=v.age<end?end-v.age:0;
         const u32 frames=v.active?(remaining<opxy::block_frames?remaining:opxy::block_frames):0;
-        if(v.model==cymbal)metal_source_block<true>(v,s,metallic,frames);
-        else metal_source_block<false>(v,s,metallic,frames);
+        if(s.metal_reciprocals[1]){
+            if(v.model==cymbal)metal_source_block<true,true>(v,s,metallic,frames);
+            else metal_source_block<false,true>(v,s,metallic,frames);
+        }else{
+            if(v.model==cymbal)metal_source_block<true,false>(v,s,metallic,frames);
+            else metal_source_block<false,false>(v,s,metallic,frames);
+        }
     }
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         i32 sample = 0;

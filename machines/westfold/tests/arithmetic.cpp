@@ -30,8 +30,19 @@ int main() {
         for(opxy::i32 offset=-4096;offset<=4096;++offset)
             if(!exact(threshold+offset)||!exact(threshold/2+offset))return 1;
     }
+    const unsigned fractions[]={0,1,127,16383,16384,32766,32767};
+    for(unsigned bank=0;bank<8;++bank)for(unsigned fold=0;fold<17;++fold)
+        for(unsigned index=0;index<512;++index)for(unsigned fraction:fractions) {
+            const opxy::u32 phase=(index<<23)|(fraction<<8)|255u;
+            if(westfold::dsp::read(westfold::tables::waves[bank][fold],phase)!=
+               westfold::dsp::read_point(westfold::points::waves[bank][fold],phase))return 1;
+        }
+    for(unsigned index=0;index<512;++index)for(unsigned fraction:fractions) {
+        const opxy::u32 phase=(index<<23)|(fraction<<8)|255u;
+        if(westfold::dsp::read(westfold::tables::sine,phase)!=westfold::dsp::sine(phase))return 1;
+    }
     opxy::u32 random=7139;
     for(unsigned i=0;i<1000000;++i)if(!exact(random=random*1664525u+1013904223u))return 1;
     if(!exact(0)||!exact(0xffffffffu))return 1;
-    std::puts("PASS: exact compact drawing tables, every bounded third, all band transitions and one million phase increments");
+    std::puts("PASS: exact compact drawing tables, every bounded third, all band transitions, packed interpolation and one million phase increments");
 }

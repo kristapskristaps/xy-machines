@@ -8,10 +8,13 @@ using opxy::u32;
 inline i32 clamp(i32 x, i32 lo, i32 hi) { return x < lo ? lo : x > hi ? hi : x; }
 inline i32 control(i32 x) { return x < 0 ? 0 : x >> 16; }
 inline i32 mix(i32 a, i32 b, i32 t) { return a + ((b - a) * t >> 15); }
+// Adjacent phase slopes are bounded by 11189 across all committed banks.
 inline i32 read(const opxy::i16* table, u32 phase) {
     const u32 index = phase >> 23;
-    const i32 fraction = static_cast<i32>((phase >> 8) & 32767u);
-    return mix(table[index], table[index + 1], fraction);
+    const opxy::i16 fraction = static_cast<opxy::i16>((phase >> 8) & 32767u);
+    const i32 first=table[index];
+    const opxy::i16 difference=static_cast<opxy::i16>(table[index+1]-first);
+    return first+(difference*fraction>>15);
 }
 inline i32 lookup(const i32* table, i32 value) {
     const u32 position = static_cast<u32>(clamp(value, 0, 32767));

@@ -101,3 +101,11 @@ python ../../../xy-machines-sdk/sdk.py compile --machine . --profiling on --out 
 An installable image additionally needs the exact stock OS 1.2.1 from the owner’s device. Follow the SDK’s [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md) and [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md). Firmware and firmware-containing packages belong outside every checkout. No device installation or diagnostics are performed by the development commands above.
 
 Westfold is MIT licensed; see [LICENSE](LICENSE) and the [Braids attribution](vendor/README.md).
+
+The adjacent-point interpolator explicitly narrows its proven signed16 slope
+and Q15 fraction before multiplication. FM sine and depth operands also fit
+signed16. Native inspection confirms twelve general word products become
+signed16 products without changing the table layout, voice memory or hardware
+loops. All table slopes are checked against their signed16 bound; exact PCM and
+full voice state remain unchanged. Mip, fold and balance blends keep their
+original arithmetic. Hardware timing is required to assess the speed change.

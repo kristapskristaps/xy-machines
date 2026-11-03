@@ -74,7 +74,7 @@ inline void render(Voice& __restrict voice, Shared&, u32, opxy::Output __restric
         const i32 fraction = (folding & 2047) * 16;
 
         fm += fm_step;
-        const i32 offset = dsp::sine(voice.mod_phase) * fm;
+        const i32 offset = static_cast<opxy::i16>(dsp::sine(voice.mod_phase)) * static_cast<opxy::i16>(fm);
         const u32 phase = voice.phase + static_cast<u32>(offset);
         i32 signal = dsp::clean(clean_band, phase);
         if(c[2]) {

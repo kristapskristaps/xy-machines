@@ -30,6 +30,12 @@ int main() {
         for(opxy::i32 offset=-4096;offset<=4096;++offset)
             if(!exact(threshold+offset)||!exact(threshold/2+offset))return 1;
     }
+    for(unsigned bank=0;bank<8;++bank)for(unsigned fold=0;fold<17;++fold) {
+        const opxy::u32 guard=westfold::points::waves[bank][fold][256];
+        const auto* wave=westfold::tables::waves[bank][fold];
+        if(static_cast<opxy::i16>(guard)!=wave[256] ||
+           static_cast<opxy::i16>(guard>>16)!=wave[257]-wave[256])return 1;
+    }
     const unsigned fractions[]={0,1,127,16383,16384,32766,32767};
     for(unsigned bank=0;bank<8;++bank)for(unsigned fold=0;fold<17;++fold)
         for(unsigned index=0;index<512;++index)for(unsigned fraction:fractions) {

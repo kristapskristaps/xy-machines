@@ -68,9 +68,12 @@ half-cycle antisymmetric, so only 256 points per wave are stored. The second
 half negates both values before the original interpolation multiply and shift;
 it never negates an already rounded result. The packed high half supplies the
 slope scaled by 65536; the existing SDK Q31 multiply with the 15-bit fraction
-then exactly equals the original integer product shifted by 15. Fold rows become a power-of-two
-1024 bytes. The packed audio data is 274 bytes smaller than the original
-wave/sine banks; the original tables remain the independent test reference.
+then exactly equals the original integer product shifted by 15. Wave rows retain the half-cycle endpoint and its slope as a 257th guard point,
+giving a 1028-byte stride. Adjacent fold and mip rows then have different low
+address bits when read together. The guard costs 544 bytes across 136 rows
+compared with 256-word packed rows. Point arithmetic is unchanged; the guard
+matches the original half-cycle endpoint. The packed wave/sine data is 270
+bytes larger than the original banks, which remain the independent test reference.
 Hardware CPU effects remain pending; host equivalence is not a timing result.
 
 From the collection root, compare against the preceding revision with:

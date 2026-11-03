@@ -10,14 +10,15 @@ using opxy::i32;using opxy::u32;
 const i32 unit=16777216;
 struct Line {unsigned offset,length;};
 // Four input diffusers per side, then two allpasses and two delays per side.
+// A 64-byte gap between rings changes cache-set mapping, not logical delays.
 const Line lines[19]={
-    {0,64},{64,64},{128,128},{256,128},
-    {384,64},{448,64},{512,128},{640,128},
-    {768,512},{1280,4096},{5376,1024},{6400,2048},
-    {8448,512},{8960,2048},{11008,2048},{13056,2048},
-    {15104,4096},{19200,4096},{23296,33792}
+    {0,64},{80,64},{160,128},{304,128},
+    {448,64},{528,64},{608,128},{752,128},
+    {896,512},{1424,4096},{5536,1024},{6576,2048},
+    {8640,512},{9168,2048},{11232,2048},{13296,2048},
+    {15360,4096},{19472,4096},{23584,33792}
 };
-const unsigned fir_offset=57088;
+const unsigned fir_offset=57376;
 const unsigned fir_words=376;
 static_assert(fir_offset+fir_words<=buffer_words,"Halo scratch layout");
 const unsigned diffusion_delay[8]={34,52,81,123,37,56,87,126};

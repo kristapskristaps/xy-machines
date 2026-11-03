@@ -1,0 +1,1 @@
+Frozen staged Halo DSP from35f3507b5a509543c4bcb8f5d9a33e420186d89f. Its core/tables match the existing legacy reference. Used only to compare logical delay storage after padding, under the Halo MIT license.

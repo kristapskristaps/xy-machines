@@ -120,3 +120,11 @@ requires an authenticated stock OS 1.2.1 from the user's device. Follow the
 SDK's [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md)
 and [profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
 Device operations require separate authorization. No firmware is included.
+
+This storage candidate separates consecutive delay rings by sixteen words
+(64 bytes), within the existing declared scratch allocation. Logical delays,
+interpolation, state and controls are unchanged. Twelve long comparisons
+check every output/state block and complete logical delay/FIR storage against
+35f3507, including dirty startup, reset, automation, tempo changes and Hold.
+Padding is never read as audio. This change needs hardware timing to establish
+whether the altered ring addresses improve cache behavior.

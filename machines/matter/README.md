@@ -68,6 +68,8 @@ its active modes once per block. The excitation scaler uses an exact public
 fractional multiply in place of per-sample software division. These changes
 preserve the preceding revision's samples, rounding, resonator state, random
 sequence and resource ownership.
+The bowed delay storage interleaves the eight modes by frame, keeping their
+simultaneous writes adjacent without changing delay lengths or stored samples.
 
 From the collection root, compare against the preceding revision with:
 
@@ -79,7 +81,8 @@ The paired host benchmark covers 180 scenarios: all six exciters, six pitches,
 default/minimum/maximum controls, position motion and simultaneous control/pitch
 motion. Each checks 256 blocks with three voices, including live model edits,
 retriggers, initialization/destruction and bow-resource stealing. It compares
-audio, the complete original voice state and the shared pool after every voice
+audio, the complete original voice state, pool ownership metadata and every
+logical delay sample after every voice
 callback; the added coefficient cache is excluded from the state comparison.
 Five timing repeats alternate before/after order. These timings are host evidence,
 not measured OP-XY CPU usage.

@@ -7,7 +7,8 @@ const unsigned mode_count=24;
 const unsigned bow_capacity=2;
 struct Filter { opxy::i32 s1,s2,a1,a2,a3,gain; };
 struct BowFilter { opxy::i32 s1,s2,a1,a2,a3,normalization; };
-struct BowDelay { opxy::i16 samples[8][1024]; };
+// Adjacent mode writes share a frame instead of eight widely spaced lines.
+struct BowDelay { opxy::i16 samples[1024][8]; };
 struct Voice {
     Filter modes[mode_count];
     BowFilter bowed[8];

@@ -283,11 +283,11 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
                 u32& write=voice.bow_write[mode_index];
                 const u32 length=voice.bow_length[mode_index];
                 const u32 read=(write+1024u-length)&1023u;
-                const i32 delayed=fmac1(static_cast<i32>(delays->samples[mode_index][read])*512,2126008812);
+                const i32 delayed=fmac1(static_cast<i32>(delays->samples[read][mode_index])*512,2126008812);
                 bow_sum+=delayed;
                 const i32 bp=filter(bow.s1,bow.s2,bow.a1,bow.a2,bow.a3,input+delayed);
                 const i32 normalized=fmac1(bp,bow.normalization);
-                delays->samples[mode_index][write]=static_cast<opxy::i16>(clamp(normalized/512,-32768,32767));
+                delays->samples[write][mode_index]=static_cast<opxy::i16>(clamp(normalized/512,-32768,32767));
                 write=(write+1)&1023u;
                 bow_output+=opxy::q31::multiply(normalized,voice.modes[mode_index].gain)/8;
             }

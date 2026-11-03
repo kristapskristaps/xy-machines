@@ -17,6 +17,19 @@ SOURCE = r'''
 #include <cstring>
 #include <cstddef>
 volatile unsigned sink=0;
+template<class Delay> short delay_sample(const Delay& delay,unsigned mode,unsigned frame) {
+    // Compare logical samples for both the preceding planar and new interleaved layout.
+    if(sizeof(delay.samples)/sizeof(delay.samples[0])==8)return delay.samples[mode][frame];
+    return delay.samples[frame][mode];
+}
+bool shared_equal(const matter_before::Shared& before,const matter::Shared& after) {
+    if(sizeof(before)!=sizeof(after) || before.bows.clock!=after.bows.clock ||
+       std::memcmp(before.bows.owners,after.bows.owners,sizeof(before.bows.owners)) ||
+       std::memcmp(before.bows.stamps,after.bows.stamps,sizeof(before.bows.stamps)))return false;
+    for(unsigned resource=0;resource<2;++resource)for(unsigned mode=0;mode<8;++mode)for(unsigned frame=0;frame<1024;++frame)
+        if(delay_sample(before.bows.resources[resource],mode,frame)!=delay_sample(after.bows.resources[resource],mode,frame))return false;
+    return true;
+}
 void controls(unsigned model,unsigned variant,unsigned block,int* p,unsigned& random) {
     const unsigned defaults[]={6553,16384,9830,9830,0,16384,19661,32767};
     for(unsigned slot=0;slot<8;++slot) {
@@ -43,10 +56,11 @@ bool equivalent(unsigned model,unsigned variant,unsigned increment) {
             if(block==128){matter_before::initialize(old[i],bs,i+1);matter::initialize(now[i],as,i+1);}
             matter_before::render(old[i],bs,i+1,before,parameters,pitch);
             matter::render(now[i],as,i+1,after,parameters,pitch);
-            static_assert(sizeof(matter_before::Voice)==offsetof(matter::Voice,exciter_timbre),"Original voice prefix stays intact");
+            static_assert(sizeof(matter_before::Voice)==sizeof(matter::Voice) ||
+                          sizeof(matter_before::Voice)==offsetof(matter::Voice,exciter_timbre),"Compared voice fields stay intact");
             bool voice_difference=false;
             for(unsigned j=0;j<3;++j)voice_difference=voice_difference||std::memcmp(&old[j],&now[j],sizeof(old[j]));
-            if(sizeof(bs)!=sizeof(as)||std::memcmp(before,after,sizeof(before))||voice_difference||std::memcmp(&bs,&as,sizeof(bs))) {
+            if(std::memcmp(before,after,sizeof(before))||voice_difference||!shared_equal(bs,as)) {
                 std::fprintf(stderr,"difference at model %u variant %u pitch %u block %u voice %u\n",model,variant,increment,block,i);return false;
             }
         }
@@ -72,6 +86,9 @@ int main(){
     const unsigned pitches[]={2678268,5356535,10713070,42852281,171409123,685636493};
     for(unsigned model=0;model<6;++model)for(unsigned variant=0;variant<5;++variant)for(unsigned pitch:pitches){
         if(!equivalent(model,variant,pitch))return 1;
+        if(@VERIFY_ONLY@) {
+            std::printf("{\"model\":%u,\"variant\":%u,\"pitch\":%u,\"verified\":true}\n",model,variant,pitch);continue;
+        }
         double old_times[5],new_times[5],ratios[5];
         for(unsigned repeat=0;repeat<5;++repeat){
             if(repeat&1){
@@ -96,6 +113,7 @@ def main():
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=1000)
+    parser.add_argument('--verify-only', action='store_true', help='compare audio, voices and all logical delay samples without timing')
     args = parser.parse_args()
     if args.blocks < 400:
         parser.error('Use at least 400 blocks to reduce timer noise.')
@@ -116,10 +134,15 @@ def main():
             content = subprocess.check_output(['git','show',baseline+':'+path],cwd=REPO,text=True)
             target.write_text(content.replace('matter_dsp','matter_before_dsp').replace('namespace matter {','namespace matter_before {'))
         source = SOURCE.replace('@BEFORE@',json.dumps(str(before/'engine.cpp'))).replace('@AFTER@',json.dumps(str(MACHINE/'engine.cpp')))
-        (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@',str(args.blocks)))
+        (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@',str(args.blocks)).replace('@VERIFY_ONLY@','true' if args.verify_only else 'false'))
         executable = scratch/'benchmark'
         subprocess.run([args.cxx,'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),str(scratch/'benchmark.cpp'),'-o',str(executable)],check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)],text=True).splitlines()]
+    if args.verify_only:
+        print(json.dumps(dict(baseline=baseline,exact_audio_original_voice_and_shared_state_each_block=True,
+                             scenarios=len(rows),voices_per_equivalence_scenario=3,checked_blocks_per_scenario=256,
+                             timing_executed=False),indent=2))
+        return
     print(json.dumps(dict(baseline=baseline,host_timing_only=True,exact_audio_original_voice_and_shared_state_each_block=True,
                          scenarios=len(rows),voices_per_equivalence_scenario=3,checked_blocks_per_scenario=256,
                          blocks_per_timing=args.blocks,repeats=5,

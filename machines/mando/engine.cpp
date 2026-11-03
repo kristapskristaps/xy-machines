@@ -3,6 +3,22 @@
 
 namespace mando {
 namespace {
+template<bool Limited>
+__attribute__((noinline)) void filter_audio(Voice& __restrict voice,opxy::Output __restrict output,const dsp::Ladder& __restrict coefficients) {
+    for(unsigned i=0;i<opxy::block_frames;++i)output[i]=coefficients.step<Limited>(voice,output[i]);
+}
+__attribute__((noinline)) void finish_audio(Voice& __restrict voice,opxy::Output __restrict output) {
+    using namespace dsp;
+    i32 previous=voice.dc_input,feedback=voice.dc_output,residue=voice.dc_residue;
+    for(unsigned i=0;i<opxy::block_frames;++i){
+        const i32 sample=output[i],charge=feedback*32721+residue;
+        const i32 dc=sample-previous+(charge>>15);
+        residue=static_cast<i32>(static_cast<u32>(charge)&32767u);
+        previous=sample;feedback=dc;
+        output[i]=clamp(dc,-unity,unity)*32768;
+    }
+    voice.dc_input=previous;voice.dc_output=feedback;voice.dc_residue=residue;
+}
 template <bool Moving, bool Constant, bool Limited>
 void render_audio(Voice& voice, opxy::Output __restrict output, opxy::Pitch __restrict pitch,
                   const dsp::Band& first, const dsp::Band& second,
@@ -29,16 +45,13 @@ void render_audio(Voice& voice, opxy::Output __restrict output, opxy::Pitch __re
             ? morph(main_b, pulse_b, voice.phase[1], voice.wave[1]) : main_b.read(voice.phase[1]);
         const i32 mixed = a + ((b - a) * balance >> 15);
         const i32 driven = mixed * drive >> 8;
-        const i32 filtered = coefficients.step<Limited>(voice, driven);
+        output[i]=driven;
         voice.phase[0] += increment;
         voice.phase[1] += other;
-        const i32 charge = voice.dc_output * 32721 + voice.dc_residue;
-        const i32 dc = filtered - voice.dc_input + (charge >> 15); // 10 Hz
-        voice.dc_residue = static_cast<i32>(static_cast<u32>(charge) & 32767u);
-        voice.dc_input = filtered;
-        voice.dc_output = dc;
-        output[i] = clamp(dc, -unity, unity) * 32768;
+
     }
+    filter_audio<Limited>(voice,output,coefficients);
+    finish_audio(voice,output);
 }
 template <bool Moving, bool Constant>
 void dispatch_audio(Voice& voice, opxy::Output __restrict output, opxy::Pitch __restrict pitch,

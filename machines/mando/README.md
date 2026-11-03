@@ -137,6 +137,12 @@ pole filter the saturation harmonics. Oscillators, control mappings and preset
 values are unchanged; the sound intentionally differs from the first release.
 This remains a digital approximation rather than a measured Minitaur model.
 
+Oscillator generation, the recursive ladder and the DC/output path use separate
+bounded block passes over the caller's output buffer. This reduces the number
+of live phases, pointers and filter coefficients in each native loop. The
+complete PCM and voice state match the compact-table implementation across
+576 scenarios of 256 callbacks; the filter and saturation curves are unchanged.
+
 The engine packs each pole's even state and fractional charge into one
 accumulator, unrolls the four stages and prepares waveform/pitch paths once per
 block. Wavetables store their original Q14 values in 16-bit words. Saturation

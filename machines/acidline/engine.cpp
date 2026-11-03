@@ -172,8 +172,7 @@ template <int Mode,bool Limited> static inline void render_mode(Voice& v,opxy::O
         if(v.tone>=16383)v.tone_memory=dc_removed;
         else v.tone_memory+=opxy::q31::multiply(dc_removed-v.tone_memory,tone_g);
         const i32 main=v.tone_memory;
-        const i32 low=v.sub?lookup(tables::sine,v.sub_phase):0;
-        output[i]=mix(main,low,v.sub/2)*32768;
+        output[i]=(v.sub?mix(main,lookup(tables::sine,v.sub_phase),v.sub/2):main)*32768;
         v.sub_remainder+=increment&1u;
         v.sub_phase+=increment/2+v.sub_remainder/2;
         v.sub_remainder&=1u;

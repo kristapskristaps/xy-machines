@@ -125,6 +125,8 @@ is bounded by 39,936. A per-block guard checks successive pole-state bounds of
 reached. Four fast waveform paths omit those clamps, and a generic clamped
 path handles states outside the proof bounds. Rates, feedback, nonlinearities
 and rounding remain unchanged. Hardware CPU validation remains pending.
+With Sub at zero, the output skips its zero-gain multiply while its phase and
+pitch remainder continue advancing exactly as before.
 
 The filter and damping coefficient ramps use Q31 directly, avoiding repeated
 sample scaling inside the oversampled loop. Wavetable interpolation and DC

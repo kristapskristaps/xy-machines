@@ -8,7 +8,12 @@ using Hash=unsigned long long;
 // Captured from 8641aec before changing Halo's DSP.
 const Hash reference[]={2840770238351456209ull,11031747802177985088ull,
     8094262595374788695ull,16343497099083187646ull,
-    4606473952324732194ull,3153414701709683826ull};
+    4606473952324732194ull,3153414701709683826ull,
+    // Additional initial half/quarter phases, captured from 23062df.
+    17849600692276180942ull,
+    10621122786095845011ull,
+    14511908686935152329ull,
+    17359923963260641563ull};
 const i32 presets[][8]={
     {858993459,1181116006,257698038,107374182,966367642,1460288880,0,2147483647},
     {1395864371,1567663063,1417339207,214748365,816043786,1460288880,0,2147483647},
@@ -18,6 +23,7 @@ Hash word(Hash hash,u32 value){return (hash^value)*1099511628211ull;}
 static i32 memory[halo::buffer_words],left[64],right[64];
 Hash scenario(unsigned setting){
     halo::State state;halo::initialize(state);
+    if(setting>=6){state.half=(setting-6)&1u;state.quarter=(setting-6)>>1;}
     for(auto& sample:memory)sample=0x3f3f3f3f;
     i32 parameters[8];std::memcpy(parameters,presets[setting%3],sizeof parameters);
     opxy::Buffer buffer={memory,halo::buffer_words};
@@ -49,7 +55,7 @@ Hash scenario(unsigned setting){
 }
 int main(){
     bool pass=true;
-    for(unsigned scenario_index=0;scenario_index<6;++scenario_index){
+    for(unsigned scenario_index=0;scenario_index<10;++scenario_index){
         const Hash actual=scenario(scenario_index);
         if(actual!=reference[scenario_index]){
             std::fprintf(stderr,"FAIL: Halo audio/state/scratch reference %u: %llu\n",scenario_index,actual);pass=false;

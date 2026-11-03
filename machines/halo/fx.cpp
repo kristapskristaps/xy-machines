@@ -195,7 +195,7 @@ __attribute__((always_inline)) inline void plate(State& state,i32* memory,const 
         const i32 open=mul(tail,duck_gain);
         wet[channel]=soft(mul(open,24000)+opxy::q31::multiply(echoes[channel],config.wet_echo));
 }
-void network(State& __restrict state,i32* __restrict memory,i32* __restrict input,i32* __restrict output,const Settings& __restrict config) {
+__attribute__((noinline)) void network(State& __restrict state,i32* __restrict memory,i32* __restrict input,i32* __restrict output,const Settings& __restrict config) {
     i32 echoes[2],predelay[2],shifted[2];
     for(unsigned channel=0;channel<2;++channel) {
         state.input_high[channel]+=mul(input[channel]-state.input_high[channel],2198);
@@ -285,31 +285,64 @@ void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
     }
     const Settings config=settings(state);
     const u32 grain_step=16777216u/config.grain_width;
+    i32 half_frames[2][opxy::block_frames/2],quarter_frames[2][opxy::block_frames/4];
+    unsigned half_count=0,quarter_count=0;
+    unsigned half_phase=state.half,quarter_phase=state.quarter;
     for(unsigned i=0;i<opxy::block_frames;++i) {
         down[0][0][state.down_write[0]]=down[0][0][state.down_write[0]+31]=left[i]/128;
         down[0][1][state.down_write[0]]=down[0][1][state.down_write[0]+31]=right[i]/128;
-        if(!state.half) {
+        if(!half_phase) {
             for(unsigned channel=0;channel<2;++channel)
-                down[1][channel][state.down_write[1]]=down[1][channel][state.down_write[1]+31]=downsample(down[0][channel],state.down_write[0]);
-            if(!state.quarter) {
-                state.delay=glide(state.delay,target_delay,512);
-                i32 input[2]={downsample(down[1][0],state.down_write[1]),downsample(down[1][1],state.down_write[1])},wet[2];
-                network(state,memory,input,wet,config);
-                state.grain_phase=(state.grain_phase+grain_step)&16777215u;
-                if(++state.up_write[1]==16)state.up_write[1]=0;
-                for(unsigned channel=0;channel<2;++channel)
-                    up[1][channel][state.up_write[1]]=up[1][channel][state.up_write[1]+16]=wet[channel];
-            }
-            if(++state.up_write[0]==16)state.up_write[0]=0;
-            for(unsigned channel=0;channel<2;++channel)
-                up[0][channel][state.up_write[0]]=up[0][channel][state.up_write[0]+16]=upsample(up[1][channel],state.up_write[1],state.quarter);
-            state.quarter^=1;
-            if(++state.down_write[1]==31)state.down_write[1]=0;
+                half_frames[channel][half_count]=downsample(down[0][channel],state.down_write[0]);
+            ++half_count;
         }
-        left[i]=clamp(upsample(up[0][0],state.up_write[0],state.half),-unit+1,unit-1)*128;
-        right[i]=clamp(upsample(up[0][1],state.up_write[0],state.half),-unit+1,unit-1)*128;
-        state.half^=1;
+        half_phase^=1;
         if(++state.down_write[0]==31)state.down_write[0]=0;
     }
+    for(unsigned i=0;i<half_count;++i) {
+        for(unsigned channel=0;channel<2;++channel)
+            down[1][channel][state.down_write[1]]=down[1][channel][state.down_write[1]+31]=half_frames[channel][i];
+        if(!quarter_phase) {
+            for(unsigned channel=0;channel<2;++channel)
+                quarter_frames[channel][quarter_count]=downsample(down[1][channel],state.down_write[1]);
+            ++quarter_count;
+        }
+        quarter_phase^=1;
+        if(++state.down_write[1]==31)state.down_write[1]=0;
+    }
+    for(unsigned i=0;i<quarter_count;++i) {
+        state.delay=glide(state.delay,target_delay,512);
+        i32 input[2]={quarter_frames[0][i],quarter_frames[1][i]},wet[2];
+        network(state,memory,input,wet,config);
+        state.grain_phase=(state.grain_phase+grain_step)&16777215u;
+        quarter_frames[0][i]=wet[0];quarter_frames[1][i]=wet[1];
+    }
+    unsigned quarter_read=0;
+    quarter_phase=state.quarter;
+    for(unsigned i=0;i<half_count;++i) {
+        if(!quarter_phase) {
+            if(++state.up_write[1]==16)state.up_write[1]=0;
+            for(unsigned channel=0;channel<2;++channel)
+                up[1][channel][state.up_write[1]]=up[1][channel][state.up_write[1]+16]=quarter_frames[channel][quarter_read];
+            ++quarter_read;
+        }
+        for(unsigned channel=0;channel<2;++channel)
+            half_frames[channel][i]=upsample(up[1][channel],state.up_write[1],quarter_phase);
+        quarter_phase^=1;
+    }
+    unsigned half_read=0;
+    half_phase=state.half;
+    for(unsigned i=0;i<opxy::block_frames;++i) {
+        if(!half_phase) {
+            if(++state.up_write[0]==16)state.up_write[0]=0;
+            for(unsigned channel=0;channel<2;++channel)
+                up[0][channel][state.up_write[0]]=up[0][channel][state.up_write[0]+16]=half_frames[channel][half_read];
+            ++half_read;
+        }
+        left[i]=clamp(upsample(up[0][0],state.up_write[0],half_phase),-unit+1,unit-1)*128;
+        right[i]=clamp(upsample(up[0][1],state.up_write[0],half_phase),-unit+1,unit-1)*128;
+        half_phase^=1;
+    }
+    state.half=half_phase;state.quarter=quarter_phase;
 }
 }

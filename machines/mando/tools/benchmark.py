@@ -52,6 +52,7 @@ bool equivalent(const int* initial,unsigned mode) {
     const unsigned notes[]={5356534u,42852281u,42852281u,685636492u,42852281u,42852281u,1610612736u,42852281u,1073741824u};
     for(unsigned i=0;i<8;++i)p[i]=initial[i];
     mando_before::start(before,bs,1);mando::start(after,as,1);
+    bool identical=true;
     for(unsigned block=0;block<256;++block){
         for(unsigned i=0;i<64;++i)pitch[i]=notes[mode]+((mode==2||mode==5||mode==6)?i*12345u:0u);
         if(mode==7)for(unsigned i=0;i<64;++i)pitch[i]=(seed=seed*1664525u+1013904223u);
@@ -67,10 +68,11 @@ bool equivalent(const int* initial,unsigned mode) {
         mando_before::render(before,bs,1,old_output,p,pitch);mando::render(after,as,1,new_output,p,pitch);
         if(std::memcmp(old_output,new_output,sizeof(old_output)) ||
            (@VERIFY_STATE@ && (sizeof(before)!=sizeof(after)||std::memcmp(&before,&after,sizeof(before))))){
-            std::fprintf(stderr,"audio/state differs at mode %u block %u\n",mode,block);return false;
+            if(!@ALLOW_SOUND_CHANGE@){std::fprintf(stderr,"audio/state differs at mode %u block %u\n",mode,block);return false;}
+            identical=false;
         }
     }
-    return true;
+    return identical;
 }
 @REFERENCE@
 int main() {
@@ -78,9 +80,10 @@ int main() {
     mando::Voice after={}; mando::Shared as;
     const char* modes[] = {"bass","steady","pitch bend","high note","wave automation","overload automation","clamped pitch","random pitch","clamp crossing"};
     for(unsigned s=0;s<sizeof(settings)/sizeof(settings[0]);++s) for(unsigned mode=0;mode<@MODES@;++mode) {
-        if(!equivalent(settings[s],mode))return 1;
+        const bool identical=equivalent(settings[s],mode);
+        if(!identical&&!@ALLOW_SOUND_CHANGE@)return 1;
         if(@VERIFY_ONLY@) {
-            std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"verified\":true}\n",labels[s],modes[mode]);continue;
+            std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"identical\":%s}\n",labels[s],modes[mode],identical?"true":"false");continue;
         }
         double old_times[5],new_times[5],ratios[5];
         for(unsigned run=0;run<5;++run) {
@@ -96,7 +99,7 @@ int main() {
         }
         std::sort(old_times,old_times+5);std::sort(new_times,new_times+5);std::sort(ratios,ratios+5);
         const double reference = reference_ns();
-        std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"before_ns\":%.1f,\"after_ns\":%.1f,\"reference_ns\":%.3f,\"paired_ratio\":%.6f}\n",labels[s],modes[mode],old_times[2],new_times[2],reference,ratios[2]);
+        std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"identical\":%s,\"before_ns\":%.1f,\"after_ns\":%.1f,\"reference_ns\":%.3f,\"paired_ratio\":%.6f}\n",labels[s],modes[mode],identical?"true":"false",old_times[2],new_times[2],reference,ratios[2]);
     }
 }
 '''
@@ -104,10 +107,11 @@ int main() {
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--baseline', default='a5d22b3', help='collection revision before B optimization')
+    parser.add_argument('--baseline', default='c4c96b0', help='collection revision before B optimization')
     parser.add_argument('--sdk', type=Path, help='SDK checkout supplying public headers')
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=4000)
+    parser.add_argument('--allow-sound-change', action='store_true', help='Report intentional differences; machine sound tests remain the quality gate')
     parser.add_argument('--verify-state', action='store_true', help='Compare complete state when both revisions use the same Voice layout')
     parser.add_argument('--extended', action='store_true', help='Also cover clamped and full-range sample pitch motion')
     parser.add_argument('--verify-only', action='store_true', help='Compare every audio/state block without collecting host timings')
@@ -166,15 +170,17 @@ def main():
         source = source.replace('@SETTINGS@',','.join('{'+','.join(map(str,row))+'}' for row in settings))
         source = source.replace('@REFERENCE@',reference).replace('@VERIFY_STATE@','true' if args.verify_state else 'false').replace('@MODES@','9' if args.extended else '6')
         source = source.replace('@LABELS@',','.join(map(json.dumps,labels))).replace('@BLOCKS@',str(args.blocks))
+        source = source.replace('@ALLOW_SOUND_CHANGE@','true' if args.allow_sound_change else 'false')
         source = source.replace('@VERIFY_ONLY@','true' if args.verify_only else 'false')
         (scratch/'benchmark.cpp').write_text(source)
         executable = scratch/'benchmark'
         subprocess.run([args.cxx,'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),str(scratch/'benchmark.cpp'),'-o',str(executable)],check=True)
         result = subprocess.check_output([str(executable)],text=True)
         rows = [json.loads(line) for line in result.splitlines()]
+    exact=all(row["identical"] for row in rows)
     if args.verify_only:
-        print(json.dumps(dict(baseline=baseline,exact_audio_each_block=True,
-                             exact_voice_state_each_block=args.verify_state,
+        print(json.dumps(dict(baseline=baseline,exact_audio_each_block=exact,
+                             exact_voice_state_each_block=bool(args.verify_state and exact),
                              checked_blocks_per_scenario=256,extended=args.extended,
                              scenarios=len(rows),timing_executed=False),indent=2))
         return
@@ -187,8 +193,8 @@ def main():
         'max_estimated_before': max(row['estimated_before'] for row in rows if row['mode'] == mode),
         'max_estimated_after': max(row['estimated_after'] for row in rows if row['mode'] == mode)
     } for mode in sorted({row['mode'] for row in rows})}
-    print(json.dumps(dict(baseline=baseline,host_timing_only=True,
-                         exact_audio_each_block=True,exact_voice_state_each_block=args.verify_state,
+    print(json.dumps(dict(baseline=baseline,host_timing_only=True,intentional_sound_change=args.allow_sound_change,
+                         exact_audio_each_block=exact,exact_voice_state_each_block=bool(args.verify_state and exact),
                          checked_blocks_per_scenario=256,extended=args.extended,
                          worst_before=worst_before,worst_after=worst_after,
                          worst_reduction_percent=round(100*(1-worst_after['after_ns']/worst_before['before_ns']),1),

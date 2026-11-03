@@ -17,12 +17,14 @@ inline i32 interpolate(const i32* table, u32 position, unsigned bits) {
     const i32 fraction = static_cast<i32>((position & ((1u << bits) - 1)) << (31 - bits));
     return table[index] + multiply(table[index + 1] - table[index], fraction);
 }
-// Signal tables use Q14; small coefficients avoid wide multiplies in audio.
+// Signal tables use Q14, adjacent slopes fit signed16, and callers use only
+// 8- or10-bit fractions. Preserve those widths through the native multiply.
 template <class Sample>
 inline i32 linear(const Sample* table, u32 position, unsigned bits) {
     const u32 index = position >> bits;
-    const i32 fraction = static_cast<i32>(position & ((1u << bits) - 1));
-    return table[index] + ((table[index + 1] - table[index]) * fraction >> bits);
+    const opxy::i16 fraction = static_cast<opxy::i16>(position & ((1u << bits) - 1));
+    const opxy::i16 difference = static_cast<opxy::i16>(table[index+1]-table[index]);
+    return table[index] + (difference * fraction >> bits);
 }
 inline i32 saturate(i32 x) {
     const u32 a = static_cast<u32>(x < 0 ? -x : x);
@@ -133,46 +135,64 @@ struct Ladder : FilterCoefficients {
         const u32 denominator = 32768u + static_cast<u32>(feedback);
         inverse = static_cast<i32>(0x40000000u / denominator);
     }
+    // With Q13 |H|<=8192 and table g70..22971, the first three pole outputs
+    // are bounded by 9037, 9629, 10044. Thus every narrow stage difference fits
+    // signed16 (maximum 26013); the final pole receives a new |x|<=8192 clip.
+    bool short_safe(const Voice& voice) const {
+        if(g<70 || g>22971)return false;
+        for(unsigned i=0;i<4;++i){const i32 half=voice.ladder[i]>>15;if(half<-8192 || half>8192)return false;}
+        return true;
+    }
+    static void repair_state(Voice& voice){
+        for(unsigned i=0;i<4;++i)voice.ladder[i]=clamp(voice.ladder[i]>>15,-8192,8192)*32768+(voice.ladder[i]&32767);
+    }
     bool needs_limits(const Voice& voice) const {
         if (g > 16384) return true;
         for (unsigned i = 0; i < 4; ++i)
-            if ((voice.ladder[i] >> 15) < -12288 || (voice.ladder[i] >> 15) > 12288) return true;
+            if ((voice.ladder[i] >> 15) < -6144 || (voice.ladder[i] >> 15) > 6144) return true;
         return false;
     }
-    template <bool Limited>
+    template<bool Short>
+    __attribute__((always_inline)) static inline i32 product(i32 a,i32 b){
+        return Short?static_cast<opxy::i16>(a)*static_cast<opxy::i16>(b):a*b;
+    }
+    template <bool Limited,bool Short=true>
     __attribute__((always_inline)) inline i32 step(Voice& voice, i32 input) const {
         // TPT four-pole ladder: solve instantaneous feedback before updating
         // the trapezoidal integrators. A nonlinear input limits resonance.
         i32 corrected = (input >> 2) * 4;
         if (resonance) {
-            const i32 memory = ((voice.ladder[0] >> 15) * weights[0]
-                              + (voice.ladder[1] >> 15) * weights[1]
-                              + (voice.ladder[2] >> 15) * weights[2]
-                              + (voice.ladder[3] >> 15) * weights[3]) >> 14;
-            corrected = (((input - (memory * resonance >> 13)) >> 2) * inverse) >> 13;
+            const i32 memory = (product<Short>(voice.ladder[0] >> 15,weights[0])
+                              + product<Short>(voice.ladder[1] >> 15,weights[1])
+                              + product<Short>(voice.ladder[2] >> 15,weights[2])
+                              + product<Short>(voice.ladder[3] >> 15,weights[3])) >> 14;
+            corrected = (((input - (product<Short>(memory*2,resonance) >> 13)) >> 2) * inverse) >> 13;
         }
-        i32 sample = saturate(corrected);
-        sample = stage<0, Limited>(voice, sample);
-        sample = stage<1, Limited>(voice, sample);
-        sample = stage<2, Limited>(voice, sample);
+        i32 sample = saturate(corrected)/2;
+        sample = stage<0, Limited, Short>(voice, sample);
+        sample = stage<1, Limited, Short>(voice, sample);
+        sample = stage<2, Limited, Short>(voice, sample);
         // Keep overload and resonance compensation inside the ladder: the
         // final pole filters the generated harmonics before they leave it.
-        sample += (sample * compensation >> 15);
-        sample = saturate(sample);
-        return stage<3, Limited>(voice, sample);
+        sample += (product<Short>(sample,compensation) >> 15);
+        sample = saturate(sample*2)/2;
+        return stage<3, Limited, Short>(voice, sample)*2;
     }
-    template <unsigned Index, bool Limited>
+    template <unsigned Index, bool Limited,bool Short=true>
     __attribute__((always_inline)) inline i32 stage(Voice& voice, i32 sample) const {
         // Pole states start even, update by 2*v, and clamp to even rails.
         // A = (z/2)*32768 + residue therefore retains the old rounding exactly.
         const i32 half = voice.ladder[Index] >> 15;
-        const i32 charge = voice.ladder[Index] + (sample - 2 * half) * g;
+        const i32 charge = voice.ladder[Index] + product<Short>(sample - 2 * half,g);
         const i32 next_half = charge >> 15;
         sample = half + next_half;
         voice.ladder[Index] = Limited
-            ? clamp(next_half, -unity, unity) * 32768 + (charge & 32767) : charge;
+            ? clamp(next_half, -unity/2, unity/2) * 32768 + (charge & 32767) : charge;
         return sample;
     }
-    i32 step(Voice& voice, i32 input) const { return step<true>(voice, input); }
+    i32 step(Voice& voice, i32 input) const {
+        if(short_safe(voice))return step<true,true>(voice,input);
+        repair_state(voice);return step<true,false>(voice,input);
+    }
 };
 }}

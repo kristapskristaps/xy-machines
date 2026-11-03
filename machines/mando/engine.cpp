@@ -3,7 +3,7 @@
 
 namespace mando {
 namespace {
-template <bool Moving, bool Constant, bool Limited>
+template <bool Moving, bool Constant, bool Limited,bool Short=true>
 void render_audio(Voice& voice, opxy::Output __restrict output, opxy::Pitch __restrict pitch,
                   const dsp::Band& first, const dsp::Band& second,
                   const dsp::Oscillator& osc_a, const dsp::Oscillator& osc_b,
@@ -29,7 +29,7 @@ void render_audio(Voice& voice, opxy::Output __restrict output, opxy::Pitch __re
             ? morph(main_b, pulse_b, voice.phase[1], voice.wave[1]) : main_b.read(voice.phase[1]);
         const i32 mixed = a + ((b - a) * balance >> 15);
         const i32 driven = mixed * drive >> 8;
-        const i32 filtered = coefficients.step<Limited>(voice, driven);
+        const i32 filtered = coefficients.step<Limited,Short>(voice, driven);
         voice.phase[0] += increment;
         voice.phase[1] += other;
         const i32 charge = voice.dc_output * 32721 + voice.dc_residue;
@@ -102,7 +102,12 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output __restrict output,
     const Oscillator osc_a(first, target_wave[0]), osc_b(second, target_wave[1]);
     const bool changing_waves = voice.wave[0] != target_wave[0] || voice.wave[1] != target_wave[1];
     // Below quarter-rate cutoff, each integrator is a convex update. With
-    // 8192 counts of state headroom, 64 samples of rounding cannot hit a rail.
+    // 4096 counts of full-state headroom, 64 samples of rounding cannot hit a rail.
+    if(!filter.short_safe(voice)){
+        Ladder::repair_state(voice);
+        render_audio<true,false,true,false>(voice,output,pitch,first,second,osc_a,osc_b,filter,target_wave,ratio,octave,balance,drive);
+        return;
+    }
     const bool limited = filter.needs_limits(voice);
     if (changing_waves) {
         if (constant) dispatch_audio<true, true>(voice, output, pitch, first, second, osc_a, osc_b, filter, target_wave, ratio, octave, balance, drive, limited);

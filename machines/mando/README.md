@@ -146,37 +146,49 @@ trades against a smaller active table; hardware CPU validation remains pending.
 Each voice caches
 filter coefficients until cutoff or resonance changes. Voice state is 116
 bytes; the SDK compile report gives the native footprint for its selected revision.
-Compatibility fingerprints bind the optimized render to the B audition.
+The eight compatibility fingerprints now authenticate a frozen copy of the
+original Q14 B renderer; none were replaced to admit the Q13 candidate.
 
 Pitch maximum, minimum and block constancy are determined in one scan. Blocks
 whose increments all reach the existing maximum-pitch clamp use the constant
-pitch path too; oscillator and filter state retain the same samples and rounding.
+pitch path too; oscillator phase and interpolation retain their original rounding.
 
 
-Use the paired host benchmark to compare CPU cost against a collection revision:
+The ladder now runs internally at Q13, returning Q14 audio before the unchanged
+DC blocker. Both nonlinearities, all four poles, resonance feedback, control
+curves and 15 fractional charge bits remain. This loses one audio amplitude bit
+inside the ladder. Explicit signed16 operands let the native compiler use its
+integer DSP multiply for the pole differences, feedback weights and resonance,
+and compensation. The oscillator phase and waveform interpolants remain exact.
+
+The proof uses the actual 70..22971 pole table: with half-states bounded by 8192,
+the first three pole outputs are bounded by 9037, 9629, 10044, keeping every stage
+difference within signed16. A block guard routes out-of-domain states through
+a generic 32-bit kernel after repairing their rails; normal presets and automation
+are explicitly checked to remain on the narrow path. No rate, pole, waveform,
+control, preset or voice-capacity reduction is used. The 116-byte state and eight
+voices remain available.
+
+`tests/quality.cpp` compares all 16 factory presets at nine pitches plus rapid
+control/pitch automation against the frozen Q14 render. It reports raw waveform
+RMS error, level, normalized edge energy and overlapping spectral-band error.
+High-resonance self-oscillation can drift in phase despite matching pitch and
+spectral balance, so phase-independent spectral checks supplement waveform
+error. A coherent high-note overload fixture compares alias energy directly.
+`tests/q13_bounds.cpp` checks the domain proof, every coefficient, the fallback
+guard and 65536 explicit signed16/generic 32-bit frame/state pairs.
+
+For paired host timing across the intentionally different ladders:
 
 ```sh
-python machines/mando/tools/benchmark.py --baseline a5d22b3 > local/mando-performance.json
-# For a current-layout comparison, including complete voice-state equivalence:
-python machines/mando/tools/benchmark.py --baseline 400ddee --verify-state --extended --cxx /path/to/clang++
+python machines/mando/tools/benchmark.py --baseline c4c96b0 --allow-sound-change --extended --cxx /path/to/clang++
 ```
 
-The benchmark accepts both the historical Cyclops path and current Mando path.
-It checks audio at every block over 256 blocks per scenario; `--verify-state`
-also compares complete voice state when the selected baseline has the current
-layout. `--extended` adds above-limit, full-range and clamp-crossing pitch motion,
-for 576 scenarios. Five timing repeats alternate order and report paired medians.
-Add `--verify-only` to run the same audio/state comparisons without host timings.
-The pitch regression test checks exact phase advance for constant, clipped,
-clamp-crossing, zero and random inputs, including a single differing sample in
-every position of the block.
-
-The historical 384-case benchmark against the unoptimized B response measured
-about 10% lower worst-case host render time. The longer 440 Hz control sweep
-estimated about 15,300 instructions per voice per 64-sample block; simultaneous
-overload/control automation reached about 15,700. The short SDK run reported
-21,400, illustrating the host estimator's substantial variation. These readings
-remain above the 15,000 advisory aim; they do not qualify device CPU safety.
+The helper retains every per-block identity check and reports whether audio
+and requested state checks match; `--allow-sound-change` permits the expected
+Q13 differences. Quantitative quality is enforced by the machine tests.
+`--verify-only` omits timing. The pitch regression test checks exact phase
+advance for constant, clipped, clamp-crossing, zero and random inputs.
 
 Host timings do not measure Blackfin cycles, stock processing or whole-project
 utilization. The new response needs hardware CPU profiling and normal playback

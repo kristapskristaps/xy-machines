@@ -1,4 +1,5 @@
 #include "../engine.cpp"
+#include "reference/engine.cpp"
 #include <cstdio>
 namespace {
 const opxy::i32 patches[8][8] = { {1331439861, 0, 0, 0, 0, 1073741824, 1073741824, 0},
@@ -10,21 +11,21 @@ const opxy::i32 patches[8][8] = { {1331439861, 0, 0, 0, 0, 1073741824, 107374182
 {1309965025, 2018634628, 171798692, 0, 0, 0, 1073741824, 2147483647},
 {2147483647, 0, 0, 0, 515396075, 1073741824, 1073741824, 0} };
 opxy::u32 fingerprint(unsigned patch) {
-    mando::Voice voice = {}; mando::Shared shared;
+    mando_legacy::Voice voice = {}; mando_legacy::Shared shared;
     opxy::i32 parameters[8], output[64]; opxy::u32 pitch[64];
     opxy::u32 hash = 2166136261u, seed = 9137u + patch;
     const opxy::u32 notes[] = {0u, 3185120u, 5356534u, 10713067u, 42852281u, 171409123u, 685636492u};
     for (unsigned j = 0; j < 8; ++j) parameters[j] = patches[patch][j];
-    mando::initialize(voice, shared, 1);
+    mando_legacy::initialize(voice, shared, 1);
     for (unsigned block = 0; block < 256; ++block) {
-        if (block % 128 == 0) mando::start(voice, shared, 1);
+        if (block % 128 == 0) mando_legacy::start(voice, shared, 1);
         if (block >= 128 && block % 8 == 0) for (unsigned j = 0; j < 8; ++j) {
             seed = seed * 1664525u + 1013904223u;
             parameters[j] = static_cast<opxy::i32>(seed >> 1);
         }
         for (unsigned i = 0; i < 64; ++i)
             pitch[i] = notes[(block / 16) % 7] + (block & 1u ? i * 12345u : 0u);
-        mando::render(voice, shared, 1, output, parameters, pitch);
+        mando_legacy::render(voice, shared, 1, output, parameters, pitch);
         for (unsigned i = 0; i < 64; ++i) hash = (hash ^ static_cast<opxy::u32>(output[i])) * 16777619u;
     }
     return hash;
@@ -53,16 +54,16 @@ int main() {
     }
     // The original two-word recurrence independently checks packing, rounding,
     // and clipping at both rails; only even states are reachable from start().
-    const int states[] = {-32768, -24576, -2, 0, 2, 24576, 32768};
+    const int states[] = {-16384, -12288, -2, 0, 2, 12288, 16384};
     const int residues[] = {0, 1, 32767};
     const int coefficients[] = {35, 8192, 16384, 16385, 22800};
-    const int inputs[] = {-32768, -16384, -1, 0, 1, 16384, 32768};
+    const int inputs[] = {-8192, -4096, -1, 0, 1, 4096, 8192};
     for (int z : states) for (int r : residues) for (int g : coefficients) for (int input : inputs) {
         mando::Voice packed = {};
         packed.ladder[0] = z / 2 * 32768 + r;
         const int charge = (input - z) * g + r;
         const int v = charge >> 15;
-        const int next = mando::dsp::clamp(z + 2 * v, -32768, 32768);
+        const int next = mando::dsp::clamp(z + 2 * v, -16384, 16384);
         const int expected = next / 2 * 32768 + (charge & 32767);
         const mando::dsp::Ladder filter(g, 0);
         if (filter.stage<0, true>(packed, input) != z + v || packed.ladder[0] != expected) {
@@ -76,9 +77,9 @@ int main() {
         std::puts("FAIL: coefficient limit boundary"); return 1;
     }
     for (int sign = -1; sign <= 1; sign += 2) for (unsigned residue = 0; residue <= 32767; residue += 32767) {
-        boundary.ladder[0] = sign * 12288 * 32768 + static_cast<opxy::i32>(residue);
+        boundary.ladder[0] = sign * 6144 * 32768 + static_cast<opxy::i32>(residue);
         if (quarter.needs_limits(boundary)) { std::puts("FAIL: headroom boundary rejected"); return 1; }
-        boundary.ladder[0] = sign * 12289 * 32768 + static_cast<opxy::i32>(residue);
+        boundary.ladder[0] = sign * 6145 * 32768 + static_cast<opxy::i32>(residue);
         if (!quarter.needs_limits(boundary)) { std::puts("FAIL: insufficient headroom accepted"); return 1; }
     }
     // Check the no-clamp proof at the complete 64-sample boundary, including
@@ -88,7 +89,7 @@ int main() {
         mando::Voice limited = {}, fast = {};
         for (unsigned j = 0; j < 4; ++j) {
             seed = seed * 1664525u + 1013904223u;
-            const opxy::i32 half = static_cast<opxy::i32>(seed % 24577) - 12288;
+            const opxy::i32 half = static_cast<opxy::i32>(seed % 12289) - 6144;
             limited.ladder[j] = half * 32768 + static_cast<opxy::i32>(seed >> 17);
         }
         fast = limited;
@@ -107,5 +108,5 @@ int main() {
                 }
         }
     }
-    std::puts("PASS: auditioned B preset/automation fingerprints and 64-sample rail proof");
+    std::puts("PASS: frozen original Q14 B fingerprints and new Q13 64-sample rail proof");
 }

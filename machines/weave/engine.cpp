@@ -68,8 +68,8 @@ void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
         opxy::i32 accumulated=0;
         const opxy::i16* history=voice.history+voice.history_write+23;
         const opxy::i16* coefficients=resample_coefficients[voice.resample_phase];
-        // Fixed offsets preserve accumulation order without a per-frame tap loop.
-        accumulated+=static_cast<opxy::i32>(history[-0])*coefficients[0];
+        // Both endpoint coefficients are zero in all 147 phases. Retain the
+        // other products in their original order and keep the full history.
         accumulated+=static_cast<opxy::i32>(history[-1])*coefficients[1];
         accumulated+=static_cast<opxy::i32>(history[-2])*coefficients[2];
         accumulated+=static_cast<opxy::i32>(history[-3])*coefficients[3];
@@ -92,7 +92,6 @@ void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
         accumulated+=static_cast<opxy::i32>(history[-20])*coefficients[20];
         accumulated+=static_cast<opxy::i32>(history[-21])*coefficients[21];
         accumulated+=static_cast<opxy::i32>(history[-22])*coefficients[22];
-        accumulated+=static_cast<opxy::i32>(history[-23])*coefficients[23];
         const opxy::i32 sample=accumulated>>15;
         output[i]=(sample<-32768?-32768:sample>32767?32767:sample)*16384;
     }

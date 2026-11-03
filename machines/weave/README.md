@@ -99,10 +99,12 @@ soft clip use an exact reciprocal division with a checked remainder; wavetable
 cubic interpolation drops only sub-LSB rounding work. Normal playback and
 worst-case model CPU still require device validation.
 The 24-tap converter uses mirrored histories to remove ring-wrap work while
-retaining bit-identical audio.
+retaining bit-identical audio. Both endpoint coefficients are zero in every
+phase; skipping those products leaves 22 multiplies per output sample without
+changing the filter or its history. Hardware CPU validation remains pending.
 Each output consumes one source sample, with a second only when the rational
-phase crosses its boundary. Four FIR taps share each loop branch without
-changing their sum order. Block-rate ramps use exact constant-divisor paths
+phase crosses its boundary. Fixed FIR offsets retain the original sum order.
+Block-rate ramps use exact constant-divisor paths
 for the source and internal chunk lengths, preserving signed rounding. No
 model, voice limit, filter tap, table or saved control changes.
 

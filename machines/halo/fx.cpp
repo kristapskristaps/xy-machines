@@ -157,6 +157,39 @@ Settings settings(const State& state) {
     result.duck*=65536;result.release*=65536;result.modulation*=65536;
     return result;
 }
+template<unsigned channel>
+__attribute__((always_inline)) inline void plate(State& state,i32* memory,const i32* input,const i32* output,
+        const i32* echoes,const i32* predelay,i32* next_plate,i32* wet,const Settings& config) {
+        const unsigned other=1-channel;
+        const i32 seeded=mul(predelay[channel],23593)+mul(input[channel],3277)+opxy::q31::multiply(echoes[channel],config.seed_echo);
+        i32 diffused=seeded;
+        diffused=allpass(state,memory,channel*4+0,diffused,static_cast<i32>(diffusion_delay[channel*4+0]*256u),config.diffusion);
+        diffused=allpass(state,memory,channel*4+1,diffused,static_cast<i32>(diffusion_delay[channel*4+1]*256u),config.diffusion);
+        diffused=allpass(state,memory,channel*4+2,diffused,static_cast<i32>(diffusion_delay[channel*4+2]*256u),config.diffusion);
+        diffused=allpass(state,memory,channel*4+3,diffused,static_cast<i32>(diffusion_delay[channel*4+3]*256u),config.diffusion);
+        const i32 tank=soft(mul(diffused,23593)+opxy::q31::multiply(state.plate[other],config.decay)+opxy::q31::multiply(output[channel],config.shimmer));
+        state.phase[channel]+=channel?49474u:44022u;
+        const i32 sine=table(tables::sine,state.phase[channel]>>16);
+        const i32 modulation=opxy::q31::multiply(sine,config.modulation)/4;
+        const unsigned first=8+channel*4;
+        const i32 ap1=plate_allpass(state,memory,first,tank,config.delays[channel][0],modulation,22282);
+        const i32 d1=tap(state,memory,first+1,config.delays[channel][1]);
+        write(state,memory,first+1,ap1);
+        state.damping[channel]+=opxy::q31::multiply(d1-state.damping[channel],config.damping);
+        const i32 ap2=plate_allpass(state,memory,first+2,opxy::q31::multiply(state.damping[channel],config.decay),config.delays[channel][2],-modulation/4,16384);
+        const i32 d2=tap(state,memory,first+3,config.delays[channel][3]);
+        write(state,memory,first+3,ap2);
+        next_plate[channel]=clamp(d2,-unit,unit);
+        const i32 tail=mul(ap1,4260)+mul(d1,10158)+mul(d2,22282)+mul(state.plate[other],5898);
+        const i32 magnitude=input[channel]<0?-input[channel]:input[channel];
+        state.body[channel]+=mul(magnitude-state.body[channel],76);
+        const i32 transient=clamp((magnitude-state.body[channel]-state.body[channel]/3)*4,0,unit);
+        const i32 follower=transient>state.duck[channel]?5361*65536:config.release;
+        state.duck[channel]+=opxy::q31::multiply(transient-state.duck[channel],follower);
+        const i32 duck_gain=32767-opxy::q31::multiply(state.duck[channel]/512,config.duck);
+        const i32 open=mul(tail,duck_gain);
+        wet[channel]=soft(mul(open,24000)+opxy::q31::multiply(echoes[channel],config.wet_echo));
+}
 void network(State& __restrict state,i32* __restrict memory,i32* __restrict input,i32* __restrict output,const Settings& __restrict config) {
     i32 echoes[2],predelay[2],shifted[2];
     for(unsigned channel=0;channel<2;++channel) {
@@ -181,35 +214,8 @@ void network(State& __restrict state,i32* __restrict memory,i32* __restrict inpu
     write(state,memory,16,input[0]);write(state,memory,16,input[1]);
     write(state,memory,17,shifted[0]);write(state,memory,17,shifted[1]);
     i32 next_plate[2],wet[2];
-    for(unsigned channel=0;channel<2;++channel) {
-        const unsigned other=1-channel;
-        const i32 seeded=mul(predelay[channel],23593)+mul(input[channel],3277)+opxy::q31::multiply(echoes[channel],config.seed_echo);
-        i32 diffused=seeded;
-        for(unsigned stage=0;stage<4;++stage)
-            diffused=allpass(state,memory,channel*4+stage,diffused,static_cast<i32>(diffusion_delay[channel*4+stage]*256u),config.diffusion);
-        const i32 tank=soft(mul(diffused,23593)+opxy::q31::multiply(state.plate[other],config.decay)+opxy::q31::multiply(output[channel],config.shimmer));
-        state.phase[channel]+=channel?49474u:44022u;
-        const i32 sine=table(tables::sine,state.phase[channel]>>16);
-        const i32 modulation=opxy::q31::multiply(sine,config.modulation)/4;
-        const unsigned first=8+channel*4;
-        const i32 ap1=plate_allpass(state,memory,first,tank,config.delays[channel][0],modulation,22282);
-        const i32 d1=tap(state,memory,first+1,config.delays[channel][1]);
-        write(state,memory,first+1,ap1);
-        state.damping[channel]+=opxy::q31::multiply(d1-state.damping[channel],config.damping);
-        const i32 ap2=plate_allpass(state,memory,first+2,opxy::q31::multiply(state.damping[channel],config.decay),config.delays[channel][2],-modulation/4,16384);
-        const i32 d2=tap(state,memory,first+3,config.delays[channel][3]);
-        write(state,memory,first+3,ap2);
-        next_plate[channel]=clamp(d2,-unit,unit);
-        const i32 tail=mul(ap1,4260)+mul(d1,10158)+mul(d2,22282)+mul(state.plate[other],5898);
-        const i32 magnitude=input[channel]<0?-input[channel]:input[channel];
-        state.body[channel]+=mul(magnitude-state.body[channel],76);
-        const i32 transient=clamp((magnitude-state.body[channel]-state.body[channel]/3)*4,0,unit);
-        const i32 follower=transient>state.duck[channel]?5361*65536:config.release;
-        state.duck[channel]+=opxy::q31::multiply(transient-state.duck[channel],follower);
-        const i32 duck_gain=32767-opxy::q31::multiply(state.duck[channel]/512,config.duck);
-        const i32 open=mul(tail,duck_gain);
-        wet[channel]=soft(mul(open,24000)+opxy::q31::multiply(echoes[channel],config.wet_echo));
-    }
+    plate<0>(state,memory,input,output,echoes,predelay,next_plate,wet,config);
+    plate<1>(state,memory,input,output,echoes,predelay,next_plate,wet,config);
     opxy::u32 packed=0;
     for(unsigned channel=0;channel<2;++channel) {
         const i32 echo_write=soft(input[channel]+opxy::q31::multiply(echoes[1-channel],config.feedback));

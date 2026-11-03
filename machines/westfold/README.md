@@ -66,7 +66,9 @@ Audio wavetable points pack the original sample and its exact next-sample
 difference into one aligned word. All 136 waves and the sine are exactly
 half-cycle antisymmetric, so only 256 points per wave are stored. The second
 half negates both values before the original interpolation multiply and shift;
-it never negates an already rounded result. Fold rows become a power-of-two
+it never negates an already rounded result. The packed high half supplies the
+slope scaled by 65536; the existing SDK Q31 multiply with the 15-bit fraction
+then exactly equals the original integer product shifted by 15. Fold rows become a power-of-two
 1024 bytes. The packed audio data is 274 bytes smaller than the original
 wave/sine banks; the original tables remain the independent test reference.
 Hardware CPU effects remain pending; host equivalence is not a timing result.

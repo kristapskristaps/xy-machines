@@ -6,10 +6,12 @@
 namespace westfold { namespace dsp {
 inline i32 read_point(const u32* table,u32 phase) {
     const u32 point=table[(phase>>23)&255u];
-    i32 value=static_cast<opxy::i16>(point),difference=static_cast<i32>(point)>>16;
+    i32 value=static_cast<opxy::i16>(point),difference=static_cast<i32>(point&0xffff0000u);
     // Negate before interpolation: negating a rounded output loses a unit.
     if(phase>>31){value=-value;difference=-difference;}
-    return value+((difference*static_cast<i32>((phase>>8)&32767u))>>15);
+    // The packed high half is slope*65536, so Q31 multiply retains the
+    // original slope*fraction >>15 rounding in one native multiply.
+    return value+opxy::q31::multiply(difference,static_cast<i32>((phase>>8)&32767u));
 }
 inline i32 sine(u32 phase) { return read_point(points::sine,phase); }
 inline i32 wave(u32 fold, i32 fraction, const Band& band, u32 phase) {

@@ -1,7 +1,6 @@
 #include "core.h"
 #include "tables.h"
-#include "wave_slopes.h"
-#include "wave_pairs.h"
+#include "dense_waves.h"
 #include <opxy/q31.hpp>
 namespace subvista {
 namespace {
@@ -11,20 +10,15 @@ using opxy::q31::multiply;
 using opxy::q31::add;
 i32 limit(i32 value, i32 bound) { return value < -bound ? -bound : value > bound ? bound : value; }
 i32 blend(i32 a, i32 b, i32 amount) { return a + multiply(b - a, amount); }
-i32 wave(u32 phase, u32 band) {
-    const u32 index = phase >> 23;
-    return tables::saw[band][index] + tables::slopes[band][index]
-           * static_cast<i32>((phase & 0x7fffffu) >> 8);
+i32 wave(u32 phase,u32 band) {
+    return tables::dense[band][(phase+0x200000u)>>22];
 }
 template<bool SawOnly>
-__attribute__((always_inline)) inline i32 oscillator(u32 phase, u32 band, i32 shape) {
-    if(SawOnly)return wave(phase,band);
-    const tables::WavePair& point=tables::pairs[band][(phase>>23)&255u];
-    const i32 fraction=static_cast<i32>((phase&0x7fffffu)>>8);
-    const i32 first=point.values[0]+point.slopes[0]*fraction;
-    const i32 second=point.values[1]+point.slopes[1]*fraction;
-    const i32 saw=(phase>>31)?second:first;
-    const i32 other=(phase>>31)?first:second;
+__attribute__((always_inline)) inline i32 oscillator(u32 phase,u32 band,i32 shape) {
+    const u32 index=(phase+0x200000u)>>22;
+    const i32 saw=tables::dense[band][index];
+    if(SawOnly)return saw;
+    const i32 other=tables::dense[band][index^512u];
     return blend(saw,opxy::q31::half(saw-other),shape);
 }
 tables::Coefficients coefficients(i32 cutoff, i32 resonance) {

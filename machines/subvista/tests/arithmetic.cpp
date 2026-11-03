@@ -1,4 +1,6 @@
 #include "../engine.cpp"
+#include "../wave_slopes.h"
+#include "../wave_pairs.h"
 #include <cstdio>
 
 static bool exact(opxy::i32 a,opxy::i32 b) {
@@ -13,9 +15,15 @@ int main() {
         const auto& pair=subvista::tables::pairs[band][index&255u];
         if(pair.values[index>>8]!=subvista::tables::saw[band][index] ||
            pair.slopes[index>>8]!=slope)return 1;
+        if(subvista::tables::dense[band][2*index]!=subvista::tables::saw[band][index] ||
+           subvista::tables::dense[band][2*index+1]!=subvista::tables::saw[band][index]+slope*16384)return 1;
         for(unsigned fraction=0;fraction<32768;fraction+=127) {
             const opxy::u32 phase=(index<<23)|(fraction<<8)|255u;
-            if(subvista::wave(phase,band)!=subvista::tables::saw[band][index]+slope*static_cast<opxy::i32>(fraction))return 1;
+            opxy::i64 error=static_cast<opxy::i64>(subvista::wave(phase,band))-
+                (subvista::tables::saw[band][index]+slope*static_cast<opxy::i32>(fraction));
+            if(error<0)error=-error;
+            const opxy::i64 bound=static_cast<opxy::i64>(slope<0?-slope:slope)*8192+32768;
+            if(error>bound)return 1;
         }
     }
     const opxy::i32 values[]={-2147483647-1,-2147483647,-1610612736,-1073741824,-1,0,1,1073741824,1610612736,2147483646,2147483647};
@@ -29,5 +37,5 @@ int main() {
         const opxy::i32 b=static_cast<opxy::i32>(random=random*1664525u+1013904223u);
         if(!exact(a,b))return 1;
     }
-    std::puts("PASS: exact wave slopes/interpolation and saturating sums at boundaries and one million random pairs");
+    std::puts("PASS: exact reference slopes, bounded nearest1024 interpolation and saturating sums at boundaries and one million random pairs");
 }

@@ -32,33 +32,37 @@ Host tests cover filter attenuation, 27 control combinations, pitch extremes,
 output bounds, deterministic retriggering, and 800 display frames including
 reduced motion. The host tests also pass AddressSanitizer and UBSan.
 
-The filter uses the SDK's saturating Q31 add, preserving the previous clipping
-while using the native DSP operation. A separate sample loop handles Shape at
-zero, skipping the unused pulse lookups and blend. Both loops retain the same
-filter interpolation, wavetable arithmetic, oscillator phase and contour decay;
-voice memory and saved controls are unchanged. Exact i16 interpolation slopes
-are generated from the original waves in `tables.h`, replacing per-lookup
-subtraction and signed division. This adds 8 KiB of constant data. Regenerate
-`wave_slopes.h` with `python machines/subvista/tools/generate_slopes.py` from the
-collection root. Arithmetic tests check every committed slope against the
-original expression and interpolation across the waves.
-The pulse/blend path pairs each waveform point with its half-cycle partner,
-sharing the phase index and interpolation fraction. The pure-saw endpoint and
-quiet sub-oscillator retain their original separate wave/slope banks to avoid
-variable-half lookups. This adds a 24 KiB read-only paired bank; CPU improvement
-and memory-layout effects require a fresh hardware comparison. Regenerate the
-paired bank and slopes with `python machines/subvista/tools/generate_slopes.py`.
-The oscillator helper
-stays inlined so native sample loops use hardware loop control without two
-oscillator function calls per sample.
+The filter retains its two-pole topology, saturating Q31 arithmetic and
+per-sample coefficient ramps. The eight mip bands, phase increments, detune,
+sub-oscillator, envelope, voice capacity and saved controls remain unchanged.
 
-Oscillator generation and the recursive filter run as separate block stages.
-The first stage keeps the original pure-saw fast path and uses the output buffer
-for 64 temporary oscillator inputs; the second filters those inputs in place.
-Phase updates have no feedback from the filter, so sample arithmetic and final
-voice state remain unchanged. The private stages stay outlined to reduce shared
-register pressure without adding a scratch array. Native loop control and exact
-host comparisons pass; CPU improvement still requires hardware measurement.
+This revision deliberately replaces runtime linear wavetable interpolation with
+nearest-point lookup in 1024-point mip tables. Original samples alternate with
+exact midpoint samples from the preceding interpolator; phase rounds to the
+nearest point. This reduces oscillator work and constant memory while adding a
+small phase-grid error and stronger high-frequency reconstruction images.
+Audio is intentionally not bit-identical.
+
+Across 540 rendered cases (all control corners, defaults/presets, six pitches,
+control sweeps, random automation and glide), median relative RMS error is
+0.31%; the worst is 2.00% at a bright resonant 27.5 Hz saw setting. Maximum measured
+RMS level change above -60dBFS is 0.018dB. A coherent single-oscillator check finds
+worst out-of-band/image energy of -35.9dBc, compared with -48.3dBc for the
+original interpolator. This check includes reconstruction images and folded
+images; it does not claim a perfect alias-free reference. These are host audio
+comparisons, not measured device CPU.
+
+The original PCM/state golden values remain unchanged in
+`tests/reference_goldens.cpp`, checked against the frozen exact implementation
+in `tests/reference_engine.hpp`. Current sound tests use explicit error and
+headroom budgets in `tests/fidelity.cpp`; they do not pass the old golden hashes
+off as the new output. Phase, envelope and coefficient state remain exact.
+
+Oscillator generation and filtering remain separate block stages, using the
+output buffer for temporary oscillator inputs before filtering in place. The
+pure-saw endpoint still skips pulse lookup/blending. No scratch array is added.
+Regenerate `dense_waves.h` with
+`python machines/subvista/tools/generate_dense_waves.py` from the collection root.
 
 This revision declares SDK 1.8 because the public saturating add is currently
 available on upstream `staging`, rather than the released `main`. It builds with
@@ -74,20 +78,19 @@ Use the collection's pinned SDK through the root commands:
 ./xy preview subvista --watch
 ```
 
-For a paired comparison against the preceding collection revision:
+For the quantitative audio comparison against the frozen exact revision:
 
 ```sh
-python machines/subvista/tools/benchmark.py --cxx /path/to/clang++ --blocks 4000
+python machines/subvista/tools/fidelity.py --out /external/private/subvista-audio-check-001
 ```
 
-It checks exact audio and complete voice state across 555 scenarios: the 81-point
-three-position control grid at six pitches, defaults, all five presets, control
-motion, sample-by-sample pitch motion, and both sides of every wavetable band
-transition. Each scenario compares 256 blocks including retriggers and
-reinitialization, then alternates five before/after timing repeats. The arithmetic
-test compares saturation with an independent wide sum at the signed boundaries
-and one million random pairs. Host timings and advisory CPU estimates do not
-measure the device's CPU or establish usable polyphony.
+The output includes the full error/loudness/spectral report, a coherent oscillator
+image analysis and reference/candidate WAV pairs for listening. The comparison
+checks 540 cases and verifies phase, envelope and coefficient state after each
+block. It fails beyond 2.5% relative RMS error or 0.05 dB RMS change for reference
+levels above -60dBFS, beyond 0.0015 FS absolute RMS error, or above -35dBc image
+energy in the specified coherent oscillator cases. Normal playback and final
+hardware CPU qualification remain required.
 
 ## Hardware and publication
 

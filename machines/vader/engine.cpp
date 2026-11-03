@@ -129,14 +129,25 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         mip(swept(maximum, voice.sweep, ratio), band, band_mix);
     }
     const Shaper shaper(mode,static_cast<u32>(voice.drive),band,band_mix);
+    i32 pure_samples[opxy::block_frames];
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.drive += drive_step;
+        const i32 pure = lookup(waves[0][0][0], voice.phase);
+        pure_samples[i] = pure;
+        output[i] = pure_body ? pure : drive_step
+            ? shaped(mode,static_cast<u32>(voice.drive),band,band_mix,voice.phase) : shaper.read(voice.phase);
+        if (sweep) {
+            voice.phase += swept(pitch[i], voice.sweep, ratio);
+            voice.sweep = opxy::q31::multiply(voice.sweep, decay);
+        } else {
+            voice.phase += pitch[i] > 0x70000000u ? 0x70000000u : pitch[i];
+        }
+    }
+    for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.sub += sub_step;
         voice.color += color_step;
         voice.boost += boost_step;
-        const i32 pure = lookup(waves[0][0][0], voice.phase);
-        const i32 body = pure_body ? pure : drive_step
-            ? shaped(mode,static_cast<u32>(voice.drive),band,band_mix,voice.phase) : shaper.read(voice.phase);
+        const i32 pure = pure_samples[i], body = output[i];
         // Q23 filter state resolves the bottom of the 20 Hz..open tone range.
         // The clean foundation bypasses both poles, preserving the sub at dark settings.
         voice.body += opxy::q31::multiply(body * 256 - voice.body, voice.color);
@@ -162,12 +173,6 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         if (sample < -32767) sample = -32767;
         sample = sample * voice.boost >> 15;
         output[i] = sample * 32768;
-        if (sweep) {
-            voice.phase += swept(pitch[i], voice.sweep, ratio);
-            voice.sweep = opxy::q31::multiply(voice.sweep, decay);
-        } else {
-            voice.phase += pitch[i] > 0x70000000u ? 0x70000000u : pitch[i];
-        }
     }
     if (!click) voice.click = 0;
     voice.drive = target_drive;

@@ -119,7 +119,7 @@ def main():
         paths = subprocess.check_output(['git','ls-tree','-r','--name-only',baseline,'--','machines/subvista'],cwd=REPO,text=True).splitlines()
         for path in paths:
             relative=Path(path).relative_to('machines/subvista')
-            if relative.as_posix() not in ('core.h','engine.cpp','tables.h','wave_slopes.h','wave_points.h'):
+            if relative.as_posix() not in ('core.h','engine.cpp','tables.h','wave_slopes.h','wave_points.h','wave_pairs.h'):
                 continue
             content = subprocess.check_output(['git','show',baseline+':'+path],cwd=REPO,text=True)
             (before/relative).write_text(content.replace('namespace subvista {','namespace subvista_before {'))

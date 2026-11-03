@@ -38,10 +38,11 @@ zero, skipping the unused pulse lookups and blend. Both loops retain the same
 filter interpolation, wavetable arithmetic, oscillator phase and contour decay;
 voice memory and saved controls are unchanged. Exact interpolation points are
 generated from the original waves in `tables.h`, replacing per-lookup subtraction
-and signed division. Each point stores its waveform value beside its slope.
-The native build uses the 32 KiB point bank and omits the original separate
-wave/slope banks, using about 8 KiB more constant data than that layout.
-Regenerate `wave_points.h` and the reference `wave_slopes.h` with
+and signed division. Each point stores both half-cycle waveform values and
+their slopes together, so a pulse blend reuses one phase index and fraction.
+The native build uses the 24 KiB paired bank and omits the original separate
+wave/slope banks, including their unused guard samples.
+Regenerate `wave_pairs.h` and the reference `wave_slopes.h` with
 `python machines/subvista/tools/generate_slopes.py` from the collection root.
 Arithmetic tests check the slopes and interpolated samples against the original
 waves. The oscillator helper

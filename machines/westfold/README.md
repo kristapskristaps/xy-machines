@@ -62,29 +62,33 @@ sample. Band crossfades and the FM guard use exact bounded reciprocal arithmetic
 in place of three native software division sites. Voice storage and native
 audio stack usage are unchanged.
 
-From the collection root, compare against the preceding revision with:
+Audio phase reads now use a 1,024-point nearest lookup. The extra points are
+exact midpoints of the preceding 512-point integer interpolant; fold-level and
+mip crossfades still interpolate continuously, while phase, envelope, modulation
+and the gate keep their existing timing. The padded 1,025-value rows avoid
+power-of-two row strides. The display retains its original data.
 
-```sh
-python machines/westfold/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
-python machines/westfold/tools/benchmark.py --cxx /path/to/clang++ --full-grid --verify-only
-```
+This trades phase interpolation for more table memory and stronger images.
+Across 405 complete preset/control comparisons at 27.5–8,000 Hz, maximum level
+change was 0.017 dB and relative waveform RMS error was 3.37%. Raw coherent
+bank tests measured worst unwanted-image energy at -28.1 dB relative to wanted
+harmonics (preceding interpolator: -47.6 dB); the largest image was -34.0 dB
+relative to the strongest wanted partial. These are declared compromises,
+not a claim of identical sound. Hardware CPU acceptance remains pending.
 
-The paired run covers 528 scenarios: defaults, all twelve presets, five positions
-of each control, both pages' control corners at six pitches, and control/pitch
-motion. The wider check adds all 256 eight-control corners, for 2,064 scenarios.
-Each compares audio and complete voice state after every block over 256 blocks,
-including retriggers and reinitialization. Both compare 4,096 complete display
-frames and display states against the preceding revision. The arithmetic test
-checks the compact drawing data against the original tables, every bounded
-reciprocal input, band transitions and one million random
-phase increments. Host timings remain advisory; use device profiling to measure
-the native CPU benefit.
-
+`tests/equivalence.cpp` authenticates the frozen preceding DSP in
+`tests/reference/` against unchanged audio/state hashes. Production audio is
+checked by `tests/quality.cpp` against that reference, with 4% RMS waveform,
+0.25 dB level and 0.02 octave-band distance limits. Tuning, envelopes and
+modulation phases must match exactly. Other sound/display/arithmetic tests
+still cover harmonic growth, clean balance, control behavior, drawing data,
+band transitions, one million phase increments and output bounds.
 
 To regenerate the committed tables, metadata, presets and panel:
 
 ```sh
 python resources/generate_tables.py
+python resources/generate_dense_points.py
 python resources/configure.py
 ```
 

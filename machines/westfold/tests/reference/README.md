@@ -1,0 +1,1 @@
+Frozen Westfold DSP from 97b6a9cc011169159625186d57b5e040e31dfee7, under the original machine and vendor MIT notices. Existing full-output/state hashes authenticate this source. Production nearest1024 DSP is assessed with quantitative fidelity and behavior checks instead of replacing hashes.

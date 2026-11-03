@@ -18,6 +18,27 @@ int main() {
             if(subvista::wave(phase,band)!=subvista::tables::saw[band][index]+slope*static_cast<opxy::i32>(fraction))return 1;
         }
     }
+    // The new shared sum is bounded by two state limits plus oscillator input.
+    opxy::i32 maximum_wave=0,maximum_sub=0;
+    for(unsigned band=0;band<8;++band)for(unsigned index=0;index<513;++index) {
+        const opxy::i32 value=subvista::tables::saw[band][index];
+        const opxy::i32 magnitude=value<0?-value:value;
+        if(magnitude>maximum_wave)maximum_wave=magnitude;
+        if(!band && magnitude>maximum_sub)maximum_sub=magnitude;
+    }
+    const opxy::i64 shared_bound=2ll*0x30000000+maximum_wave+maximum_sub/8+8;
+    if(shared_bound>2147483647)return 1;
+    // Removing the intermediate band clamp is exact even when Q31 saturates.
+    opxy::u32 clamp_random=39419;
+    const opxy::i32 boundary[]={-2147483647-1,-2147483647,-0x30000001,-0x30000000,-1,0,1,0x30000000,0x30000001,2147483647};
+    for(unsigned i=0;i<1000100;++i) {
+        const opxy::i32 band=i<100?boundary[i%10]:static_cast<opxy::i32>(clamp_random=clamp_random*1664525u+1013904223u);
+        const opxy::i32 state=i<100?subvista::limit(boundary[i/10],0x30000000):static_cast<opxy::i32>((clamp_random=clamp_random*1664525u+1013904223u)%1610612737u)-0x30000000;
+        const opxy::i32 clipped=subvista::limit(band,0x30000000);
+        const opxy::i32 before=subvista::limit(subvista::add(clipped,clipped-state),0x30000000);
+        const opxy::i32 after=subvista::limit(subvista::add(band,subvista::add(band,-state)),0x30000000);
+        if(before!=after)return 1;
+    }
     const opxy::i32 values[]={-2147483647-1,-2147483647,-1610612736,-1073741824,-1,0,1,1073741824,1610612736,2147483646,2147483647};
     for(auto a:values)for(auto b:values)if(!exact(a,b))return 1;
     for(auto a:values)for(opxy::i32 delta=-4096;delta<=4096;++delta) {
@@ -29,5 +50,5 @@ int main() {
         const opxy::i32 b=static_cast<opxy::i32>(random=random*1664525u+1013904223u);
         if(!exact(a,b))return 1;
     }
-    std::puts("PASS: exact wave slopes/interpolation and saturating sums at boundaries and one million random pairs");
+    std::puts("PASS: exact wave slopes/interpolation and saturating sums at boundaries and one million random pairs; shared filter headroom and redundant-clamp proof");
 }

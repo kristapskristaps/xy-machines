@@ -51,7 +51,7 @@ __attribute__((noinline)) void render_oscillators(Voice& v,opxy::Output output,
         v.phase+=increment;v.detuned+=detune;v.sub+=increment/2;
     }
 }
-__attribute__((noinline)) void filter_block(Voice& v,opxy::Output output,
+__attribute__((noinline)) void ramped_filter(Voice& v,opxy::Output output,
         i32 step1,i32 step2,i32 step3) {
     for(u32 i=0;i<opxy::block_frames;++i) {
         v.a1+=step1;v.a2+=step2;v.a3+=step3;
@@ -60,8 +60,37 @@ __attribute__((noinline)) void filter_block(Voice& v,opxy::Output output,
         const i32 low=limit(add(add(v.integrator2,multiply(v.a2,v.integrator1)),multiply(v.a3,difference)),0x30000000);
         v.integrator1=limit(add(band,band-v.integrator1),0x30000000);
         v.integrator2=limit(add(low,low-v.integrator2),0x30000000);
-        output[i]=limit(low,0x40000000);
+        output[i]=low;
     }
+}
+// Symmetric TPT matrix: share a2*(integrator1 + input - integrator2).
+// The band clamp is redundant: clip(2*clip(band)-state1)==clip(2*band-state1)
+// for bounded state1. Saturating subtraction keeps the intermediate defined.
+// Smooth coefficients stay at the block midpoint; abrupt changes keep the
+// original sample ramp. The stored coefficient endpoint remains unchanged.
+__attribute__((noinline)) void filter_block(Voice& v,opxy::Output output,
+        i32 step1,i32 step2,i32 step3) {
+    if(step1 < -65536 || step1 > 65536 || step2 < -65536 || step2 > 65536 ||
+       step3 < -65536 || step3 > 65536) {
+        ramped_filter(v,output,step1,step2,step3);
+        return;
+    }
+    const i32 a1=v.a1+step1*32,a2=v.a2+step2*32,a3=v.a3+step3*32;
+    const i32 diagonal1=a1-a2,diagonal2=a3-a2;
+    i32 state1=v.integrator1,state2=v.integrator2;
+    for(u32 i=0;i<opxy::block_frames;++i) {
+        const i32 difference=output[i]-state2;
+        // Tables bound the input to 316428914; with two bounded states this
+        // sum is at most 1927041650, below signed Q31 overflow.
+        const i32 shared=multiply(a2,state1+difference);
+        const i32 band=add(multiply(diagonal1,state1),shared);
+        const i32 low=limit(add(add(state2,shared),multiply(diagonal2,difference)),0x30000000);
+        state1=limit(add(band,add(band,-state1)),0x30000000);
+        state2=limit(add(low,low-state2),0x30000000);
+        output[i]=low;
+    }
+    v.integrator1=state1;v.integrator2=state2;
+    v.a1+=step1*64;v.a2+=step2*64;v.a3+=step3*64;
 }
 }
 inline void start(Voice& v, Shared&, opxy::u32) {

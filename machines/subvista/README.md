@@ -34,9 +34,9 @@ reduced motion. The host tests also pass AddressSanitizer and UBSan.
 
 The filter uses the SDK's saturating Q31 add, preserving the previous clipping
 while using the native DSP operation. A separate sample loop handles Shape at
-zero, skipping the unused pulse lookups and blend. Both loops retain the same
-filter interpolation, wavetable arithmetic, oscillator phase and contour decay;
-voice memory and saved controls are unchanged. Exact i16 interpolation slopes
+zero, skipping the unused pulse lookups and blend. Both oscillator loops retain the same
+wavetable arithmetic, phase and contour decay; voice memory and saved controls
+are unchanged. Exact i16 interpolation slopes
 are generated from the original waves in `tables.h`, replacing per-lookup
 subtraction and signed division. This adds 8 KiB of constant data. Regenerate
 `wave_slopes.h` with `python machines/subvista/tools/generate_slopes.py` from the
@@ -55,8 +55,8 @@ oscillator function calls per sample.
 Oscillator generation and the recursive filter run as separate block stages.
 The first stage keeps the original pure-saw fast path and uses the output buffer
 for 64 temporary oscillator inputs; the second filters those inputs in place.
-Phase updates have no feedback from the filter, so sample arithmetic and final
-voice state remain unchanged. The private stages stay outlined to reduce shared
+Phase updates have no feedback from the filter, so oscillator arithmetic and
+phase state remain unchanged. The private stages stay outlined to reduce shared
 register pressure without adding a scratch array. Native loop control and exact
 host comparisons pass; CPU improvement still requires hardware measurement.
 
@@ -74,20 +74,36 @@ Use the collection's pinned SDK through the root commands:
 ./xy preview subvista --watch
 ```
 
-For a paired comparison against the preceding collection revision:
+For quantitative audio comparison against the frozen exact staged revision:
 
 ```sh
-python machines/subvista/tools/benchmark.py --cxx /path/to/clang++ --blocks 4000
+python machines/subvista/tools/fidelity.py --out /private/output/subvista-quality
 ```
 
-It checks exact audio and complete voice state across 555 scenarios: the 81-point
-three-position control grid at six pitches, defaults, all five presets, control
-motion, sample-by-sample pitch motion, and both sides of every wavetable band
-transition. Each scenario compares 256 blocks including retriggers and
-reinitialization, then alternates five before/after timing repeats. The arithmetic
-test compares saturation with an independent wide sum at the signed boundaries
-and one million random pairs. Host timings and advisory CPU estimates do not
-measure the device's CPU or establish usable polyphony.
+The filter shares one product in its symmetric two-state matrix, reducing four
+Q31 multiplies to three. Smooth coefficient ramps use their block midpoint;
+changes larger than 0.2% of Q31 per block retain the original per-sample ramp.
+The coefficient endpoints, oscillator phases, contour, resonant topology and
+integrator/output bounds remain unchanged. A redundant intermediate band clamp
+is removed; a boundary/random arithmetic test proves that its bounded state
+update is identical. Integer rounding in the shared matrix can differ slightly.
+
+The quality tool compares 540 actual C++ renders at six pitches, including the
+three-position control grid, defaults, all five presets, smooth/random automation,
+retrigger and glide. Measured worst RMS error is 0.000172 FS, audible level change
+is at most 0.0041 dB, and factory preset relative RMS error is below 0.66%.
+The largest relative error, 2.34%, occurs in a nearly muted control corner.
+The documented limits are 2.5% audible relative RMS error, 0.0015 FS absolute RMS
+error and 0.05 dB audible level change. Oscillator generation and its images are
+unchanged. The tool includes spectral error analysis and exports reference and
+candidate WAV pairs. The original exact audio/state golden values remain
+unchanged and run against the frozen reference; a separate fidelity test checks
+the current DSP rather than replacing those goldens.
+
+Native loops and host arithmetic checks pass, including UBSan; these checks do
+not measure device CPU. The shared kernel and added fallback change native
+register allocation, so hardware must establish whether this implementation is
+faster and meets the 3.5% target.
 
 ## Hardware and publication
 

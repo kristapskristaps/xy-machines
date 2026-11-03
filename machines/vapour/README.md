@@ -65,6 +65,9 @@ for the two stereo channels. The native sample loops no longer call the
 normalization divider or diffusion function. The Mando/Vapour native check adds
 136 bytes to the module and reduces Vapour's reported audio stack from 748 to
 716 bytes. State, scratch allocation and the adapted vendor sources are unchanged.
+Each grain now computes its available frame count once per block, keeping the
+same sample updates while removing the per-sample remaining-life check. Its
+hardware CPU effect remains to be measured.
 
 Compare complete stereo output, state and all scratch words after every block,
 then collect paired host timings:

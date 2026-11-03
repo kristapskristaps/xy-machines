@@ -14,7 +14,7 @@ def build(args):
   subprocess.run(command+['-o',str(out/'halo.wasm')],check=True)
   for name in NAMES:
    if name!='halo.wasm':shutil.copyfile(ROOT/('definition.json' if name=='definition.json' else 'audition/'+name),out/name)
-  manifest={'files':{name:digest(out/name) for name in NAMES},'source':{name:digest(ROOT/name) for name in ('fx.cpp','core.h','tables.h','definition.json','audition/bridge.cpp','audition/index.html','audition/app.mjs','audition/worklet.mjs')}}
+  manifest={'files':{name:digest(out/name) for name in NAMES},'source':{name:digest(ROOT/name) for name in ('fx.cpp','network_blocks.h','core.h','tables.h','definition.json','audition/bridge.cpp','audition/index.html','audition/app.mjs','audition/worklet.mjs')}}
   (out/'audition.json').write_text(json.dumps(manifest,indent=2)+'\n')
  except BaseException:
   shutil.rmtree(out);raise

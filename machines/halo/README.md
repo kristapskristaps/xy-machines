@@ -49,11 +49,29 @@ The plate, diffusion, predelay, shimmer, packed echo and all controls are unchan
 Each send still borrows 231,424 bytes (226 KiB) of scratch and has its own
 248-byte state. Reset cannot expose previous scratch audio. Hold maintains an
 audible tail; it is not a lossless recording. Control-dependent coefficients
-update once per block; the modulated audio network runs per wet sample.
-Downsampling, wet-network processing and upsampling use separate block passes,
-reusing the caller's output and a bounded intermediate array. The passes retain
-the shorter-filter implementation's complete output, state and scratch across
-60 comparisons of 4,096 callbacks each.
+update once per block. Downsampling, wet-network processing and upsampling use
+separate block passes, reusing the caller's output and bounded scratch arrays.
+
+Every normal delay read is older than the complete 16-frame wet block: early
+allpasses start at 34 frames, pre-delay at 22, tank reads above 126, pitch heads at 551
+and tempo echo at 275. The network can therefore prefetch its old ring reads
+before any writes, then process input/echo filters, individual diffusers, tank
+stages and ducking in short counted streams. Cross-feedback uses the incoming
+plate state for frame 0 and each opposite pre-read final delay thereafter.
+All recursive states retain their original sample order, integer operations
+and rounding. Availability still advances per wet frame and ring positions
+advance by 16 mono/32 stereo words. Short or out-of-domain delay states retain
+the original per-frame fallback without partially changing its inputs.
+
+The new prefetch array is 1280 bytes and reuses the existing conversion scratch
+for temporary pitch-head, delay/modulation/sample work. The SDK native call-graph bound for this implementation is 2036 bytes of
+audio-entry stack, including saved registers and wrapper frames. This adds no
+heap allocation or persistent state/buffer space. Exact comparisons retain complete output, 248-byte state
+and all 57856 scratch words across 60×4096 callbacks, including dirty history,
+resets, tails, hold, parameter/tempo automation and ring wrapping. Independent
+checks cover read availability, minimum ages, the age 17 block boundary and
+fallback guards. A fresh hardware measurement is required; these checks do not
+establish CPU improvement or stack headroom on the running device.
 
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings
 belong to the machine-owned browser audition, not a custom native FX screen.

@@ -234,6 +234,8 @@ void network(State& __restrict state,i32* __restrict memory,i32* __restrict inpu
     if(state.written<echo_frames)++state.written;
 }
 
+#include "network_blocks.h"
+
 // FIR histories are the only scratch that needs an explicit bounded reset.
 // Seven-tap maximally flat halfband, centered at the previous 15-frame delay.
 // Integer coefficients [-1,0,9,16,9,0,-1]/32 have exact unity DC gain.
@@ -296,13 +298,8 @@ void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
         if(++d1==31)d1=0;
     }
     state.down_write[1]=d1;
-    for(unsigned i=0;i<opxy::block_frames/4;++i) {
-        state.delay=glide(state.delay,target_delay,512);
-        i32 input[2]={left[i],right[i]},wet[2];
-        network(state,memory,input,wet,config);
-        state.grain_phase=(state.grain_phase+grain_step)&16777215u;
-        left[i]=wet[0];right[i]=wet[1];
-    }
+    if(!network_block(state,memory,left,right,middle[0],middle[1],config,target_delay,grain_step))
+        scalar_network_block(state,memory,left,right,config,target_delay,grain_step);
     unsigned u1=state.up_write[1];
     for(unsigned i=0;i<opxy::block_frames/4;++i) {
         if(++u1==16)u1=0;

@@ -72,6 +72,11 @@ static inline int32_t fmac2(int32_t a, int32_t x, int32_t b, int32_t y) {
 static inline int32_t fmac1(int32_t a, int32_t x) {
     return (int32_t)((uint32_t)product_hi(a,x) + (((uint32_t)a * (uint32_t)x >> 30) & 1u));
 }
+// For |a| <= 2^29, one spare bit keeps the rounded result in a single
+// truncating SDK product. The intermediate and its +1 cannot overflow.
+static inline int32_t fmac1_headroom(int32_t a, int32_t x) {
+    return (product_hi(a * 2, x) + 1) >> 1;
+}
 static inline int32_t fmac1t(int32_t a, int32_t x) { return product_hi(a,x); }
 struct emac_save { int32_t unused; };
 static inline void emac_enter(emac_save*) {}
@@ -3362,7 +3367,9 @@ static inline void modal_mode(struct macro_svf *f, const int32_t *mc, const int3
         int32_t v3 = in[i] - s2, bp = fmac2(a1, s1, a2, v3), lp = s2 + fmac2(a2, s1, a3, v3);
         s1 = bp + bp - s1;
         s2 = lp + lp - s2;
-        out[i] += fmac1(gain, bp);
+        // modal_amp is at most 2^29 and coefficient construction cannot
+        // increase its magnitude, so gain has the required spare input bit.
+        out[i] += fmac1_headroom(gain, bp);
     }
     f->s1 = s1;
     f->s2 = s2;

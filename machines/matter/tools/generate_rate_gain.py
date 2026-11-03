@@ -10,13 +10,13 @@ def main():
     args=parser.parse_args()
     lines=['// Generated resampling response compensation, Q24.','#pragma once',
            '#include <opxy/types.hpp>','namespace matter {']
-    for rate in (2,4):
+    for rate in (2,4,8):
         values=[]
-        for i in range(257):
+        for i in range(353):
             internal=i/1024
             gain=(rate*math.sin(math.pi*internal/rate)/math.sin(math.pi*internal))**3 if i else 1
             values.append(round(gain*16777216))
-        lines.append(f'static const opxy::u32 rate_gain_{rate}[257]={{')
+        lines.append(f'static const opxy::u32 rate_gain_{rate}[353]={{')
         lines += ['    '+', '.join(str(x)+'u' for x in values[i:i+8])+',' for i in range(0,len(values),8)]
         lines.append('};')
     lines.append('}')

@@ -16,10 +16,19 @@ tests cover the engine's actual operand range.
 
 engine.cpp is a fixed-point adaptation of the modal resonator, eight bowed feedback modes and six exciter families. Changes include Q31 damping coefficient precision, 44.1 kHz timing, 16-bit bowed delay storage, bounded state/summing and output limiting, resource leases and a single selected exciter. It omits the original simultaneous exciter mixer and additional resonator/effect modes. The current adaptive-rate implementation replaces the original TPT audio
 kernel with a transposed bandpass and public truncated Q31 products. It maps
-bandpass peaks and pole decay rates to 1x/2x/4x clocks without removing modes;
+bandpass peaks and pole decay rates to 1x/2x/4x/8x clocks without removing modes;
 box/linear conversion, normal-mode response compensation and fractional bowed
 delays intentionally change sound and transient behavior. Independent
 double-precision tests check transformed coefficients, stable poles, tuning,
 decay and pickup recurrence. The XY display and integration are new code.
 
 VENDOR.json records hashes of adapted vendor files. No firmware or stock artwork is included.
+
+Normal-mode outputs now sum at each internal rate before one group interpolation;
+independent property tests bound the changed integer division ordering to 168
+mixed units for 24 modes at 8x. Bowed cubic weights use signed 16 storage and
+products exactly, with all fractional eighth phases available. Coefficient-only
+pitch hysteresis tracks within 0.423 cent, with separate jitter/glide/vibrato peak
+checks. These changes preserve all 24 normal and 8 bowed modes, resource ownership,
+saved controls and voice capacity. The audio resonator retains full 32-bit
+state and Q31 products.

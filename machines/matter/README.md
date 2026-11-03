@@ -32,11 +32,16 @@ also derive from the DMDaudio fixed-point Plaits port. See
 [vendor/VENDOR.md](vendor/VENDOR.md) for revisions and numerical changes.
 
 The public input/output and excitation run at 44.1 kHz. Resonators use a
-transposed two-pole bandpass at adaptive 44.1, 22.05 or 11.025 kHz rates. Each
-normal mode selects its own rate: frequencies below 2,756.25 Hz use 11.025 kHz,
-those below 5,512.5 Hz use 22.05 kHz, and higher modes remain at 44.1 kHz.
-All eight coupled bowed modes share the fastest rate required by their active
-frequencies. No normal or bowed modes are removed by this optimization.
+transposed two-pole bandpass at adaptive 44.1, 22.05, 11.025 or 5.5125 kHz rates.
+Each normal mode selects its own rate: frequencies below 1,894.92 Hz use
+5.5125 kHz, those below 3,789.84 Hz use 11.025 kHz, those below 7,579.69 Hz
+use 22.05 kHz, and higher modes remain at 44.1 kHz. All eight coupled bowed
+modes share a rate, keeping the highest active frequency below 0.4 cycles per
+internal sample. No normal or bowed modes are removed by this optimization.
+Normal-mode contributions accumulate at each rate before one interpolation of
+the summed group, avoiding repeated full-rate interpolation for every mode.
+Integer division ordering differs by at most 168 mixed units from separately
+interpolating 24 modes; group endpoints remain exact.
 Original discrete-time bandpass peak frequencies, peak gains and pole decay rates
 are mapped to the slower clock during coefficient configuration. Box-filtered
 excitation and linear output interpolation use generated response compensation
@@ -75,14 +80,22 @@ The adaptive resonator implementation intentionally changes fixed-point rounding
 filter state representation and saturation behavior. It is not bit-identical to
 the preceding full-rate TPT resonator. A 102-case paired render covers six
 exciters, three pitches, default/dark/maximum/dry/minimum controls and two moving-control
-traces per model. Static resonant examples differ by at most 1.23 dB RMS in that
-set; the largest moving-control difference is 3.35 dB. Dry Body=0 examples remain
+traces per model. Static resonant examples differ by at most 3.07 dB RMS in that
+set; the largest moving-control difference is 3.84 dB. Dry Body=0 examples remain
 bit-identical. The box/linear conversion changes upper partials and transients,
 and changing rate during control motion can change the transient response.
 Independent coefficient tests check bandpass peak tuning to within one cent and
 pole decay rates to within four percent of the original double-precision laws;
 the tested grid observed 0.087 cents and 0.22 percent respectively. These are
 numerical checks, not listening approval or measured CPU qualification.
+
+Coefficient-only pitch hysteresis avoids rebuilding the full bank for tiny
+changes in the stock pitch-increment buffer. It tracks pitch within 0.423 cent;
+exciter timing remains unchanged. Independent jitter, slow-glide and vibrato
+traces observe at most 0.433 cent of filter-peak difference from freshly computed
+coefficients. Larger pitch or material-control changes rebuild coefficients at
+the existing block boundary. This is a bounded pitch tolerance, not evidence
+that a particular hardware capture contains pitch jitter.
 
 From the collection root, save quantitative paired audio and spectral/decay data
 outside the checkout:

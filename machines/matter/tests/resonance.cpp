@@ -24,7 +24,7 @@ int main() {
         for(unsigned mode=0;mode<matter::mode_count;++mode) {
             const double f=std::fmin(.49,increment/4294967296.0*(mode+1)*stretch);
             const double pi=3.14159265358979323846;
-            const unsigned rate=f<.0625?4:f<.125?2:1;
+            const unsigned rate=f<.04296875?8:f<.0859375?4:f<.171875?2:1;
             const double internal=f*rate;
             const double tangent=f*(pi+f*f*(.3260*pi*pi*pi+.1823*pi*pi*pi*pi*pi*f*f));
             const double quality=1+f*q;
@@ -36,7 +36,7 @@ int main() {
             const double correction=rate>1?std::pow(rate*std::sin(pi*internal/rate)/std::sin(pi*internal),3):1;
             double gain=0;for(unsigned j=0;j<rate;++j)gain+=std::pow(original_radius2,j);
             const matter::Filter& actual=voice.modes[mode];
-            if(actual.a3<0 || actual.a3>1288490189)return 1;
+            if(actual.a3<0 || actual.a3>2147483647)return 1;
             if(actual.rate!=rate){std::puts("FAIL: physical-frequency update bucket");return 1;}
             const double error=std::fmax(std::fabs(actual.a1/2147483648.0-half_trace),std::fmax(std::fabs(actual.a2/2147483648.0-radius2),std::fabs(actual.a3/2147483648.0-a2*correction*gain/2)));
             if(error>worst) {worst_hz=hz;worst_geometry=geometry;worst_brightness=brightness;worst_damping=damping;worst_mode=mode;}

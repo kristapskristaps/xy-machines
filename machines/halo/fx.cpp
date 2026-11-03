@@ -262,6 +262,36 @@ inline i32 upsample(const i32* history,unsigned position,unsigned phase) {
     output+=opxy::q31::multiply(latest[-7]+latest[-8],tables::halfband[14]*2);
     return output;
 }
+template<unsigned Half,unsigned Quarter>
+__attribute__((always_inline)) inline void frame(State& state,i32* memory,i32* down[2][2],i32* up[2][2],
+        opxy::Channel left,opxy::Channel right,unsigned i,const Settings& config,i32 target_delay,u32 grain_step) {
+    const unsigned half=Half<2?Half:state.half,quarter=Quarter<2?Quarter:state.quarter;
+    down[0][0][state.down_write[0]]=down[0][0][state.down_write[0]+31]=left[i]/128;
+    down[0][1][state.down_write[0]]=down[0][1][state.down_write[0]+31]=right[i]/128;
+    if(!half) {
+        for(unsigned channel=0;channel<2;++channel)
+            down[1][channel][state.down_write[1]]=down[1][channel][state.down_write[1]+31]=downsample(down[0][channel],state.down_write[0]);
+        if(!quarter) {
+            state.delay=glide(state.delay,target_delay,512);
+            i32 input[2]={downsample(down[1][0],state.down_write[1]),downsample(down[1][1],state.down_write[1])},wet[2];
+            network(state,memory,input,wet,config);
+            state.grain_phase=(state.grain_phase+grain_step)&16777215u;
+            if(++state.up_write[1]==16)state.up_write[1]=0;
+            for(unsigned channel=0;channel<2;++channel)
+                up[1][channel][state.up_write[1]]=up[1][channel][state.up_write[1]+16]=wet[channel];
+        }
+        if(++state.up_write[0]==16)state.up_write[0]=0;
+        for(unsigned channel=0;channel<2;++channel)
+            up[0][channel][state.up_write[0]]=up[0][channel][state.up_write[0]+16]=upsample(up[1][channel],state.up_write[1],quarter);
+        state.quarter=quarter^1;
+        if(++state.down_write[1]==31)state.down_write[1]=0;
+    }
+    left[i]=clamp(upsample(up[0][0],state.up_write[0],half),-unit+1,unit-1)*128;
+    right[i]=clamp(upsample(up[0][1],state.up_write[0],half),-unit+1,unit-1)*128;
+    state.half=half^1;
+    if(++state.down_write[0]==31)state.down_write[0]=0;
+}
+
 }
 void initialize(State& state){state=State();}
 void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
@@ -285,31 +315,20 @@ void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
     }
     const Settings config=settings(state);
     const u32 grain_step=16777216u/config.grain_width;
-    for(unsigned i=0;i<opxy::block_frames;++i) {
-        down[0][0][state.down_write[0]]=down[0][0][state.down_write[0]+31]=left[i]/128;
-        down[0][1][state.down_write[0]]=down[0][1][state.down_write[0]+31]=right[i]/128;
-        if(!state.half) {
-            for(unsigned channel=0;channel<2;++channel)
-                down[1][channel][state.down_write[1]]=down[1][channel][state.down_write[1]+31]=downsample(down[0][channel],state.down_write[0]);
-            if(!state.quarter) {
-                state.delay=glide(state.delay,target_delay,512);
-                i32 input[2]={downsample(down[1][0],state.down_write[1]),downsample(down[1][1],state.down_write[1])},wet[2];
-                network(state,memory,input,wet,config);
-                state.grain_phase=(state.grain_phase+grain_step)&16777215u;
-                if(++state.up_write[1]==16)state.up_write[1]=0;
-                for(unsigned channel=0;channel<2;++channel)
-                    up[1][channel][state.up_write[1]]=up[1][channel][state.up_write[1]+16]=wet[channel];
-            }
-            if(++state.up_write[0]==16)state.up_write[0]=0;
-            for(unsigned channel=0;channel<2;++channel)
-                up[0][channel][state.up_write[0]]=up[0][channel][state.up_write[0]+16]=upsample(up[1][channel],state.up_write[1],state.quarter);
-            state.quarter^=1;
-            if(++state.down_write[1]==31)state.down_write[1]=0;
-        }
-        left[i]=clamp(upsample(up[0][0],state.up_write[0],state.half),-unit+1,unit-1)*128;
-        right[i]=clamp(upsample(up[0][1],state.up_write[0],state.half),-unit+1,unit-1)*128;
-        state.half^=1;
-        if(++state.down_write[0]==31)state.down_write[0]=0;
+    if(state.half || state.quarter) {
+        for(unsigned i=0;i<opxy::block_frames;++i)
+            frame<2,2>(state,memory,down,up,left,right,i,config,target_delay,grain_step);
+        return;
+    }
+    // A 64-frame callback contains sixteen complete rate-conversion cycles.
+    // Keep their chronological writes and network feedback, while specializing
+    // the four phases instead of branching on them for every output sample.
+    static_assert(opxy::block_frames%4==0,"Halo conversion needs complete four-frame cycles");
+    for(unsigned i=0;i<opxy::block_frames;i+=4) {
+        frame<0,0>(state,memory,down,up,left,right,i,config,target_delay,grain_step);
+        frame<1,1>(state,memory,down,up,left,right,i+1,config,target_delay,grain_step);
+        frame<0,1>(state,memory,down,up,left,right,i+2,config,target_delay,grain_step);
+        frame<1,0>(state,memory,down,up,left,right,i+3,config,target_delay,grain_step);
     }
 }
 }

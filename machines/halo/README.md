@@ -50,6 +50,11 @@ its original wrap. Network gains are scaled to Q31 once per callback. These
 changes preserve the original output, 248-byte send state and scratch layout.
 Fractional delay reads share one history bound and derive the second sample's
 index from the first, preserving zero-filled startup history and stereo packing.
+The callback groups four consecutive converter phases while retaining their
+chronological history writes and network updates. The phase choices are fixed
+inside each group; an unaligned state uses the original per-frame scheduling.
+The audio, send state and scratch contents remain unchanged. Hardware CPU
+validation of this scheduling change remains pending.
 
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings
 belong to the machine-owned browser audition, not a custom native FX screen.

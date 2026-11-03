@@ -144,6 +144,15 @@ Both compare 4,096 display frames and states. Five timing repeats alternate
 before/after order. These are host checks; device profiling determines native
 CPU cost.
 
+The shaped oscillator packs each original sample and adjacent difference into
+one 32-bit point. The existing SDK Q31 multiply converts its high-half slope
+and shared 15-bit fraction with exactly the original integer rounding. Drive
+and mip interpolation still happen afterward in their original order. Pure
+sine playback retains the original table and lookup. This full-cycle layout
+adds about 163 KiB of constants; native CPU and cache effects require a fresh
+matched hardware comparison. Regenerate it from the committed analytic tables
+with `python machines/vader/tools/generate_wave_points.py` from the collection root.
+
 Regenerate the checked-in analytic tables with `python tools/generate_tables.py`.
 The SDK adapters own voice allocation and registration; callbacks allocate no
 memory and do not perform I/O. Machine code, artwork and tests stay here.

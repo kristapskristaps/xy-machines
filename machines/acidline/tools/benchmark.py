@@ -1,4 +1,4 @@
-"""Compare exact Acidline output and paired host timings against a Git revision."""
+"""Compare Acidline host timings against a Git revision; sound changes are reported."""
 import argparse
 import json
 from pathlib import Path
@@ -54,9 +54,7 @@ int main() {
         unsigned long long old_hash,new_hash;
         run(before,bs,settings[s],mode,128,acidline_before::initialize,acidline_before::start,acidline_before::render,old_hash);
         run(after,as,settings[s],mode,128,acidline::initialize,acidline::start,acidline::render,new_hash);
-        if(sizeof(before)!=sizeof(after) || old_hash!=new_hash || std::memcmp(&before,&after,sizeof(before))) {
-            std::fprintf(stderr,"FAIL: audio/state differs at %s / %s\n",labels[s],modes[mode]);return 1;
-        }
+        const bool same_audio=old_hash==new_hash;
         double old_times[5],new_times[5],ratios[5];
         for(unsigned repeat=0;repeat<5;++repeat) {
             if(repeat&1) {
@@ -69,8 +67,8 @@ int main() {
             ratios[repeat]=new_times[repeat]/old_times[repeat];
         }
         std::sort(old_times,old_times+5);std::sort(new_times,new_times+5);std::sort(ratios,ratios+5);
-        std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"before_ns\":%.1f,\"after_ns\":%.1f,\"paired_ratio\":%.6f}\n",
-                    labels[s],modes[mode],old_times[2],new_times[2],ratios[2]);
+        std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"before_ns\":%.1f,\"after_ns\":%.1f,\"paired_ratio\":%.6f,\"audio_identical\":%s}\n",
+                    labels[s],modes[mode],old_times[2],new_times[2],ratios[2],same_audio?"true":"false");
     }
 }
 '''
@@ -78,7 +76,7 @@ int main() {
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--baseline', default='0c9dddeb9b86b4f438699ad20eeb008a5f1c9fb5')
+    parser.add_argument('--baseline', default='97b6a9cc011169159625186d57b5e040e31dfee7')
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=1000)
@@ -117,7 +115,8 @@ def main():
         executable = scratch / 'benchmark'
         subprocess.run([args.cxx, '-std=c++11', '-O2', '-I'+str(sdk/'sdk/include'), str(scratch/'benchmark.cpp'), '-o', str(executable)], check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)], text=True).splitlines()]
-    print(json.dumps(dict(baseline=baseline, host_timing_only=True, exact_audio_and_final_state=True,
+    print(json.dumps(dict(baseline=baseline, host_timing_only=True, intentional_sound_change=True,
+                         sound_validation="tests/equivalence.cpp quantitative frozen-reference comparisons",
                          scenarios=len(rows), blocks_per_timing=args.blocks, repeats=5,
                          median_reduction_percent=round(100*(1-statistics.median(row['paired_ratio'] for row in rows)), 1),
                          worst_before=max(rows, key=lambda row: row['before_ns']),

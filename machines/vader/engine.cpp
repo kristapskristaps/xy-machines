@@ -75,6 +75,25 @@ struct Shaper {
     }
 };
 
+// Settled controls need no ramp stores, transient branch or fade checks.
+// Keep the recursive states local until the block is complete.
+__attribute__((noinline)) void settled_output(Voice& voice, opxy::Output output,
+                                             const i32* __restrict pure_samples,
+                                             i32 sub, i32 color, i32 boost) {
+    i32 body1 = voice.body, body2 = voice.body2;
+    for (u32 i = 0; i < opxy::block_frames; ++i) {
+        body1 += opxy::q31::multiply(output[i] * 256 - body1, color);
+        body2 += opxy::q31::multiply(body1 - body2, color);
+        const i32 filtered = body2 >> 8;
+        i32 sample = filtered + ((pure_samples[i] - filtered) * sub >> 15);
+        if (sample > 32767) sample = 32767;
+        if (sample < -32767) sample = -32767;
+        output[i] = (sample * boost >> 15) * 32768;
+    }
+    voice.body = body1;
+    voice.body2 = body2;
+}
+
 u32 swept(u32 pitch, i32 sweep, u32 ratio) {
     const u32 excess = (((ratio - 65536u) >> 5) * static_cast<u32>(sweep >> 16)) >> 10;
     const u32 factor = 65536u + excess;
@@ -149,7 +168,9 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
             voice.phase += pitch[i] > 0x70000000u ? 0x70000000u : pitch[i];
         }
     }
-    for (u32 i = 0; i < opxy::block_frames; ++i) {
+    if (!click && voice.fade == 32768 && !sub_step && !color_step && !boost_step) {
+        settled_output(voice, output, pure_samples, voice.sub, voice.color, voice.boost);
+    } else for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.sub += sub_step;
         voice.color += color_step;
         voice.boost += boost_step;

@@ -41,6 +41,9 @@ def generate():
     dense = [tanh[a >> 8] + ((tanh[(a >> 8) + 1] - tanh[a >> 8]) * (a & 255) >> 8)
              for a in range(16385)]
     text += array("tanh_fast", dense, kind="opxy::i16")
+    # A bounded near-zero prefix preserves exact dense lookup for quiet signals
+    # without pulling the full 32 KiB expansion into the native audio module.
+    text += array("tanh_prefix", dense[:4097], kind="opxy::i16")
     text += array("detune_q20", [round(2 ** ((i * 50 / 128) / 1200) * (1 << 20)) for i in range(129)])
     text += "}}\n"
     (ROOT / "tables.h").write_text(text)

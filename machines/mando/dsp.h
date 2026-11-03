@@ -26,7 +26,8 @@ inline i32 linear(const Sample* table, u32 position, unsigned bits) {
 }
 inline i32 saturate(i32 x) {
     const u32 a = static_cast<u32>(x < 0 ? -x : x);
-    const i32 y = a >= (8u << 14) ? unity : linear(tables::tanh_q14, a, 8);
+    const i32 y = a <= 4096u ? tables::tanh_prefix[a]
+        : a >= (8u << 14) ? unity : linear(tables::tanh_q14, a, 8);
     return x < 0 ? -y : y;
 }
 inline i32 log2_increment(u32 value) {

@@ -140,9 +140,10 @@ This remains a digital approximation rather than a measured Minitaur model.
 The engine packs each pole's even state and fractional charge into one
 accumulator, unrolls the four stages and prepares waveform/pitch paths once per
 block. Wavetables store their original Q14 values in 16-bit words. Saturation
-reads the compact integer knots directly instead of their 32 KiB expansion,
-retaining the same curve and rounding. The extra interpolation arithmetic
-trades against a smaller active table; hardware CPU validation remains pending.
+uses an exact 4,097-entry prefix for magnitudes up to one quarter of unity,
+with the compact integer knots covering the rest. The prefix occupies 8 KiB
+instead of the preceding full 32 KiB expansion and retains the same curve and
+rounding. Hardware CPU validation of this hybrid lookup remains pending.
 Each voice caches
 filter coefficients until cutoff or resonance changes. Voice state is 116
 bytes; the SDK compile report gives the native footprint for its selected revision.

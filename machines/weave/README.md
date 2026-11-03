@@ -125,6 +125,18 @@ trilinear weighting checks 540,672 table values, and sanitizer tests cover
 arbitrary supported block lengths, cache completion and rapidly moving banks.
 These are local numerical checks; hardware CPU qualification remains pending.
 
+Six-operator sine evaluation keeps its full 32-bit phase accumulator and
+amplitude/envelope state, but rounds lookup phase to 14 bits, stored sine to
+signed Q15 and audio amplitude to Q12. A 16,384-entry table generated from the
+retained linear sine curve replaces per-sample table interpolation. One bounded
+signed-16 product supplies each operator output. All six operators, 96 patches,
+two internal overlap voices and source timing remain. Independent scalar tests
+observe 78.7 dB signal-to-quantization-noise ratio; 402 paired renders including
+all patches in normal/held mode differ by at most 0.025 dB RMS and 0.009 coarse
+spectral-energy distance from the preceding cache revision. Feedback can amplify
+phase/level quantization, so these figures are empirical, not a bit-exact claim.
+The extra table costs 32 KiB of constant data. Hardware timing remains pending.
+
 ## Develop and audition
 
 Keep the SDK beside this repository as `../../../xy-machines-sdk`, using Python 3.11+ and a

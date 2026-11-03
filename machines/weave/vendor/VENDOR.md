@@ -31,3 +31,11 @@ helper is adaptation code in `macro_division.h`; its tests cover lengths 1–64,
 full-range signed edges and randomized numerators.
 Single-operator FM rendering remains inlined at its routing-specific call
 sites, so source/add choices do not become branches inside every sample.
+
+Six-op audio now rounds the retained 512-segment linear sine curve into a
+16,384-entry signed-Q15 lookup, with 14-bit lookup phase and Q12 audio amplitude.
+The original phase accumulator, operator amplitude/envelope state, all six
+operators, both overlapping internal voices and all 96 patches are retained.
+`macro_sixop_sine.h` is generated adaptation data from the existing MIT sine
+table, with no new external sound source. Independent scalar error bounds and
+all-patch paired render features cover the intentional precision tradeoff.

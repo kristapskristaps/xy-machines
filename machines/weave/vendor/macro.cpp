@@ -4059,6 +4059,17 @@ static void dx_lfo_mods(const struct macro_dxvoice *l, int32_t *pm, int32_t *am)
     *am = fmac1(fmac1(0x40000000 - l->lval, ramp), l->amd);
 }
 
+#include "macro_sixop_sine.h"
+// Keep full phase and envelope state. Round only the sine lookup phase and
+// audio product; signed16 factors use the integer multiply without Q31 work.
+static inline int32_t dx_sine_product(uint32_t phase,int32_t amplitude)
+{
+    const unsigned shift=32-dx_sine_phase_bits;
+    const int16_t sample=dx_sine_q15[(phase+(1u<<(shift-1)))>>shift];
+    const int16_t gain=static_cast<int16_t>((amplitude+16384)>>15);
+    return (static_cast<int32_t>(sample)*gain)>>1;
+}
+
 /* RenderOperators<1, src, add>, one operator: src -2 the input buffer, -1 none, 0 its own feedback. Written for
  * constant src and add, so each call site below gets its own loop. */
 __attribute__((always_inline)) static inline void dx_op1(struct macro_dxop *op, uint32_t f, int32_t a, const int src,
@@ -4069,13 +4080,11 @@ __attribute__((always_inline)) static inline void dx_op1(struct macro_dxop *op, 
     int32_t amp = op->amp, ai, p0 = fb[0], p1 = fb[1], i, sh = 9 - fbamt;
     ai = divide_block((a > defined_shift(1, 29) ? defined_shift(1, 29) : a) - amp, size);
     for (i = 0; i < size; i++) {
-        int32_t pm = src == -2 ? in[i] : src == 0 ? (fbamt ? (p0 + p1) >> sh : 0) : 0, j, s;
+        int32_t pm = src == -2 ? in[i] : src == 0 ? (fbamt ? (p0 + p1) >> sh : 0) : 0;
         uint32_t x;
         ph += f;
         x = ph + ((uint32_t)pm << 6);
-        j = (int32_t)(x >> 23);
-        s = dx7_sine[j] + fmac1(dx7_sine[j + 1] - dx7_sine[j], (int32_t)((x << 9) >> 1));
-        pm = fmac1(s, amp);
+        pm = dx_sine_product(x,amp);
         amp += ai;
         if (src == 0) {
             p1 = p0;
@@ -4108,12 +4117,9 @@ static void dx_ops(struct macro_dxop *ops, const uint32_t *f, const int32_t *a, 
         int32_t pm = src >= 0 ? (fbamt ? (p0 + p1) >> (9 - fbamt) : 0) : src == -2 ? in[i] : 0;
         for (k = 0; k < n; k++) {
             uint32_t x;
-            int32_t j, s;
             ph[k] += fr[k];
             x = ph[k] + ((uint32_t)pm << 6);                        /* SinePM: the phase plus pm turns */
-            j = (int32_t)(x >> 23);
-            s = dx7_sine[j] + fmac1(dx7_sine[j + 1] - dx7_sine[j], (int32_t)((x << 9) >> 1));
-            pm = fmac1(s, amp[k]);                                  /* Q30 x Q27 -> Q26 */
+            pm = dx_sine_product(x,amp[k]);                                  /* Q30 x Q27 -> Q26 */
             amp[k] += ai[k];
             if (k == src) {
                 p1 = p0;

@@ -39,3 +39,9 @@ operators, both overlapping internal voices and all 96 patches are retained.
 `macro_sixop_sine.h` is generated adaptation data from the existing MIT sine
 table, with no new external sound source. Independent scalar error bounds and
 all-patch paired render features cover the intentional precision tradeoff.
+
+Operators with wholly zero Q12 amplitude ramps bypass sine evaluation while
+advancing phase, unquantized amplitude and feedback history. The same applies
+to a wholly silent serial chain. This does not remove operators or voices;
+full PCM/state pairs and independent routing/block-length checks preserve the
+preceding precision variant exactly.

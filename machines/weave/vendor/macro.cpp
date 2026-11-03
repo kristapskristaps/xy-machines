@@ -4079,6 +4079,15 @@ __attribute__((always_inline)) static inline void dx_op1(struct macro_dxop *op, 
     uint32_t ph = op->phase;
     int32_t amp = op->amp, ai, p0 = fb[0], p1 = fb[1], i, sh = 9 - fbamt;
     ai = divide_block((a > defined_shift(1, 29) ? defined_shift(1, 29) : a) - amp, size);
+    if(amp<16384 && a<16384) {
+        // Every rounded Q12 amplitude in this monotonic ramp is exactly zero.
+        // Phase modulation does not alter the stored free-running phase.
+        op->phase=ph+f*static_cast<uint32_t>(size);
+        op->amp=amp+ai*size;
+        if(src==0) {fb[1]=size>1?0:fb[0];fb[0]=0;}
+        if(!add)for(i=0;i<size;++i)out[i]=0;
+        return;
+    }
     for (i = 0; i < size; i++) {
         int32_t pm = src == -2 ? in[i] : src == 0 ? (fbamt ? (p0 + p1) >> sh : 0) : 0;
         uint32_t x;
@@ -4112,6 +4121,17 @@ static void dx_ops(struct macro_dxop *ops, const uint32_t *f, const int32_t *a, 
         ph[k] = ops[k].phase;
         amp[k] = ops[k].amp;
         ai[k] = divide_block(t - amp[k], size);
+    }
+    bool quiet=true;
+    for(k=0;k<n;++k)if(amp[k]>=16384 || a[k]>=16384)quiet=false;
+    if(quiet) {
+        for(k=0;k<n;++k) {
+            ops[k].phase=ph[k]+fr[k]*static_cast<uint32_t>(size);
+            ops[k].amp=amp[k]+ai[k]*size;
+        }
+        if(src>=0) {fb[1]=size>1?0:fb[0];fb[0]=0;}
+        if(!add)for(i=0;i<size;++i)out[i]=0;
+        return;
     }
     for (i = 0; i < size; i++) {
         int32_t pm = src >= 0 ? (fbamt ? (p0 + p1) >> (9 - fbamt) : 0) : src == -2 ? in[i] : 0;

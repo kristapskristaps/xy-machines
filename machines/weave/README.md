@@ -135,7 +135,11 @@ observe 78.7 dB signal-to-quantization-noise ratio; 402 paired renders including
 all patches in normal/held mode differ by at most 0.025 dB RMS and 0.009 coarse
 spectral-energy distance from the preceding cache revision. Feedback can amplify
 phase/level quantization, so these figures are empirical, not a bit-exact claim.
-The extra table costs 32 KiB of constant data. Hardware timing remains pending.
+The extra table costs 32 KiB of constant data. An operator or serial chain whose
+entire amplitude ramp rounds to zero skips waveform evaluation, while advancing
+its complete phase/amplitude state and feedback history. This is exact within
+the new precision: 402 full-PCM/full-voice-state comparisons and independent
+short-block routing tests cover it. Hardware timing remains pending.
 
 ## Develop and audition
 

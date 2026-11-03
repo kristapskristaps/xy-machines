@@ -183,7 +183,7 @@ void excite(Voice& voice,i32 contour,i32 timbre,i32* out) {
 // A complete bank has fixed consecutive mode indices. Dispatch once per block
 // so the sample loop does not repeatedly load an indirect active-mode list.
 template<bool FullBank>
-void bowed_block(Voice& voice,BowDelay& delays,i32 contour,const i32* excitation,i32* mixed,
+__attribute__((noinline)) void bowed_block(Voice& voice,BowDelay& delays,i32 contour,const i32* excitation,i32* mixed,
                  const unsigned* active,unsigned active_count) {
     for(unsigned i=0;i<opxy::block_frames;++i) {
         const i32 desired=contour*512;

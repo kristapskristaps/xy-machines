@@ -73,6 +73,9 @@ simultaneous writes adjacent without changing delay lengths or stored samples.
 When all eight bowed modes are active, a block-level dispatch selects consecutive
 mode indices directly. Partial banks retain the active-mode list. Both paths
 preserve mode order and per-sample feedback; hardware CPU validation is pending.
+The bowed banks compile as private non-inlined functions so their register
+allocation can be evaluated independently of the common renderer. This control
+revision retains the preceding arithmetic. Hardware CPU validation is pending.
 
 From the collection root, compare against the preceding revision with:
 

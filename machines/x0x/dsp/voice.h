@@ -314,6 +314,10 @@ template <bool Sampled, bool Metal=false> static inline void render_block(Voice&
     }
     if (silent && ended && v.age && !v.pending) v.active = 0;
 }
+// Keep the metallic scratch frame out of PCM and other synthesized voices.
+__attribute__((noinline)) static void render_metal_block(Voice& v, opxy::Output output, const Settings& s) {
+    render_block<false,true>(v,output,s);
+}
 static inline void render(Voice& v, opxy::Output output, opxy::Parameters parameters) {
     if (!v.active && !v.pending) {
         for (u32 i = 0; i < opxy::block_frames; ++i) output[i] = 0;
@@ -322,7 +326,7 @@ static inline void render(Voice& v, opxy::Output output, opxy::Parameters parame
     const Settings& s = voice_settings(v, parameters);
     // The selected model/style is fixed for this block. Keep PCM cursor checks
     // and synthesized oscillators in separate sample loops.
-    if(s.metal808)render_block<false,true>(v,output,s);
+    if(s.metal808)render_metal_block(v,output,s);
     else if(s.sample>=0)render_block<true>(v,output,s);
     else render_block<false>(v,output,s);
 }

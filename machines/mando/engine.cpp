@@ -27,8 +27,8 @@ void render_audio(Voice& voice, opxy::Output __restrict output, opxy::Pitch __re
             ? morph(main_a, pulse_a, voice.phase[0], voice.wave[0]) : main_a.read(voice.phase[0]);
         const i32 b = balance == 0 ? 0 : Moving
             ? morph(main_b, pulse_b, voice.phase[1], voice.wave[1]) : main_b.read(voice.phase[1]);
-        const i32 mixed = a + ((b - a) * balance >> 15);
-        const i32 driven = mixed * drive >> 8;
+        const i32 mixed = a + multiply(b-a,balance*65536);
+        const i32 driven = multiply(mixed*8,drive*1048576);
         const i32 filtered = coefficients.step<Limited>(voice, driven);
         voice.phase[0] += increment;
         voice.phase[1] += other;

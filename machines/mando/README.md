@@ -142,6 +142,9 @@ guard bits. Pole updates and feedback weights use the public Q31 multiply,
 replacing the preceding packed fractional-charge recurrence. This intentionally
 rounds away seven charge bits, while retaining the four-pole response,
 instantaneous feedback solve, both saturation positions and all control values.
+The bounded oscillator interpolation, crossfades, predrive and compensation
+products also use the public Q31 multiply; 576 paired scenarios preserve the
+Q22 implementation's complete output and voice state.
 Wavetables, oscillator phase, stock pitch/glide and the 16-voice pool are unchanged.
 
 `tests/compatibility.cpp` authenticates the frozen preceding implementation in

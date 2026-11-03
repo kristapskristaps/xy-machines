@@ -22,7 +22,7 @@ template <class Sample>
 inline i32 linear(const Sample* table, u32 position, unsigned bits) {
     const u32 index = position >> bits;
     const i32 fraction = static_cast<i32>(position & ((1u << bits) - 1));
-    return table[index] + ((table[index + 1] - table[index]) * fraction >> bits);
+    return table[index] + multiply(table[index+1]-table[index],fraction*(1<<(31-bits)));
 }
 inline i32 saturate(i32 x) {
     const u32 a = static_cast<u32>(x < 0 ? -x : x);
@@ -83,13 +83,13 @@ inline i32 wave(u32 phase, const Band& band, bool square) {
     const i32 first = linear(bank[band.rich], phase >> 12, 10);
     if (!band.rich || !band.fade) return first;
     const i32 second = linear(bank[band.rich - 1], phase >> 12, 10);
-    return first + ((second - first) * band.fade >> 15);
+    return first + multiply(second-first,band.fade*65536);
 }
 inline i32 oscillator(u32 phase, const Band& band, i32 square) {
     if (square == 0) return wave(phase, band, false);
     if (square == 32767) return wave(phase, band, true);
     const i32 a = wave(phase, band, false), b = wave(phase, band, true);
-    return a + ((b - a) * square >> 15);
+    return a + multiply(b-a,square*65536);
 }
 // A stable waveform uses one bank; select its mip pointers before rendering.
 struct Oscillator {
@@ -105,7 +105,7 @@ struct Oscillator {
         const i32 a = linear(rich, phase >> 12, 10);
         if (!fade) return a;
         const i32 b = linear(lean, phase >> 12, 10);
-        return a + ((b - a) * fade >> 15);
+        return a + multiply(b-a,fade*65536);
     }
 };
 inline i32 smooth_wave(i32 current, i32 target) {
@@ -118,7 +118,7 @@ inline i32 morph(const Oscillator& saw, const Oscillator& pulse, u32 phase, i32 
     const i32 b = pulse.read(phase);
     if (square == 32767) return b;
     const i32 a = saw.read(phase);
-    return a + ((b - a) * square >> 15);
+    return a + multiply(b-a,square*65536);
 }
 struct Ladder : FilterCoefficients {
     explicit Ladder(const FilterCoefficients& cached) : FilterCoefficients(cached) {}
@@ -158,7 +158,7 @@ struct Ladder : FilterCoefficients {
         sample = stage<2, Limited>(voice, sample);
         // Keep overload and resonance compensation inside the ladder: the
         // final pole filters the generated harmonics before they leave it.
-        sample += (sample * compensation >> 15);
+        sample += multiply(sample,compensation*65536);
         sample = saturate(sample);
         return stage<3, Limited>(voice, sample);
     }

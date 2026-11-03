@@ -119,6 +119,9 @@ computes its magnitude before the polynomial, preserving the original curve
 with fewer signed-rounding corrections. `tests/equivalence.cpp` checks 73
 original audio/state fingerprints across controls, retriggers, pitch ramps and
 live modulation. The 2x oversampling and filter arithmetic remain intact.
+The two internal samples use fixed first/second calls, preserving every filter
+update and odd pitch-increment remainder while removing the inner two-step
+loop. Hardware CPU validation of this scheduling change remains pending.
 
 The filter and damping coefficient ramps use Q31 directly, avoiding repeated
 sample scaling inside the oversampled loop. Wavetable interpolation and DC

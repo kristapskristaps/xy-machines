@@ -28,7 +28,7 @@ i32 lookup(const opxy::i16* row,u32 phase){
     return row[index]+multiply(row[index+1]-row[index],static_cast<i32>((phase&0x7ffe00u)<<8));
 }
 i32 distortion_gain(i32 amount){return 256+gain14(amount,amount)*23/64;}
-i32 distort(i32 x,i32 amount,i32 gain){
+__attribute__((always_inline)) inline i32 distort(i32 x,i32 amount,i32 gain){
     if(!amount)return x;
     const i32 boosted=x*gain/256;
     const u32 position=static_cast<u32>(boosted<0?-boosted:boosted),index=position>>10;
@@ -81,6 +81,7 @@ __attribute__((noinline)) void ladder(Voice& v,opxy::Output output,i32 coefficie
     v.feedback_low=feedback_low;
     v.filter_coefficient=coefficient;v.filter_feedback=feedback;
 }
+template<bool Moving,int SubMode,int DampMode>
 __attribute__((noinline)) void finish(Voice& v,opxy::Output output,opxy::Pitch pitch,
         i32 resonance,i32 drive,i32 sub,i32 tone){
     i32 amount=v.drive,blend_sub=v.sub,damping=v.tone;
@@ -93,13 +94,13 @@ __attribute__((noinline)) void finish(Voice& v,opxy::Output output,opxy::Pitch p
     i32 tone_g=start_tone*131072;
     const i32 dg=(interpolate(tables::tone,tone)-start_tone)/64*131072;
     for(unsigned i=0;i<opxy::block_frames;++i){
-        amount+=dd;blend_sub+=ds;damping+=dt;body+=db;clip_gain+=dc;tone_g+=dg;
+        if(Moving){amount+=dd;blend_sub+=ds;damping+=dt;body+=db;clip_gain+=dc;tone_g+=dg;}
         const i32 shaped=distort(limit(multiply(output[i],body)*6,32768),amount,clip_gain);
         const i32 dc_removed=limit(shaped-v.dc_input+multiply(v.dc_output,16376*131072),32768);
         v.dc_input=shaped;v.dc_output=dc_removed;
-        if(damping>=16383)v.tone_memory=dc_removed;
+        if(DampMode<0?damping>=16383:!DampMode)v.tone_memory=dc_removed;
         else v.tone_memory+=multiply(dc_removed-v.tone_memory,tone_g);
-        const i32 low=blend_sub?lookup(tables::sine,v.sub_phase):0;
+        const i32 low=(SubMode<0?blend_sub!=0:SubMode!=0)?lookup(tables::sine,v.sub_phase):0;
         output[i]=mix(v.tone_memory,low,blend_sub/2)*32768;
         const u32 increment=pitch[i];v.sub_remainder+=increment&1u;
         v.sub_phase+=increment/2+v.sub_remainder/2;v.sub_remainder&=1u;
@@ -129,7 +130,15 @@ inline void render(Voice& v,Shared&,u32,opxy::Output output,opxy::Parameters p,o
         else oscillators<2>(v,output,pitch,band,wave,drive);
     }else oscillators<-1>(v,output,pitch,band,wave,drive);
     ladder(v,output,coefficient,feedback);
-    finish(v,output,pitch,resonance,drive,sub,tone);
+    if(v.resonance==resonance && v.drive==drive && v.sub==sub && v.tone==tone){
+        if(sub){
+            if(tone<16383)finish<false,1,1>(v,output,pitch,resonance,drive,sub,tone);
+            else finish<false,1,0>(v,output,pitch,resonance,drive,sub,tone);
+        }else{
+            if(tone<16383)finish<false,0,1>(v,output,pitch,resonance,drive,sub,tone);
+            else finish<false,0,0>(v,output,pitch,resonance,drive,sub,tone);
+        }
+    }else finish<true,-1,-1>(v,output,pitch,resonance,drive,sub,tone);
     v.envelope=gain14(v.envelope,interpolate(tables::decay,decay));
     v.cutoff=cutoff;v.resonance=resonance;v.drive=drive;v.wave=wave;v.sub=sub;v.tone=tone;
 }

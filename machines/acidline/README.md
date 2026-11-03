@@ -78,6 +78,9 @@ decimator. Coefficients still ramp over each block; separate oscillator, ladder
 and output passes reduce live state. The original band-limited waveform banks,
 filter envelope, linked pre-drive/post-clip, octave sub and damping remain.
 The filter adaptation and MIT notices are in [NOTICE.md](NOTICE.md).
+When resonance, drive, sub and damping are steady, the output stage selects its
+sub/damping path once per block and omits zero ramp updates. Moving controls
+retain the general ramped path; this scheduling change preserves the 1x audio.
 
 This is an intentional sound change for the CPU budget. The new ladder is
 generally darker, its resonance and overdrive respond differently, and strong

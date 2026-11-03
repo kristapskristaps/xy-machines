@@ -134,7 +134,8 @@ def main():
     rows_cpp = ['{'+json.dumps(name)+',{'+','.join(map(str,values))+'},'+str(pitch)+'u,'+str(mode)+'}' for name,values,pitch,mode in scenarios]
     with tempfile.TemporaryDirectory(prefix='westfold-benchmark-') as directory:
         scratch = Path(directory); before = scratch/'before'; before.mkdir()
-        for path in ['core.h','engine.cpp','dsp.h','tables.h','display.h','display.cpp']:
+        paths = subprocess.check_output(['git','ls-tree','--name-only',baseline+':machines/westfold'],cwd=REPO,text=True).splitlines()
+        for path in (name for name in paths if name.endswith(('.h','.cpp'))):
             content = subprocess.check_output(['git','show',baseline+':machines/westfold/'+path],cwd=REPO,text=True)
             (before/path).write_text(content.replace('namespace westfold {','namespace westfold_before {'))
         source = SOURCE.replace('@BEFORE@',json.dumps(str(before/'engine.cpp'))).replace('@AFTER@',json.dumps(str(MACHINE/'engine.cpp')))

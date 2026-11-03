@@ -101,3 +101,9 @@ python ../../../xy-machines-sdk/sdk.py compile --machine . --profiling on --out 
 An installable image additionally needs the exact stock OS 1.2.1 from the owner’s device. Follow the SDK’s [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md) and [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md). Firmware and firmware-containing packages belong outside every checkout. No device installation or diagnostics are performed by the development commands above.
 
 Westfold is MIT licensed; see [LICENSE](LICENSE) and the [Braids attribution](vendor/README.md).
+
+Bounded Q15 table and signal blends use the public Q31 multiply with scaled
+operands. This retains every original sample and table value while avoiding a
+general integer product in those blends. The full-grid paired test checks
+complete audio and voice state against commit 97b6a9c. Hardware CPU validation
+for this revision remains pending.

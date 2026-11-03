@@ -117,21 +117,19 @@ Open the printed localhost URL, enable audio, select a low octave and play.
 Tests cover clean-sub purity, fundamental retention, DC, high-register alias
 energy, pitch-drop settling, transient decay, deterministic retrigger, all 256
 control corners and the display's note, idle, track and reduced-motion behavior.
-The driven oscillator deliberately uses nearest-point lookup on a 1024-sample
-phase grid. Original samples alternate with exact midpoint samples from the
-preceding linear interpolator. All 162 waves reflect exactly within each
-half-cycle, so two guarded quarter rows retain those 1024 points in 514 signed
-shorts per bank. Asymmetric positive and negative halves stay independent.
-Drive and mip crossfades retain their original integer math. The pure sine
-foundation and zero-Drive path keep the original linear lookup. Audio with
-Drive is intentionally not bit-identical; pitch, controls, models and normal
-voice capacity remain unchanged.
+The driven oscillator deliberately uses nearest-point lookup in the original
+512-sample phase grid. Phase rounds to the closest original table point; no
+new waveform bank, packed decoding or reflection is used. Drive and mip
+crossfades retain their original integer math. The pure sine foundation and
+zero-Drive path keep the original linear lookup. Driven audio is intentionally
+not bit-identical; pitch, controls, models and normal voice capacity remain
+unchanged.
 
 The original 216 bank fingerprints and original PCM/Voice golden values remain
 unchanged. `tests/reference_block_goldens.cpp` and
 `tests/reference_equivalence.cpp` check them against frozen exact revision
-`97b6a9c`; current approximate DSP is checked by `tests/fidelity.cpp`, the
-nearest-table bounds and existing sound/display tests. Old goldens are never
+`97b6a9c`; current approximate DSP is checked by `tests/fidelity.cpp`, nearest
+phase-error bounds and existing sound/display tests. Old goldens are never
 presented as the new waveform.
 
 For the actual audio comparison against that frozen revision:
@@ -140,24 +138,24 @@ For the actual audio comparison against that frozen revision:
 python machines/vader/tools/fidelity.py --out /external/private/vader-audio-check-001
 ```
 
-The report covers 1528 cases: factory sounds, drive/shape/tone positions, all
-control corners, six pitches, sweeps, random automation and glide. Driven cases
-have median relative RMS error 0.18%; factory sounds have worst 0.42%. Maximum
-measured RMS level change above -60dBFS is 0.031 dB, in a nearly muted high-note
-corner whose absolute RMS error is -84dBFS. The coherent single-bank image check
-finds worst energy -38.7dBc outside the intended harmonic set; its original
-interpolator reads -69.9dBc for that bank. This includes reconstruction and
-folded images and does not claim a perfect alias-free reference.
+Across 1528 cases (factory sounds, drive/shape/tone positions, all control
+corners, six pitches, sweeps, random automation and glide), driven cases have
+median relative RMS error 0.36%; factory sounds have worst 0.82%. Maximum RMS
+level change above -60dBFS is 0.055 dB. A nearly muted -59.3dBFS corner has 10.1%
+relative error, but its absolute RMS difference is only -79.2dBFS. The coherent
+single-bank check finds worst image energy of -32.7dBc, versus -69.9dBc for the
+original interpolator at that bank. This is a deliberate coarser phase grid;
+it adds reconstruction/folded images while keeping the drive curves intact.
 
-The test budget is 3% relative RMS error with an absolute -80dBFS floor for very
-quiet signals, at most 0.01 FS absolute RMS error, 0.05 dB level change above
--60dBFS, and -35dBc maximum image energy in the specified coherent bank cases.
-Phase and non-filter voice state are checked exactly after every block. The
-output includes reference/candidate WAVs for listening. These are host quality
-checks; hardware CPU and normal-playback acceptance remain pending.
+The 512-point quality budget is 3% relative RMS error with a -78dBFS absolute
+floor for nearly muted signals, at most 0.01 FS absolute RMS error, 0.06 dB level
+change above -60dBFS and -32dBc maximum image energy in the specified coherent
+bank cases. It is explicitly looser than the 1024-point prototype's 0.05 dB and
+-35dBc limits. Phase and non-filter voice state remain exact after every block.
+The tool writes reference/candidate WAVs for listening. Hardware CPU and normal
+playback acceptance remain pending; host quality is not device timing.
 
-Regenerate the analytic tables with `python tools/generate_tables.py`, then
-`python tools/generate_nearest_waves.py` for the nearest-point bank.
+Regenerate the unchanged analytic tables with `python tools/generate_tables.py`.
 The SDK adapters own voice allocation and registration; callbacks allocate no
 memory and do not perform I/O. Machine code, artwork and tests stay here.
 

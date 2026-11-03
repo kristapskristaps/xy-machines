@@ -128,8 +128,8 @@ legacy user presets are not overwritten or deleted.
 The machine tests check tuning, harmonic content, folded-harmonic suppression,
 ladder rolloff and resonance, key tracking, control corners, rapid automation,
 quiet-note/DC behavior and animation. Frozen fingerprints cover the auditioned B response at all eight
-original preset settings plus automation and pitch changes. The expanded saturation
-cache is checked exhaustively against the original integer interpolant.
+original preset settings plus automation and pitch changes. The saturation
+lookup is checked exhaustively against the original integer interpolant.
 
 The B filter response puts resonance compensation and the second saturation
 before the final ladder pole, inside the feedback path. This lets the final
@@ -139,8 +139,11 @@ This remains a digital approximation rather than a measured Minitaur model.
 
 The engine packs each pole's even state and fractional charge into one
 accumulator, unrolls the four stages and prepares waveform/pitch paths once per
-block. Wavetables store their original Q14 values in 16-bit words; a 32 KiB
-cache expands the exact integer saturation interpolant. Each voice caches
+block. Wavetables store their original Q14 values in 16-bit words. Saturation
+reads the compact integer knots directly instead of their 32 KiB expansion,
+retaining the same curve and rounding. The extra interpolation arithmetic
+trades against a smaller active table; hardware CPU validation remains pending.
+Each voice caches
 filter coefficients until cutoff or resonance changes. Voice state is 116
 bytes; the SDK compile report gives the native footprint for its selected revision.
 Compatibility fingerprints bind the optimized render to the B audition.
@@ -163,6 +166,7 @@ It checks audio at every block over 256 blocks per scenario; `--verify-state`
 also compares complete voice state when the selected baseline has the current
 layout. `--extended` adds above-limit, full-range and clamp-crossing pitch motion,
 for 576 scenarios. Five timing repeats alternate order and report paired medians.
+Add `--verify-only` to run the same audio/state comparisons without host timings.
 The pitch regression test checks exact phase advance for constant, clipped,
 clamp-crossing, zero and random inputs, including a single differing sample in
 every position of the block.

@@ -32,7 +32,7 @@ opxy::u32 fingerprint(unsigned patch) {
 }
 
 int main() {
-    // The expanded table must preserve the old integer interpolant everywhere,
+    // The saturation lookup must preserve the old integer interpolant everywhere,
     // including both boundaries of the fast range and the overload fallback.
     for (int x = -131200; x <= 131200; ++x) {
         const unsigned a = static_cast<unsigned>(x < 0 ? -x : x);

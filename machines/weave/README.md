@@ -95,8 +95,16 @@ note. Chords keeps its five-note voicing and 6-op keeps all six operators and
 96 patches. The reduced banks trade density and upper partials for headroom;
 String relies on the external voices for overlapping notes. All source DSP
 still runs at 48 kHz, preserving pitch and time constants. The limiter and FM
-soft clip use an exact reciprocal division with a checked remainder; wavetable
-cubic interpolation drops only sub-LSB rounding work. Normal playback and
+soft clip use an exact reciprocal division with a checked remainder.
+Wavetable retains all 192 source waves and the original XYZ mapping. It blends
+one 128-point period into an inactive cache, at most 16 points per 32 source
+samples, then crossfades over 64 samples. This avoids eight cubic reads per
+sample and bounds refresh work during continuous modulation. Source control
+smoothers remain active; the cache adds up to roughly eight milliseconds of
+control lag. The first roughly eight milliseconds of a note use a 32-point
+approximation while the first full-resolution blend finishes. This can change
+the onset's upper partials. The cache fits the existing model-state union and
+does not change voice capacity or the source/sample conversion clocks. Normal playback and
 worst-case model CPU still require device validation.
 The CPU variant uses public truncating Q31 products in place of the integer
 port's extra rounding corrections. Each individual product changes by at most
@@ -108,6 +116,14 @@ The shorter converter retains exact unity DC gain, the preceding latency and
 fewer products. Six interior coefficients are nonzero. Pitch, source rate,
 model choices, saved controls and the existing voice limits retain their
 contracts. Regenerate it with `tools/generate_resample.py --taps 8 --out resample.h`.
+
+Compared with the preceding Q31/SRC revision, 402 paired render scenarios show
+WT static loudness differences below 0.019 dB RMS and coarse spectral-energy
+distance below 0.0001; the two abrupt-control traces reach 0.467 dB and 0.113.
+All other models remain sample-identical in those scenarios. Independent
+trilinear weighting checks 540,672 table values, and sanitizer tests cover
+arbitrary supported block lengths, cache completion and rapidly moving banks.
+These are local numerical checks; hardware CPU qualification remains pending.
 
 ## Develop and audition
 

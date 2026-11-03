@@ -2674,8 +2674,9 @@ static void swarm_render(struct macro_voice *m, const uint8_t *p, uint32_t inc, 
 /* ---- WAVETABLE (Model-TG): plaits/dsp/engine/wavetable_engine.cc ----------------------------------- *
  * 192 integrated waves in 4 banks of 8 x 8 (the fourth Plaits' reshuffle of the others). TIMB: X, MORP: Y,
  * HARM: the bank (Z, mirrored 0 1 2 3 3 2 1 0 over its range; above 3/7 the positions snap towards whole waves).
- * Eight waves read with Hermite interpolation and blended trilinearly, differentiated (the waves are stored
- * integrated), scaled by 1 / f once a block and low-passed at 128 f. AUX: OUT truncated to steps of 1/32.
+ * Eight source waves are blended trilinearly into a double-buffered Q8 period, rebuilt in bounded tiles.
+ * Playback reads one Hermite-interpolated cached wave (two during a 64-sample crossfade), differentiated
+ * (the waves are stored integrated), scaled by 1 / f once a block and low-passed at 128 f. AUX: OUT truncated to steps of 1/32.
  * X Y Z go through Plaits' one-poles (0.2, 0.2, 0.05 a 12-sample block, rescaled; WT_BLOCK for the tests), then
  * a per-sample one-pole at 2 f (4 - 3 quantization), 0.01..0.1. On the box they start at the knobs. */
 
@@ -2694,13 +2695,11 @@ static COLD void wt_init(struct macro_wavetable *w)
 }
 
 /* InterpolateWaveHermite over a wave (Q8 out), at sample i (0..127) and fraction f (Q31) */
-static inline int32_t wt_hermite(const int16_t *t, int32_t i, int32_t f)
+static inline int32_t wt_hermite(const int32_t *t, int32_t i, int32_t f)
 {
-    int32_t xm1 = defined_shift(t[i], 8), x0 = defined_shift(t[i + 1], 8), x1 = defined_shift(t[i + 2], 8), x2 = defined_shift(t[i + 3], 8);
-    int32_t c = (x1 - xm1) >> 1, v = x0 - x1, w = c + v, a = w + v + ((x2 - x0) >> 1), bn = w + a;
-    // Q8 interpolation retains cubic waves; truncation is below one table LSB.
-    // The bounded coefficients and positive fraction need no EMAC wrap handling.
-    return opxy::q31::multiply(opxy::q31::multiply(opxy::q31::multiply(a, f) - bn, f) + c, f) + x0;
+    int32_t xm1=t[i],x0=t[i+1],x1=t[i+2],x2=t[i+3];
+    int32_t c=(x1-xm1)>>1,v=x0-x1,w=c+v,a=w+v+((x2-x0)>>1),bn=w+a;
+    return opxy::q31::multiply(opxy::q31::multiply(opxy::q31::multiply(a,f)-bn,f)+c,f)+x0;
 }
 
 static inline const int16_t *wt_wave(int x, int y, int z)
@@ -2714,6 +2713,74 @@ static inline int32_t wt_snap(int32_t f)
 {
     int32_t v = (defined_shift((f - (defined_shift(1, 23))), 4)) + (defined_shift(1, 23));
     return v < 0 ? 0 : v > (defined_shift(1, 24)) ? defined_shift(1, 24) : v;
+}
+
+// Blend fixed coordinates once per tile, before reading the oscillator phase.
+// A fixed quota bounds work during continuous XYZ modulation as well as at rest.
+template<unsigned Step>
+static __attribute__((noinline)) void wt_blend_tile(const int32_t* key,int32_t* table,unsigned first,unsigned end)
+{
+    int32_t cell[3],fraction[3];
+    for(unsigned k=0;k<3;++k) {
+        int32_t value=key[k];
+        if(value<0)value=0;
+        if(value>117440511)value=117440511;
+        cell[k]=value>>24;fraction[k]=(value&0xffffff)<<7;
+    }
+    const int x=cell[0],y=cell[1],z=cell[2];
+    const int z0=z>=4?7-z:z,z1=z+1>=4?6-z:z+1;
+    const int16_t* waves[8]={wt_wave(x,y,z0),wt_wave(x+1,y,z0),wt_wave(x,y+1,z0),wt_wave(x+1,y+1,z0),
+                             wt_wave(x,y,z1),wt_wave(x+1,y,z1),wt_wave(x,y+1,z1),wt_wave(x+1,y+1,z1)};
+    const int32_t xf=fraction[0],yf=fraction[1],zf=fraction[2];
+    for(unsigned i=first;i<end;i+=Step) {
+        int32_t a0=defined_shift(waves[0][i],8),a1=defined_shift(waves[1][i],8);
+        int32_t b0=defined_shift(waves[2][i],8),b1=defined_shift(waves[3][i],8);
+        a0+=fmac1(a1-a0,xf);b0+=fmac1(b1-b0,xf);
+        const int32_t m0=a0+fmac1(b0-a0,yf);
+        a0=defined_shift(waves[4][i],8);a1=defined_shift(waves[5][i],8);
+        b0=defined_shift(waves[6][i],8);b1=defined_shift(waves[7][i],8);
+        a0+=fmac1(a1-a0,xf);b0+=fmac1(b1-b0,xf);
+        const int32_t m1=a0+fmac1(b0-a0,yf);
+        table[i]=m0+fmac1(m1-m0,zf);
+    }
+}
+
+static void wt_cache(struct macro_wavetable* w,unsigned n)
+{
+    if(!w->valid) {
+        // Start from a 32-point approximation of the requested wave, then refine
+        // its full 128-point period through the same bounded tile path.
+        wt_blend_tile<4>(w->lp,w->blend[0],1,129);
+        for(unsigned i=1;i<129;i+=4) {
+            const int32_t from=w->blend[0][i],to=w->blend[0][i==125?1:i+4];
+            const int32_t step=(to-from)/4;
+            w->blend[0][i+1]=from+step;
+            w->blend[0][i+2]=from+2*step;
+            w->blend[0][i+3]=from+3*step;
+        }
+        w->blend[0][0]=w->blend[0][128];
+        w->blend[0][129]=w->blend[0][1];w->blend[0][130]=w->blend[0][2];w->blend[0][131]=w->blend[0][3];
+        w->active=0;w->valid=1;w->building=1;w->build_at=0;
+        for(unsigned k=0;k<3;++k)w->build_key[k]=w->lp[k];
+    }
+    if(!w->building && !w->fade) {
+        bool changed=false;
+        for(unsigned k=0;k<3;++k)if(w->cache_key[k]!=w->lp[k])changed=true;
+        if(changed) {
+            w->building=1;w->build_at=0;
+            for(unsigned k=0;k<3;++k)w->build_key[k]=w->lp[k];
+        }
+    }
+    if(w->building) {
+        const unsigned quota=n/2?n/2:1;
+        unsigned end=w->build_at+quota;if(end>132)end=132;
+        wt_blend_tile<1>(w->build_key,w->blend[w->active^1],w->build_at,end);
+        w->build_at=end;
+        if(end==132) {
+            w->building=0;w->fade=64;
+            for(unsigned k=0;k<3;++k)w->cache_key[k]=w->build_key[k];
+        }
+    }
 }
 
 static void wt_render(struct macro_wavetable *__restrict w, const uint8_t *p, uint32_t inc, int32_t *__restrict out,
@@ -2752,6 +2819,7 @@ static void wt_render(struct macro_wavetable *__restrict w, const uint8_t *p, ui
         cur[k] = w->tgt[k];
         w->tgt[k] = tg[k];
     }
+    wt_cache(w,static_cast<unsigned>(n));
     fd = divide_block((int32_t)inc - (int32_t)f, n);
     /* y = d / (128 f), table units a table step, Q8: d x 2^25 / inc (as wtv_render) */
     for (z = 0, in = inc; !(in & 0x80000000u); z++)
@@ -2761,41 +2829,22 @@ static void wt_render(struct macro_wavetable *__restrict w, const uint8_t *p, ui
     {
         int32_t g31 = 2040109466 - (int32_t)(inc >> 1);             /* 0.95 - f0, Q31 */
         for (i = 0; i < n; i++) {
-            int32_t xi, yi, zi, xf, yf, zf, pi, pf, z0, z1, a0, a1, b0, b1, m0, m1, mix, dd, y, c;
+            int32_t pi,pf,mix,dd,y,c;
             f += (uint32_t)fd;
             for (k = 0; k < 3; k++) {
                 cur[k] += d[k];
                 w->lp[k] += fmac1(cur[k] - w->lp[k], lpc);
             }
-            xi = w->lp[0] >> 24; xf = defined_shift((w->lp[0] & 0xffffff), 7);
-            yi = w->lp[1] >> 24; yf = defined_shift((w->lp[1] & 0xffffff), 7);
-            zi = w->lp[2] >> 24; zf = defined_shift((w->lp[2] & 0xffffff), 7);
-            if (xi < 0) { xi = 0; xf = 0; }
-            if (yi < 0) { yi = 0; yf = 0; }
-            if (zi < 0) { zi = 0; zf = 0; }
-            if (xi > 6) { xi = 6; xf = 0x7fffffff; }                /* 7.0 itself: the last wave, never past it */
-            if (yi > 6) { yi = 6; yf = 0x7fffffff; }                /* (Plaits would read past its bank there) */
-            if (zi > 6) { zi = 6; zf = 0x7fffffff; }
             ph += f;
-            pi = (int32_t)(ph >> 25);
-            pf = (int32_t)((ph << 7) >> 1);                         /* the fraction of a table step, Q31 */
-            z0 = zi >= 4 ? 7 - zi : zi;
-            z1 = zi + 1 >= 4 ? 6 - zi : zi + 1;
-            a0 = wt_hermite(wt_wave(xi, yi, z0), pi, pf);
-            a1 = wt_hermite(wt_wave(xi + 1, yi, z0), pi, pf);
-            a0 += fmac1(a1 - a0, xf);
-            b0 = wt_hermite(wt_wave(xi, yi + 1, z0), pi, pf);
-            b1 = wt_hermite(wt_wave(xi + 1, yi + 1, z0), pi, pf);
-            b0 += fmac1(b1 - b0, xf);
-            m0 = a0 + fmac1(b0 - a0, yf);
-            a0 = wt_hermite(wt_wave(xi, yi, z1), pi, pf);
-            a1 = wt_hermite(wt_wave(xi + 1, yi, z1), pi, pf);
-            a0 += fmac1(a1 - a0, xf);
-            b0 = wt_hermite(wt_wave(xi, yi + 1, z1), pi, pf);
-            b1 = wt_hermite(wt_wave(xi + 1, yi + 1, z1), pi, pf);
-            b0 += fmac1(b1 - b0, xf);
-            m1 = a0 + fmac1(b0 - a0, yf);
-            mix = m0 + fmac1(m1 - m0, zf);                          /* Q8 */
+            pi=static_cast<int32_t>(ph>>25);
+            pf=static_cast<int32_t>((ph<<7)>>1);
+            mix=wt_hermite(w->blend[w->active],pi,pf);
+            if(w->fade) {
+                const int32_t next=wt_hermite(w->blend[w->active^1],pi,pf);
+                const int32_t alpha=static_cast<int32_t>((64-w->fade)*33554432u);
+                mix+=fmac1(next-mix,alpha);
+                if(!--w->fade)w->active^=1;
+            }
             dd = mix - prev;
             prev = mix;
             y = fmac1(defined_shift(dd, 6), (int32_t)(r16 << 14));

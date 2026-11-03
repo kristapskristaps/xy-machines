@@ -199,6 +199,8 @@ struct macro_wavetable {
     int32_t  tgt[3];                                /* what the per-sample glide starts from, Q24       */
     int32_t  lp[3];                                 /* the per-sample one-pole of X Y Z, Q24            */
     int32_t  prev, dlp;                             /* the differentiator, Q8 table units              */
+    int32_t blend[2][132], cache_key[3], build_key[3];
+    uint32_t active, build_at, building, fade, valid;
 };
 
 /* Model-TG: Plaits' virtual analog engine (virtual_analog_engine.cc, VA_VARIANT 2) */

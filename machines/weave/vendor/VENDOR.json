@@ -6,9 +6,9 @@
   "adaptation": true,
   "files": {
     "LICENSE": "4767aae1af28af0da220804d064fc2f3d5c8af7d0adea7967ee0454e741f760f",
-    "VENDOR.md": "ee81eef2d515d998e1333f9afe29716c3064ec9fb77df09141f9efc4773aeb4e",
-    "macro.cpp": "a053d6fab96996fa2dcb50713c97c5f3d28b6965e2fd333f6b5a14d8731e43ad",
-    "macro.h": "fb1906361318091993e157b06b02d1aa7cabb35749fd6dd29ad98597ac11f007",
+    "VENDOR.md": "a26401e8b81c650cfbf7bf8363c32ca2ac7a9e275a770f27b871d16c674ee6bb",
+    "macro.cpp": "86e60fdb9eeee7ba21fd20be2a7345c8ffe22707ad17e9116f0b40ba6232d910",
+    "macro.h": "c238856992267f595f6f81dfd1cf9cdc7dc004fc3161efec20277733637eda9a",
     "macro_chord_tables.h": "e1457aa401f46e0d71f0ec3435ca0cbcf5536371d32858dd5070a1fb96cc650f",
     "macro_dx7.h": "210f9a50b654ccc79466d838156a1f28dda08a1fe22911df0ff8db87e47d060c",
     "macro_tables.h": "66b6f3fa113719664d82a781bf2a9586fb89782b5edb1f1b19160ed613a625f1",

@@ -10,7 +10,8 @@ int main(){
         const int xm1=t[i]*256,x0=t[i+1]*256,x1=t[i+2]*256,x2=t[i+3]*256;
         const int c=(x1-xm1)>>1,v=x0-x1,w=c+v,a=w+v+((x2-x0)>>1),bn=w+a;
         const int exact=weave_dsp::fmac1(weave_dsp::fmac1(weave_dsp::fmac1(a,f)-bn,f)+c,f)+x0;
-        const int error=std::abs(weave_dsp::wt_hermite(t,i,f)-exact);
+        const int scaled[4]={xm1,x0,x1,x2};
+        const int error=std::abs(weave_dsp::wt_hermite(scaled,0,f)-exact);
         if(error>maximum)maximum=error;
         if(error>4)return 1;
     }

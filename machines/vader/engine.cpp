@@ -1,5 +1,6 @@
 #include "core.h"
 #include "tables.hpp"
+#include "nearest_waves.hpp"
 #include "controls.hpp"
 #include "control_tables.hpp"
 #include <opxy/q31.hpp>
@@ -13,6 +14,12 @@ i32 lookup(const opxy::i16* table, u32 phase) {
     const u32 at = phase >> 23;
     const i32 fraction = static_cast<i32>((phase >> 8) & 32767u);
     return table[at] + ((table[at + 1] - table[at]) * fraction >> 15);
+}
+
+__attribute__((always_inline)) inline u32 nearest_index(u32 phase) {
+    const u32 position=(phase+0x200000u)>>22;
+    const u32 half=position>>9,within=position&511u;
+    return half*257u+(within>256u?512u-within:within);
 }
 
 // Remove the richer mip before its highest harmonic reaches 0.44 * Fs.
@@ -39,14 +46,15 @@ void mip(u32 increment, u32& band, i32& mix) {
 }
 
 i32 shaped(u32 mode, u32 drive, u32 band, i32 band_mix, u32 phase) {
+    const u32 at=nearest_index(phase);
     const u32 level = drive >> 15;
     const i32 mix = static_cast<i32>(drive & 32767u);
     const u32 next = level < 8 ? level + 1 : 8;
-    const i32 a = lookup(waves[mode][level][band], phase);
-    const i32 rich = mix ? a + ((lookup(waves[mode][next][band], phase) - a) * mix >> 15) : a;
+    const i32 a = nearest::waves[mode][level][band][at];
+    const i32 rich = mix ? a + ((nearest::waves[mode][next][band][at] - a) * mix >> 15) : a;
     if (!band || band_mix == 32768) return rich;
-    const i32 c = lookup(waves[mode][level][band - 1], phase);
-    const i32 lean = mix ? c + ((lookup(waves[mode][next][band - 1], phase) - c) * mix >> 15) : c;
+    const i32 c = nearest::waves[mode][level][band - 1][at];
+    const i32 lean = mix ? c + ((nearest::waves[mode][next][band - 1][at] - c) * mix >> 15) : c;
     return lean + ((rich - lean) * band_mix >> 15);
 }
 
@@ -55,16 +63,17 @@ struct Shaper {
     i32 drive_mix, band_mix;
     Shaper(u32 mode,u32 drive,u32 band,i32 blend) : drive_mix(drive&32767u),band_mix(blend) {
         const u32 level=drive>>15,next=level<8?level+1:8;
-        rich=waves[mode][level][band];rich_next=waves[mode][next][band];
-        lean=band && blend!=32768?waves[mode][level][band-1]:nullptr;
-        lean_next=band && blend!=32768?waves[mode][next][band-1]:nullptr;
+        rich=nearest::waves[mode][level][band];rich_next=nearest::waves[mode][next][band];
+        lean=band && blend!=32768?nearest::waves[mode][level][band-1]:nullptr;
+        lean_next=band && blend!=32768?nearest::waves[mode][next][band-1]:nullptr;
     }
     i32 read(u32 phase) const {
-        const i32 a=lookup(rich,phase);
-        const i32 r=drive_mix?a+((lookup(rich_next,phase)-a)*drive_mix>>15):a;
+        const u32 at=nearest_index(phase);
+        const i32 a=rich[at];
+        const i32 r=drive_mix?a+((rich_next[at]-a)*drive_mix>>15):a;
         if(!lean)return r;
-        const i32 c=lookup(lean,phase);
-        const i32 l=drive_mix?c+((lookup(lean_next,phase)-c)*drive_mix>>15):c;
+        const i32 c=lean[at];
+        const i32 l=drive_mix?c+((lean_next[at]-c)*drive_mix>>15):c;
         return l+((r-l)*band_mix>>15);
     }
 };

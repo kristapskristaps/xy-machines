@@ -201,6 +201,14 @@ cost. Compare native hardware callback workloads before claiming an OP-XY CPU
 improvement. Historical standalone measurements do not qualify the reorganized
 collection revision; measure its exact package before catalog submission.
 
+The 808 metallic filter products use signed Q14 floor directly through the
+public DSP multiply, avoiding magnitude/sign restoration. A negative fractional
+term differs from the preceding truncation by at most one Q14 count. The
+original 47 waveform and 18 metallic-state hashes still authenticate frozen
+legacy helpers; new renders must stay within 2% RMS level and 3% relative RMS
+waveform difference. Models, oscillator phases, controls, voice capacity and
+filter clamps are unchanged. This rounding change needs hardware CPU measurement.
+
 - 606: swept tonal oscillators for kick/toms, dual-tone/noise snare and a six-oscillator
   metallic source for hats/cymbal.
 - 808: sine kick with pitch fall, tonal/noise snare, burst clap, tuned toms and

@@ -10,6 +10,24 @@ static void require(bool ok, const char* message, opxy::i32 value) {
 }
 
 int main() {
+    const opxy::i32 samples[]={-536870912,-1048576,-524288,-1,0,1,524288,1048576,536870912};
+    const opxy::i32 gains[]={0,1,32767,32768,65534,65535};
+    for(opxy::i32 a:samples)for(opxy::i32 b:gains) {
+        const opxy::i64 product=static_cast<opxy::i64>(a)*b;
+        const opxy::i64 expected=product/32768-(product<0 && product%32768!=0);
+        require(vapour::audio_gain15(a,b)==expected,"bounded audio product boundary",a);
+    }
+    opxy::u32 random=7139;
+    for(unsigned i=0;i<1000000;++i) {
+        random=random*1664525u+1013904223u;
+        const opxy::i32 a=static_cast<opxy::i32>(random%1073741825u)-536870912;
+        random=random*1664525u+1013904223u;
+        const opxy::i32 b=static_cast<opxy::i32>(random>>16);
+        const opxy::i64 product=static_cast<opxy::i64>(a)*b;
+        const opxy::i64 expected=product/32768-(product<0 && product%32768!=0);
+        require(vapour::audio_gain15(a,b)==expected,"bounded audio product reference",a);
+        require(vapour::audio_gain15(a,b)==vapour::granular::mul15(a,b),"preceding split product",a);
+    }
     // Entire reachable normalization-difference range, with margin, checked
     // against signed division rather than the reciprocal implementation.
     for (opxy::i32 value = -131072; value <= 131072; ++value) {

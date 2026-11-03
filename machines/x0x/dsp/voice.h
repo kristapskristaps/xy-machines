@@ -215,14 +215,25 @@ static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
 template <unsigned Filter> static inline void metal_filter_block(MetalState& state,
         const MetalCoefficients& c, const i32* input, i32* output, u32 frames) {
     MetalFilterState& filter = state.filters[Filter];
-    i32 x1=filter.x1,x2=filter.x2,y1=filter.y1,y2=filter.y2;
-    for(u32 i=0;i<frames;++i) {
+    if(!frames)return;
+    // Capture the original inputs before an in-place filter overwrites them.
+    const i32 last=input[frames-1],penultimate=frames>1?input[frames-2]:filter.x1;
+    i32 older=metal_product(filter.x2,c.b2),previous=metal_product(filter.x1,c.b2);
+    i32 middle=metal_product(filter.x1,c.b1),y1=filter.y1,y2=filter.y2;
+    // The explicit block bound also keeps this counted loop in hardware.
+    for(u32 i=0;i<frames && i<opxy::block_frames;++i) {
         const i32 x=input[i];
-        const i32 y=limit(metal_product(x,c.b0)+metal_product(x1,c.b1)+metal_product(x2,c.b2)
+        const i32 weighted=metal_product(x,c.b0);
+        const i32 y=limit(weighted+middle+older
                           -metal_product(y1,c.a1)-metal_product(y2,c.a2));
-        x2=x1;x1=x;y2=y1;y1=y;output[i]=y;
+        older=previous;
+        // Q14 products truncate toward zero, so changing a coefficient's
+        // sign negates the result exactly. All five filters have b2=+/-b0.
+        previous=c.b2==c.b0?weighted:c.b2==-c.b0?-weighted:metal_product(x,c.b2);
+        middle=metal_product(x,c.b1);
+        y2=y1;y1=y;output[i]=y;
     }
-    filter.x1=x1;filter.x2=x2;filter.y1=y1;filter.y2=y2;
+    filter.x1=last;filter.x2=penultimate;filter.y1=y1;filter.y2=y2;
 }
 template <bool Cymbal> static inline void metal_source_block(Voice& v,const Settings& s,
         i32* output,u32 frames) {

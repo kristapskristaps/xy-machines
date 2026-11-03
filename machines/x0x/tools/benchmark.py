@@ -68,6 +68,9 @@ int main() {
             if(!equivalent(model,family,variant,mode)){
                 std::fprintf(stderr,"FAIL: audio/state differs at model %u family %u variant %u mode %u\n",model,family,variant,mode);return 1;
             }
+            if(@VERIFY_ONLY@) {
+                std::printf("{\"model\":%u,\"family\":%u,\"variant\":%u,\"mode\":%u,\"verified\":true}\n",model,family,variant,mode);continue;
+            }
             double old_times[5],new_times[5],ratios[5];
             for(unsigned repeat=0;repeat<5;++repeat){
                 if(repeat&1){
@@ -94,6 +97,7 @@ def main():
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=1000)
+    parser.add_argument('--verify-only', action='store_true', help='check all paired audio/state blocks without host timings')
     args = parser.parse_args()
     if args.blocks < 400:
         parser.error('Use at least 400 blocks to reduce timer noise.')
@@ -114,12 +118,16 @@ def main():
             content = subprocess.check_output(['git', 'show', baseline+':'+path], cwd=REPO, text=True)
             target.write_text(content.replace('namespace x0x {', 'namespace x0x_before {').replace('x0x::', 'x0x_before::'))
         source = SOURCE.replace('@BEFORE@', json.dumps(str(before/'engine.cpp'))).replace('@AFTER@', json.dumps(str(MACHINE/'engine.cpp')))
-        (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@', str(args.blocks)))
+        (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@', str(args.blocks)).replace('@VERIFY_ONLY@','true' if args.verify_only else 'false'))
         executable = scratch/'benchmark'
         subprocess.run([args.cxx, '-std=c++11', '-O2', '-I'+str(sdk/'sdk/include'), str(scratch/'benchmark.cpp'),
                         str(before/'dsp/tables.cpp'), str(before/'dsp/sample_data.cpp'),
                         str(MACHINE/'dsp/tables.cpp'), str(MACHINE/'dsp/sample_data.cpp'), '-o', str(executable)], check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)], text=True).splitlines()]
+    if args.verify_only:
+        print(json.dumps(dict(baseline=baseline,exact_audio_and_state_each_block=True,
+                             scenarios=len(rows),checked_blocks_per_scenario=256,timing_executed=False),indent=2))
+        return
     print(json.dumps(dict(baseline=baseline, host_timing_only=True, exact_audio_and_state_each_block=True,
                          timing_keeps_voices_active=True,
                          scenarios=len(rows), checked_blocks_per_scenario=256, blocks_per_timing=args.blocks, repeats=5,

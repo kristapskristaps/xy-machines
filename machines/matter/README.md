@@ -70,6 +70,9 @@ preserve the preceding revision's samples, rounding, resonator state, random
 sequence and resource ownership.
 The bowed delay storage interleaves the eight modes by frame, keeping their
 simultaneous writes adjacent without changing delay lengths or stored samples.
+When all eight bowed modes are active, a block-level dispatch selects consecutive
+mode indices directly. Partial banks retain the active-mode list. Both paths
+preserve mode order and per-sample feedback; hardware CPU validation is pending.
 
 From the collection root, compare against the preceding revision with:
 

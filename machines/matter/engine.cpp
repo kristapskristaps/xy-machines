@@ -180,6 +180,38 @@ void excite(Voice& voice,i32 contour,i32 timbre,i32* out) {
         out[i]=excitation;
     }
 }
+// A complete bank has fixed consecutive mode indices. Dispatch once per block
+// so the sample loop does not repeatedly load an indirect active-mode list.
+template<bool FullBank>
+void bowed_block(Voice& voice,BowDelay& delays,i32 contour,const i32* excitation,i32* mixed,
+                 const unsigned* active,unsigned active_count) {
+    for(unsigned i=0;i<opxy::block_frames;++i) {
+        const i32 desired=contour*512;
+        voice.bow_velocity+=(desired-voice.bow_velocity)/1024;
+        i32 bow_sum=0,bow_output=0;
+        const i32 input=excitation[i]+voice.bow_signal;
+        for(unsigned at=0;at<(FullBank?8:active_count);++at) {
+            const unsigned mode_index=FullBank?at:active[at];
+            BowFilter& bow=voice.bowed[mode_index];
+            u32& write=voice.bow_write[mode_index];
+            const u32 length=voice.bow_length[mode_index];
+            const u32 read=(write+1024u-length)&1023u;
+            const i32 delayed=fmac1(static_cast<i32>(delays.samples[read][mode_index])*512,2126008812);
+            bow_sum+=delayed;
+            const i32 bp=filter(bow.s1,bow.s2,bow.a1,bow.a2,bow.a3,input+delayed);
+            const i32 normalized=fmac1(bp,bow.normalization);
+            delays.samples[write][mode_index]=static_cast<opxy::i16>(clamp(normalized/512,-32768,32767));
+            write=(write+1)&1023u;
+            bow_output+=opxy::q31::multiply(normalized,voice.modes[mode_index].gain)/8;
+        }
+        const i32 x=fmac1(voice.bow_velocity,279172874)-bow_sum;
+        const u32 magnitude=static_cast<u32>(x<0?-x:x);
+        const unsigned index=magnitude>>15;
+        voice.bow_signal=fmac1(x,bow_friction[index>1024?1024:index]);
+        mixed[i]=bow_output*2;
+    }
+}
+
 }
 
 void destroy(Voice& voice,Shared& shared,opxy::u32 owner) {
@@ -269,33 +301,13 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
     }
     voice.position=position;
     if(delays) {
-        unsigned active[8],active_count=0;
-        for(unsigned mode_index=0;mode_index<8;++mode_index)
-            if(voice.active_modes[0]&(1u<<mode_index))active[active_count++]=mode_index;
-        for(unsigned i=0;i<opxy::block_frames;++i) {
-            const i32 desired=contour*512;
-            voice.bow_velocity+=(desired-voice.bow_velocity)/1024;
-            i32 bow_sum=0,bow_output=0;
-            const i32 input=excitation[i]+voice.bow_signal;
-            for(unsigned at=0;at<active_count;++at) {
-                const unsigned mode_index=active[at];
-                BowFilter& bow=voice.bowed[mode_index];
-                u32& write=voice.bow_write[mode_index];
-                const u32 length=voice.bow_length[mode_index];
-                const u32 read=(write+1024u-length)&1023u;
-                const i32 delayed=fmac1(static_cast<i32>(delays->samples[read][mode_index])*512,2126008812);
-                bow_sum+=delayed;
-                const i32 bp=filter(bow.s1,bow.s2,bow.a1,bow.a2,bow.a3,input+delayed);
-                const i32 normalized=fmac1(bp,bow.normalization);
-                delays->samples[write][mode_index]=static_cast<opxy::i16>(clamp(normalized/512,-32768,32767));
-                write=(write+1)&1023u;
-                bow_output+=opxy::q31::multiply(normalized,voice.modes[mode_index].gain)/8;
-            }
-            const i32 x=fmac1(voice.bow_velocity,279172874)-bow_sum;
-            const u32 magnitude=static_cast<u32>(x<0?-x:x);
-            const unsigned index=magnitude>>15;
-            voice.bow_signal=fmac1(x,bow_friction[index>1024?1024:index]);
-            mixed[i]=bow_output*2;
+        if((voice.active_modes[0]&255u)==255u) {
+            bowed_block<true>(voice,*delays,contour,excitation,mixed,nullptr,8);
+        } else {
+            unsigned active[8],active_count=0;
+            for(unsigned mode_index=0;mode_index<8;++mode_index)
+                if(voice.active_modes[0]&(1u<<mode_index))active[active_count++]=mode_index;
+            bowed_block<false>(voice,*delays,contour,excitation,mixed,active,active_count);
         }
     }
     voice.trigger=0;

@@ -120,3 +120,9 @@ requires an authenticated stock OS 1.2.1 from the user's device. Follow the
 SDK's [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md)
 and [profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
 Device operations require separate authorization. No firmware is included.
+
+This candidate copies the 248-byte send state into callback-local storage,
+processes its sixteen wet frames there, then writes the state back once. The
+long delay buffers keep their existing scratch storage. All 60 comparisons
+of 4,096 callbacks retain complete PCM, state and scratch against commit
+35f3507; hardware profiling is required to establish any memory-access benefit.

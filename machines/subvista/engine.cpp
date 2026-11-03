@@ -36,22 +36,26 @@ tables::Coefficients coefficients(i32 cutoff, i32 resonance) {
     return result;
 }
 template<bool SawOnly>
-void render_block(Voice& v,opxy::Output output,opxy::Parameters parameters,opxy::Pitch pitch,
-                  u32 band,i32 step1,i32 step2,i32 step3) {
-    for (u32 i=0;i<opxy::block_frames;++i) {
-        v.a1 += step1; v.a2 += step2; v.a3 += step3;
-        const u32 increment = pitch[i], detune = increment + (increment >> 8);
-        const i32 input = opxy::q31::half(oscillator<SawOnly>(v.phase,band,parameters[2]))
-                        + opxy::q31::half(oscillator<SawOnly>(v.detuned,band,parameters[2]))
-                        + wave(v.sub,0)/8;
-        // Topology-preserving two-pole low-pass. Headroom bounds keep feedback defined.
-        const i32 difference = input-v.integrator2;
-        const i32 band = limit(add(multiply(v.a1,v.integrator1),multiply(v.a2,difference)),0x30000000);
-        const i32 low = limit(add(add(v.integrator2,multiply(v.a2,v.integrator1)),multiply(v.a3,difference)),0x30000000);
-        v.integrator1 = limit(add(band,band-v.integrator1),0x30000000);
-        v.integrator2 = limit(add(low,low-v.integrator2),0x30000000);
-        output[i] = limit(low,0x40000000);
-        v.phase += increment; v.detuned += detune; v.sub += increment/2;
+__attribute__((noinline)) void render_oscillators(Voice& v,opxy::Output output,
+        opxy::Parameters parameters,opxy::Pitch pitch,u32 band) {
+    for(u32 i=0;i<opxy::block_frames;++i) {
+        const u32 increment=pitch[i],detune=increment+(increment>>8);
+        output[i]=opxy::q31::half(oscillator<SawOnly>(v.phase,band,parameters[2]))
+                 +opxy::q31::half(oscillator<SawOnly>(v.detuned,band,parameters[2]))
+                 +wave(v.sub,0)/8;
+        v.phase+=increment;v.detuned+=detune;v.sub+=increment/2;
+    }
+}
+__attribute__((noinline)) void filter_block(Voice& v,opxy::Output output,
+        i32 step1,i32 step2,i32 step3) {
+    for(u32 i=0;i<opxy::block_frames;++i) {
+        v.a1+=step1;v.a2+=step2;v.a3+=step3;
+        const i32 difference=output[i]-v.integrator2;
+        const i32 band=limit(add(multiply(v.a1,v.integrator1),multiply(v.a2,difference)),0x30000000);
+        const i32 low=limit(add(add(v.integrator2,multiply(v.a2,v.integrator1)),multiply(v.a3,difference)),0x30000000);
+        v.integrator1=limit(add(band,band-v.integrator1),0x30000000);
+        v.integrator2=limit(add(low,low-v.integrator2),0x30000000);
+        output[i]=limit(low,0x40000000);
     }
 }
 }
@@ -79,8 +83,11 @@ inline void render(Voice& v, Shared&, opxy::u32, opxy::Output output,
     u32 band=0;
     while (band<7 && highest<(0x80000000u>>(band+1))) ++band;
     // Shape is fixed for this callback; the saw endpoint needs no pulse lookup.
-    if(parameters[2]==0)render_block<true>(v,output,parameters,pitch,band,step1,step2,step3);
-    else render_block<false>(v,output,parameters,pitch,band,step1,step2,step3);
+    // Reuse the output buffer for oscillator inputs before filtering in place.
+    // The oscillator phases and filter state have no feedback between stages.
+    if(parameters[2]==0)render_oscillators<true>(v,output,parameters,pitch,band);
+    else render_oscillators<false>(v,output,parameters,pitch,band);
+    filter_block(v,output,step1,step2,step3);
     v.envelope = multiply(v.envelope,2136937522);
 }
 }

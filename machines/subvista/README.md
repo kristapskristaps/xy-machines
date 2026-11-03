@@ -45,6 +45,14 @@ original expression and interpolation across the waves. The oscillator helper
 stays inlined so native sample loops use hardware loop control without two
 oscillator function calls per sample.
 
+Oscillator generation and the recursive filter run as separate block stages.
+The first stage keeps the original pure-saw fast path and uses the output buffer
+for 64 temporary oscillator inputs; the second filters those inputs in place.
+Phase updates have no feedback from the filter, so sample arithmetic and final
+voice state remain unchanged. The private stages stay outlined to reduce shared
+register pressure without adding a scratch array. Native loop control and exact
+host comparisons pass; CPU improvement still requires hardware measurement.
+
 This revision declares SDK 1.8 because the public saturating add is currently
 available on upstream `staging`, rather than the released `main`. It builds with
 the collection's pinned SDK. Submit its catalog entry against `staging` until

@@ -1,6 +1,6 @@
 #include "core.h"
 #include "tables.h"
-#include "wave_slopes.h"
+#include "wave_points.h"
 #include <opxy/q31.hpp>
 namespace subvista {
 namespace {
@@ -12,7 +12,8 @@ i32 limit(i32 value, i32 bound) { return value < -bound ? -bound : value > bound
 i32 blend(i32 a, i32 b, i32 amount) { return a + multiply(b - a, amount); }
 i32 wave(u32 phase, u32 band) {
     const u32 index = phase >> 23;
-    return tables::saw[band][index] + tables::slopes[band][index]
+    const tables::WavePoint& point=tables::points[band][index];
+    return point.value + point.slope
            * static_cast<i32>((phase & 0x7fffffu) >> 8);
 }
 template<bool SawOnly>

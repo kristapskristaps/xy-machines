@@ -61,6 +61,9 @@ double timing(unsigned setting,unsigned mode,unsigned increment,Initialize initi
 }
 bool scenario(unsigned setting,unsigned mode,unsigned pitch){
     if(!equivalent(setting,mode,pitch))return false;
+    if(@VERIFY_ONLY@) {
+        std::printf("{\"setting\":%u,\"mode\":%u,\"pitch\":%u,\"verified\":true}\n",setting,mode,pitch);return true;
+    }
     double old_times[5],new_times[5],ratios[5];
     for(unsigned repeat=0;repeat<5;++repeat){
         if(repeat&1){
@@ -96,6 +99,7 @@ def main():
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=1000)
+    parser.add_argument('--verify-only', action='store_true', help='compare all audio and voice-state blocks without timing')
     args = parser.parse_args()
     if args.blocks < 400:
         parser.error('Use at least 400 blocks to reduce timer noise.')
@@ -112,14 +116,22 @@ def main():
     presets = '{'+','.join(cpp_values(preset[slot] for slot in slots) for preset in definition['presets'].values())+'}'
     with tempfile.TemporaryDirectory(prefix='subvista-benchmark-') as directory:
         scratch = Path(directory); before = scratch/'before'; before.mkdir()
-        for path in ['core.h','engine.cpp','tables.h']:
-            content = subprocess.check_output(['git','show',baseline+':machines/subvista/'+path],cwd=REPO,text=True)
-            (before/path).write_text(content.replace('namespace subvista {','namespace subvista_before {'))
+        paths = subprocess.check_output(['git','ls-tree','-r','--name-only',baseline,'--','machines/subvista'],cwd=REPO,text=True).splitlines()
+        for path in paths:
+            relative=Path(path).relative_to('machines/subvista')
+            if relative.as_posix() not in ('core.h','engine.cpp','tables.h','wave_slopes.h','wave_points.h'):
+                continue
+            content = subprocess.check_output(['git','show',baseline+':'+path],cwd=REPO,text=True)
+            (before/relative).write_text(content.replace('namespace subvista {','namespace subvista_before {'))
         source = SOURCE.replace('@BEFORE@',json.dumps(str(before/'engine.cpp'))).replace('@AFTER@',json.dumps(str(MACHINE/'engine.cpp')))
-        (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@',str(args.blocks)).replace('@DEFAULTS@',defaults).replace('@PRESETS@',presets))
+        (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@',str(args.blocks)).replace('@DEFAULTS@',defaults).replace('@PRESETS@',presets).replace('@VERIFY_ONLY@','true' if args.verify_only else 'false'))
         executable = scratch/'benchmark'
         subprocess.run([args.cxx,'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),str(scratch/'benchmark.cpp'),'-o',str(executable)],check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)],text=True).splitlines()]
+    if args.verify_only:
+        print(json.dumps(dict(baseline=baseline,exact_audio_and_voice_state_each_block=True,
+                             scenarios=len(rows),checked_blocks_per_scenario=256,timing_executed=False),indent=2))
+        return
     print(json.dumps(dict(baseline=baseline,host_timing_only=True,exact_audio_and_voice_state_each_block=True,
                          scenarios=len(rows),checked_blocks_per_scenario=256,blocks_per_timing=args.blocks,repeats=5,
                          median_reduction_percent=round(100*(1-statistics.median(row['paired_ratio'] for row in rows)),1),results=rows),indent=2))

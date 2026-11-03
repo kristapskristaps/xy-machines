@@ -1,4 +1,5 @@
 #include "../engine.cpp"
+#include "../wave_slopes.h"
 #include <cstdio>
 
 static bool exact(opxy::i32 a,opxy::i32 b) {

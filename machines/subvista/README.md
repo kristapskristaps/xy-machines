@@ -36,12 +36,15 @@ The filter uses the SDK's saturating Q31 add, preserving the previous clipping
 while using the native DSP operation. A separate sample loop handles Shape at
 zero, skipping the unused pulse lookups and blend. Both loops retain the same
 filter interpolation, wavetable arithmetic, oscillator phase and contour decay;
-voice memory and saved controls are unchanged. Exact i16 interpolation slopes
-are generated from the original waves in `tables.h`, replacing per-lookup
-subtraction and signed division. This adds 8 KiB of constant data. Regenerate
-`wave_slopes.h` with `python machines/subvista/tools/generate_slopes.py` from the
-collection root. Arithmetic tests check every committed slope against the
-original expression and interpolation across the waves. The oscillator helper
+voice memory and saved controls are unchanged. Exact interpolation points are
+generated from the original waves in `tables.h`, replacing per-lookup subtraction
+and signed division. Each point stores its waveform value beside its slope.
+The native build uses the 32 KiB point bank and omits the original separate
+wave/slope banks, using about 8 KiB more constant data than that layout.
+Regenerate `wave_points.h` and the reference `wave_slopes.h` with
+`python machines/subvista/tools/generate_slopes.py` from the collection root.
+Arithmetic tests check the slopes and interpolated samples against the original
+waves. The oscillator helper
 stays inlined so native sample loops use hardware loop control without two
 oscillator function calls per sample.
 

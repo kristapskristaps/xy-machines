@@ -62,6 +62,14 @@ sample. Band crossfades and the FM guard use exact bounded reciprocal arithmetic
 in place of three native software division sites. Voice storage and native
 audio stack usage are unchanged.
 
+All 136 audio waves and the sine have exact half-cycle antisymmetry. The native
+bank retains the first 257 samples of each wave, including the half-cycle guard,
+and reconstructs both endpoints before applying the original interpolation.
+Negating an already interpolated result would change negative rounding and is
+not used. This removes 70,144 bytes of wave/sine constants. Display tables and
+original test references stay unchanged. CPU effects require a matched hardware
+measurement; a smaller bank does not establish a timing improvement.
+
 From the collection root, compare against the preceding revision with:
 
 ```sh
@@ -85,6 +93,7 @@ To regenerate the committed tables, metadata, presets and panel:
 
 ```sh
 python resources/generate_tables.py
+python tools/generate_half_waves.py
 python resources/configure.py
 ```
 

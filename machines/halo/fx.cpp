@@ -235,32 +235,18 @@ void network(State& __restrict state,i32* __restrict memory,i32* __restrict inpu
 }
 
 // FIR histories are the only scratch that needs an explicit bounded reset.
+// Seven-tap maximally flat halfband, centered at the previous 15-frame delay.
+// Integer coefficients [-1,0,9,16,9,0,-1]/32 have exact unity DC gain.
+// Keeping the old history centers preserves echo and modulation timing.
 inline i32 downsample(const i32* history,unsigned position) {
     const i32* latest=history+position+31;
-    i32 output=latest[-15]/2;
-    // Only seven mirrored pairs are nonzero. Keep each product's rounding
-    // and the original accumulation order while removing the tap loop.
-    output+=opxy::q31::multiply(latest[-2]+latest[-28],tables::halfband[2]);
-    output+=opxy::q31::multiply(latest[-4]+latest[-26],tables::halfband[4]);
-    output+=opxy::q31::multiply(latest[-6]+latest[-24],tables::halfband[6]);
-    output+=opxy::q31::multiply(latest[-8]+latest[-22],tables::halfband[8]);
-    output+=opxy::q31::multiply(latest[-10]+latest[-20],tables::halfband[10]);
-    output+=opxy::q31::multiply(latest[-12]+latest[-18],tables::halfband[12]);
-    output+=opxy::q31::multiply(latest[-14]+latest[-16],tables::halfband[14]);
-    return output;
+    return (latest[-15]*16+9*(latest[-14]+latest[-16])
+            -(latest[-12]+latest[-18]))>>5;
 }
 inline i32 upsample(const i32* history,unsigned position,unsigned phase) {
     const i32* latest=history+position+16;
-    if(phase) return latest[-7];
-    i32 output=0;
-    output+=opxy::q31::multiply(latest[-1]+latest[-14],tables::halfband[2]*2);
-    output+=opxy::q31::multiply(latest[-2]+latest[-13],tables::halfband[4]*2);
-    output+=opxy::q31::multiply(latest[-3]+latest[-12],tables::halfband[6]*2);
-    output+=opxy::q31::multiply(latest[-4]+latest[-11],tables::halfband[8]*2);
-    output+=opxy::q31::multiply(latest[-5]+latest[-10],tables::halfband[10]*2);
-    output+=opxy::q31::multiply(latest[-6]+latest[-9],tables::halfband[12]*2);
-    output+=opxy::q31::multiply(latest[-7]+latest[-8],tables::halfband[14]*2);
-    return output;
+    if(phase)return latest[-7];
+    return (9*(latest[-7]+latest[-8])-(latest[-6]+latest[-9]))>>4;
 }
 }
 void initialize(State& state){state=State();}

@@ -1,0 +1,1 @@
+Frozen Halo DSP from xy-machines commit 97b6a9cc011169159625186d57b5e040e31dfee7. Kept under the machine MIT license to authenticate the existing exact-output hashes and compare intentional sound changes. Not production code.

@@ -31,25 +31,25 @@ The track's send controls how much enters Halo. Time follows transport at
 40–300 BPM, using 120 BPM when no tempo is available. At 40 BPM the longest
 echo is three seconds. The browser tempo control spans 40–240 BPM.
 
-The wet network runs at 11.025 kHz behind two cascaded stages of 31-tap halfband filters; the callback
-runs at 44.1 kHz. This deliberately suits a warm, diffuse tail, with a 4 kHz maximum Color
-cutoff and less high-frequency shimmer than the earlier 22.05 kHz network.
-Delay lengths, modulation, ducking and pitch-shift timing are retimed for the
-lower rate; tempo echoes still reach three seconds. The symmetric conversion filters share mirrored histories and paired taps.
-Control-dependent tone, room and feedback coefficients update once per block;
-the modulated audio network still runs per wet sample. The long stereo
-echo uses packed 16-bit samples with error feedback. Plate, diffusion, pre-delay
-and shimmer storage use Q24 words. Each send borrows 231,424 bytes (226 KiB)
-of scratch memory and has its own 248-byte state. Reset cannot expose previous
-scratch audio. Hold maintains an audible tail; it is not a lossless recording.
+The wet network runs at 11.025 kHz behind two cascaded seven-tap halfband
+filters; the callback runs at 44.1 kHz. The filters use exact integer coefficients
+`[-1, 0, 9, 16, 9, 0, -1]/32`, embedded at the preceding filters' delay centers.
+Their sums, group delay and network rate are unchanged. Tempo echoes, modulation,
+ducking and octave-shift timing retain their original settings.
 
-The conversion filters expand their seven nonzero mirrored tap pairs directly,
-preserving each product's rounding and accumulation order. Unpacked delay rings
-use masks for their power-of-two lengths; the packed three-second echo retains
-its original wrap. Network gains are scaled to Q31 once per callback. These
-changes preserve the original output, 248-byte send state and scratch layout.
-Fractional delay reads share one history bound and derive the second sample's
-index from the first, preserving zero-filled startup history and stereo packing.
+This version trades conversion-filter rejection for lower CPU. A 16 kHz tone
+is rejected by about 22 dB in one stage, and an 8 kHz tone by about 24 dB through
+the downsampling cascade; the preceding 31-tap filters exceeded 55 dB. Bright
+sources can therefore add more aliasing to the wet tail, and the upper wet band
+is slightly softer. Across the 15 checked impulse, tone and filtered-noise
+comparisons, total level changed by at most 0.473 dB and late energy by 0.645 dB.
+These checks describe those stimuli, not every possible source.
+
+The plate, diffusion, predelay, shimmer, packed echo and all controls are unchanged.
+Each send still borrows 231,424 bytes (226 KiB) of scratch and has its own
+248-byte state. Reset cannot expose previous scratch audio. Hold maintains an
+audible tail; it is not a lossless recording. Control-dependent coefficients
+update once per block; the modulated audio network runs per wet sample.
 
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings
 belong to the machine-owned browser audition, not a custom native FX screen.
@@ -93,25 +93,14 @@ clang++ -std=c++11 -O2 -I ../../../xy-machines-sdk/sdk/include tests/parity.cpp 
 node tools/check_audition.mjs ../../../xy-machines-sdk/local/halo-audition-001 "$(/tmp/halo-parity)"
 ```
 
-`tests/equivalence.cpp` freezes complete stereo output plus final state and
-scratch from the preceding implementation across six long scenarios. The
-numerical tests also check every ring's wrap boundaries against modulo indexing.
-Fractional taps are checked against wide integer interpolation, including
-partially written history, both stereo channels and the last readable age.
-For paired host comparisons against that implementation, from the collection
-root run:
-
-```sh
-python machines/halo/tools/benchmark.py --cxx /path/to/clang++
-```
-
-The benchmark alternates timing order for five repeats across 60 preset,
-control, tail and automation scenarios, checking matching output hashes, state
-and scratch. Host timings do not establish the Blackfin benefit of removing
-tap loops and coefficient scaling; measure the exact revision on the device.
-Use `--baseline <commit> --verify-only` to compare every output sample, state
-field and scratch word after each of 4,096 blocks per scenario, including reset
-with dirty scratch, tails and control/tempo automation.
+`tests/equivalence.cpp` authenticates the frozen preceding DSP in
+`tests/reference/` against its original complete-output, state and scratch hashes.
+`tests/quality.cpp` compares the production callback against that reference across
+15 long impulse, tone and filtered-noise cases, including control extremes.
+Numerical tests check conversion gain/rejection, circular convolution, delay
+wrapping and octave heads. Behavior tests retain the Hold and wet-only contracts.
+The new sound intentionally differs; old exact-output hashes are not reassigned
+to it. Hardware CPU qualification for this revision is pending.
 
 The SDK needs a synth in a native collection. Compile alongside a sibling
 instrument or the core 2op FM example, with output outside every checkout:

@@ -1,4 +1,4 @@
-#include "../fx.cpp"
+#include "reference/fx.cpp"
 #include <cstdio>
 #include <cstring>
 
@@ -56,5 +56,5 @@ int main(){
         }
     }
     if(!pass)return 1;
-    std::puts("PASS: exact Halo stereo output, state and scratch across presets, tails, automation, reset, extremes and Hold");
+    std::puts("PASS: frozen legacy Halo stereo output, state and scratch across presets, tails, automation, reset, extremes and Hold");
 }

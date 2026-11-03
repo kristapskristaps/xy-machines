@@ -264,9 +264,8 @@ inline i32 upsample(const i32* history,unsigned position,unsigned phase) {
 }
 }
 void initialize(State& state){state=State();}
-void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
+__attribute__((noinline)) static void process_block(State& __restrict state,opxy::Buffer buffer,const opxy::Transport& transport,
              opxy::Channel left,opxy::Channel right,opxy::Parameters parameters) {
-    if(!buffer.words || buffer.count<buffer_words){for(unsigned i=0;i<opxy::block_frames;++i)left[i]=right[i]=0;return;}
     i32* memory=buffer.words;
     if(!state.ready) {
         for(unsigned i=0;i<fir_words;++i)memory[fir_offset+i]=0;
@@ -311,5 +310,13 @@ void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
         state.half^=1;
         if(++state.down_write[0]==31)state.down_write[0]=0;
     }
+}
+void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
+             opxy::Channel left,opxy::Channel right,opxy::Parameters parameters) {
+    if(!buffer.words || buffer.count<buffer_words){for(unsigned i=0;i<opxy::block_frames;++i)left[i]=right[i]=0;return;}
+    // The block owns this stack copy; scratch and audio cannot alias its fields.
+    State local=state;
+    process_block(local,buffer,transport,left,right,parameters);
+    state=local;
 }
 }

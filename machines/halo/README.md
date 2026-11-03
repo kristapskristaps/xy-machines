@@ -48,6 +48,9 @@ preserving each product's rounding and accumulation order. Unpacked delay rings
 use masks for their power-of-two lengths; the packed three-second echo retains
 its original wrap. Network gains are scaled to Q31 once per callback. These
 changes preserve the original output, 248-byte send state and scratch layout.
+This experimental callback copies the send state to a private stack object and
+writes it back after processing. The local state cannot alias scratch or audio;
+its hardware CPU benefit remains unmeasured.
 Fractional delay reads share one history bound and derive the second sample's
 index from the first, preserving zero-filled startup history and stereo packing.
 

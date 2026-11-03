@@ -100,6 +100,11 @@ candidate WAV pairs. The original exact audio/state golden values remain
 unchanged and run against the frozen reference; a separate fidelity test checks
 the current DSP rather than replacing those goldens.
 
+The phase fraction now explicitly uses signed16, matching the original signed16
+wave slopes. Native review confirms eight general word products become signed16
+products; all555 paired PCM/full-voice scenarios are identical to the preceding
+filter revision. This adds no sound compromise or table-layout change.
+
 Native loops and host arithmetic checks pass, including UBSan; these checks do
 not measure device CPU. The shared kernel and added fallback change native
 register allocation, so hardware must establish whether this implementation is

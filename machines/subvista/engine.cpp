@@ -14,13 +14,13 @@ i32 blend(i32 a, i32 b, i32 amount) { return a + multiply(b - a, amount); }
 i32 wave(u32 phase, u32 band) {
     const u32 index = phase >> 23;
     return tables::saw[band][index] + tables::slopes[band][index]
-           * static_cast<i32>((phase & 0x7fffffu) >> 8);
+           * static_cast<opxy::i16>((phase & 0x7fffffu) >> 8);
 }
 template<bool SawOnly>
 __attribute__((always_inline)) inline i32 oscillator(u32 phase, u32 band, i32 shape) {
     if(SawOnly)return wave(phase,band);
     const tables::WavePair& point=tables::pairs[band][(phase>>23)&255u];
-    const i32 fraction=static_cast<i32>((phase&0x7fffffu)>>8);
+    const opxy::i16 fraction=static_cast<opxy::i16>((phase&0x7fffffu)>>8);
     const i32 first=point.values[0]+point.slopes[0]*fraction;
     const i32 second=point.values[1]+point.slopes[1]*fraction;
     const i32 saw=(phase>>31)?second:first;

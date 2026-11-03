@@ -58,19 +58,19 @@ static int32_t strike_lift(int32_t room, unsigned strike) {
  * computes in 64-bit C (the tests compare the two). A third product, 2^15 x 2^15, adds half the last bit:
  * rounded, not truncated (truncation's bias builds up in a resonant filter's states). macro_render() saves MACSR, ACC0, ACC1
  * (MODAL's filters use it too) and ACCEXT01 and puts them back, as Digi EQ does: the firmware's own audio code uses the unit. */
-// OP-XY: exact EMAC fractional products through the public SDK primitive.
-// Low product bits preserve sum-before-rounding. MIN * MIN follows the SDK
-// saturation contract; bounded model signals do not reach that exceptional pair.
+// OP-XY CPU variant: public Q31 truncating products. The original EMAC
+// rounding described above is intentionally omitted: one product changes by
+// at most one Q31 LSB, and the two-product sum by at most two. Sound-quality
+// tests compare the resulting model behavior with the unchanged prior source.
 static inline int32_t product_hi(int32_t a, int32_t b) {
     return opxy::q31::multiply(a, b);
 }
 static inline int32_t fmac2(int32_t a, int32_t x, int32_t b, int32_t y) {
-    const uint32_t tail = (((uint32_t)a * (uint32_t)x >> 23) & 255u)
-                        + (((uint32_t)b * (uint32_t)y >> 23) & 255u) + 128u;
-    return (int32_t)((uint32_t)product_hi(a,x) + (uint32_t)product_hi(b,y) + (tail >> 8));
+    return static_cast<int32_t>(static_cast<uint32_t>(product_hi(a,x))
+                              +static_cast<uint32_t>(product_hi(b,y)));
 }
 static inline int32_t fmac1(int32_t a, int32_t x) {
-    return (int32_t)((uint32_t)product_hi(a,x) + (((uint32_t)a * (uint32_t)x >> 30) & 1u));
+    return product_hi(a,x);
 }
 static inline int32_t fmac1t(int32_t a, int32_t x) { return product_hi(a,x); }
 struct emac_save { int32_t unused; };

@@ -83,7 +83,7 @@ parts follow display frames. Regenerate the fragment and `art.h` with
 The DSP derives from Émilie Gillet's MIT-licensed Plaits, via the integer port
 by gdeo607 and DMDaudio. [vendor/VENDOR.md](vendor/VENDOR.md) records the source
 revisions and changes. The engine runs internally at 48 kHz, followed by a
-24-tap, 147-phase fixed-point converter to the SDK's 44.1 kHz. Original sample
+8-tap, 147-phase fixed-point converter to the SDK's 44.1 kHz. Original sample
 counts and time constants therefore keep their intended duration.
 
 There is no module-panel CV calibration, user-data/SysEx import, or Plaits LPG.
@@ -98,13 +98,16 @@ still runs at 48 kHz, preserving pitch and time constants. The limiter and FM
 soft clip use an exact reciprocal division with a checked remainder; wavetable
 cubic interpolation drops only sub-LSB rounding work. Normal playback and
 worst-case model CPU still require device validation.
-The 24-tap converter uses mirrored histories to remove ring-wrap work while
-retaining bit-identical audio.
-Each output consumes one source sample, with a second only when the rational
-phase crosses its boundary. Four FIR taps share each loop branch without
-changing their sum order. Block-rate ramps use exact constant-divisor paths
-for the source and internal chunk lengths, preserving signed rounding. No
-model, voice limit, filter tap, table or saved control changes.
+The CPU variant uses public truncating Q31 products in place of the integer
+port's extra rounding corrections. Each individual product changes by at most
+one Q31 LSB, and each two-product sum by at most two. Numeric sound features
+from all sixty preceding source fixtures guard loudness, spectral correlation,
+DC and decay-envelope changes; the original fixture hashes remain recorded.
+The shorter converter retains exact unity DC gain, the preceding latency and
+24-sample history, but trades upper-octave response and alias rejection for
+fewer products. Six interior coefficients are nonzero. Pitch, source rate,
+model choices, saved controls and the existing voice limits retain their
+contracts. Regenerate it with `tools/generate_resample.py --taps 8 --out resample.h`.
 
 ## Develop and audition
 
@@ -118,25 +121,24 @@ python ../../../xy-machines-sdk/tools/serve_harness.py --preview ../previews/wea
 ```
 
 Tests cover all models and both outputs, deterministic voice ownership, moving
-controls, fractional arithmetic, 41 original/corrected reference renders plus 19 bounded-quality fixtures, exhaustive divisor checks, cubic interpolation error bounds, sample-rate
+controls, truncating-product error bounds, sixty baseline numeric sound fixtures, exhaustive divisor checks, cubic interpolation error bounds, sample-rate
 conversion, and regressions for wavetable bank bounds and the FM sine LFO. Additional checks cover excitation on all five supported models, free/fixed random streams, held Swarm/FM, live mode changes, all eight moving controls, and the two-page header.
 
-From the collection root, compare the implementation with its preceding Git
-revision using:
+From the collection root, compare sound with the preceding Git revision:
 
 ```sh
-python machines/weave/tools/benchmark.py --cxx /path/to/clang++
-python machines/weave/tools/benchmark.py --cxx /path/to/clang++ --all-fm-patches --verify-only
+python machines/weave/tools/quality.py --baseline 97b6a9c --sdk /path/to/open-xy \
+  --all-fm-patches --automation --out /external/private/weave-quality-001
 ```
 
-The paired host benchmark checks identical audio and complete voice state at
-every block across 405 scenarios: all fifteen models, main/blended/auxiliary
-outputs, control extremes, pitch changes and live controls. It alternates
-timing order for five repeats. Host render times do not measure Blackfin CPU;
-the exact release revision still needs its hardware control sweep.
-The verification-only pass additionally checks all 96 six-op patches in normal
-and held modes through all three output positions. Single-operator FM loops
-retain constant routing choices at their call sites.
+The sound report covers 402 renders with the options above: fifteen models at
+three pitches and four control/output settings, every six-op patch in normal
+and held modes, and thirty control-automation cases. It records loudness,
+coarse spectral energy, dominant frequency, decay slope, correlation and peaks.
+These changes intentionally alter PCM. For subsequent exact optimizations,
+`tools/benchmark.py --baseline <CPU-variant-commit> --all-fm-patches --verify-only`
+checks complete audio and voice state against that CPU variant. Host timing
+and spectral comparisons do not measure device CPU.
 
 [Hardware profiling](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md)
 remains required before catalog submission. Host CPU estimates are not measured

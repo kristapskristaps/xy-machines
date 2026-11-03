@@ -40,6 +40,9 @@ void reference_render(opxy::i32* out,const opxy::i32* p,const opxy::u32* pitch) 
 }
 int main() {
     for(const auto& coefficients:weave::resample_coefficients){
+        opxy::i32 dc=0;
+        for(auto coefficient:coefficients)dc+=coefficient;
+        if(dc!=32768){std::puts("FAIL: SRC phase does not preserve unity DC gain");return 1;}
         opxy::i64 bound=0;
         for(auto coefficient:coefficients)bound+=static_cast<opxy::i64>(coefficient<0?-coefficient:coefficient)*32768;
         if(bound>2147483647){std::puts("FAIL: full-scale FIR accumulation can overflow");return 1;}

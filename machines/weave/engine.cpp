@@ -65,35 +65,8 @@ void render(Voice& voice, Shared&, opxy::u32, opxy::Output output,
             voice.resample_phase-=147;
             advance_source(voice,controls,pitch+i);
         }
-        opxy::i32 accumulated=0;
         const opxy::i16* history=voice.history+voice.history_write+23;
-        const opxy::i16* coefficients=resample_coefficients[voice.resample_phase];
-        // Fixed offsets preserve accumulation order without a per-frame tap loop.
-        accumulated+=static_cast<opxy::i32>(history[-0])*coefficients[0];
-        accumulated+=static_cast<opxy::i32>(history[-1])*coefficients[1];
-        accumulated+=static_cast<opxy::i32>(history[-2])*coefficients[2];
-        accumulated+=static_cast<opxy::i32>(history[-3])*coefficients[3];
-        accumulated+=static_cast<opxy::i32>(history[-4])*coefficients[4];
-        accumulated+=static_cast<opxy::i32>(history[-5])*coefficients[5];
-        accumulated+=static_cast<opxy::i32>(history[-6])*coefficients[6];
-        accumulated+=static_cast<opxy::i32>(history[-7])*coefficients[7];
-        accumulated+=static_cast<opxy::i32>(history[-8])*coefficients[8];
-        accumulated+=static_cast<opxy::i32>(history[-9])*coefficients[9];
-        accumulated+=static_cast<opxy::i32>(history[-10])*coefficients[10];
-        accumulated+=static_cast<opxy::i32>(history[-11])*coefficients[11];
-        accumulated+=static_cast<opxy::i32>(history[-12])*coefficients[12];
-        accumulated+=static_cast<opxy::i32>(history[-13])*coefficients[13];
-        accumulated+=static_cast<opxy::i32>(history[-14])*coefficients[14];
-        accumulated+=static_cast<opxy::i32>(history[-15])*coefficients[15];
-        accumulated+=static_cast<opxy::i32>(history[-16])*coefficients[16];
-        accumulated+=static_cast<opxy::i32>(history[-17])*coefficients[17];
-        accumulated+=static_cast<opxy::i32>(history[-18])*coefficients[18];
-        accumulated+=static_cast<opxy::i32>(history[-19])*coefficients[19];
-        accumulated+=static_cast<opxy::i32>(history[-20])*coefficients[20];
-        accumulated+=static_cast<opxy::i32>(history[-21])*coefficients[21];
-        accumulated+=static_cast<opxy::i32>(history[-22])*coefficients[22];
-        accumulated+=static_cast<opxy::i32>(history[-23])*coefficients[23];
-        const opxy::i32 sample=accumulated>>15;
+        const opxy::i32 sample=resample_sum(history,voice.resample_phase)>>15;
         output[i]=(sample<-32768?-32768:sample>32767?32767:sample)*16384;
     }
 }

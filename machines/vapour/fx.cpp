@@ -63,7 +63,10 @@ template<bool High>
 void render_grain(State& __restrict state, Workspace& __restrict workspace, const i32* __restrict ring, unsigned index, i32* left, i32* right) {
     Grain grain=workspace.grains[index];
     if (!grain.remaining) return;
-    for (unsigned i=grain.pre_delay;i<opxy::block_frames && grain.remaining;++i) {
+    const unsigned capacity=grain.pre_delay<opxy::block_frames ? opxy::block_frames-grain.pre_delay : 0;
+    const unsigned frames=grain.remaining<capacity ? grain.remaining : capacity;
+    for (unsigned frame=0;frame<frames;++frame) {
+        const unsigned i=grain.pre_delay+frame;
         const i32 gain=envelope(grain,High);
         i32 source_l,source_r;read_stereo<High>(state,ring,grain.phase,source_l,source_r);
         const i32 l=gain15(source_l,gain);
@@ -72,8 +75,8 @@ void render_grain(State& __restrict state, Workspace& __restrict workspace, cons
         left[i]+=pan_l+r-pan_r;
         right[i]+=pan_r+l-pan_l;
         grain.phase+=grain.increment;
-        --grain.remaining;
     }
+    grain.remaining-=frames;
     grain.pre_delay=0;
     workspace.grains[index]=grain;
 }

@@ -16,6 +16,7 @@ SOURCE = r'''
 #include @AFTER@
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 int main(int argc,char** argv) {
     if(argc!=2)return 1;
     const unsigned increments[]={10713070u,25479940u,101919760u};
@@ -52,6 +53,10 @@ int main(int argc,char** argv) {
             if(block==512){weave_before::start(before,bs,1);weave::start(after,as,1);}
             weave_before::render(before,bs,1,old_samples,parameters,pitch);
             weave::render(after,as,1,new_samples,parameters,pitch);
+            if(@EXACT@ && (sizeof(before)!=sizeof(after) || std::memcmp(&before,&after,sizeof(before)) ||
+                           std::memcmp(old_samples,new_samples,sizeof(old_samples)))) {
+                std::fprintf(stderr,"Exact PCM/Voice mismatch case%u block%u\n",test,block);return 4;
+            }
             int interleaved[128];for(unsigned i=0;i<64;++i){interleaved[2*i]=old_samples[i];interleaved[2*i+1]=new_samples[i];}
             if(std::fwrite(interleaved,sizeof(int),128,file)!=128)return 3;
         }
@@ -96,6 +101,8 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--all-fm-patches',action='store_true')
     parser.add_argument('--automation',action='store_true')
+    parser.add_argument('--require-exact',action='store_true',help='Require identical PCM and complete Voice after every block')
+    parser.add_argument('--sanitize',action='store_true',help='Render under AddressSanitizer and UndefinedBehaviorSanitizer')
     args = parser.parse_args()
     out = args.out.resolve()
     if out.exists():
@@ -115,10 +122,12 @@ def main():
             content=subprocess.check_output(['git','show',baseline+':'+path],cwd=REPO,text=True)
             target.write_text(content.replace('weave_dsp','weave_before_dsp').replace('namespace weave {','namespace weave_before {'))
         cpp=SOURCE.replace('@BEFORE@',json.dumps(str(before/'engine.cpp'))).replace('@AFTER@',json.dumps(str(MACHINE/'engine.cpp')))
+        cpp=cpp.replace('@EXACT@','true' if args.require_exact else 'false')
         cpp=cpp.replace('@FM_PATCHES@','true' if args.all_fm_patches else 'false').replace('@AUTOMATION@','true' if args.automation else 'false')
         (scratch/'quality.cpp').write_text(cpp)
         executable=scratch/'render'
-        subprocess.run([args.cxx,'-std=c++11','-O2','-I'+str(args.sdk.resolve()/'sdk/include'),str(scratch/'quality.cpp'),'-o',str(executable)],check=True)
+        flags=['-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all'] if args.sanitize else ['-O2']
+        subprocess.run([args.cxx,'-std=c++11',*flags,'-I'+str(args.sdk.resolve()/'sdk/include'),str(scratch/'quality.cpp'),'-o',str(executable)],check=True)
         subprocess.run([str(executable),str(out)],check=True)
     results=[]
     for path in sorted(out.glob('*.pcm')):
@@ -142,6 +151,8 @@ def main():
              for path in sorted(MACHINE.rglob('*')) if path.suffix in ('.cpp','.h') and path.relative_to(MACHINE).parts[0] not in ('tests','tools')}
     summary=dict(baseline=baseline,candidate_commit=None if dirty else head,candidate_head=head,candidate_dirty=dirty,
                  sources=sources,scenarios=len(results),frames_each=65536,rate=RATE,
+                 exact_pcm_and_complete_voice_each_block=args.require_exact,
+                 address_and_undefined_sanitizers=args.sanitize,
                  decay_method='First40dB of amplitude envelope after20ms; at least6windows over120ms; negative fit withR2>0.7. Dominant spectralpeak is not a fundamental-pitch estimate.',
                  maximum_abs_rms_db_change=max(abs(r['rms_db_change']) for r in results),
                  maximum_coarse_spectral_distance=max(r['coarse_spectral_distance'] for r in results),

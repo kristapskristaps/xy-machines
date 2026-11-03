@@ -161,3 +161,22 @@ remains required before catalog submission. Host CPU estimates are not measured
 device cost. No firmware is included; keep device builds outside every checkout.
 
 MIT, with the third-party notices in [vendor/LICENSE](vendor/LICENSE).
+
+SixOp's final rational soft clip now seeds its integer quotient from a small
+770-entry unsigned 16-bit table (1540 bytes including the endpoint guard). Signed 16-bit
+slope/fraction interpolation estimates the old quotient within [-3,+2]; one
+32-bit product and at most two downward or three upward remainder corrections
+recover it exactly. The original square, final multiply, output rounding and
+endpoint conversion remain unchanged. This removes reciprocal normalization
+and five fractional multiplies from that sample loop, without modifying any
+of the six operators, 96 patches, 48 kHz source clock or voice states.
+
+`tests/sixop_clip.cpp` exhausts all 50,331,649 active magnitudes and both output
+signs against literal integer division. The 402-case paired render, including
+all 96 patches held and released plus automation, also requires identical PCM
+and complete Voice state after every block. Original golden values remain
+unchanged. Regenerate the seed table with
+`python machines/weave/tools/generate_sixop_clip.py`; use the quality tool's
+`--require-exact --all-fm-patches --automation` flags for the paired check and
+`--sanitize` for AddressSanitizer/UndefinedBehaviorSanitizer. Hardware CPU
+qualification remains pending.

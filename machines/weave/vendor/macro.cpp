@@ -33,6 +33,7 @@ constexpr int32_t defined_shift(int32_t value, unsigned bits) {
 
 #include "macro_tables.h"
 #include "macro_division.h"
+#include "macro_sixop_clip.h"
 
 // Excitation presets. Slot zero preserves every original fixed coefficient.
 static int32_t strike_level(int32_t stock, unsigned strike) {
@@ -4294,7 +4295,7 @@ static void sixop_render(struct macro_sixop *__restrict x, uint32_t *rng, const 
             x2 = fmac1(defined_shift(s, 3), defined_shift(s, 3));                             /* Q23 */
             num = (defined_shift(27, 23)) + x2;
             den = (defined_shift(27, 23)) + 9 * x2;
-            r = (int32_t)(divide_audio((uint32_t)num << 3, (uint32_t)den >> 13));   /* (27 + x^2) / (27 + 9 x^2), Q16 */
+            r = (int32_t)(sixop_clip_ratio(static_cast<uint32_t>(iabs(s)), (uint32_t)num << 3, (uint32_t)den >> 13));   /* (27 + x^2) / (27 + 9 x^2), Q16 */
             s = fmac1(s, r >= 65536 ? 0x7fffffff : defined_shift(r, 15));
         }
         out[i] = aux[i] = (s + 256) >> 9;

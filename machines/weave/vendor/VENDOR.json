@@ -6,15 +6,16 @@
   "adaptation": true,
   "files": {
     "LICENSE": "4767aae1af28af0da220804d064fc2f3d5c8af7d0adea7967ee0454e741f760f",
-    "VENDOR.md": "a26401e8b81c650cfbf7bf8363c32ca2ac7a9e275a770f27b871d16c674ee6bb",
-    "macro.cpp": "86e60fdb9eeee7ba21fd20be2a7345c8ffe22707ad17e9116f0b40ba6232d910",
+    "VENDOR.md": "a60585394f941900cbda66bea1da7483089f3736a9b2dc2469e39c0f0ea928c2",
+    "macro.cpp": "d60bebe801429c1ff210df00d0d631f7b1313f24e227254b47e2f46af8153cf1",
     "macro.h": "c238856992267f595f6f81dfd1cf9cdc7dc004fc3161efec20277733637eda9a",
     "macro_chord_tables.h": "e1457aa401f46e0d71f0ec3435ca0cbcf5536371d32858dd5070a1fb96cc650f",
     "macro_dx7.h": "210f9a50b654ccc79466d838156a1f28dda08a1fe22911df0ff8db87e47d060c",
     "macro_tables.h": "66b6f3fa113719664d82a781bf2a9586fb89782b5edb1f1b19160ed613a625f1",
     "macro_wavetable.h": "77dbd7535082c6c0ff88b5719c517c7e6fdd397247608308ff2624f6c0bf91ba",
     "types.h": "3a2b731a2fa1d60329789a2568ba2cd8bad72ea29916cf061217f076d7ec058c",
-    "macro_division.h": "8754241d56535fb16572ede8cabc80b6c3a78fcd4fba484a860d64a21a1a1a37"
+    "macro_division.h": "8754241d56535fb16572ede8cabc80b6c3a78fcd4fba484a860d64a21a1a1a37",
+    "macro_sixop_clip.h": "ffc3efdeb5e2802235213f9984b4b2b50fc27dbceb2367f82b6dbeed9ba7d77b"
   },
   "integer_source": {
     "url": "https://github.com/DMDaudio/plaits-on-models",

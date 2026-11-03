@@ -19,6 +19,13 @@ i32 excitation_fifth(i32 value) {
 i32 q15(i32 a,i32 b) { return (a>>15)*b+((a&32767)*b>>15); }
 u32 random(Voice& voice) { return voice.random=voice.random*1664525u+1013904223u; }
 
+// Bow operands stay within +/-2^29. One spare input bit lets the public
+// truncating product retain its rounding bit without a second low-word product:
+// floor(a*b/2^31 + 1/2) = floor((floor(2*a*b/2^31) + 1)/2).
+i32 rounded_bow_product(i32 a,i32 b) {
+    return (opxy::q31::multiply(a*2,b)+1)>>1;
+}
+
 template<bool Bowed>
 void configure(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping) {
     if (voice.key[0]==static_cast<i32>(increment) && voice.key[1]==geometry && voice.key[2]==bright && voice.key[3]==damping && voice.key[4]==Bowed) return;
@@ -196,18 +203,20 @@ void bowed_block(Voice& voice,BowDelay& delays,i32 contour,const i32* excitation
             u32& write=voice.bow_write[mode_index];
             const u32 length=voice.bow_length[mode_index];
             const u32 read=(write+1024u-length)&1023u;
-            const i32 delayed=fmac1(static_cast<i32>(delays.samples[read][mode_index])*512,2126008812);
+            const i32 delayed=rounded_bow_product(static_cast<i32>(delays.samples[read][mode_index])*512,2126008812);
             bow_sum+=delayed;
             const i32 bp=filter(bow.s1,bow.s2,bow.a1,bow.a2,bow.a3,input+delayed);
-            const i32 normalized=fmac1(bp,bow.normalization);
+            const i32 normalized=rounded_bow_product(bp,bow.normalization);
             delays.samples[write][mode_index]=static_cast<opxy::i16>(clamp(normalized/512,-32768,32767));
             write=(write+1)&1023u;
             bow_output+=opxy::q31::multiply(normalized,voice.modes[mode_index].gain)/8;
         }
-        const i32 x=fmac1(voice.bow_velocity,279172874)-bow_sum;
+        // Velocity is at most 32767*512, each delayed sample at most 2^24,
+        // and there are at most eight modes, keeping x below 9*2^24.
+        const i32 x=rounded_bow_product(voice.bow_velocity,279172874)-bow_sum;
         const u32 magnitude=static_cast<u32>(x<0?-x:x);
         const unsigned index=magnitude>>15;
-        voice.bow_signal=fmac1(x,bow_friction[index>1024?1024:index]);
+        voice.bow_signal=rounded_bow_product(x,bow_friction[index>1024?1024:index]);
         mixed[i]=bow_output*2;
     }
 }

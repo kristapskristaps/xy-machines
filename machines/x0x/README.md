@@ -188,10 +188,18 @@ The nine i16 stems occupy 396918 bytes, plus 4100 bytes for the square shapes.
 Voice capacity and the 332-byte voice state are unchanged. This is a deliberate
 sound/performance tradeoff; a fresh device sweep must meet 3.5% before acceptance.
 
+The common output stage uses 129-point transfer curves for each nonzero Drive
+setting instead of evaluating the cubic and its clamps for every sample.
+The 128×129 i16 bank adds 33024 bytes; zero Drive still bypasses shaping.
+An exhaustive signed-input/control check limits point error to 64/32768 and
+whole-transfer RMS error to 0.1%. All 423 paired full-engine scenes retain exact
+non-output state; their waveform RMS error stays below 0.214% versus the direct
+Drive implementation. The combined source/output loop is retained.
+
 `tools/benchmark.cpp` reports host nanoseconds per sample for all 47 sounds,
 with steady controls or a changing Tone control (`changing` argument). Compile
-it with `-O2`, the SDK include path, `dsp/tables.cpp`, `dsp/sample_data.cpp` and
-`dsp/metal_stems.cpp`.
+it with `-O2`, the SDK include path, `dsp/tables.cpp`, `dsp/sample_data.cpp`,
+`dsp/metal_stems.cpp` and `dsp/drive_curves.cpp`.
 For a paired comparison against the preceding collection revision, run from
 the repository root:
 
@@ -250,7 +258,8 @@ logarithmic curve and decoded/interpolated at playback. See
 `python dsp/generate_metallic.py` rebuilds the 808 spectral filter coefficients.
 Compile `tools/generate_stems.cpp` with the SDK include path and `dsp/tables.cpp`
 to an external executable, then redirect its output to `dsp/metal_stems.cpp` to
-regenerate the synthesized stems and square tables.
+regenerate the synthesized stems and square tables. `tools/generate_drive.cpp`
+similarly regenerates `dsp/drive_curves.cpp` from the original cubic helper.
 
 The envelope lookup uses 85 knots spaced more closely at short durations,
 saving 5,812 bytes compared with a uniform four-millisecond table.
@@ -267,7 +276,7 @@ generator. These tests establish neither circuit accuracy nor device CPU cost.
 
 To render a four-kit demonstration and a timed catalogue of all 47 sounds,
 compile `audition/render.cpp` with `dsp/tables.cpp`, `dsp/sample_data.cpp`,
-`dsp/metal_stems.cpp` and the
+`dsp/metal_stems.cpp`, `dsp/drive_curves.cpp` and the
 SDK include directory, then run the executable with two external WAV output
 paths. The demo plays 606, 707, 808 and 909 for eight seconds each. The catalogue
 prints its timestamps. Both use the actual machine DSP and per-pad defaults.

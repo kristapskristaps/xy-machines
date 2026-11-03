@@ -4,6 +4,7 @@
 #include "primitives.h"
 #include "pcm.h"
 #include "metallic.h"
+#include "drive_curves.h"
 
 namespace x0x { namespace dsp {
 static inline i32 sample_for(u32 model, u32 family) {
@@ -258,6 +259,7 @@ template <bool Sampled, bool Metal=false> static inline void render_block(Voice&
         s.alternate >= 0 && pcm::samples[s.alternate].frames > pcm::samples[s.sample].frames
             ? pcm::samples[s.alternate].frames : pcm::samples[s.sample].frames;
     const u32 drive_amount = control_count(v.model) == 8 ? s.raw[x0x::drive] : 0;
+    const opxy::i16* curve=tables::drive_curves[drive_amount];
     i32 metallic[Metal?opxy::block_frames:1];
     if(Metal) {
         const u32 remaining=v.age<end?end-v.age:0;
@@ -294,7 +296,7 @@ template <bool Sampled, bool Metal=false> static inline void render_block(Voice&
         }
         v.output_low += multiply(sample - v.output_low, s.filter);
         sample = v.output_low;
-        sample = drive(sample, drive_amount);
+        sample = drive_amount?table_drive(sample,curve):sample;
         const i32 clean = limit(sample - v.dc_input + multiply(v.dc_output, 32600));
         v.dc_input = sample; v.dc_output = clean;
         output[i] = clean * 32768; // Declared half-scale Q31 peak.

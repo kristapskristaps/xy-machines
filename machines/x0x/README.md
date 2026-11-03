@@ -188,6 +188,7 @@ the repository root:
 
 ```sh
 python machines/x0x/tools/benchmark.py --cxx /path/to/clang++ --blocks 4000
+python machines/x0x/tools/benchmark.py --cxx /path/to/clang++ --verify-only
 ```
 
 It checks identical output and complete voice state at every block across
@@ -200,6 +201,13 @@ Host measurements do not capture the Blackfin compiler's software-divider
 cost. Compare native hardware callback workloads before claiming an OP-XY CPU
 improvement. Historical standalone measurements do not qualify the reorganized
 collection revision; measure its exact package before catalog submission.
+
+The 808 metallic filters carry already-truncated weighted input history within
+each block. All five filters have opposite or equal first and last input
+coefficients, allowing one product to be reused two samples later. Each term
+keeps its individual Q14 truncation, feedback still clamps every sample, and
+the saved input/filter state stays unchanged, including partial and in-place
+blocks. Hardware CPU validation of this change remains pending.
 
 - 606: swept tonal oscillators for kick/toms, dual-tone/noise snare and a six-oscillator
   metallic source for hats/cymbal.

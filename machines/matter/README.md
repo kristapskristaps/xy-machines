@@ -31,8 +31,20 @@ come from Émilie Gillet's Elements. High-precision integer coefficient routines
 also derive from the DMDaudio fixed-point Plaits port. See
 [vendor/VENDOR.md](vendor/VENDOR.md) for revisions and numerical changes.
 
-The port runs at 44.1 kHz with retimed sample playback, delay lengths and excitation
-rates. Bowed delay lines store 16-bit samples. The native build is limited to two simultaneous Matter voices across all tracks;
+The public input/output and excitation run at 44.1 kHz. Resonators use a
+transposed two-pole bandpass at adaptive 44.1, 22.05 or 11.025 kHz rates. Each
+normal mode selects its own rate: frequencies below 2,756.25 Hz use 11.025 kHz,
+those below 5,512.5 Hz use 22.05 kHz, and higher modes remain at 44.1 kHz.
+All eight coupled bowed modes share the fastest rate required by their active
+frequencies. No normal or bowed modes are removed by this optimization.
+Original discrete-time bandpass peak frequencies, peak gains and pole decay rates
+are mapped to the slower clock during coefficient configuration. Box-filtered
+excitation and linear output interpolation use generated response compensation
+for the normal bank. The bowed feedback retains physical delay lengths with
+fractional cubic reads; its velocity smoothing follows the same physical time
+constant. Sample playback and exciter timing remain at their original rates.
+Bowed delay lines store 16-bit samples. The native build is limited to two
+simultaneous Matter voices across all tracks;
 new notes steal the oldest voice. Two independent bowed-delay resources are
 acquired only by the bow exciter. Other exciters use the modal bank without
 running a second waveguide network. The browser can schedule eight audition
@@ -59,36 +71,40 @@ modal coefficient sets and pickup weighting. Sanitizer runs check numerical and
 memory safety. `tests/arithmetic.cpp` checks every integer in the excitation
 scaler's bounded range against signed division by five.
 
-Exciter selection happens once per block, with a separate compiled sample loop
-for each family. Its low-pass coefficients are cached by the quantized Timbre
-index, adding 16 bytes per voice; any changed index refreshes them before that
-block renders. Completed modal gains supply the unchanged pickup weights;
-coefficient reconfiguration invalidates that reuse. Bowed rendering collects
-its active modes once per block. The excitation scaler uses an exact public
-fractional multiply in place of per-sample software division. These changes
-preserve the preceding revision's samples, rounding, resonator state, random
-sequence and resource ownership.
+The adaptive resonator implementation intentionally changes fixed-point rounding,
+filter state representation and saturation behavior. It is not bit-identical to
+the preceding full-rate TPT resonator. A 102-case paired render covers six
+exciters, three pitches, default/dark/maximum/dry/minimum controls and two moving-control
+traces per model. Static resonant examples differ by at most 1.23 dB RMS in that
+set; the largest moving-control difference is 3.35 dB. Dry Body=0 examples remain
+bit-identical. The box/linear conversion changes upper partials and transients,
+and changing rate during control motion can change the transient response.
+Independent coefficient tests check bandpass peak tuning to within one cent and
+pole decay rates to within four percent of the original double-precision laws;
+the tested grid observed 0.087 cents and 0.22 percent respectively. These are
+numerical checks, not listening approval or measured CPU qualification.
 
-From the collection root, compare against the preceding revision with:
+From the collection root, save quantitative paired audio and spectral/decay data
+outside the checkout:
 
 ```sh
-python machines/matter/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
+python machines/matter/tools/quality.py --baseline <full-rate-commit> \
+  --sdk /path/to/open-xy --cxx /path/to/clang++ --automation \
+  --out /external/path/matter-quality-001
 ```
 
-The paired host benchmark covers 180 scenarios: all six exciters, six pitches,
-default/minimum/maximum controls, position motion and simultaneous control/pitch
-motion. Each checks 256 blocks with three voices, including live model edits,
-retriggers, initialization/destruction and bow-resource stealing. It compares
-audio, the complete original voice state and the shared pool after every voice
-callback; the added coefficient cache is excluded from the state comparison.
-Five timing repeats alternate before/after order. These timings are host evidence,
-not measured OP-XY CPU usage.
+The tool reports loudness, normalized coarse spectral energy, envelope decay
+fits and dominant spectral peaks. A dominant peak is not necessarily the
+fundamental pitch. Sanitizer tests cover moving controls, saturated resonator
+state and interpolation headroom. The older exact-state benchmark describes
+full-rate candidates and is not an acceptance test for this intentional DSP
+change.
 
 The limiter calculates its gain once per block. A smaller screen uses 31 animated
 nodes, static mesh lines and native text; idle motion settles after note release.
 This reduces first-open work and avoids the former raster-letter paths and
 per-edge rotation calculations. Parameter order and saved sound controls remain
-unchanged; the shorter modal bank changes upper-partial density.
+unchanged. The earlier 24-mode port already has fewer upper partials than Elements.
 
 Hardware timing for this revision, the reported first-open freeze and normal
 multi-track playback still require validation on the XY. Follow the SDK's

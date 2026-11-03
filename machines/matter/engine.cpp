@@ -1,5 +1,6 @@
 #include "core.h"
 #include "vendor/resources.h"
+#include "rate_gain.h"
 namespace matter {
 namespace {
 using opxy::i32;
@@ -18,6 +19,37 @@ i32 excitation_fifth(i32 value) {
 }
 i32 q15(i32 a,i32 b) { return (a>>15)*b+((a&32767)*b>>15); }
 u32 random(Voice& voice) { return voice.random=voice.random*1664525u+1013904223u; }
+
+unsigned update_rate(u32 frequency) {
+    return frequency<268435456u?4:frequency<536870912u?2:1;
+}
+void resonator_coefficients(i32& a1,i32& a2,i32& a3,const svf_c& c,unsigned rate) {
+    const opxy::i64 radius=2*(static_cast<opxy::i64>(c.a1)+c.a3)-2147483648LL;
+    a1=c.a1-c.a3;
+    a2=static_cast<i32>(radius<0?0:radius>2147483616LL?2147483616LL:radius);
+    // Half the input gain leaves headroom for the slow-rate gain and its
+    // resampling-response compensation. The driven audio product is doubled.
+    a3=c.a2/2;
+    if(rate==1)return;
+    const i32 half_denominator=1073741824+(a2>>1);
+    const u32 ratio=uf_to(uf_mul(uf_q(static_cast<u32>(a1),31),uf_recip(uf_q(static_cast<u32>(half_denominator),31))),31);
+    i32 cosine=static_cast<i32>(ratio>2147483647u?2147483647u:ratio);
+    for(unsigned factor=1;factor<rate;factor*=2) {
+        // Preserve peak bandpass gain while squaring the original pole radius.
+        a3+=opxy::q31::multiply(a3,a2);
+        a2=opxy::q31::multiply(a2,a2);
+        cosine=static_cast<i32>(2*static_cast<opxy::i64>(opxy::q31::multiply(cosine,cosine))-2147483647LL);
+    }
+    a1=opxy::q31::multiply(cosine,1073741824+(a2>>1));
+}
+inline i32 resonate(i32& s1,i32& s2,i32 a1,i32 a2,i32 a3,i32 input) {
+    const i32 driven=opxy::q31::multiply(a3,input)*2;
+    const i32 band=opxy::q31::add(driven,s1);
+    const i32 trace=opxy::q31::multiply(a1,band);
+    s1=opxy::q31::add(opxy::q31::add(s2,trace),trace);
+    s2=opxy::q31::add(-driven,-opxy::q31::multiply(a2,band));
+    return band;
+}
 
 template<bool Bowed>
 void configure(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping) {
@@ -43,33 +75,49 @@ void configure(Voice& voice,u32 increment,i32 geometry,i32 bright,i32 damping) {
     uf harmonic=f0;
     uf q=uf_mul(uf_semis(damping*255+(damping*4080>>15)),uf_q(500,0));
     i32 stretch=1<<24;
+    u32 bow_frequency[8]={},maximum_bow_frequency=0;
     for (unsigned i=0;i<(Bowed?8:mode_count);++i) {
         const uf frequency=uf_mul(harmonic,uf_q(static_cast<u32>(stretch),24));
         const u32 raw=uf_to(frequency,32);
         const u32 f=raw>2104533975u?2104533975u:raw;
-        svf_c c;
-        svf_hq(&c,tan_fast(f),uf_add(one,uf_mul(uf_q(f,32),q)));
-        if(raw<2104533975u) voice.active_modes[i/32] |= 1u<<(i%32);
         Filter& mode=voice.modes[i];
-        mode.a1=c.a1;mode.a2=c.a2;mode.a3=c.a3;
-        if(Bowed && i<8) {
-            svf_hq(&c,tan_fast(f),uf_add(one,uf_mul(uf_q(f,32),uf_q(1500,0))));
-            BowFilter& bow=voice.bowed[i];
-            bow.a1=c.a1;bow.a2=c.a2;bow.a3=c.a3;
+        if(raw<2104533975u) voice.active_modes[i/32] |= 1u<<(i%32);
+        if(Bowed) {
+            bow_frequency[i]=f;
+            if(raw<2104533975u && f>maximum_bow_frequency)maximum_bow_frequency=f;
             const uf bow_q=uf_add(one,uf_mul(uf_q(f,32),uf_q(1500,0)));
             const u32 norm=uf_to(uf_recip(bow_q),31);
-            bow.normalization=static_cast<i32>(norm>2147483647u?2147483647u:norm);
+            voice.bowed[i].normalization=static_cast<i32>(norm>2147483647u?2147483647u:norm);
             u32 period=f?0xffffffffu/f:1023;
-            while(period>=1024) period>>=1;
+            while(period>=1024)period>>=1;
             voice.bow_length[i]=period?period:1;
+        } else {
+            mode.rate=update_rate(f);
+            svf_c c;
+            svf_hq(&c,tan_fast(f),uf_add(one,uf_mul(uf_q(f,32),q)));
+            resonator_coefficients(mode.a1,mode.a2,mode.a3,c,mode.rate);
+            if(mode.rate>1) {
+                const u32 internal=f*mode.rate,index=internal>>22,fraction=(internal>>6)&65535u;
+                const u32* gains=mode.rate==4?rate_gain_4:rate_gain_2;
+                const u32 compensation=gains[index]+((gains[index+1]-gains[index])*fraction>>16);
+                const i32 half=opxy::q31::multiply(mode.a3,static_cast<i32>(compensation*64));
+                mode.a3=half>1073741823?2147483647:half*2;
+            }
         }
-        // Modes above Nyquist carry no gain, including at extreme geometry.
         if(raw>=2104533975u) mode.gain=0;
         stretch+=stiff;
         stiff=fmac1(stiff,stiff<0?1997159793:2104533975);
         harmonic=uf_add(harmonic,f0);
         qloss+=fmac1t(qrate,2147483647-qloss);
         q=uf_mul(q,uf_q(static_cast<u32>(qloss),31));
+    }
+    if(Bowed) {
+        voice.bow_rate=update_rate(maximum_bow_frequency);
+        for(unsigned i=0;i<8;++i) {
+            const u32 f=bow_frequency[i];
+            svf_c c;svf_hq(&c,tan_fast(f),uf_add(one,uf_mul(uf_q(f,32),uf_q(1500,0))));
+            resonator_coefficients(voice.bowed[i].a1,voice.bowed[i].a2,voice.bowed[i].a3,c,voice.bow_rate);
+        }
     }
 }
 
@@ -180,6 +228,92 @@ void excite(Voice& voice,i32 contour,i32 timbre,i32* out) {
         out[i]=excitation;
     }
 }
+template<unsigned Rate>
+inline void upsample(i32 current,i32& last,i32* output,bool add) {
+    const i32 step=(current-last)/static_cast<i32>(Rate);
+    if(Rate==4) {
+        const i32 first=last+step,second=first+step,third=second+step;
+        output[0]=(add?output[0]:0)+first;
+        output[1]=(add?output[1]:0)+second;
+        output[2]=(add?output[2]:0)+third;
+        output[3]=(add?output[3]:0)+current;
+    } else if(Rate==2) {
+        output[0]=(add?output[0]:0)+last+step;
+        output[1]=(add?output[1]:0)+current;
+    } else output[0]=(add?output[0]:0)+current;
+    last=current;
+}
+
+template<unsigned Rate>
+__attribute__((noinline)) void normal_block(Filter& __restrict mode,const i32* __restrict input,i32 target,i32* __restrict mixed) {
+    const i32 gain_step=(target-mode.gain)/64;
+    i32 gain=mode.gain,s1=mode.s1,s2=mode.s2,last=mode.last;
+    const i32 a1=mode.a1,a2=mode.a2,a3=mode.a3;
+    for(unsigned i=0;i<opxy::block_frames/Rate;++i) {
+        gain+=gain_step*static_cast<i32>(Rate);
+        const i32 band=resonate(s1,s2,a1,a2,a3,input[i]);
+        const i32 current=opxy::q31::multiply(band,gain)>>5;
+        upsample<Rate>(current,last,mixed+i*Rate,true);
+    }
+    mode.s1=s1;mode.s2=s2;mode.last=last;mode.gain=target;
+}
+
+template<unsigned Rate>
+inline i32 delay_sample(const BowDelay& delays,unsigned mode,u32 write,u32 length) {
+    const u32 read=(write+1024u-length/Rate)&1023u;
+    const unsigned phase=(length%Rate)*(4/Rate);
+    if(!phase)return delays.samples[mode][read];
+    static const i32 weights[4][4]={{0,32768,0,0},{-2304,28416,7424,-768},
+                                  {-2048,18432,18432,-2048},{-768,7424,28416,-2304}};
+    const i32* c=weights[phase];
+    const i32 sum=delays.samples[mode][(read+1)&1023u]*c[0]+delays.samples[mode][read]*c[1]
+                 +delays.samples[mode][(read+1023)&1023u]*c[2]+delays.samples[mode][(read+1022)&1023u]*c[3];
+    return clamp(sum>>15,-32768,32767);
+}
+template<unsigned Rate,bool Full>
+__attribute__((noinline)) void bow_block(Voice& __restrict voice,BowDelay& __restrict delays,i32 contour,
+                                       const i32* __restrict input,i32* __restrict mixed,
+                                       const unsigned* active,unsigned count) {
+    const i32 smoothing=Rate==4?8376328:Rate==2?4192256:2097152;
+    i32 last=voice.bow_last;
+    for(unsigned i=0;i<opxy::block_frames/Rate;++i) {
+        voice.bow_velocity+=opxy::q31::multiply(contour*512-voice.bow_velocity,smoothing);
+        i32 bow_sum=0,bow_output=0;
+        const i32 excitation=input[i]+voice.bow_signal;
+        for(unsigned at=0;at<(Full?8:count);++at) {
+            const unsigned mode=Full?at:active[at];
+            BowFilter& bow=voice.bowed[mode];
+            u32& write=voice.bow_write[mode];
+            const i32 delayed=opxy::q31::multiply(delay_sample<Rate>(delays,mode,write,voice.bow_length[mode])*512,2126008812);
+            bow_sum+=delayed;
+            const i32 band=resonate(bow.s1,bow.s2,bow.a1,bow.a2,bow.a3,excitation+delayed);
+            const i32 normalized=opxy::q31::multiply(band,bow.normalization);
+            const i32 clipped=clamp(normalized,-16777216,16777215);
+            const i32 bias=static_cast<i32>(static_cast<u32>(clipped)>>31)*511;
+            delays.samples[mode][write]=static_cast<opxy::i16>((clipped+bias)>>9);
+            write=(write+1)&1023u;
+            const i32 weighted=opxy::q31::multiply(normalized,voice.modes[mode].gain);
+            bow_output+=(weighted+static_cast<i32>(static_cast<u32>(weighted)>>31)*7)>>3;
+        }
+        const i32 x=opxy::q31::multiply(voice.bow_velocity,279172874)-bow_sum;
+        const u32 magnitude=static_cast<u32>(x<0?-x:x);
+        const unsigned index=magnitude>>15;
+        voice.bow_signal=opxy::q31::multiply(x,bow_friction[index>1024?1024:index]);
+        const i32 current=clamp(bow_output,-536870912,536870911)*2;
+        upsample<Rate>(current,last,mixed+i*Rate,false);
+    }
+    voice.bow_last=last;
+}
+template<unsigned Rate>
+void bowed_dispatch(Voice& voice,BowDelay& delays,i32 contour,const i32* input,i32* mixed) {
+    if((voice.active_modes[0]&255u)==255u)bow_block<Rate,true>(voice,delays,contour,input,mixed,nullptr,8);
+    else {
+        unsigned active[8],count=0;
+        for(unsigned i=0;i<8;++i)if(voice.active_modes[0]&(1u<<i))active[count++]=i;
+        bow_block<Rate,false>(voice,delays,contour,input,mixed,active,count);
+    }
+}
+
 }
 
 void destroy(Voice& voice,Shared& shared,opxy::u32 owner) {
@@ -208,7 +342,8 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
     const i32 body=static_cast<i32>(control(parameters[7]));
     if(model!=voice.model) {
         voice.trigger=1;voice.model=model;
-        for(unsigned i=0;i<mode_count;++i) voice.modes[i].s1=voice.modes[i].s2=0;
+        for(unsigned i=0;i<mode_count;++i) voice.modes[i].s1=voice.modes[i].s2=voice.modes[i].last=0;
+        voice.bow_last=0;
         for(unsigned i=0;i<8;++i) voice.bowed[i].s1=voice.bowed[i].s2=0;
         voice.bow_signal=voice.bow_velocity=0;
         voice.limiter=1<<23;
@@ -247,56 +382,25 @@ void render(Voice& voice,Shared& shared,opxy::u32 owner,opxy::Output output,opxy
     }
     if(voice.position<0)
         for(unsigned i=0;i<mode_count;++i)voice.modes[i].gain=targets[i];
+    i32 half[32],quarter[16];
+    for(unsigned i=0;i<32;++i)half[i]=(excitation[2*i]>>1)+(excitation[2*i+1]>>1);
+    for(unsigned i=0;i<16;++i)quarter[i]=(half[2*i]>>1)+(half[2*i+1]>>1);
     if(!bowed) {
-        for(unsigned mode_index=0;mode_index<mode_count;++mode_index) {
-            Filter& mode=voice.modes[mode_index];
-            if(!((voice.active_modes[mode_index/32]>>(mode_index%32))&1u)) {
-                mode.s1=mode.s2=mode.gain=0;continue;
+        for(unsigned i=0;i<mode_count;++i) {
+            Filter& mode=voice.modes[i];
+            if(!((voice.active_modes[i/32]>>(i%32))&1u)) {
+                mode.s1=mode.s2=mode.gain=mode.last=0;continue;
             }
-            const i32 target=targets[mode_index],gain_step=(target-mode.gain)/64;
-            i32 gain=mode.gain,s1=mode.s1,s2=mode.s2;
-            const i32 a1=mode.a1,a2=mode.a2,a3=mode.a3;
-            for(unsigned i=0;i<opxy::block_frames;++i) {
-                gain+=gain_step;
-                const i32 bp=filter(s1,s2,a1,a2,a3,excitation[i]);
-                // Scaling before the sum keeps the resonator bank below overflow.
-                mixed[i]+=opxy::q31::multiply(bp,gain)/32;
-            }
-            mode.s1=s1;mode.s2=s2;mode.gain=target;
+            if(mode.rate==4)normal_block<4>(mode,quarter,targets[i],mixed);
+            else if(mode.rate==2)normal_block<2>(mode,half,targets[i],mixed);
+            else normal_block<1>(mode,excitation,targets[i],mixed);
         }
-    } else {
-        for(unsigned i=0;i<8;++i)voice.modes[i].gain=targets[i];
-    }
+    } else for(unsigned i=0;i<8;++i)voice.modes[i].gain=targets[i];
     voice.position=position;
     if(delays) {
-        unsigned active[8],active_count=0;
-        for(unsigned mode_index=0;mode_index<8;++mode_index)
-            if(voice.active_modes[0]&(1u<<mode_index))active[active_count++]=mode_index;
-        for(unsigned i=0;i<opxy::block_frames;++i) {
-            const i32 desired=contour*512;
-            voice.bow_velocity+=(desired-voice.bow_velocity)/1024;
-            i32 bow_sum=0,bow_output=0;
-            const i32 input=excitation[i]+voice.bow_signal;
-            for(unsigned at=0;at<active_count;++at) {
-                const unsigned mode_index=active[at];
-                BowFilter& bow=voice.bowed[mode_index];
-                u32& write=voice.bow_write[mode_index];
-                const u32 length=voice.bow_length[mode_index];
-                const u32 read=(write+1024u-length)&1023u;
-                const i32 delayed=fmac1(static_cast<i32>(delays->samples[mode_index][read])*512,2126008812);
-                bow_sum+=delayed;
-                const i32 bp=filter(bow.s1,bow.s2,bow.a1,bow.a2,bow.a3,input+delayed);
-                const i32 normalized=fmac1(bp,bow.normalization);
-                delays->samples[mode_index][write]=static_cast<opxy::i16>(clamp(normalized/512,-32768,32767));
-                write=(write+1)&1023u;
-                bow_output+=opxy::q31::multiply(normalized,voice.modes[mode_index].gain)/8;
-            }
-            const i32 x=fmac1(voice.bow_velocity,279172874)-bow_sum;
-            const u32 magnitude=static_cast<u32>(x<0?-x:x);
-            const unsigned index=magnitude>>15;
-            voice.bow_signal=fmac1(x,bow_friction[index>1024?1024:index]);
-            mixed[i]=bow_output*2;
-        }
+        if(voice.bow_rate==4)bowed_dispatch<4>(voice,*delays,contour,quarter,mixed);
+        else if(voice.bow_rate==2)bowed_dispatch<2>(voice,*delays,contour,half,mixed);
+        else bowed_dispatch<1>(voice,*delays,contour,excitation,mixed);
     }
     voice.trigger=0;
     i32 peak=0;

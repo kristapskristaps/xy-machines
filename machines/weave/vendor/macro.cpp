@@ -64,13 +64,21 @@ static int32_t strike_lift(int32_t room, unsigned strike) {
 static inline int32_t product_hi(int32_t a, int32_t b) {
     return opxy::q31::multiply(a, b);
 }
+static inline uint32_t product_tail(const opxy::q31::Product& product) {
+    // Only MIN * MIN saturates to this high word: every other positive
+    // product is at most MAX * MAX. The legacy integer low product was zero
+    // for that pair, whereas the SDK's saturated full product has all low bits set.
+    return product.high == opxy::q31::maximum ? 0u : product.low;
+}
 static inline int32_t fmac2(int32_t a, int32_t x, int32_t b, int32_t y) {
-    const uint32_t tail = (((uint32_t)a * (uint32_t)x >> 23) & 255u)
-                        + (((uint32_t)b * (uint32_t)y >> 23) & 255u) + 128u;
-    return (int32_t)((uint32_t)product_hi(a,x) + (uint32_t)product_hi(b,y) + (tail >> 8));
+    const opxy::q31::Product first=opxy::q31::multiply_full(a,x);
+    const opxy::q31::Product second=opxy::q31::multiply_full(b,y);
+    const uint32_t tail=(product_tail(first)>>24)+(product_tail(second)>>24)+128u;
+    return (int32_t)((uint32_t)first.high+(uint32_t)second.high+(tail>>8));
 }
 static inline int32_t fmac1(int32_t a, int32_t x) {
-    return (int32_t)((uint32_t)product_hi(a,x) + (((uint32_t)a * (uint32_t)x >> 30) & 1u));
+    const opxy::q31::Product product=opxy::q31::multiply_full(a,x);
+    return (int32_t)((uint32_t)product.high+(product_tail(product)>>31));
 }
 static inline int32_t fmac1t(int32_t a, int32_t x) { return product_hi(a,x); }
 struct emac_save { int32_t unused; };

@@ -29,6 +29,21 @@ int main() {
     }
     const int32_t minimum = -2147483647 - 1;
     if (weave_dsp::product_hi(minimum,minimum) != 2147483647) return 1;
+    const int32_t boundaries[] = {minimum,minimum+1,-1073741824,-1,0,1,1073741824,2147483646,2147483647};
+    for (int32_t a : boundaries) for (int32_t x : boundaries) {
+        const int64_t ax=int64_t(a)*x;
+        const bool saturated=ax==(int64_t(1)<<62);
+        const uint32_t high=saturated?2147483647u:static_cast<uint32_t>(floor31(ax));
+        const uint32_t low=static_cast<uint32_t>(ax);
+        const int32_t single=static_cast<int32_t>(high+((low>>30)&1u));
+        if (weave_dsp::fmac1(a,x)!=single) return 1;
+        for (int32_t b : boundaries) for (int32_t y : boundaries) {
+            const int64_t by=int64_t(b)*y;
+            const uint32_t second=by==(int64_t(1)<<62)?2147483647u:static_cast<uint32_t>(floor31(by));
+            const uint32_t tail=((low>>23)&255u)+((static_cast<uint32_t>(by)>>23)&255u)+128u;
+            if (weave_dsp::fmac2(a,x,b,y)!=static_cast<int32_t>(high+second+(tail>>8))) return 1;
+        }
+    }
     const int32_t coefficients[] = {0,1,32767,1073741824,2147483647};
     const int32_t signals[] = {minimum,minimum+1,-1,0,1,2147483646,2147483647};
     for (int32_t a : coefficients) for (int32_t x : signals) {

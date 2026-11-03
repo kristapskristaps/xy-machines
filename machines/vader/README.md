@@ -117,34 +117,47 @@ Open the printed localhost URL, enable audio, select a low octave and play.
 Tests cover clean-sub purity, fundamental retention, DC, high-register alias
 energy, pitch-drop settling, transient decay, deterministic retrigger, all 256
 control corners and the display's note, idle, track and reduced-motion behavior.
-An independent frozen V2 renderer also verifies bit-identical audio across
-59 million samples of long notes, control changes, glides and retriggers,
-plus two million pitch-band selections. The optimized renderer reuses identical
-waveform lookups, replaces integer division with an exact corrected reciprocal,
-and stops click and pitch-sweep work only after it can no longer affect audio.
-Quantized-identical waveform banks share storage: all 216 mode/drive/band slots
-now reference 162 distinct arrays through a constant pointer grid. Every original
-sample is preserved, with about 53 KiB less native storage and no added voice
-state. Frozen bank fingerprints check each original slot independently of the
-renderer, which shares the generated tables.
+The driven oscillator deliberately uses nearest-point lookup on a 1024-sample
+phase grid. Original samples alternate with exact midpoint samples from the
+preceding linear interpolator. All 162 waves reflect exactly within each
+half-cycle, so two guarded quarter rows retain those 1024 points in 514 signed
+shorts per bank. Asymmetric positive and negative halves stay independent.
+Drive and mip crossfades retain their original integer math. The pure sine
+foundation and zero-Drive path keep the original linear lookup. Audio with
+Drive is intentionally not bit-identical; pitch, controls, models and normal
+voice capacity remain unchanged.
 
-From the collection root, compare with the preceding revision:
+The original 216 bank fingerprints and original PCM/Voice golden values remain
+unchanged. `tests/reference_block_goldens.cpp` and
+`tests/reference_equivalence.cpp` check them against frozen exact revision
+`97b6a9c`; current approximate DSP is checked by `tests/fidelity.cpp`, the
+nearest-table bounds and existing sound/display tests. Old goldens are never
+presented as the new waveform.
+
+For the actual audio comparison against that frozen revision:
 
 ```sh
-python machines/vader/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
-python machines/vader/tools/benchmark.py --cxx /path/to/clang++ --full-grid --verify-only
+python machines/vader/tools/fidelity.py --out /external/private/vader-audio-check-001
 ```
 
-The paired benchmark covers 510 scenarios: defaults, eight presets, control
-sweeps, page corners at six pitches and control/pitch motion. The wider check
-adds all 256 eight-control corners, for 2,046 scenarios. Each compares audio and
-complete voice state every block for 256 blocks; six long-hold cases instead
-compare 4,096 blocks with delayed Punch edits and pitch-drop reactivation.
-Both compare 4,096 display frames and states. Five timing repeats alternate
-before/after order. These are host checks; device profiling determines native
-CPU cost.
+The report covers 1528 cases: factory sounds, drive/shape/tone positions, all
+control corners, six pitches, sweeps, random automation and glide. Driven cases
+have median relative RMS error 0.18%; factory sounds have worst 0.42%. Maximum
+measured RMS level change above -60dBFS is 0.031 dB, in a nearly muted high-note
+corner whose absolute RMS error is -84dBFS. The coherent single-bank image check
+finds worst energy -38.7dBc outside the intended harmonic set; its original
+interpolator reads -69.9dBc for that bank. This includes reconstruction and
+folded images and does not claim a perfect alias-free reference.
 
-Regenerate the checked-in analytic tables with `python tools/generate_tables.py`.
+The test budget is 3% relative RMS error with an absolute -80dBFS floor for very
+quiet signals, at most 0.01 FS absolute RMS error, 0.05 dB level change above
+-60dBFS, and -35dBc maximum image energy in the specified coherent bank cases.
+Phase and non-filter voice state are checked exactly after every block. The
+output includes reference/candidate WAVs for listening. These are host quality
+checks; hardware CPU and normal-playback acceptance remain pending.
+
+Regenerate the analytic tables with `python tools/generate_tables.py`, then
+`python tools/generate_nearest_waves.py` for the nearest-point bank.
 The SDK adapters own voice allocation and registration; callbacks allocate no
 memory and do not perform I/O. Machine code, artwork and tests stay here.
 

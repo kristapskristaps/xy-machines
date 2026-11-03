@@ -50,6 +50,10 @@ Each send still borrows 231,424 bytes (226 KiB) of scratch and has its own
 248-byte state. Reset cannot expose previous scratch audio. Hold maintains an
 audible tail; it is not a lossless recording. Control-dependent coefficients
 update once per block; the modulated audio network runs per wet sample.
+Downsampling, wet-network processing and upsampling use separate block passes,
+reusing the caller's output and a bounded intermediate array. The passes retain
+the shorter-filter implementation's complete output, state and scratch across
+60 comparisons of 4,096 callbacks each.
 
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings
 belong to the machine-owned browser audition, not a custom native FX screen.

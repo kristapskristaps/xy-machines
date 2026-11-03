@@ -271,31 +271,59 @@ void process(State& state,opxy::Buffer buffer,const opxy::Transport& transport,
     }
     const Settings config=settings(state);
     const u32 grain_step=16777216u/config.grain_width;
+    // Every public callback spans complete four-frame conversion cycles.
+    // Separate rate passes expose counted, contiguous loops to the DSP compiler.
+    static_assert(opxy::block_frames%4==0,"complete Halo rate cycles");
+    i32 middle[2][opxy::block_frames/2];
+    unsigned d0=state.down_write[0],d1=state.down_write[1];
     for(unsigned i=0;i<opxy::block_frames;++i) {
-        down[0][0][state.down_write[0]]=down[0][0][state.down_write[0]+31]=left[i]/128;
-        down[0][1][state.down_write[0]]=down[0][1][state.down_write[0]+31]=right[i]/128;
-        if(!state.half) {
-            for(unsigned channel=0;channel<2;++channel)
-                down[1][channel][state.down_write[1]]=down[1][channel][state.down_write[1]+31]=downsample(down[0][channel],state.down_write[0]);
-            if(!state.quarter) {
-                state.delay=glide(state.delay,target_delay,512);
-                i32 input[2]={downsample(down[1][0],state.down_write[1]),downsample(down[1][1],state.down_write[1])},wet[2];
-                network(state,memory,input,wet,config);
-                state.grain_phase=(state.grain_phase+grain_step)&16777215u;
-                if(++state.up_write[1]==16)state.up_write[1]=0;
-                for(unsigned channel=0;channel<2;++channel)
-                    up[1][channel][state.up_write[1]]=up[1][channel][state.up_write[1]+16]=wet[channel];
-            }
-            if(++state.up_write[0]==16)state.up_write[0]=0;
-            for(unsigned channel=0;channel<2;++channel)
-                up[0][channel][state.up_write[0]]=up[0][channel][state.up_write[0]+16]=upsample(up[1][channel],state.up_write[1],state.quarter);
-            state.quarter^=1;
-            if(++state.down_write[1]==31)state.down_write[1]=0;
+        down[0][0][d0]=down[0][0][d0+31]=left[i]/128;
+        down[0][1][d0]=down[0][1][d0+31]=right[i]/128;
+        if(!(i&1)) {
+            middle[0][i/2]=downsample(down[0][0],d0);
+            middle[1][i/2]=downsample(down[0][1],d0);
         }
-        left[i]=clamp(upsample(up[0][0],state.up_write[0],state.half),-unit+1,unit-1)*128;
-        right[i]=clamp(upsample(up[0][1],state.up_write[0],state.half),-unit+1,unit-1)*128;
-        state.half^=1;
-        if(++state.down_write[0]==31)state.down_write[0]=0;
+        if(++d0==31)d0=0;
     }
+    state.down_write[0]=d0;
+    for(unsigned i=0;i<opxy::block_frames/2;++i) {
+        down[1][0][d1]=down[1][0][d1+31]=middle[0][i];
+        down[1][1][d1]=down[1][1][d1+31]=middle[1][i];
+        if(!(i&1)) {
+            left[i/2]=downsample(down[1][0],d1);
+            right[i/2]=downsample(down[1][1],d1);
+        }
+        if(++d1==31)d1=0;
+    }
+    state.down_write[1]=d1;
+    for(unsigned i=0;i<opxy::block_frames/4;++i) {
+        state.delay=glide(state.delay,target_delay,512);
+        i32 input[2]={left[i],right[i]},wet[2];
+        network(state,memory,input,wet,config);
+        state.grain_phase=(state.grain_phase+grain_step)&16777215u;
+        left[i]=wet[0];right[i]=wet[1];
+    }
+    unsigned u1=state.up_write[1];
+    for(unsigned i=0;i<opxy::block_frames/4;++i) {
+        if(++u1==16)u1=0;
+        up[1][0][u1]=up[1][0][u1+16]=left[i];
+        up[1][1][u1]=up[1][1][u1+16]=right[i];
+        middle[0][2*i]=upsample(up[1][0],u1,0);
+        middle[1][2*i]=upsample(up[1][1],u1,0);
+        middle[0][2*i+1]=upsample(up[1][0],u1,1);
+        middle[1][2*i+1]=upsample(up[1][1],u1,1);
+    }
+    state.up_write[1]=u1;
+    unsigned u0=state.up_write[0];
+    for(unsigned i=0;i<opxy::block_frames/2;++i) {
+        if(++u0==16)u0=0;
+        up[0][0][u0]=up[0][0][u0+16]=middle[0][i];
+        up[0][1][u0]=up[0][1][u0+16]=middle[1][i];
+        left[2*i]=clamp(upsample(up[0][0],u0,0),-unit+1,unit-1)*128;
+        right[2*i]=clamp(upsample(up[0][1],u0,0),-unit+1,unit-1)*128;
+        left[2*i+1]=clamp(upsample(up[0][0],u0,1),-unit+1,unit-1)*128;
+        right[2*i+1]=clamp(upsample(up[0][1],u0,1),-unit+1,unit-1)*128;
+    }
+    state.up_write[0]=u0;
 }
 }

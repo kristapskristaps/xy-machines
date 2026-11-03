@@ -72,20 +72,26 @@ rolls the main sound down toward 220 Hz at its dark end; the octave sub stays
 clean beneath it. Factory presets are revoiced around these curves. Existing
 saved controls keep their indices but sound different with the revised DSP.
 
-The oscillator, nonlinear four-pole filter and soft clipping run at 88.2 kHz.
-The 31-tap half-band FIR returns 44.1 kHz output. Oversampling and filter stages
-are retained. Fixed-point blending uses the public SDK fractional multiply,
-which provides the Blackfin DSP instruction through the platform boundary.
-Coefficient products and gain targets are prepared per block. The filter's
-saturation retains the bounded, division-free reciprocal calculation.
+The voice now runs at 44.1 kHz. Its four-stage Open303 TB_303 ladder and
+150 Hz feedback highpass replace the preceding 88.2 kHz TPT filter and 31-tap
+decimator. Coefficients still ramp over each block; separate oscillator, ladder
+and output passes reduce live state. The original band-limited waveform banks,
+filter envelope, linked pre-drive/post-clip, octave sub and damping remain.
+The filter adaptation and MIT notices are in [NOTICE.md](NOTICE.md).
 
-Hardware midpoint comparisons measured **11.772% per whole voice** for the
-preceding division-free revision and **10.611%** for the retuned DSP at
-`e4004ef` (about 9.9% less). These synthetic single-voice midpoint runs exclude
-graphics and do not measure a live project or maximum polyphony. Both exceed
-the SDK's recommended 3.5%; a full control sweep is still needed before catalog
-submission. Mono avoids the polyphonic voice stacking previously observed on
-dense sixteenth-note patterns; several independent tracks still add load.
+This is an intentional sound change for the CPU budget. The new ladder is
+generally darker, its resonance and overdrive respond differently, and strong
+high-note distortion has more aliasing without the old oversampling filter.
+The original 73 audio/state hashes still authenticate the frozen legacy renderer
+in `tests/reference`; they have not been replaced with new hashes. Quantitative
+comparisons require RMS level and normalized edge energy within a factor of two
+of that renderer across the same scenes, alongside unchanged pitch and contour
+timing. The extreme 6 kHz clipping fixture reports the lost alias rejection.
+
+The saved machine ID, eight control slots, waveform choices and all factory
+preset values are unchanged. Voice state is 84 bytes after removing the FIR
+history; the 16-slot pool remains unchanged. This revision needs a fresh hardware
+control sweep before claiming the required 3.5% CPU target or catalog acceptance.
 
 ## Development
 
@@ -100,8 +106,8 @@ node --test machines/acidline/tests/presets.test.mjs
 The C++ tests cover control extremes, peak bounds, filter attenuation,
 monotonic symmetric soft clipping, waveform spectra, octave-down sub,
 damping, exact stock pitch ramps, independent DSP states, display bounds,
-both header pages, idle/reduced-motion behavior, full-convolution equivalence
-and spectral alias rejection. Preset tests check stock mono mode and unchanged
+both header pages, idle/reduced-motion behavior, quantitative legacy level/brightness comparisons
+and the explicit 1x aliasing tradeoff. Preset tests check stock mono mode and unchanged
 sound parameters. The optional dedicated acid sequencer under `audition/`
 provides its own simple mono gate and glide; it does not emulate stock's
 allocator or envelopes.
@@ -113,26 +119,21 @@ Host/native checks do not establish real-time hardware headroom. Keep firmware
 and stock content outside every checkout; device operations require a separate
 user instruction.
 
-Stable saw, triangle and square settings select their own render loop once per
-block; waveform transitions retain the original morphing path. The soft clip
-computes its magnitude before the polynomial, preserving the original curve
-with fewer signed-rounding corrections. `tests/equivalence.cpp` checks 73
-original audio/state fingerprints across controls, retriggers, pitch ramps and
-live modulation. The 2x oversampling and filter arithmetic remain intact.
+Stable saw, triangle and square settings select their oscillator path once per
+block; waveform transitions retain a one-block crossfade. All filter and output
+coefficients are bounded and ramped. Tests exercise all control corners, rapid
+random automation, retriggers, constant and moving pitch, independent voices,
+finite/headroom limits and the supplied stock pitch phase exactly.
 
-The filter and damping coefficient ramps use Q31 directly, avoiding repeated
-sample scaling inside the oversampled loop. Wavetable interpolation and DC
-removal use the same public fractional multiply with their original rounding.
-These changes add no tables or voice state. Compare against the preceding
-collection revision with:
+For paired host render timing against the frozen preceding design:
 
 ```sh
-python machines/acidline/tools/benchmark.py --cxx /path/to/clang++
+python machines/acidline/tools/benchmark.py --baseline 97b6a9c --cxx /path/to/clang++
 ```
 
-The paired host benchmark verifies matching audio and final voice state across
-207 control/pitch scenarios, then alternates timing order for five repetitions.
-It reports host render times, not device CPU. Measure the optimized revision
-with a full hardware control sweep before catalog publication.
+These host timings compare different filter designs and are not device CPU
+measurements or sound-equivalence claims. `./xy test acidline` runs the frozen
+reference/quantitative sound checks. Device listening and revision-bound CPU
+qualification remain pending.
 
-MIT; see LICENSE. DSP, tables and browser audition are original to this work.
+MIT; see LICENSE and [third-party notices](NOTICE.md).

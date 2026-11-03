@@ -1,0 +1,19 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "6cf46e53d30cb4e3b4aa37b2476bb1c07107a367",
+    "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+    "runs": 1,
+    "block_percent": 16.618601,
+    "midpoint_percent": 6.323339,
+    "combined_percent": 6.321813,
+    "worst_setting": {
+      "control": 0,
+      "label": "Model",
+      "value": 1789569705,
+      "option": "modal"
+    },
+    "report": "https://github.com/kristapskristaps/xy-machines/blob/main/docs/profiling/2026-11-03/weave/report.md",
+    "collection_sha256": "cf7c9d41c55dfc25782181bca4e2d92d0936ad28fcd01e5aa40cc8badc4bf004"
+  }
+}

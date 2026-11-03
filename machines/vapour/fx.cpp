@@ -68,23 +68,42 @@ __attribute__((always_inline)) inline void read_stereo(const State& state,const 
         right=cubic(ar,br,static_cast<opxy::i16>(c>>16),static_cast<opxy::i16>(d>>16),t);
     }
 }
-template<bool High>
-void render_grain(State& __restrict state, Workspace& __restrict workspace, const i32* __restrict ring, unsigned index, i32* left, i32* right) {
-    Grain grain=workspace.grains[index];
-    if (!grain.remaining) return;
-    const unsigned capacity=grain.pre_delay<opxy::block_frames ? opxy::block_frames-grain.pre_delay : 0;
-    const unsigned frames=grain.remaining<capacity ? grain.remaining : capacity;
-    for (unsigned frame=0;frame<frames;++frame) {
-        const unsigned i=grain.pre_delay+frame;
-        const i32 gain=envelope(grain,High);
-        i32 source_l,source_r;read_stereo<High>(state,ring,grain.phase,source_l,source_r);
-        const i32 l=gain15(source_l,gain);
-        const i32 r=gain15(source_r,gain);
-        const i32 pan_l=gain15(l,grain.left_gain),pan_r=gain15(r,grain.right_gain);
+struct GrainBlock {
+    u32 samples[opxy::block_frames];
+    opxy::i16 gains[opxy::block_frames];
+};
+// Typed storage preserves 16-bit loads across the two independent stages.
+// The producer guarantees nonnegative windows; samples and pan gains fit i16.
+__attribute__((noinline)) void mix_grain(const GrainBlock& __restrict block,unsigned frames,
+        opxy::i16 left_gain,opxy::i16 right_gain,i32* __restrict left,i32* __restrict right) {
+    for(unsigned i=0;i<frames;++i) {
+        const u32 packed=block.samples[i];
+        const opxy::i16 source_l=static_cast<opxy::i16>(packed);
+        const opxy::i16 source_r=static_cast<opxy::i16>(packed>>16);
+        const i32 l=source_l*block.gains[i]>>15,r=source_r*block.gains[i]>>15;
+        const i32 pan_l=static_cast<opxy::i16>(l)*left_gain>>15;
+        const i32 pan_r=static_cast<opxy::i16>(r)*right_gain>>15;
         left[i]+=pan_l+r-pan_r;
         right[i]+=pan_r+l-pan_l;
+    }
+}
+template<bool High>
+__attribute__((noinline)) void render_grain(State& __restrict state, Workspace& __restrict workspace,
+        const i32* __restrict ring,unsigned index,i32* left,i32* right) {
+    Grain grain=workspace.grains[index];
+    if(!grain.remaining)return;
+    const unsigned capacity=grain.pre_delay<opxy::block_frames?opxy::block_frames-grain.pre_delay:0;
+    const unsigned frames=grain.remaining<capacity?grain.remaining:capacity;
+    GrainBlock block;
+    for(unsigned i=0;i<frames;++i) {
+        block.gains[i]=static_cast<opxy::i16>(envelope(grain,High));
+        i32 source_l,source_r;read_stereo<High>(state,ring,grain.phase,source_l,source_r);
+        block.samples[i]=static_cast<u32>(static_cast<opxy::u16>(source_l))
+            |(static_cast<u32>(static_cast<opxy::u16>(source_r))<<16);
         grain.phase+=grain.increment;
     }
+    mix_grain(block,frames,static_cast<opxy::i16>(grain.left_gain),static_cast<opxy::i16>(grain.right_gain),
+              left+grain.pre_delay,right+grain.pre_delay);
     grain.remaining-=frames;
     grain.pre_delay=0;
     workspace.grains[index]=grain;
@@ -142,7 +161,7 @@ void process(State& state, opxy::Buffer buffer, opxy::Channel left,
             const i32 old_l=workspace.feedback[i*2], old_r=workspace.feedback[i*2+1];
             state.dc_left+=(old_l-state.dc_left)/256;
             state.dc_right+=(old_r-state.dc_right)/256;
-            const i32 fb=audio_gain15(state.feedback,32767-state.freeze);
+            const i32 fb=static_cast<opxy::i16>(state.feedback)*static_cast<opxy::i16>(32767-state.freeze)>>15;
             i32 input_l=clamp((left[i]>>16)+audio_gain15(old_l-state.dc_left,fb),-32768,32767);
             i32 input_r=clamp((right[i]>>16)+audio_gain15(old_r-state.dc_right,fb),-32768,32767);
             if (state.tail_read < state.tail_count) {

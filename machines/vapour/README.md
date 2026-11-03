@@ -75,12 +75,29 @@ interpolation bit. Audio operands stay below 2^20 in magnitude and gains below
 65536; the generic vendor helper is unchanged. Hardware CPU validation of
 this arithmetic change remains pending.
 
+Grain rendering now separates sample/window generation from stereo mixing.
+A private 384-byte local block holds packed 16-bit stereo samples and signed16
+windows; the outlined mixer then performs all four envelope/pan products using
+native signed16 multiplication for every grain. Reading the actual 16-bit
+storage preserves those operand widths through compiler optimization. The two
+stages have no feedback between them, so PCM, grain progress, effect state and
+persistent scratch remain exact. The main callback and both grain-quality
+producer loops retain hardware loop control. State, workspace size, grain count,
+window shapes and interpolation quality are unchanged.
+
+The extra local storage, memory pass and helper calls increase total stack use;
+the main native frame grows from 640 to 656 bytes, with producer frames of 436 and 456
+bytes. This tradeoff requires hardware timing. The width test checks every
+texture's window/pan domain, 262,144 exact stereo mix frames and the Freeze/gain
+range. The full paired run checks 1,027 scenarios against the preceding `6648593`
+revision, including every control corner, and compares all scratch words.
+
 Compare complete stereo output, state and all scratch words after every block,
 then collect paired host timings:
 
 ```sh
-python machines/vapour/tools/benchmark.py --baseline 75fcda3 --sdk /path/to/open-xy
-python machines/vapour/tools/benchmark.py --baseline 75fcda3 --sdk /path/to/open-xy \
+python machines/vapour/tools/benchmark.py --baseline 6648593 --sdk /path/to/open-xy
+python machines/vapour/tools/benchmark.py --baseline 6648593 --sdk /path/to/open-xy \
   --verify-only --full-grid
 ```
 

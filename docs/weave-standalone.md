@@ -1,8 +1,9 @@
 # Weave standalone models
 
 Five new IDs extract the preferred models from optimized Weave revision
-`957afdbac6f2ef9916991366e24517f1483dc0e4`. Existing Weave and its saved ID remain
-available for older projects. No SDK or device changes are part of this split.
+`957afdbac6f2ef9916991366e24517f1483dc0e4`. The original combined Weave engine is retired from the active inventory;
+its source and saved ID remain in Git history. Existing device installations
+are unaffected by this source removal. No SDK or device changes are part of this split.
 
 | Name | ID | Original animation label | Visual mechanism | Native machine footprint |
 | --- | --- | --- | --- | ---: |
@@ -55,10 +56,10 @@ SDK public checks are also run; their private fixtures remain explicit skips.
 Historical Weave/Chords measurements cannot be reused as catalog CPU records.
 The connected XY remains on its previous audition collection.
 
-Regenerate DSP with `machines/weave/tools/extract_standalones.py`, passing
+Regenerate DSP with `machines/weave_analog/tools/extract_standalones.py`, passing
 `--source` for the clean frozen source worktree, `--sdk` for the pinned SDK and
 `--cxx` for LLVM. Regenerate original artwork with
-`python machines/weave/tools/generate_split_art.py`. The independent fixture
+`python machines/weave_analog/tools/generate_split_art.py`. The independent fixture
 regenerator is `generate_standalone_reference.py`, with the same source/SDK,
 a host `--cxx`, and a fresh external `--out` for all compiled host artifacts.
 Use `collections/weave-standalone.json` to select the five siblings.

@@ -1,6 +1,6 @@
 # Engine inventory
 
-42 source engines: 24 synths, 16 effects, 1 drum machine and 1 sample engine. This is source availability, not a release list or a promise that all engines fit together. The existing Weave remains available for saved projects. HK effects and HK Granular remain excluded from the default builder/test selection.
+41 source engines: 23 synths, 16 effects, 1 drum machine and 1 sample engine. This is source availability, not a release list or a promise that all engines fit together. The combined Weave engine is retired; its source remains in Git history. HK effects and HK Granular remain excluded from the default builder/test selection.
 
 ## Synths
 
@@ -28,7 +28,6 @@
 | Subvista | `subvista` | [machines/subvista](../machines/subvista/README.md) |
 | Tandem | `weave_analog` | [machines/weave_analog](../machines/weave_analog/README.md) |
 | Vader | `vader` | [machines/vader](../machines/vader/README.md) |
-| Weave | `weave` | [machines/weave](../machines/weave/README.md) |
 | Westfold | `westfold` | [machines/westfold](../machines/westfold/README.md) |
 
 ## Drums

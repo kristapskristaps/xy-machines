@@ -44,7 +44,7 @@ jobs:
       - name: Build first-release synth auditions
         working-directory: xy-machines
         run: |
-          for machine in acidline mando matter subvista vader weave westfold; do
+          for machine in acidline mando matter subvista vader weave_analog weave_waves weave_chords weave_grain weave_shaper westfold; do
             python ../open-xy/sdk.py preview --machine "machines/$machine" --out "local/release-previews/$machine" --cxx clang++
           done
       - name: Upload first-release synth auditions

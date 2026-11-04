@@ -1,16 +1,16 @@
 # XY Machines
 
-42 Open-XY machines: **24 synths, 1 drum machine, 16 send effects and 1 sample engine**.
+41 Open-XY machines: **23 synths, 1 drum machine, 16 send effects and 1 sample engine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
-- `machines/<id>/`: Vader, Weave, Matter, Vapour, Halo, Westfold, Acidline,
+- `machines/<id>/`: Vader, Matter, Vapour, Halo, Westfold, Acidline,
   Subvista, Rebound, Mando, X0X, and the five standalone Weave models.
 - `machines/hundekraft/`: all 26 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 42 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 41 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK effects
   and HK Granular remain excluded from hardware test kits.
@@ -29,7 +29,7 @@ is available for review.
 ## First release candidates
 
 The first release group is **Acidline, Halo, Mando, Matter, Rebound, Subvista,
-Vader, Vapour, Weave and Westfold**. Its source selection is
+Vader, Vapour and Westfold**. Its source selection is
 [collections/first-release.json](collections/first-release.json). These are
 release candidates; catalog publication follows final source-bound hardware
 qualification and the required SDK integration.
@@ -179,7 +179,6 @@ and documentation; it does not replace the licences of the machines.
 | subvista | Subvista | synth | [machines/subvista](machines/subvista/README.md) |
 | vader | Vader | synth | [machines/vader](machines/vader/README.md) |
 | vapour | Vapour | effect | [machines/vapour](machines/vapour/README.md) |
-| weave | Weave | synth | [machines/weave](machines/weave/README.md) |
 | weave_analog | Tandem | synth | [machines/weave_analog](machines/weave_analog/README.md) |
 | weave_chords | Choir | synth | [machines/weave_chords](machines/weave_chords/README.md) |
 | weave_grain | Sift | synth | [machines/weave_grain](machines/weave_grain/README.md) |

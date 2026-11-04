@@ -38,11 +38,15 @@ See the [hardware CPU measurements](docs/profiling/2026-11-03/README.md) for
 matched optimization comparisons, combined-source readouts and remaining integration work.
 
 Each machine has its own README, license, controls and audition instructions.
-The seven synth previews are available in the **first-ten-synth-previews**
-artifact of a successful [Collection checks](https://github.com/kristapskristaps/xy-machines/actions/workflows/checks.yml)
-run. Download it and serve one preview folder with the pinned SDK's
-`tools/serve_harness.py --preview <folder>`. Halo and Rebound provide
-local effect auditions in their READMEs; projects save their send settings.
+The [machine gallery](https://kristapskristaps.github.io/xy-machines/) lists the
+current source collection with browser auditions for synths and drums. Choose a
+machine to play its keyboard, explore presets and edit its controls. Effects
+and sample engines link to their guides. The gallery rebuilds from `main` through
+GitHub Actions; it publishes browser modules and artwork, never firmware.
+
+The CI **first-ten-synth-previews** artifact remains available for local audition
+with the pinned SDK's `tools/serve_harness.py --preview <folder>`. Specialist
+effect auditions are documented in their machine READMEs.
 
 Use per-machine release tags such as `halo-v1.0.0`. Multiple machine tags may
 point to one qualified commit, with each catalog entry selecting its own folder.

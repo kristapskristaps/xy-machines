@@ -10,16 +10,31 @@ i32 ease(i32 age) {
     const i32 left=unit-clamp(age,0,settle)*unit/settle;
     return unit-left*left/unit*left/unit;
 }
-void oval(Frame& f,unsigned p,i32 radius,i32 phase,i32 depth) {
-    auto& path=f.paths[p];u32 hash=2166136261u;
+inline void key(Frame& f,unsigned p) {
+    u32 hash=2166136261u;
+    for(const auto& point:f.paths[p].points) {
+        hash=(hash^static_cast<u32>(point.x))*16777619u;
+        hash=(hash^static_cast<u32>(point.y))*16777619u;
+    }
+    f.paths[p].key=hash?hash:1;
+}
+inline void orbit(Frame& f,unsigned p,i32 lobes,i32 phase,i32 depth) {
     for(unsigned i=0;i<32;++i) {
         const i32 angle=static_cast<i32>(i)*3600/32;
-        const i32 r=radius+floor_q10(sine(angle*3+phase)*depth);
-        path.points[i]={floor_q10(sine(angle+900)*r),floor_q10(sine(angle)*r)/2};
-        hash=(hash^static_cast<u32>(path.points[i].x))*16777619u;
-        hash=(hash^static_cast<u32>(path.points[i].y))*16777619u;
+        const i32 radius=51*unit+floor_q10(sine(angle*lobes+phase)*depth);
+        f.paths[p].points[i]={floor_q10(sine(angle+900)*radius),floor_q10(sine(angle)*radius)};
     }
-    path.key=hash?hash:1;
+    key(f,p);
+}
+inline void plane(Frame& f,unsigned p,i32 height,i32 shear,i32 tilt) {
+    const opxy::draw::Point corners[4]={{-56*unit+shear,-height},{56*unit+shear,-height+tilt},
+                            {56*unit-shear,height},{-56*unit-shear,height-tilt}};
+    for(unsigned edge=0;edge<4;++edge)for(unsigned i=0;i<8;++i) {
+        const auto& a=corners[edge];const auto& b=corners[(edge+1)%4];
+        f.paths[p].points[edge*8+i]={a.x+(b.x-a.x)*static_cast<i32>(i)/8,
+                                    a.y+(b.y-a.y)*static_cast<i32>(i)/8};
+    }
+    key(f,p);
 }
 }
 void display_reset(DisplayState& state) {state=DisplayState();}
@@ -48,19 +63,21 @@ void display(DisplayState& s,const opxy::draw::Input& in,Frame& f) {
     for(unsigned i=0;i<4;++i)header_amount(f.header[i],header_capacity,in.slots[i]);
     const i32 a=s.values[0],b=s.values[1],c=s.values[2],d=s.values[3];
     const i32 phase=static_cast<i32>(s.phase);
-    const i32 pulse=unit-ease(s.pulse);
+    const i32 pulse=unit-ease(s.pulse),energy=s.energy;
 
     for(unsigned i=0;i<3;++i) {
-        oval(f,i,(50-static_cast<i32>(i)*10)*unit,phase+static_cast<i32>(i)*420,(2+c/4096)*unit);
-        place(f,i,(218+static_cast<i32>(i)*12)*unit,(119-static_cast<i32>(i)*10)*unit,unit,i==0?5:3,stroke);
-        turn(f,i,rotation(-180+a/160));
+        const i32 step=static_cast<i32>(i);
+        plane(f,i,47*unit,(b/6500-2)*unit,(c/5000-3)*unit);
+        place(f,i,(142+step*98)*unit+(b-16384)/5,123*unit+pulse*3,1350,i==1?5:4,i==0?fill_and_stroke:stroke);
+        turn(f,i,rotation(-80+step*80+a/600+sine(phase)/40));
     }
-    for(unsigned i=0;i<4;++i) {
-        place(f,3+i,(162+static_cast<i32>(i)*35)*unit,(145-static_cast<i32>(i)*16)*unit+pulse*3,unit,i==static_cast<unsigned>(a)/8192u?4:2,stroke);
-        turn(f,3+i,rotation(-180));
+    for(unsigned i=0;i<6;++i) {
+        const i32 step=static_cast<i32>(i);
+        place(f,3+i,(91+step*59)*unit,(123-step*2)*unit,1350,i%2?2:1,fill_and_stroke);
+        turn(f,3+i,rotation(-130+step*80+sine(phase)/30));
     }
-    place(f,7,(170+b/260)*unit,(143-c/450)*unit,unit,5,fill_and_stroke);
-    place(f,8,(184+d/350)*unit,185*unit,unit,4,stroke);
+    place(f,12,(71+d/100)*unit,(66+c/700)*unit,1050+energy/8,5,fill_and_stroke);
+    turn(f,12,rotation(450));
 
     s.initialized=1;s.track=in.track;s.serial=in.note_serial;
 }

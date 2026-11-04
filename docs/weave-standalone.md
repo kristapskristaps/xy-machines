@@ -6,14 +6,14 @@ available for older projects. No SDK or device changes are part of this split.
 
 | Name | ID | Original animation label | Visual mechanism | Native machine footprint |
 | --- | --- | --- | --- | ---: |
-| Tandem | weave_analog | analog | Paired oscillators, coupling rail and mixed output | 31.3 KiB |
-| Atlas | weave_waves | waves | Layered wavetable maps with a moving locator | 80.1 KiB |
-| Choir | weave_chords | chords | Five staggered reeds, voicing and a root key | 407.0 KiB |
-| Sift | weave_grain | grain | Grain sifter and formant ripples | 27.1 KiB |
-| Crease | weave_shaper | shaper | Folding press, jaws and a shaped ribbon | 308.2 KiB |
+| Tandem | weave_analog | analog | Interlocking phase discs and counter-rotating bars | 31.3 KiB |
+| Atlas | weave_waves | waves | Sliding planes, lattice and a moving solid tile | 80.3 KiB |
+| Choir | weave_chords | chords | Fivefold polygon bloom with a rotating centre | 407.1 KiB |
+| Sift | weave_grain | grain | A field of rotating and rearranging tiles | 27.2 KiB |
+| Crease | weave_shaper | shaper | Large folded planes and intersecting chevrons | 308.2 KiB |
 
 Figures are native non-bootable compile footprints, excluding shared SDK
-support. The five-engine selection totals 888.4 KiB with shared SDK support.
+support. A combined selection shares SDK support between machines.
 Installing every sibling is not automatically smaller than full Weave: some
 common tables and adapter code are duplicated. Selecting only the models needed
 is the benefit; Choir alone does not carry Shaper's transfer tables or FM banks.
@@ -31,7 +31,10 @@ voice union is reduced from Weave's 5,468-byte voice: Tandem 336, Atlas 1,344,
 Choir 400, Sift 240 and Crease 120 bytes. DSP namespaces are independent so the
 machines can be linked together.
 
-All five scenes are original retained SVG artwork, with shared native C++ frame
+All five scenes use large abstract geometric compositions rather than literal
+machines. Their default coverage exceeds 320 pixels wide and 120 pixels high
+below the stock header. They mix solid faces and outlines, and cycle smoothly
+across phase wrap. All artwork is original retained SVG, with shared native C++ frame
 computation. Controls ease over 180 ms; note activity drives the mechanisms;
 idle frames settle; initialization/track changes emit no fabricated note;
 reduced motion renders the resting state immediately. Browser visuals were

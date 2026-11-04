@@ -10,18 +10,32 @@ i32 ease(i32 age) {
     const i32 left=unit-clamp(age,0,settle)*unit/settle;
     return unit-left*left/unit*left/unit;
 }
-void ribbon(Frame& f,unsigned p,i32 amplitude,i32 cycles,i32 phase,i32 skew=0) {
-    auto& path=f.paths[p];
-    for(unsigned i=0;i<16;++i) {
-        const i32 x=-54*unit+static_cast<i32>(i)*108*unit/15;
-        const i32 y=floor_q10(sine(static_cast<i32>(i)*3600*cycles/15+phase)*amplitude)+x*skew/32768;
-        path.points[i]={x,y-768};path.points[31-i]={x,y+768};
-    }
+inline void key(Frame& f,unsigned p) {
     u32 hash=2166136261u;
-    for(const auto& point:path.points)hash=((hash^static_cast<u32>(point.x))*16777619u^static_cast<u32>(point.y))*16777619u;
-    path.key=hash?hash:1;
+    for(const auto& point:f.paths[p].points) {
+        hash=(hash^static_cast<u32>(point.x))*16777619u;
+        hash=(hash^static_cast<u32>(point.y))*16777619u;
+    }
+    f.paths[p].key=hash?hash:1;
 }
-
+inline void orbit(Frame& f,unsigned p,i32 lobes,i32 phase,i32 depth) {
+    for(unsigned i=0;i<32;++i) {
+        const i32 angle=static_cast<i32>(i)*3600/32;
+        const i32 radius=51*unit+floor_q10(sine(angle*lobes+phase)*depth);
+        f.paths[p].points[i]={floor_q10(sine(angle+900)*radius),floor_q10(sine(angle)*radius)};
+    }
+    key(f,p);
+}
+inline void plane(Frame& f,unsigned p,i32 height,i32 shear,i32 tilt) {
+    const opxy::draw::Point corners[4]={{-56*unit+shear,-height},{56*unit+shear,-height+tilt},
+                            {56*unit-shear,height},{-56*unit-shear,height-tilt}};
+    for(unsigned edge=0;edge<4;++edge)for(unsigned i=0;i<8;++i) {
+        const auto& a=corners[edge];const auto& b=corners[(edge+1)%4];
+        f.paths[p].points[edge*8+i]={a.x+(b.x-a.x)*static_cast<i32>(i)/8,
+                                    a.y+(b.y-a.y)*static_cast<i32>(i)/8};
+    }
+    key(f,p);
+}
 }
 void display_reset(DisplayState& state) {state=DisplayState();}
 void display(DisplayState& s,const opxy::draw::Input& in,Frame& f) {
@@ -49,18 +63,20 @@ void display(DisplayState& s,const opxy::draw::Input& in,Frame& f) {
     for(unsigned i=0;i<4;++i)header_amount(f.header[i],header_capacity,in.slots[i]);
     const i32 a=s.values[0],b=s.values[1],c=s.values[2],d=s.values[3];
     const i32 phase=static_cast<i32>(s.phase);
-    const i32 pulse=unit-ease(s.pulse);
+    const i32 pulse=unit-ease(s.pulse),energy=s.energy;
 
-    ribbon(f,0,11*unit,1,phase);
-    ribbon(f,1,(6+b/2400)*unit,1+a/8192,phase,c/4-4096);
-    ribbon(f,2,(7+c/2800)*unit,1+a/8192,phase);
-    place(f,0,105*unit,132*unit,unit,3,stroke);
-    place(f,1,240*unit,132*unit,unit,5,stroke);
-    place(f,2,375*unit,132*unit,unit,4,stroke);
-    place(f,3,240*unit,(91+b/4096)*unit+pulse*9,unit,4,fill_and_stroke);
-    place(f,4,240*unit,(173-b/4096)*unit-pulse*9,unit,4,fill_and_stroke);
-    place(f,5,240*unit,62*unit,unit,4,stroke);turn(f,5,rotation(phase+a/30));
-    place(f,6,(339+d/450)*unit,183*unit,unit,5,fill_and_stroke);
+    const i32 height=(42+b/5000)*unit;
+    for(unsigned p=0;p<3;++p) {
+        const i32 step=static_cast<i32>(p);
+        plane(f,p,height,(c/7000-2)*unit,(a/3200-5)*unit);
+        place(f,p,(112+step*128)*unit,123*unit,1380+pulse/18,p==1?5:(p==0?2:4),p==1?stroke:fill_and_stroke);
+        turn(f,p,rotation((step-1)*(40+c/400)+sine(phase)*energy/(unit*30)));
+    }
+    for(unsigned i=0;i<8;++i) {
+        const i32 at=static_cast<i32>(i);
+        place(f,12+i,(43+at*56)*unit,123*unit,1300,(i==static_cast<unsigned>(d)/4096u)?5:3,stroke);
+        turn(f,12+i,rotation(i%2?120+a/180:-120-a/180));
+    }
 
     s.initialized=1;s.track=in.track;s.serial=in.note_serial;
 }

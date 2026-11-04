@@ -1,30 +1,28 @@
 <g id="weave_waves_panel">
-<path id="weave_waves_node_0" d="M-54 -1 L-46.8 -1 L-39.6 -1 L-32.4 -1 L-25.2 -1 L-18 -1 L-10.8 -1 L-3.6 -1 L3.6 -1 L10.8 -1 L18 -1 L25.2 -1 L32.4 -1 L39.6 -1 L46.8 -1 L54 -1 L54 1 L46.8 1 L39.6 1 L32.4 1 L25.2 1 L18 1 L10.8 1 L3.6 1 L-3.6 1 L-10.8 1 L-18 1 L-25.2 1 L-32.4 1 L-39.6 1 L-46.8 1 L-54 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8"/>
-<path id="weave_waves_node_1" d="M-54 -1 L-46.8 -1 L-39.6 -1 L-32.4 -1 L-25.2 -1 L-18 -1 L-10.8 -1 L-3.6 -1 L3.6 -1 L10.8 -1 L18 -1 L25.2 -1 L32.4 -1 L39.6 -1 L46.8 -1 L54 -1 L54 1 L46.8 1 L39.6 1 L32.4 1 L25.2 1 L18 1 L10.8 1 L3.6 1 L-3.6 1 L-10.8 1 L-18 1 L-25.2 1 L-32.4 1 L-39.6 1 L-46.8 1 L-54 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8"/>
-<path id="weave_waves_node_2" d="M-54 -1 L-46.8 -1 L-39.6 -1 L-32.4 -1 L-25.2 -1 L-18 -1 L-10.8 -1 L-3.6 -1 L3.6 -1 L10.8 -1 L18 -1 L25.2 -1 L32.4 -1 L39.6 -1 L46.8 -1 L54 -1 L54 1 L46.8 1 L39.6 1 L32.4 1 L25.2 1 L18 1 L10.8 1 L3.6 1 L-3.6 1 L-10.8 1 L-18 1 L-25.2 1 L-32.4 1 L-39.6 1 L-46.8 1 L-54 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8"/>
-<path id="weave_waves_node_3" d="M-50 -25 L50 -25 L50 25 L-50 25 Z M-42 17 L-25 17" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_4" d="M-50 -25 L50 -25 L50 25 L-50 25 Z M-42 17 L-25 17" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_5" d="M-50 -25 L50 -25 L50 25 L-50 25 Z M-42 17 L-25 17" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_6" d="M-50 -25 L50 -25 L50 25 L-50 25 Z M-42 17 L-25 17" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_7" d="M-4 0 L0 -4 L4 0 L0 4 Z" fill="#ec4237" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_8" d="M-4 -3 L4 -3 L4 3 L-4 3 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path d="M112 166 L112 175 L365 175 L365 166 M181 185 L306 185" fill="none" stroke="#505050" stroke-width=".7" stroke-linejoin="round" stroke-linecap="round"/>
-<path d="M98 151 L111 151 M98 132 L111 132 M98 113 L111 113" fill="none" stroke="#505050" stroke-width=".7" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_9" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_10" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_11" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_12" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_13" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_14" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_15" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_16" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_17" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_18" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_19" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_20" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_21" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_22" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_waves_node_23" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_3" d="M-35 -38 L35 -38 L35 38 L-35 38 Z" fill="#242424" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_4" d="M-35 -38 L35 -38 L35 38 L-35 38 Z" fill="#242424" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_5" d="M-35 -38 L35 -38 L35 38 L-35 38 Z" fill="#242424" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_6" d="M-35 -38 L35 -38 L35 38 L-35 38 Z" fill="#242424" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_7" d="M-35 -38 L35 -38 L35 38 L-35 38 Z" fill="#242424" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_8" d="M-35 -38 L35 -38 L35 38 L-35 38 Z" fill="#242424" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_9" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_10" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_11" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_0" d="M-56 -47 L-42 -47 L-28 -47 L-14 -47 L0 -47 L14 -47 L28 -47 L42 -47 L56 -47 L56 -35.25 L56 -23.5 L56 -11.75 L56 0 L56 11.75 L56 23.5 L56 35.25 L56 47 L42 47 L28 47 L14 47 L0 47 L-14 47 L-28 47 L-42 47 L-56 47 L-56 35.25 L-56 23.5 L-56 11.75 L-56 0 L-56 -11.75 L-56 -23.5 L-56 -35.25 Z" fill="none" stroke="#c6c6c6" stroke-width="1.6"/>
+<path id="weave_waves_node_1" d="M-56 -47 L-42 -47 L-28 -47 L-14 -47 L0 -47 L14 -47 L28 -47 L42 -47 L56 -47 L56 -35.25 L56 -23.5 L56 -11.75 L56 0 L56 11.75 L56 23.5 L56 35.25 L56 47 L42 47 L28 47 L14 47 L0 47 L-14 47 L-28 47 L-42 47 L-56 47 L-56 35.25 L-56 23.5 L-56 11.75 L-56 0 L-56 -11.75 L-56 -23.5 L-56 -35.25 Z" fill="none" stroke="#c6c6c6" stroke-width="1.6"/>
+<path id="weave_waves_node_2" d="M-56 -47 L-42 -47 L-28 -47 L-14 -47 L0 -47 L14 -47 L28 -47 L42 -47 L56 -47 L56 -35.25 L56 -23.5 L56 -11.75 L56 0 L56 11.75 L56 23.5 L56 35.25 L56 47 L42 47 L28 47 L14 47 L0 47 L-14 47 L-28 47 L-42 47 L-56 47 L-56 35.25 L-56 23.5 L-56 11.75 L-56 0 L-56 -11.75 L-56 -23.5 L-56 -35.25 Z" fill="none" stroke="#c6c6c6" stroke-width="1.6"/>
+<path id="weave_waves_node_12" d="M-10 -10 L10 -10 L10 10 L-10 10 Z" fill="#ec4237" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_13" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_14" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_15" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_16" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_17" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_18" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_19" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_20" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_21" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_22" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_waves_node_23" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
 <circle id="weave_waves_palette_0" cx="640" cy="0" r="1" fill="#080808" stroke="#080808" stroke-width="1"/>
 <circle id="weave_waves_palette_1" cx="640" cy="0" r="1" fill="#242424" stroke="#242424" stroke-width="1"/>
 <circle id="weave_waves_palette_2" cx="640" cy="0" r="1" fill="#505050" stroke="#505050" stroke-width="1"/>
@@ -33,5 +31,4 @@
 <circle id="weave_waves_palette_5" cx="640" cy="0" r="1" fill="#ec4237" stroke="#ec4237" stroke-width="1"/>
 <circle id="weave_waves_palette_6" cx="640" cy="0" r="1" fill="#edb6b0" stroke="#edb6b0" stroke-width="1"/>
 <circle id="weave_waves_palette_7" cx="640" cy="0" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
-<text x="26" y="206" fill="#808080" font-family="UniversNextPro-Light" font-size="8px">ATLAS</text>
 </g>

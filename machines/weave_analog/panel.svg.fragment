@@ -1,31 +1,28 @@
 <g id="weave_analog_panel">
-<path id="weave_analog_node_0" d="M-54 -1 L-46.8 -1 L-39.6 -1 L-32.4 -1 L-25.2 -1 L-18 -1 L-10.8 -1 L-3.6 -1 L3.6 -1 L10.8 -1 L18 -1 L25.2 -1 L32.4 -1 L39.6 -1 L46.8 -1 L54 -1 L54 1 L46.8 1 L39.6 1 L32.4 1 L25.2 1 L18 1 L10.8 1 L3.6 1 L-3.6 1 L-10.8 1 L-18 1 L-25.2 1 L-32.4 1 L-39.6 1 L-46.8 1 L-54 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8"/>
-<path id="weave_analog_node_1" d="M-54 -1 L-46.8 -1 L-39.6 -1 L-32.4 -1 L-25.2 -1 L-18 -1 L-10.8 -1 L-3.6 -1 L3.6 -1 L10.8 -1 L18 -1 L25.2 -1 L32.4 -1 L39.6 -1 L46.8 -1 L54 -1 L54 1 L46.8 1 L39.6 1 L32.4 1 L25.2 1 L18 1 L10.8 1 L3.6 1 L-3.6 1 L-10.8 1 L-18 1 L-25.2 1 L-32.4 1 L-39.6 1 L-46.8 1 L-54 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8"/>
-<path id="weave_analog_node_2" d="M-54 -1 L-46.8 -1 L-39.6 -1 L-32.4 -1 L-25.2 -1 L-18 -1 L-10.8 -1 L-3.6 -1 L3.6 -1 L10.8 -1 L18 -1 L25.2 -1 L32.4 -1 L39.6 -1 L46.8 -1 L54 -1 L54 1 L46.8 1 L39.6 1 L32.4 1 L25.2 1 L18 1 L10.8 1 L3.6 1 L-3.6 1 L-10.8 1 L-18 1 L-25.2 1 L-32.4 1 L-39.6 1 L-46.8 1 L-54 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8"/>
-<path d="M66 99 L66 152 L198 152 L198 99 Z M282 99 L282 152 L414 152 L414 99 Z" fill="none" stroke="#505050" stroke-width=".7" stroke-linejoin="round" stroke-linecap="round"/>
-<path d="M198 125 L223 125 L223 163 M282 125 L257 125 L257 163 M190 183 L66 183 M290 183 L414 183" fill="none" stroke="#505050" stroke-width=".7" stroke-linejoin="round" stroke-linecap="round"/>
-<path d="M132 93 L132 80 M348 93 L348 80 M181 75 L299 75" fill="none" stroke="#808080" stroke-width=".7" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_3" d="M-14 0 A14 14 0 1 0 14 0 A14 14 0 1 0 -14 0 M-10 0 L10 0 M0 -10 L0 10" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_4" d="M-14 0 A14 14 0 1 0 14 0 A14 14 0 1 0 -14 0 M-10 0 L10 0 M0 -10 L0 10" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_5" d="M-3 -5 L3 -5 L3 5 L-3 5 Z" fill="#ec4237" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_6" d="M-5 -5 L5 -5 L5 5 L-5 5 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_7" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_8" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_9" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_10" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_11" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_12" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_13" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_14" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_15" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_16" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_17" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_18" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_19" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_20" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_21" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_22" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
-<path id="weave_analog_node_23" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="none" stroke="#c6c6c6" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_3" d="M-55 0 A55 55 0 1 0 55 0 A55 55 0 1 0 -55 0 Z" fill="#242424" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_4" d="M-55 0 A55 55 0 1 0 55 0 A55 55 0 1 0 -55 0 Z" fill="#505050" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_5" d="M-1 -50 L1 -50 L1 50 L-1 50 Z" fill="#c6c6c6" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_6" d="M-1 -50 L1 -50 L1 50 L-1 50 Z" fill="#c6c6c6" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_7" d="M-1 -50 L1 -50 L1 50 L-1 50 Z" fill="#c6c6c6" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_8" d="M-1 -50 L1 -50 L1 50 L-1 50 Z" fill="#c6c6c6" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_9" d="M-1 -50 L1 -50 L1 50 L-1 50 Z" fill="#c6c6c6" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_10" d="M-1 -50 L1 -50 L1 50 L-1 50 Z" fill="#c6c6c6" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_11" d="M-1 -50 L1 -50 L1 50 L-1 50 Z" fill="#c6c6c6" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_0" d="M-56 -47 L-42 -47 L-28 -47 L-14 -47 L0 -47 L14 -47 L28 -47 L42 -47 L56 -47 L56 -35.25 L56 -23.5 L56 -11.75 L56 0 L56 11.75 L56 23.5 L56 35.25 L56 47 L42 47 L28 47 L14 47 L0 47 L-14 47 L-28 47 L-42 47 L-56 47 L-56 35.25 L-56 23.5 L-56 11.75 L-56 0 L-56 -11.75 L-56 -23.5 L-56 -35.25 Z" fill="none" stroke="#c6c6c6" stroke-width="1.6"/>
+<path id="weave_analog_node_1" d="M-56 -47 L-42 -47 L-28 -47 L-14 -47 L0 -47 L14 -47 L28 -47 L42 -47 L56 -47 L56 -35.25 L56 -23.5 L56 -11.75 L56 0 L56 11.75 L56 23.5 L56 35.25 L56 47 L42 47 L28 47 L14 47 L0 47 L-14 47 L-28 47 L-42 47 L-56 47 L-56 35.25 L-56 23.5 L-56 11.75 L-56 0 L-56 -11.75 L-56 -23.5 L-56 -35.25 Z" fill="none" stroke="#c6c6c6" stroke-width="1.6"/>
+<path id="weave_analog_node_2" d="M-56 -47 L-42 -47 L-28 -47 L-14 -47 L0 -47 L14 -47 L28 -47 L42 -47 L56 -47 L56 -35.25 L56 -23.5 L56 -11.75 L56 0 L56 11.75 L56 23.5 L56 35.25 L56 47 L42 47 L28 47 L14 47 L0 47 L-14 47 L-28 47 L-42 47 L-56 47 L-56 35.25 L-56 23.5 L-56 11.75 L-56 0 L-56 -11.75 L-56 -23.5 L-56 -35.25 Z" fill="none" stroke="#c6c6c6" stroke-width="1.6"/>
+<path id="weave_analog_node_12" d="M-1 -50 L1 -50 L1 50 L-1 50 Z" fill="#c6c6c6" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_13" d="M-18 -23 L23 0 L-18 23 Z" fill="#ec4237" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_14" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_15" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_16" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_17" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_18" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_19" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_20" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_21" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_22" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+<path id="weave_analog_node_23" d="M-1 -1 L1 -1 L1 1 L-1 1 Z" fill="#080808" stroke="#c6c6c6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
 <circle id="weave_analog_palette_0" cx="640" cy="0" r="1" fill="#080808" stroke="#080808" stroke-width="1"/>
 <circle id="weave_analog_palette_1" cx="640" cy="0" r="1" fill="#242424" stroke="#242424" stroke-width="1"/>
 <circle id="weave_analog_palette_2" cx="640" cy="0" r="1" fill="#505050" stroke="#505050" stroke-width="1"/>
@@ -34,5 +31,4 @@
 <circle id="weave_analog_palette_5" cx="640" cy="0" r="1" fill="#ec4237" stroke="#ec4237" stroke-width="1"/>
 <circle id="weave_analog_palette_6" cx="640" cy="0" r="1" fill="#edb6b0" stroke="#edb6b0" stroke-width="1"/>
 <circle id="weave_analog_palette_7" cx="640" cy="0" r="1" fill="#eeeeee" stroke="#eeeeee" stroke-width="1"/>
-<text x="26" y="206" fill="#808080" font-family="UniversNextPro-Light" font-size="8px">TANDEM</text>
 </g>

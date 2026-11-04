@@ -124,8 +124,19 @@ measured device CPU percentage or qualification below the recommended 3.5%.
 
 Run [QA.md](QA.md) on the device before release and follow the SDK's
 [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
-Hardware listening, controls, polyphony and revision-bound CPU measurement remain
-pending. Keep firmware, native objects, builds, captures and generated audio
-outside every checkout. Local builds do not authorize installation or diagnostics.
+On 2026-11-04, revision `72bd776d1868337638221126a3c432e5c87c1419`
+booted in a verified resident lab collection and completed hardware CPU sweeps.
+The whole-voice result was approximately **8.0%**, above the recommended 3.5%.
+The stock midpoint workload was heaviest; adding the octave layer with Edge
+also reached about 7.8%. The table interpolation and octave path need to be
+lighter to meet the 3.5% target. Graphics are excluded from this measurement.
+
+The Bitflip lab collection was left installed at the user's request; the
+original eight-machine collection is preserved separately. The combined
+nine-machine collection exceeded the resident memory budget, so this test
+does not establish that Bitflip fits alongside all eight existing machines.
+Hardware listening, controls, animation and polyphony acceptance remain pending.
+Keep firmware, native objects, builds, captures and generated audio outside every
+checkout. Local builds do not authorize installation or diagnostics.
 
 MIT licensed; see [LICENSE](LICENSE).

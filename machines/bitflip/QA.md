@@ -1,6 +1,13 @@
 # Bitflip hardware acceptance
 
-Status: pending. Local checks and demonstrations do not complete this checklist.
+Status: partially tested on 2026-11-04 at source revision
+`72bd776d1868337638221126a3c432e5c87c1419`. Resident lab collection boot and
+full active payload readback were verified. CPU sweeps completed at approximately
+8.0% whole-voice cost, above the recommended 3.5%; the midpoint workload was
+heaviest and the Edge octave layer was also expensive. CPU optimization and
+physical listening/display acceptance remain pending. The user requested that
+Bitflip remain installed for audition; the original eight-machine bank is
+preserved separately. Local checks and demonstrations do not complete this checklist.
 Record source commit, SDK commit, exact package/firmware hash, date and observations.
 Use the repository's hardware-testing guide, a saved/stopped stock-only LAB BOOT
 project, the last verified layout and an authorized installation/reboot. Keep
@@ -33,5 +40,6 @@ user presets or save diagnostic settings.
       off and playback stopped. Inspect the heaviest model/setting and combined
       setting; aim for at most 3.5%, optimize heavier paths, and use extra captures
       for random/noise settings or to confirm a reported silent setting.
-- [ ] Restart without saving diagnostic settings, verify normal listening again
-      and restore the user's verified everyday collection/layout before normal work.
+- [ ] Restart without saving diagnostic settings and verify normal listening again.
+      Restore the user's verified everyday collection/layout when requested;
+      the Bitflip lab bank omits the other custom machines needed by their projects.

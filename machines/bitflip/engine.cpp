@@ -63,6 +63,60 @@ inline void noise_step(Voice& voice) {
     voice.long_noise = (voice.long_noise >> 1) | (((voice.long_noise ^ (voice.long_noise >> 1)) & 1u) << 14);
     voice.short_noise = (voice.short_noise >> 1) | (((voice.short_noise ^ (voice.short_noise >> 1)) & 1u) << 6);
 }
+
+struct WaveFrame {
+    const opxy::i16 *a, *b, *c, *d;
+    i32 fraction, rich;
+    void set(u32 family, i32 color, const Band& limit) {
+        const u32 frame = static_cast<u32>(color) >> 12;
+        a = tables::waves[family][frame][limit.index];
+        b = tables::waves[family][frame + 1][limit.index];
+        c = tables::waves[family][frame][limit.index < 4 ? limit.index + 1 : 4];
+        d = tables::waves[family][frame + 1][limit.index < 4 ? limit.index + 1 : 4];
+        fraction = (color & 4095) * 8; rich = limit.rich;
+    }
+    template<bool Blend> i32 sample(u32 phase) const {
+        const u32 at = phase >> 24;
+        const i32 position = static_cast<i32>((phase >> 9) & 32767u);
+        const i32 first = mix(mix(a[at], a[at + 1], position),
+                              mix(b[at], b[at + 1], position), fraction);
+        return Blend ? mix(mix(mix(c[at], c[at + 1], position),
+                               mix(d[at], d[at + 1], position), fraction), first, rich) : first;
+    }
+};
+
+// Separate bounded loops keep model dispatch and fixed table addresses outside
+// the sample loop. Every interpolation retains the original rounding order.
+template<unsigned Layer, bool Blend, bool Smooth>
+void table_block(Voice& voice, const u32* increments, i32* samples,
+                 u32 family, const Band& limit, i32 color_step, i32 edge_step) {
+    u32 phase = voice.phase, phase2 = voice.phase2;
+    i32 color = voice.color, edge = voice.edge;
+    WaveFrame frame; frame.set(family, color, limit);
+    for (unsigned i = 0; i < opxy::block_frames; ++i) {
+        if (Smooth) { color += color_step; frame.set(family, color, limit); }
+        edge += edge_step;
+        i32 sample = frame.sample<Blend>(phase);
+        if (Layer == 2) {
+            sample = (sample + frame.sample<Blend>(phase2)) / 2;
+            phase2 += transpose(increments[i], 4096u + (static_cast<u32>(edge) * 84u >> 15));
+        } else if (Layer == 1) {
+            sample = mix(sample, frame.sample<Blend>(phase * 2u), edge / 2);
+        }
+        samples[i] = sample;
+        phase += increments[i];
+    }
+    voice.phase = phase; voice.phase2 = phase2;
+}
+
+template<bool Blend, bool Smooth>
+void table_dispatch(Voice& voice, const u32* increments, i32* samples, u32 model,
+                    u32 family, const Band& limit, i32 color_step, i32 edge_step, i32 next_edge) {
+    if (model == 2) table_block<2, Blend, Smooth>(voice, increments, samples, family, limit, color_step, edge_step);
+    else if (voice.edge || next_edge) table_block<1, Blend, Smooth>(voice, increments, samples, family, limit, color_step, edge_step);
+    else table_block<0, Blend, Smooth>(voice, increments, samples, family, limit, color_step, edge_step);
+}
+
 }
 
 inline void start(Voice& voice, Shared&, u32 owner) {
@@ -117,38 +171,76 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         : static_cast<i32>((0x20000000u - sideband) / 15360u);
     const i32 ring_guard = sideband <= 0x40000000u ? 32768 : sideband >= 0x60000000u ? 0
         : static_cast<i32>((0x60000000u - sideband) >> 14);
-    for (unsigned i = 0; i < opxy::block_frames; ++i) {
-        voice.color += color_step; voice.edge += edge_step;
-        const i32 sweep = 4096 + ((voice.sweep_ratio - 4096) * voice.sweep_envelope >> 15);
-        const u32 ratio = static_cast<u32>(sweep) * tables::intervals[patterns[arp][voice.arp_step]] >> 12;
-        const u32 increment = transpose(pitch[i] > 0x60000000u ? 0x60000000u : pitch[i], ratio);
-        const u32 harmonic = 1u + ((static_cast<u32>(voice.color) * 7u + 16384u) >> 15);
-        i32 sample;
-        if (model == 6) {
-            const u32 noise_increment = transpose(increment, 1024u + ((static_cast<u32>(voice.color) * 63u) >> 5));
-            const u32 before = voice.noise_phase; voice.noise_phase += noise_increment;
-            if (voice.noise_phase < before) noise_step(voice);
-            sample = mix((voice.long_noise & 1u) ? 23000 : -23000,
-                         (voice.short_noise & 1u) ? 23000 : -23000, voice.edge);
-        } else if (model == 4) {
-            const i32 depth = voice.edge * fm_guard >> 15;
-            const u32 offset = static_cast<u32>(read(tables::sine, voice.mod_phase) * depth) << 2;
-            sample = read(tables::sine, voice.phase + offset) * 3 / 4;
-            voice.mod_phase += transpose(increment, harmonic * 4096u);
-        } else if (model == 5) {
-            const i32 carrier = read(tables::sine, voice.phase);
-            const i32 ring = carrier * read(tables::sine, voice.mod_phase) >> 15;
-            sample = mix(carrier, ring, voice.edge * ring_guard >> 15) * 3 / 4;
-            voice.mod_phase += transpose(increment, harmonic * 4096u);
-        } else {
-            sample = wave(family, voice.color, limit, voice.phase);
-            if (model == 2) {
-                sample = (sample + wave(0, voice.color, limit, voice.phase2)) / 2;
-                voice.phase2 += transpose(increment, 4096u + (static_cast<u32>(voice.edge) * 84u >> 15));
-            } else if (voice.edge) {
-                sample = mix(sample, wave(family, voice.color, limit, voice.phase * 2u), voice.edge / 2);
+    u32 increments[opxy::block_frames];
+    i32 samples[opxy::block_frames];
+    if (!arp && !sweep_step) {
+        const u32 ratio = static_cast<u32>(sweep_now);
+        for (unsigned i = 0; i < opxy::block_frames; ++i) {
+            const u32 value = pitch[i] > 0x60000000u ? 0x60000000u : pitch[i];
+            increments[i] = ratio == 4096u ? value : transpose(value, ratio);
+        }
+    } else {
+        u32 arp_phase = voice.arp_phase, arp_step = voice.arp_step;
+        i32 envelope = voice.sweep_envelope;
+        for (unsigned i = 0; i < opxy::block_frames; ++i) {
+            const i32 sweep = 4096 + ((voice.sweep_ratio - 4096) * envelope >> 15);
+            const u32 ratio = static_cast<u32>(sweep) * tables::intervals[patterns[arp][arp_step]] >> 12;
+            increments[i] = transpose(pitch[i] > 0x60000000u ? 0x60000000u : pitch[i], ratio);
+            envelope += sweep_step;
+            if (arp) {
+                const u32 before = arp_phase; arp_phase += arp_rate;
+                if (arp_phase < before) arp_step = (arp_step + 1) & 3u;
             }
         }
+        voice.arp_phase = arp_phase; voice.arp_step = arp_step;
+    }
+    if (model < 4 || model == 7) {
+        const bool blend = limit.index != 4 && limit.rich != 32768;
+        if (color_step) {
+            if (blend) table_dispatch<true, true>(voice, increments, samples, model, family, limit, color_step, edge_step, next_edge);
+            else table_dispatch<false, true>(voice, increments, samples, model, family, limit, color_step, edge_step, next_edge);
+        } else {
+            if (blend) table_dispatch<true, false>(voice, increments, samples, model, family, limit, color_step, edge_step, next_edge);
+            else table_dispatch<false, false>(voice, increments, samples, model, family, limit, color_step, edge_step, next_edge);
+        }
+    } else {
+        i32 color = voice.color, edge = voice.edge;
+        u32 phase = voice.phase, mod_phase = voice.mod_phase;
+        if (model == 6) {
+            for (unsigned i = 0; i < opxy::block_frames; ++i) {
+                color += color_step; edge += edge_step;
+                const u32 increment = transpose(increments[i], 1024u + ((static_cast<u32>(color) * 63u) >> 5));
+                const u32 before = voice.noise_phase; voice.noise_phase += increment;
+                if (voice.noise_phase < before) noise_step(voice);
+                samples[i] = mix((voice.long_noise & 1u) ? 23000 : -23000,
+                                 (voice.short_noise & 1u) ? 23000 : -23000, edge);
+                phase += increments[i];
+            }
+        } else if (model == 4) {
+            for (unsigned i = 0; i < opxy::block_frames; ++i) {
+                color += color_step; edge += edge_step;
+                const u32 harmonic = 1u + ((static_cast<u32>(color) * 7u + 16384u) >> 15);
+                const i32 depth = edge * fm_guard >> 15;
+                const u32 offset = static_cast<u32>(read(tables::sine, mod_phase) * depth) << 2;
+                samples[i] = read(tables::sine, phase + offset) * 3 / 4;
+                mod_phase += transpose(increments[i], harmonic * 4096u);
+                phase += increments[i];
+            }
+        } else {
+            for (unsigned i = 0; i < opxy::block_frames; ++i) {
+                color += color_step; edge += edge_step;
+                const u32 harmonic = 1u + ((static_cast<u32>(color) * 7u + 16384u) >> 15);
+                const i32 carrier = read(tables::sine, phase);
+                const i32 ring = carrier * read(tables::sine, mod_phase) >> 15;
+                samples[i] = mix(carrier, ring, edge * ring_guard >> 15) * 3 / 4;
+                mod_phase += transpose(increments[i], harmonic * 4096u);
+                phase += increments[i];
+            }
+        }
+        voice.phase = phase; voice.mod_phase = mod_phase;
+    }
+    for (unsigned i = 0; i < opxy::block_frames; ++i) {
+        i32 sample = samples[i];
         if (voice.model_fade < 32768) {
             sample = mix(voice.model_from, sample, voice.model_fade);
             voice.model_fade += 512;
@@ -165,12 +257,7 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         voice.dc_input = sample; voice.dc_output = clamp(blocked, -32768, 32767);
         output[i] = (voice.dc_output * voice.fade >> 15) * 8192;
         if (voice.fade < 32768) voice.fade += 1024;
-        voice.phase += increment;
-        voice.sweep_envelope += sweep_step;
-        if (arp) {
-            const u32 before = voice.arp_phase; voice.arp_phase += arp_rate;
-            if (voice.arp_phase < before) voice.arp_step = (voice.arp_step + 1) & 3u;
-        }
+
     }
     voice.color = next_color; voice.edge = next_edge; voice.sweep_envelope = next_sweep;
 }

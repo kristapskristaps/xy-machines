@@ -3,13 +3,40 @@
 
 namespace mando {
 namespace {
+// Each section keeps its coefficients and recurrence in a smaller register set.
+__attribute__((noinline)) void first_section(Voice& voice, opxy::Output __restrict output,
+                                             const dsp::Filter& filter) {
+    using namespace dsp;
+    i32 x1=voice.history[0],x2=voice.history[1],y1=voice.history[2],y2=voice.history[3];
+    const i32 b=filter.b0[0],a=filter.a1[0],c=filter.a2[0];
+    for(unsigned i=0;i<opxy::block_frames;++i) {
+        const i32 x=saturate(output[i])*1024;
+        const i32 y=clamp(multiply(x+2*x1+x2,b)-multiply(y1,a)*2-multiply(y2,c),-67108864,67108864);
+        x2=x1;x1=x;y2=y1;y1=y;output[i]=y;
+    }
+    voice.history[0]=x1;voice.history[1]=x2;voice.history[2]=y1;voice.history[3]=y2;
+}
+__attribute__((noinline)) void second_section(Voice& voice, opxy::Output __restrict output,
+                                              const dsp::Filter& filter,i32 x1,i32 x2) {
+    using namespace dsp;
+    i32 y1=voice.history[4],y2=voice.history[5];
+    const i32 b=filter.b0[1],a=filter.a1[1],c=filter.a2[1];
+    for(unsigned i=0;i<opxy::block_frames;++i) {
+        const i32 x=output[i];
+        const i32 y=clamp(multiply(x+2*x1+x2,b)-multiply(y1,a)*2-multiply(y2,c),-67108864,67108864);
+        x2=x1;x1=x;y2=y1;y1=y;output[i]=y;
+    }
+    voice.history[4]=y1;voice.history[5]=y2;
+}
 __attribute__((noinline)) void filter_audio(Voice &voice,
                                             opxy::Output __restrict output,
                                             const dsp::Filter &filter) {
     using namespace dsp;
-    const Filter coefficients = filter;
+    const i32 previous_first=voice.history[2], previous_second=voice.history[3];
+    first_section(voice,output,filter);
+    second_section(voice,output,filter,previous_first,previous_second);
     for (unsigned i = 0; i < opxy::block_frames; ++i) {
-        const i32 filtered = coefficients.step(voice, output[i]);
+        const i32 filtered = output_knee(output[i] >> 10);
         const i32 charge = voice.dc_output * 32759 + voice.dc_residue;
         const i32 dc = filtered - voice.dc_input + (charge >> 15);
         voice.dc_residue = static_cast<i32>(static_cast<u32>(charge) & 32767u);

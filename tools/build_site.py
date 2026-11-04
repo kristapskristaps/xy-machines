@@ -106,7 +106,9 @@ def build(sdk, out, cxx):
     machines = inventory()
     descriptions = json.loads((ROOT / 'site/descriptions.json').read_text())
     require(set(descriptions) == set(machines), 'Public descriptions must match the current inventory.')
-    cards, records = [], []
+    origins = json.loads((ROOT / 'site/origins.json').read_text())
+    require(set(origins) <= set(machines), 'Attribution refers to a removed machine.')
+    cards, records = {'xy': [], 'hundekraft': []}, []
     for ident, item in sorted(machines.items(), key=lambda pair: pair[1]['definition']['name'].casefold()):
         definition, metadata, folder = item['definition'], item['metadata'], item['path']
         name, kind = definition['name'], metadata['kind']
@@ -115,8 +117,13 @@ def build(sdk, out, cxx):
         require(isinstance(description, str) and description.strip(), 'Missing public machine description')
         relative = folder.relative_to(ROOT).as_posix()
         guide = f'{REPOSITORY}/blob/{revision}/{relative}/README.md'
+        collection = 'hundekraft' if folder.is_relative_to(ROOT / 'machines/hundekraft') else 'xy'
+        origin = origins.get(ident)
+        require(collection != 'hundekraft' or origin, 'Hundekraft ports need original credits.')
         playable = kind in ('synth', 'drum', 'effect')
-        record = dict(id=ident, name=name, kind=kind, description=description, guide=guide, playable=playable)
+        record = dict(id=ident, name=name, kind=kind, description=description, guide=guide, playable=playable, collection=collection)
+        if origin:
+            record['origin'] = origin
         if kind == 'effect':
             target = out / 'play' / ident
             export_effect(sdk, item, target, out.parent / (out.name + '-effect-build'), cxx, description, guide)
@@ -147,12 +154,21 @@ def build(sdk, out, cxx):
         play = f'<a href="{record["player"]}" data-play {data}>{'Try effect' if kind == 'effect' else 'Play machine'} ↗</a>' if playable else ''
         presets = len(definition.get('presets', {}))
         detail = f' · {presets} {"preset" if presets == 1 else "presets"}' if presets else ''
-        search = f'{name} {ident} {description}'.casefold()
-        cards.append(f'<article class="machine-card {"" if "screen" in record else "documentation"}" data-kind="{kind}" data-search="{escape(search, quote=True)}">{image}<p class="machine-meta">{KINDS[kind]}{detail}</p><h3>{escape(name)}</h3><p class="machine-description">{escape(description)}</p><div class="machine-links">{play}<a href="{escape(guide, quote=True)}">Read guide ↗</a></div></article>')
+        attribution = ''
+        if origin:
+            require(origin['url'].startswith('https://') and origin['credit'] and origin['label'], 'Invalid original attribution')
+            credit_path = 'UPSTREAM.md' if collection == 'hundekraft' else ('NOTICE.md' if ident == 'acidline' else 'vendor/VENDOR.md')
+            credits_url = f'{REPOSITORY}/blob/{revision}/{relative}/{credit_path}'
+            attribution = f'<div class="machine-origin"><p>{escape(origin["credit"])}</p><a href="{escape(origin["url"], quote=True)}">{escape(origin["label"])} ↗</a><a href="{credits_url}">Credits ↗</a></div>'
+        search = f'{name} {ident} {description} {origin["credit"] if origin else ""}'.casefold()
+        cards[collection].append(f'<article class="machine-card {"" if "screen" in record else "documentation"}" data-kind="{kind}" data-collection="{collection}" data-search="{escape(search, quote=True)}">{image}<p class="machine-meta">{KINDS[kind]}{detail}</p><h4>{escape(name)}</h4><p class="machine-description">{escape(description)}</p>{attribution}<div class="machine-links">{play}<a href="{escape(guide, quote=True)}">Read guide ↗</a></div></article>')
         records.append(record)
     featured = next(record for record in records if record['id'] == 'acidline')
     feature = f'<div class="featured"><a class="featured-screen" href="{featured["player"]}" data-play data-name="Acidline" data-guide="{html.escape(featured["guide"], quote=True)}" aria-label="Play Acidline"><img src="{featured["screen"]}" alt="Acidline’s monochrome liquid display" width="480" height="220" fetchpriority="high"></a><div class="featured-caption"><div><h2>Acidline</h2><p>Resonant bass, liquid movement.<br>Take the controls for a spin.</p></div><a class="play-link" href="{featured["player"]}" data-play data-name="Acidline" data-guide="{html.escape(featured["guide"], quote=True)}">Play Acidline <span aria-hidden="true">↗</span></a></div></div>'
-    page = (ROOT / 'site/index.html').read_text().replace('{{CARDS}}', '\n'.join(cards)).replace('{{COUNT}}', str(len(records))).replace('{{FEATURED}}', feature)
+    page = (ROOT / 'site/index.html').read_text().replace('{{XY_CARDS}}', '\n'.join(cards['xy'])).replace('{{HK_CARDS}}', '\n'.join(cards['hundekraft'])).replace('{{XY_COUNT}}', str(len(cards['xy']))).replace('{{HK_COUNT}}', str(len(cards['hundekraft']))).replace('{{HK_CREDITS}}', f'{REPOSITORY}/blob/{revision}/machines/hundekraft/SOURCE-PROVENANCE.md').replace('{{COUNT}}', str(len(records))).replace('{{FEATURED}}', feature)
+    for asset in ('app.mjs', 'style.css'):
+        digest = hashlib.sha256((out / asset).read_bytes()).hexdigest()[:16]
+        page = page.replace(f'"{asset}"', f'"{asset}?v={digest}"')
     (out / 'index.html').write_text(page)
     (out / '.nojekyll').write_text('')
     (out / 'machines.json').write_text(json.dumps(dict(source=f'{REPOSITORY}/tree/{revision}', sdk=(ROOT / 'SDK_REVISION').read_text().strip(), machines=records), indent=2) + '\n')

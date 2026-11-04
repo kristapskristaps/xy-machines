@@ -1,0 +1,157 @@
+{
+  "hkarc": {
+    "credit": "Musica Obscura / ultralazr, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#arc"
+  },
+  "hkclouds": {
+    "credit": "Émilie Gillet / Mutable Instruments, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#clouds"
+  },
+  "hkcrush": {
+    "credit": "Maiko Pruett #250 reconstruction by Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#crush"
+  },
+  "hkelg": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#elg"
+  },
+  "hkeva": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#eva"
+  },
+  "hkfather": {
+    "credit": "Hundekraft DSP; Father concept by xylograph.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#father"
+  },
+  "hkfmbell": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#fmbell"
+  },
+  "hkhail": {
+    "credit": "Émilie Gillet / Mutable Instruments, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#hail"
+  },
+  "hkinaroom": {
+    "credit": "Musica Obscura / ultralazr, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#in-a-room"
+  },
+  "hkmbira": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#mbira"
+  },
+  "hkmixtur": {
+    "credit": "Musica Obscura / ultralazr, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#mixtur"
+  },
+  "hkoxbow": {
+    "credit": "Based on zvenson’s OberVave, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#oxbow"
+  },
+  "hkpalme": {
+    "credit": "Musica Obscura / ultralazr, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#palme"
+  },
+  "hkpew": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#pew"
+  },
+  "hkplate": {
+    "credit": "Maiko Pruett #250 reconstruction by Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#plate"
+  },
+  "hkreverb": {
+    "credit": "Émilie Gillet / Mutable Instruments, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#reverb"
+  },
+  "hksid": {
+    "credit": "Based on Hermit’s cRSID, via Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#sid"
+  },
+  "hksnowglobe": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#snowglobe"
+  },
+  "hkstutter": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#stutter"
+  },
+  "hksupersaw": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#supersaw"
+  },
+  "hktaffy": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#taffy"
+  },
+  "hktape": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#tape-fx"
+  },
+  "hkwarble": {
+    "credit": "Maiko Pruett #250 reconstruction by Hundekraft.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#warble"
+  },
+  "hkwasher": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#washer"
+  },
+  "hkwavetable": {
+    "credit": "From Hundekraft’s OP-1 workshop.",
+    "label": "Original OP-1 version",
+    "url": "https://hundekraft.github.io/op1-workshop/manual.html#wavetable"
+  },
+  "weave_analog": {
+    "credit": "Plaits synthesis by Émilie Gillet, adapted for OP-XY.",
+    "label": "Original Plaits source",
+    "url": "https://github.com/pichenettes/eurorack/tree/master/plaits"
+  },
+  "weave_waves": {
+    "credit": "Plaits synthesis by Émilie Gillet, adapted for OP-XY.",
+    "label": "Original Plaits source",
+    "url": "https://github.com/pichenettes/eurorack/tree/master/plaits"
+  },
+  "weave_chords": {
+    "credit": "Plaits synthesis by Émilie Gillet, adapted for OP-XY.",
+    "label": "Original Plaits source",
+    "url": "https://github.com/pichenettes/eurorack/tree/master/plaits"
+  },
+  "weave_grain": {
+    "credit": "Plaits synthesis by Émilie Gillet, adapted for OP-XY.",
+    "label": "Original Plaits source",
+    "url": "https://github.com/pichenettes/eurorack/tree/master/plaits"
+  },
+  "weave_shaper": {
+    "credit": "Plaits synthesis by Émilie Gillet, adapted for OP-XY.",
+    "label": "Original Plaits source",
+    "url": "https://github.com/pichenettes/eurorack/tree/master/plaits"
+  },
+  "acidline": {
+    "credit": "Filter adapted from Acid Rain / Open303.",
+    "label": "Original filter source",
+    "url": "https://github.com/frankoooooooo/acid-rain"
+  }
+}

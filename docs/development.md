@@ -213,6 +213,9 @@ native objects, firmware, stock assets or device data.
 Keep `site/descriptions.json` in sync with the inventory. Its descriptions
 explain sounds and controls to musicians and appear in both cards and players;
 source history and porting details belong in the machine documentation.
+The gallery separates standalone XY Machines from Hundekraft workshop ports.
+Keep `site/origins.json` updated for upstream attribution and original-version
+links; every Hundekraft port must have an entry.
 
 To inspect a fresh static export locally:
 

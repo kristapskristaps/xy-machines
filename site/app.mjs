@@ -9,6 +9,11 @@ function filter() {
     card.hidden = (selected !== 'all' && card.dataset.kind !== selected) || !card.dataset.search.includes(query);
     if (!card.hidden) count++;
   }
+  for (const group of document.querySelectorAll('.machine-collection')) {
+    const visible = [...group.querySelectorAll('.machine-card')].filter(card => !card.hidden).length;
+    group.hidden = visible === 0;
+    group.querySelector('[data-group-count]').textContent = `${visible} ${visible === 1 ? 'machine' : 'machines'}`;
+  }
   document.querySelector('#result-count').textContent = `${count} ${count === 1 ? 'machine' : 'machines'}`;
   document.querySelector('#empty').hidden = count !== 0;
   for (const button of buttons) button.setAttribute('aria-pressed', String(button.dataset.filter === selected));

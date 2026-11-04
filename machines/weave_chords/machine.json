@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "sdk": "1.6",
+  "kind": "synth",
+  "description": "Five-note chord voicings, eleven banks and a dedicated root output. Extracted from Weave.",
+  "icon": "M6 31 L6 16 L10 16 L10 31 M13 31 L13 10 L17 10 L17 31 M20 31 L20 6 L24 6 L24 31 M27 31 L27 13 L31 13 L31 31 M34 31 L34 20"
+}

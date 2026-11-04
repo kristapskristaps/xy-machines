@@ -1,0 +1,18 @@
+{
+  "source_revision": "957afdbac6f2ef9916991366e24517f1483dc0e4",
+  "source_model": 8,
+  "adaptation": true,
+  "upstream": "https://github.com/pichenettes/eurorack",
+  "files": {
+    "LICENSE": "4767aae1af28af0da220804d064fc2f3d5c8af7d0adea7967ee0454e741f760f",
+    "VENDOR.md": "f0248b3d1049909950dd2e4f1228a2854e9f19acc42ec778f88bd6fbb4d78507",
+    "macro.cpp": "20782e8cda966b0dc5d1f1e9ac71503d412612a257e9ef7bedcbb5d1de872879",
+    "macro.h": "585f7410849fa01ad781417096d63ecf2755be3975a53b1f7558b0048195d352",
+    "macro_chord_direct.h": "77353932d62de11d0a6715796a2d24867617504e259c5fa0f49b2942686ddb08",
+    "macro_chord_palette.h": "1e9ec7d7e47a4f8cec5560b0e18cb20d699cdc39066cd76a1294ba6fbc8a3ce6",
+    "macro_chord_tables.h": "e1457aa401f46e0d71f0ec3435ca0cbcf5536371d32858dd5070a1fb96cc650f",
+    "macro_division.h": "8754241d56535fb16572ede8cabc80b6c3a78fcd4fba484a860d64a21a1a1a37",
+    "macro_tables.h": "66b6f3fa113719664d82a781bf2a9586fb89782b5edb1f1b19160ed613a625f1",
+    "types.h": "3a2b731a2fa1d60329789a2568ba2cd8bad72ea29916cf061217f076d7ec058c"
+  }
+}

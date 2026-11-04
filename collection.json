@@ -107,6 +107,21 @@
       "path": "machines/weave"
     },
     {
+      "path": "machines/weave_analog"
+    },
+    {
+      "path": "machines/weave_chords"
+    },
+    {
+      "path": "machines/weave_grain"
+    },
+    {
+      "path": "machines/weave_shaper"
+    },
+    {
+      "path": "machines/weave_waves"
+    },
+    {
       "path": "machines/westfold"
     },
     {

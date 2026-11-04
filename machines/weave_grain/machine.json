@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "sdk": "1.6",
+  "kind": "synth",
+  "description": "Paired grainlet formants and a Z-oscillator auxiliary. Extracted from Weave.",
+  "icon": "M8 6 L32 6 L23 19 L23 23 L32 35 L8 35 L17 23 L17 19 Z M17 10 L22 14 M20 26 L24 31"
+}

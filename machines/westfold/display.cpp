@@ -28,7 +28,8 @@ void headers(const Input& input, Frame& frame) {
     for (u32 i = 0; i < 4; ++i) {
         const u32 slot = input.shown[i] < 8 ? input.shown[i] : i;
         const i32 value = dsp::control(input.parameters[i]);
-        if (slot == 3) {
+        if (slot == 0 && value >= 24576) copy(frame.header[i], 8, "!!");
+        else if (slot == 3) {
             if (value >= 32600) copy(frame.header[i], 8, "hold");
             else {
                 const u32 ms = static_cast<u32>(dsp::lookup(draw_tables::durations_ms, value));

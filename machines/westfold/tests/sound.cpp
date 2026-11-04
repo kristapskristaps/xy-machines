@@ -60,7 +60,7 @@ bool bounded(const std::vector<i32>& data) {
 int main() {
     i32 p[8] = {0,q(.6),q(.8),q(1),q(1.0/7),0,q(.3),0};
     auto odd = render(p, 220);
-    p[0] = q(1);
+    p[0] = q(2.0/3);
     auto even = render(p, 220);
     check("Overtone selects odd/even harmonic families", parity(odd,220) < .01 && parity(even,220) > 3);
     p[0] = q(.2); p[1] = 0;
@@ -94,6 +94,15 @@ int main() {
     p[5] = 0; p[7] = q(.6); p[6] = q(.65);
     auto moving = render(p,220);
     check("Cycling slope animates the folding", moving != unmodulated && bounded(moving));
+    // The high Overtone range exposes Slope in the audio path even with Motion at zero.
+    p[0] = q(2.0/3); p[1] = q(.7); p[2] = q(1); p[3] = q(1); p[5] = 0; p[6] = q(.9); p[7] = 0;
+    const auto harmonic_only = render(p,220);
+    p[0] = q(1);
+    const auto slope_audio = render(p,220);
+    const double slope_hz = westfold::dsp::lookup(westfold::tables::rates,westfold::dsp::control(p[6])) * 44100.0 / 4294967296.0;
+    check("High Overtone introduces the cycling Slope's ring-like sidebands",
+          partial(slope_audio,440+slope_hz,1) > partial(harmonic_only,440+slope_hz,1)*20 && bounded(slope_audio));
+    p[0] = q(.3); p[1] = q(.8); p[2] = q(.7); p[5] = 0; p[7] = q(.6); p[6] = q(.65);
     auto repeat = render(p,220);
     check("A restruck voice is deterministic", repeat == moving);
     westfold::Voice voice = {};

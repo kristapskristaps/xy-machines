@@ -3,8 +3,9 @@
 A small videogame macro synth for Open-XY: pulse heroes, triangle bass, detuned
 leads, cartridge waves, little FM bells, metallic coins and crunchy noise. Eight
 models share two sound macros, a fast chord stepper and a note-start pitch sweep.
-The original pixel character jumps on a note and settles quickly; the display
-stays still when idle or held. All wave ROM and artwork are original.
+An original pixel adventurer runs through a scrolling platform world while you
+play, hopping over pipes and crates and collecting coins. All wave ROM and
+artwork are original.
 
 ## Play
 
@@ -43,7 +44,7 @@ note; changing Model crossfades into the new model over one block.
 
 Chord stepping restarts on the root for each note, preserves oscillator phase
 between steps and is independent for each voice. Speed is a free chip clock,
-not a tempo division. With Chord off, Speed has no effect. Stock AMP, LFOs,
+not a tempo division. With Chord off, Speed has no effect on the sound; it still sets the runner’s pace. Stock AMP, LFOs,
 filter, velocity, sequencer and effects remain available; the engine does not
 replace their pages.
 
@@ -58,9 +59,14 @@ Some percussion and bell presets use different stock AMP settings. Reloading
 an authored preset applies those settings; selecting the engine alone does not
 rewrite an existing track.
 
-The display's waveform and chord bars illustrate the controls. They are not a
-live oscilloscope or an audio-clock indicator. Reduced motion keeps the static
-held-note highlight while suppressing the bounce and sparkles.
+Held notes keep the runner moving through layered hills, clouds, brick ground,
+floating blocks and spinning coins. Four running cels alternate with standing
+and jumping poses. New notes trigger hops; nearby obstacles also trigger jumps.
+Coins touched by the runner disappear and increment the two-digit counter.
+Speed sets the scene's pace and the eight world lights show Model. The scene
+is decorative: coins and jumps do not affect synthesis or measure audio timing.
+It coasts to a stop on release. Reduced motion freezes scrolling and poses while
+preserving the held-note highlight; switching tracks starts a fresh world.
 
 ## Develop and audition
 
@@ -107,11 +113,11 @@ settling, chord timing, DAC changes, deterministic restart, 1,024 model/control
 corners, random signed automation, read-only input ownership, one million
 independently checked pitch products, every quantizer input, complete noise
 periods, all table bounds, both display pages, note response, track changes,
-reduced motion and nondegenerate native waveform ribbons. The audition renderer
+reduced motion, complete world wraps, running cels, jumps and coin collection. The audition renderer
 also checks periodic models for static nonharmonic foldback with deliberate
 clock reduction and chord stepping off.
 
-The first local native module occupies about 149 KiB including the SDK. The
+The local native module occupies about 149 KiB including the SDK. The
 host CPU estimate was approximately 7,200 instructions per voice block against
 the SDK's 15,000 advisory target. These are local development results, not a
 measured device CPU percentage or qualification below the recommended 3.5%.

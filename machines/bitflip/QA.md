@@ -20,9 +20,11 @@ user presets or save diagnostic settings.
       root restart, changes during a note and Chord off. Speed is not tempo sync.
 - [ ] Test 2/8/16 Bits and low/full Clock on every model. Confirm intended grit,
       full-rate restoration, note release and absence of stuck DC or tails.
-- [ ] Check the character, model selection, waveform and chord bars; confirm
-      idle/held poses settle, reduced motion highlights held notes without bounce,
-      and switching tracks establishes a fresh note baseline.
+- [ ] Check the scrolling platform world, four running cels, note-triggered hops,
+      obstacle jumps, coins/counter and Model lights. Hold notes across full world
+      loops and vary Speed. Confirm release settles, reduced motion freezes the
+      world with a static held-note highlight, and track changes reset the scene.
+      Check normal project playback for graphics-related scheduling/dropouts.
 - [ ] Test stock AMP/filter/LFO pages, velocity, modulation, sends, mute, preset
       reload and save/reload of projects, patterns, scenes and a song.
 - [ ] Hold notes across several tracks with demanding Twin, PM, Noise, rapid

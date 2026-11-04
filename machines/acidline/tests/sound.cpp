@@ -63,9 +63,9 @@ int main(){
     if(std::memcmp(&idle,&frame,sizeof(frame))){std::puts("FAIL idle display moves");return 1;}
     input.note_on_serial=1;input.held_notes=1;acidline::display(state,input,frame);
     if(!state.bloom){std::puts("FAIL note does not trigger liquid pulse");return 1;}
-    const opxy::draw::Node packet=frame.nodes[35];
-    acidline::display(state,input,frame);
-    if(packet.x==frame.nodes[35].x && packet.y==frame.nodes[35].y && packet.scale==frame.nodes[35].scale){std::puts("FAIL drops do not fall");return 1;}
+    const acidline::Frame moving=frame;
+    for(unsigned tick=0;tick<8;++tick)acidline::display(state,input,frame);
+    if(!std::memcmp(moving.paths,frame.paths,sizeof(frame.paths))){std::puts("FAIL active membrane does not evolve");return 1;}
     input.reduced_motion=true;acidline::display(state,input,frame);
     if(state.phase || state.bloom){std::puts("FAIL reduced-motion reaction keeps moving");return 1;}
     input.shown[0]=4;input.shown[1]=5;acidline::display(state,input,frame);

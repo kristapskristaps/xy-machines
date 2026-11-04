@@ -2,7 +2,7 @@
 
 A mono acid voice with a four-stage 303 ladder, band-limited saw/triangle/square,
 linked drive and clipping, an octave sub and darkening. The monochrome display
-shows liquid threads stretching from a ceiling, falling drops and impact rings.
+shows a twisting fluid membrane, suspended bead clusters and small bubbles.
 
 ## Playing and slide
 
@@ -47,11 +47,13 @@ can use parameter locks on Flow, Bite, Burn or Sweep.
 
 ## Display
 
-White liquid threads hang from a thin ceiling on black. Bite and Burn stretch
-and bend them; Flow controls travel speed. Notes excite the threads, falling
-drops and expanding rings. More intensity increases drop density and movement.
+A monochrome fluid membrane crosses the screen. Sixty-four rotating cross
+sections form its glassy folds; thin silhouette ribbons trace its surface.
+Six clusters of beads travel through its core, with small bubbles around it.
+Bite and Burn increase deformation, Flow controls travel speed, and note attacks
+swell the membrane. Depth changes shade and bead size to suggest translucency.
 Idle animation settles; track changes reset it; reduced motion shows a static
-composition. All animation uses bounded display state and stays outside audio.
+composition. All geometry is bounded and stays outside the audio callback.
 Both control pages remain visible through the SDK's shared header.
 
 ## DSP budget and validation

@@ -3,6 +3,14 @@
 Measured source: `16ee2c863de8552ea9769f83ca869e4b5010c1ba`.
 These candidates are **not ready for catalog submission**.
 
+Version correction: this attempt measured GitHub main's older 32-voice X0X and
+older Westfold core. The local eight-voice X0X optimization branch and the
+compact-core Westfold redesign were not integrated into this snapshot. Their
+current CPU cost is unmeasured; the numbers below must not be attributed to
+those newer versions. The five working machines were subsequently remeasured
+with the standard staging SDK and submitted with the author's acceptance of
+CPU recommendations: see [standard release reports](../../profiling/2026-11-04/standard-release/README.md).
+
 The seven-machine bank completed all 342 expected hardware reports with no
 protocol errors. Source-bound reports are stored beside this file.
 

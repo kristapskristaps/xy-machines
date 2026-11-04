@@ -24,6 +24,11 @@ const unsigned diffusion_delay[8]={34,52,81,123,37,56,87,126};
 const unsigned plate_delay[2][4]={{249,1650,667,1378},{337,1562,984,1172}};
 inline i32 clamp(i32 x,i32 lo,i32 hi){return x<lo?lo:x>hi?hi:x;}
 inline i32 mul(i32 x,i32 gain){return opxy::q31::multiply(x,gain*65536);}
+inline i32 third_nonnegative(i32 value) {
+    // The follower is a convex update from zero toward a nonnegative magnitude.
+    // 3*m = 2^31+1, so floor(value*m/2^31) == value/3 for 0 <= value < 2^31.
+    return opxy::q31::multiply(value,715827883);
+}
 inline i32 parameter(unsigned index,i32 word) {
     if(index==6)return word>=1073741824?32767:0;
     return word<0?0:word>>16;
@@ -183,7 +188,7 @@ __attribute__((always_inline)) inline void plate(State& state,i32* memory,const 
         const i32 tail=mul(ap1,4260)+mul(d1,10158)+mul(d2,22282)+mul(state.plate[other],5898);
         const i32 magnitude=input[channel]<0?-input[channel]:input[channel];
         state.body[channel]+=mul(magnitude-state.body[channel],76);
-        const i32 transient=clamp((magnitude-state.body[channel]-state.body[channel]/3)*4,0,unit);
+        const i32 transient=clamp((magnitude-state.body[channel]-third_nonnegative(state.body[channel]))*4,0,unit);
         const i32 follower=transient>state.duck[channel]?5361*65536:config.release;
         state.duck[channel]+=opxy::q31::multiply(transient-state.duck[channel],follower);
         const i32 duck_gain=32767-opxy::q31::multiply(state.duck[channel]/512,config.duck);

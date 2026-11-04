@@ -16,6 +16,19 @@ static bool tap_matches(const halo::State& state,unsigned line,opxy::i32 delay,u
     return false;
 }
 int main() {
+    static_assert(3ULL*715827883ULL==2147483649ULL,"Exact nonnegative third reciprocal");
+    for(opxy::u32 value=0;value<1048576u;++value) {
+        const opxy::i32 low=static_cast<opxy::i32>(value);
+        const opxy::i32 high=2147483647-low;
+        if(halo::third_nonnegative(low)!=low/3 || halo::third_nonnegative(high)!=high/3) {
+            std::puts("FAIL: exact follower division by three");return 1;
+        }
+    }
+    opxy::u32 follower_random=7139;
+    for(unsigned trial=0;trial<1000000;++trial) {
+        const auto value=static_cast<opxy::i32>((follower_random=follower_random*1664525u+1013904223u)>>1);
+        if(halo::third_nonnegative(value)!=value/3) return 1;
+    }
     halo::State state={};
     // Interleaved rings retain the independent left/right sample at each age.
     for(unsigned frame=0;frame<5000;++frame) {

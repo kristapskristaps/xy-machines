@@ -154,8 +154,10 @@ proves neither hardware acceptance nor measured CPU cost.
 Voice settings are cached per voice and refreshed whenever its model or any
 7-bit control changes. Unbent oscillators advance directly; swept tonal voices
 share one increment calculation across their identical oscillators. The cache
-and cached clap constants use 152 additional bytes per voice (4,864 bytes for
-32 voices). They preserve
+and cached clap constants use 152 additional bytes per voice (1,216 bytes for
+eight voices). The native kit supports eight simultaneous voices; additional
+hits use the SDK's voice stealing, while all 24 pads and 47 type/style sounds
+remain available. The cached settings preserve
 the working sound output: `tests/waveforms.cpp` checks 47 captured fingerprints,
 covering every control value, unchanged blocks, live edits and model changes.
 The retained display also reuses settled poses between triggers and updates

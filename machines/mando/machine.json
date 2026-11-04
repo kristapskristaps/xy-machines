@@ -2,6 +2,6 @@
   "schema": 1,
   "sdk": "1.6",
   "kind": "synth",
-  "description": "Minitaur-inspired dual-oscillator bass synth with a nonlinear four-pole ladder filter and a note-reactive beskar helmet and shoulder cape.",
+  "description": "Dual-oscillator bass synth with a voiced resonant four-pole lowpass and a note-reactive helmet.",
   "presets": "presets"
 }

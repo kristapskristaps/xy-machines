@@ -79,6 +79,9 @@ int main() {
     const char* modes[] = {"bass","steady","pitch bend","high note","wave automation","overload automation","clamped pitch","random pitch","clamp crossing"};
     for(unsigned s=0;s<sizeof(settings)/sizeof(settings[0]);++s) for(unsigned mode=0;mode<@MODES@;++mode) {
         if(!equivalent(settings[s],mode))return 1;
+        if(@VERIFY_ONLY@) {
+            std::printf("{\"setting\":\"%s\",\"mode\":\"%s\",\"verified\":true}\n",labels[s],modes[mode]);continue;
+        }
         double old_times[5],new_times[5],ratios[5];
         for(unsigned run=0;run<5;++run) {
             double old,now;
@@ -107,6 +110,7 @@ def main():
     parser.add_argument('--blocks', type=int, default=4000)
     parser.add_argument('--verify-state', action='store_true', help='Compare complete state when both revisions use the same Voice layout')
     parser.add_argument('--extended', action='store_true', help='Also cover clamped and full-range sample pitch motion')
+    parser.add_argument('--verify-only', action='store_true', help='Compare every audio/state block without collecting host timings')
     args = parser.parse_args()
     if args.blocks < 400:
         parser.error('Use at least 400 blocks to reduce timer noise.')
@@ -162,11 +166,18 @@ def main():
         source = source.replace('@SETTINGS@',','.join('{'+','.join(map(str,row))+'}' for row in settings))
         source = source.replace('@REFERENCE@',reference).replace('@VERIFY_STATE@','true' if args.verify_state else 'false').replace('@MODES@','9' if args.extended else '6')
         source = source.replace('@LABELS@',','.join(map(json.dumps,labels))).replace('@BLOCKS@',str(args.blocks))
+        source = source.replace('@VERIFY_ONLY@','true' if args.verify_only else 'false')
         (scratch/'benchmark.cpp').write_text(source)
         executable = scratch/'benchmark'
         subprocess.run([args.cxx,'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),str(scratch/'benchmark.cpp'),'-o',str(executable)],check=True)
         result = subprocess.check_output([str(executable)],text=True)
         rows = [json.loads(line) for line in result.splitlines()]
+    if args.verify_only:
+        print(json.dumps(dict(baseline=baseline,exact_audio_each_block=True,
+                             exact_voice_state_each_block=args.verify_state,
+                             checked_blocks_per_scenario=256,extended=args.extended,
+                             scenarios=len(rows),timing_executed=False),indent=2))
+        return
     for row in rows:
         row['estimated_before'] = round(row['before_ns'] / row['reference_ns'] * constants['REFERENCE_INSTRUCTIONS'])
         row['estimated_after'] = round(row['after_ns'] / row['reference_ns'] * constants['REFERENCE_INSTRUCTIONS'])

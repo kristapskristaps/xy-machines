@@ -5,13 +5,12 @@ namespace mando {
 using opxy::i32;
 using opxy::u32;
 struct FilterCoefficients {
-    i32 g, resonance, inverse, weights[4], compensation;
+    i32 g, b0[2], a1[2], a2[2];
 };
 struct Voice {
     u32 phase[2];
-    // Each accumulator stores half the even pole state in its high bits,
-    // and the unchanged 15-bit fractional charge in its low bits.
-    i32 ladder[4];
+    // Q24 input history, then shared first-section and final-output histories.
+    i32 history[6];
     i32 controls[8];
     u32 ready;
     i32 wave[2];
@@ -20,4 +19,4 @@ struct Voice {
     i32 cached_resonance;
 };
 struct Shared {};
-}
+} // namespace mando

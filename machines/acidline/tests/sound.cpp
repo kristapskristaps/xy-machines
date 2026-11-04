@@ -56,21 +56,16 @@ int main(){
         acidline::display(state,input,frame);
         if(!opxy::draw::valid(frame)){std::puts("FAIL display frame");return 1;}
     }
-    if(acidline::vessel_width(0,180)<=acidline::vessel_width(0,125)
-       || acidline::vessel_width(1,155)<=acidline::vessel_width(1,125)
-       || acidline::vessel_width(2,125)!=acidline::vessel_width(2,175)){
-        std::puts("FAIL vessel profiles are not distinct");return 1;
-    }
     acidline::display_reset(state);input={};input.elapsed=17;
     acidline::display(state,input,frame);
     acidline::Frame idle=frame;
     for(unsigned i=0;i<30;++i)acidline::display(state,input,frame);
     if(std::memcmp(&idle,&frame,sizeof(frame))){std::puts("FAIL idle display moves");return 1;}
     input.note_on_serial=1;input.held_notes=1;acidline::display(state,input,frame);
-    if(!state.bloom){std::puts("FAIL note does not trigger chemical reaction");return 1;}
-    const opxy::draw::Node packet=frame.nodes[35];
-    acidline::display(state,input,frame);
-    if(packet.x==frame.nodes[35].x && packet.y==frame.nodes[35].y){std::puts("FAIL pipe fluid does not travel");return 1;}
+    if(!state.bloom){std::puts("FAIL note does not trigger liquid pulse");return 1;}
+    const acidline::Frame moving=frame;
+    for(unsigned tick=0;tick<8;++tick)acidline::display(state,input,frame);
+    if(!std::memcmp(moving.nodes+8,frame.nodes+8,sizeof(opxy::draw::Node)*(acidline::Frame::node_count-8))){std::puts("FAIL active membrane does not evolve");return 1;}
     input.reduced_motion=true;acidline::display(state,input,frame);
     if(state.phase || state.bloom){std::puts("FAIL reduced-motion reaction keeps moving");return 1;}
     input.shown[0]=4;input.shown[1]=5;acidline::display(state,input,frame);

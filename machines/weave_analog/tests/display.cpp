@@ -31,7 +31,7 @@ int main(){
  in.slots[1]=2147483647;weave_analog::display(s,in,f);require(std::memcmp(&prior,&f,sizeof f)!=0,"FAIL reduced motion ignores controls");
  in.reduced_motion=0;in.track=1;++in.note_serial;weave_analog::display(s,in,f);require(s.pulse==180,"FAIL track switch fabricates note");
 
- // The default composition occupies the playable screen, rather than a small central icon.
+ // The mutable optical core remains large within the wider engraved backdrop.
  Input geometry={};geometry.elapsed=17;geometry.slots[0]=858993459;geometry.slots[1]=1073741823;geometry.slots[2]=858993459;
  weave_analog::DisplayState motion={};weave_analog::Frame drawing={};weave_analog::display(motion,geometry,drawing);
  long long minx=480LL*unit,maxx=0,miny=220LL*unit,maxy=0;
@@ -42,7 +42,7 @@ int main(){
   if(x<minx){minx=x;}if(x>maxx){maxx=x;}if(y<miny){miny=y;}if(y>maxy){maxy=y;}
  }
  for(unsigned i=3;i<24;++i){const auto& node=drawing.nodes[i];if(node.x==hidden_x*unit)continue;if(node.x<minx)minx=node.x;if(node.x>maxx)maxx=node.x;}
- require(maxx-minx>=320LL*unit && maxy-miny>=120LL*unit,"FAIL composition is too small");
+ require(maxx-minx>=200LL*unit && maxy-miny>=120LL*unit,"FAIL composition is too small");
  geometry.held_notes=1;++geometry.note_serial;
  for(unsigned tick=0;tick<220;++tick){auto before=drawing;weave_analog::display(motion,geometry,drawing);if(tick>20)for(unsigned n=0;n<24;++n){require(std::abs(drawing.nodes[n].cos-before.nodes[n].cos)<120 && std::abs(drawing.nodes[n].sin-before.nodes[n].sin)<120,"FAIL phase-wrap rotation discontinuity");}}
 

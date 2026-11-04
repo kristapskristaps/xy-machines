@@ -18,21 +18,33 @@ inline void key(Frame& f,unsigned p) {
     }
     f.paths[p].key=hash?hash:1;
 }
-inline void orbit(Frame& f,unsigned p,i32 lobes,i32 phase,i32 depth) {
+inline void ribbon(Frame& f,unsigned p,i32 base,i32 phase,i32 amplitude,bool folded) {
     for(unsigned i=0;i<32;++i) {
-        const i32 angle=static_cast<i32>(i)*3600/32;
-        const i32 radius=51*unit+floor_q10(sine(angle*lobes+phase)*depth);
-        f.paths[p].points[i]={floor_q10(sine(angle+900)*radius),floor_q10(sine(angle)*radius)};
+        const i32 column=static_cast<i32>(i<16?i:31-i);
+        const i32 wave=folded?((column%6<3?static_cast<i32>(column%6):6-static_cast<i32>(column%6))*2*unit/3-unit):sine(column*220+phase);
+        const i32 y=base+floor_q10(wave*amplitude)+(i<16?-5:5)*unit;
+        f.paths[p].points[i]={(-62*unit+column*124*unit/15)/2,(y-123*unit)/2};
     }
     key(f,p);
 }
-inline void plane(Frame& f,unsigned p,i32 height,i32 shear,i32 tilt) {
-    const opxy::draw::Point corners[4]={{-56*unit+shear,-height},{56*unit+shear,-height+tilt},
-                            {56*unit-shear,height},{-56*unit-shear,height-tilt}};
-    for(unsigned edge=0;edge<4;++edge)for(unsigned i=0;i<8;++i) {
-        const auto& a=corners[edge];const auto& b=corners[(edge+1)%4];
-        f.paths[p].points[edge*8+i]={a.x+(b.x-a.x)*static_cast<i32>(i)/8,
-                                    a.y+(b.y-a.y)*static_cast<i32>(i)/8};
+inline void capsule(Frame& f,unsigned p,i32 width,i32 height,i32 phase,i32 depth) {
+    for(unsigned i=0;i<32;++i) {
+        const i32 angle=static_cast<i32>(i)*3600/32;
+        const i32 x=floor_q10(sine(angle+900)*width);
+        const i32 y=floor_q10(sine(angle)*height);
+        f.paths[p].points[i]={(x+floor_q10(sine(angle*2+phase)*depth))/2,y/2};
+    }
+    key(f,p);
+}
+inline void arch(Frame& f,unsigned p,i32 height,i32 lean) {
+    for(unsigned i=0;i<32;++i) {
+        i32 x,y;
+        if(i<16) {const i32 angle=1800-static_cast<i32>(i)*1800/15;
+            x=floor_q10(sine(angle+900)*27*unit);y=-height+27*unit-floor_q10(sine(angle)*27*unit);}
+        else if(i<21) {x=27*unit;y=-height+27*unit+static_cast<i32>(i-15)*(2*height-27*unit)/5;}
+        else if(i<27) {x=27*unit-static_cast<i32>(i-20)*54*unit/6;y=height;}
+        else {x=-27*unit;y=height-static_cast<i32>(i-26)*(2*height-27*unit)/5;}
+        f.paths[p].points[i]={(x+floor_q10(sine(y/20)*lean))/2,y/2};
     }
     key(f,p);
 }
@@ -65,20 +77,19 @@ void display(DisplayState& s,const opxy::draw::Input& in,Frame& f) {
     const i32 phase=static_cast<i32>(s.phase);
     const i32 pulse=unit-ease(s.pulse),energy=s.energy;
 
+    // Five nested apertures breathe independently, like a harmonic sculpture.
     for(unsigned i=0;i<5;++i) {
-        const i32 at=static_cast<i32>(i),voice=(at+b/6554)%5;
-        const i32 age=s.pulse-at*12;
-        const i32 kick=in.reduced_motion || age<0 || s.pulse>=settle?0:unit-ease(age*settle/(settle-at*12));
-        place(f,3+i,(72+at*84)*unit,(123+(voice-2)*3)*unit,1190+kick/6,i==2 && d>16384?5:(i%2?2:4),fill_and_stroke);
-        turn(f,3+i,rotation((at-2)*90+(a-16384)/180+sine(phase)*(i%2?-1:1)/12));
+        const i32 voice=static_cast<i32>(i),order=(voice+b/6554)%5;
+        const i32 breathe=floor_q10(sine(phase+order*720)*(energy*3));
+        const i32 height=(68+order*2)*unit+breathe+pulse*2;
+        if(i<3) {arch(f,i,height,(c/7000)*unit);place(f,i,(74+voice*83)*unit,123*unit,2*unit,4,stroke);}
+        else place(f,3+i-3,(74+voice*83)*unit,123*unit,unit+breathe/100,4,stroke);
+        for(unsigned ring=0;ring<3;++ring) {
+            const unsigned node=5+i*3+ring;
+            place(f,node,(74+voice*83)*unit,123*unit,800-static_cast<i32>(ring)*170+breathe/65,4,stroke);
+        }
     }
-    for(unsigned i=0;i<3;++i) {
-        orbit(f,i,5,phase+static_cast<i32>(i)*420,(3+c/9000)*unit);
-        place(f,i,240*unit,122*unit,1430-static_cast<i32>(i)*210,i==0?5:3,stroke);
-        turn(f,i,rotation(sine(phase)/12));
-    }
-    place(f,14,240*unit,122*unit,900+d/100+energy/7+pulse/16,5,fill_and_stroke);
-    turn(f,14,rotation(phase));
+    (void)a;(void)d;
 
     s.initialized=1;s.track=in.track;s.serial=in.note_serial;
 }

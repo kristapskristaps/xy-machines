@@ -18,21 +18,33 @@ inline void key(Frame& f,unsigned p) {
     }
     f.paths[p].key=hash?hash:1;
 }
-inline void orbit(Frame& f,unsigned p,i32 lobes,i32 phase,i32 depth) {
+inline void ribbon(Frame& f,unsigned p,i32 base,i32 phase,i32 amplitude,bool folded) {
     for(unsigned i=0;i<32;++i) {
-        const i32 angle=static_cast<i32>(i)*3600/32;
-        const i32 radius=51*unit+floor_q10(sine(angle*lobes+phase)*depth);
-        f.paths[p].points[i]={floor_q10(sine(angle+900)*radius),floor_q10(sine(angle)*radius)};
+        const i32 column=static_cast<i32>(i<16?i:31-i);
+        const i32 wave=folded?((column%6<3?static_cast<i32>(column%6):6-static_cast<i32>(column%6))*2*unit/3-unit):sine(column*220+phase);
+        const i32 y=base+floor_q10(wave*amplitude)+(i<16?-5:5)*unit;
+        f.paths[p].points[i]={(-62*unit+column*124*unit/15)/2,(y-123*unit)/2};
     }
     key(f,p);
 }
-inline void plane(Frame& f,unsigned p,i32 height,i32 shear,i32 tilt) {
-    const opxy::draw::Point corners[4]={{-56*unit+shear,-height},{56*unit+shear,-height+tilt},
-                            {56*unit-shear,height},{-56*unit-shear,height-tilt}};
-    for(unsigned edge=0;edge<4;++edge)for(unsigned i=0;i<8;++i) {
-        const auto& a=corners[edge];const auto& b=corners[(edge+1)%4];
-        f.paths[p].points[edge*8+i]={a.x+(b.x-a.x)*static_cast<i32>(i)/8,
-                                    a.y+(b.y-a.y)*static_cast<i32>(i)/8};
+inline void capsule(Frame& f,unsigned p,i32 width,i32 height,i32 phase,i32 depth) {
+    for(unsigned i=0;i<32;++i) {
+        const i32 angle=static_cast<i32>(i)*3600/32;
+        const i32 x=floor_q10(sine(angle+900)*width);
+        const i32 y=floor_q10(sine(angle)*height);
+        f.paths[p].points[i]={(x+floor_q10(sine(angle*2+phase)*depth))/2,y/2};
+    }
+    key(f,p);
+}
+inline void arch(Frame& f,unsigned p,i32 height,i32 lean) {
+    for(unsigned i=0;i<32;++i) {
+        i32 x,y;
+        if(i<16) {const i32 angle=1800-static_cast<i32>(i)*1800/15;
+            x=floor_q10(sine(angle+900)*27*unit);y=-height+27*unit-floor_q10(sine(angle)*27*unit);}
+        else if(i<21) {x=27*unit;y=-height+27*unit+static_cast<i32>(i-15)*(2*height-27*unit)/5;}
+        else if(i<27) {x=27*unit-static_cast<i32>(i-20)*54*unit/6;y=height;}
+        else {x=-27*unit;y=height-static_cast<i32>(i-26)*(2*height-27*unit)/5;}
+        f.paths[p].points[i]={(x+floor_q10(sine(y/20)*lean))/2,y/2};
     }
     key(f,p);
 }
@@ -65,18 +77,17 @@ void display(DisplayState& s,const opxy::draw::Input& in,Frame& f) {
     const i32 phase=static_cast<i32>(s.phase);
     const i32 pulse=unit-ease(s.pulse),energy=s.energy;
 
+    // Ordered particles bend into a turbulent interference field.
     for(unsigned p=0;p<3;++p) {
-        plane(f,p,12*unit,(a/6500-2)*unit,(c/6500-2)*unit);
-        place(f,p,(132+static_cast<i32>(p)*108)*unit,(76+static_cast<i32>(p)*46)*unit,1300,p==1?5:3,stroke);
-        turn(f,p,rotation(-180+sine(phase)/22));
+        capsule(f,p,(96-static_cast<i32>(p)*5)*unit,(76-static_cast<i32>(p)*12)*unit,phase,(3+c/3000)*unit);
+        place(f,p,(130+static_cast<i32>(p)*110)*unit,123*unit,2*unit,4,stroke);
     }
-    for(unsigned i=0;i<18;++i) {
-        const i32 column=static_cast<i32>(i%6),row=static_cast<i32>(i/6);
-        const i32 drift=floor_q10(sine(phase+column*450+row*900)*(energy*5));
-        const i32 colour=i==(static_cast<unsigned>(d)*17u/32767u)?5:(i%3?4:2);
-        place(f,3+i,(68+column*69)*unit+drift,(66+row*58)*unit,840+b/150+pulse/12,colour,colour==5 || i%3==0?fill_and_stroke:stroke);
-        turn(f,3+i,rotation((column+row)%2?c/90:-c/90));
+    for(unsigned i=0;i<21;++i) {
+        const i32 at=static_cast<i32>(i);
+        const i32 drift=floor_q10(sine(phase+at*170)*((3+a/4000)*unit));
+        place(f,3+i,(50+at*19)*unit,123*unit+drift,unit+pulse/30+b/200,4,fill_and_stroke);
     }
+    (void)d;(void)energy;
 
     s.initialized=1;s.track=in.track;s.serial=in.note_serial;
 }

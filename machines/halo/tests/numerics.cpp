@@ -66,6 +66,14 @@ int main() {
   require(alias < -26 && high < -32,
           "CIC anti-alias response is bounded in the upper input band");
   halo::State state = {};
+  for (int control=0; control<=32767; ++control) {
+    for (unsigned i=0;i<7;++i) state.controls[i]=control;
+    const auto config=halo::settings(state);
+    require(config.color>=0, "input pole remains positive at full color");
+    for (unsigned line=0;line<4;++line)
+      require(config.damping[line]>=0, "damping pole cannot overflow near Hold");
+  }
+  halo::initialize(state);
   state.clock = 0xfffff000u;
   for (unsigned frame = 0; frame < 5000; ++frame) {
     for (unsigned line = 0; line < 4; ++line)

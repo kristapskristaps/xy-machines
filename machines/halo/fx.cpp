@@ -166,7 +166,7 @@ Settings settings(const State &state) {
               echo = state.controls[2], shimmer = state.controls[3],
               color = state.controls[4], hold = state.controls[6];
     const i32 tone = table(tables::tone, static_cast<u32>(color) * 2u);
-    const i32 doubled_tone = 2 * tone - mul(tone, tone);
+    const i32 doubled_tone = clamp(2 * tone - mul(tone, tone), 0, 32767);
     result.color = doubled_tone * 65536;
     const i32 echo_tone = tone / 2 + 2400;
     result.echo_color = (2 * echo_tone - mul(echo_tone, echo_tone)) * 65536;
@@ -186,7 +186,7 @@ Settings settings(const State &state) {
         result.decay[i] =
             mul(response(fdn_tables::decay, decay, i), reserve) * 65536;
         const i32 pole = response(fdn_tables::damping, damping, i);
-        result.damping[i] = (2 * pole - mul(pole, pole)) * 65536;
+        result.damping[i] = clamp(2 * pole - mul(pole, pole), 0, 32767) * 65536;
     }
     result.shimmer = mul(pitched, 16384) * 65536;
     result.seed_echo = mul(echo, 21000) * 65536;

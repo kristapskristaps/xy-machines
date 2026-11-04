@@ -47,14 +47,27 @@ can use parameter locks on Flow, Bite, Burn or Sweep.
 
 ## Display
 
-A monochrome fluid membrane crosses the screen. Sixty-four rotating cross
-sections form its glassy folds; thin silhouette ribbons trace its surface.
-Six clusters of beads travel through its core, with small bubbles around it.
-Bite and Burn increase deformation, Flow controls travel speed, and note attacks
-swell the membrane. Depth changes shade and bead size to suggest translucency.
-Idle animation settles; track changes reset it; reduced motion shows a static
-composition. All geometry is bounded and stays outside the audio callback.
-Both control pages remain visible through the SDK's shared header.
+A monochrome liquid surface crosses the screen in six overlapping folds. Eight
+continuous cubic layers build each fold from dark body shading to narrow moving
+reflections. Smooth authored surfaces replace the previous cross-section mesh;
+small pearl cores have separate specular glints, with bubbles around them.
+
+| Sound control | Animation |
+| --- | --- |
+| Flow | Advection speed |
+| Bite | Fold frequency, pinching and twist |
+| Burn | Reflected-light intensity |
+| Sweep | Curl amplitude and fold rotation |
+| Length | Note-pulse persistence, fold spacing and bubble trails |
+| Shape | Rounded, double-wave or creased fold profile |
+| Body | Liquid volume and pearl size |
+| Shade | Surface darkness and highlight contrast |
+
+Note attacks swell the folds. Idle animation settles; track changes reset it;
+reduced motion shows a static composition. Both control pages remain visible
+through the shared header. The scene uses 116 retained nodes; all geometry and
+lighting stay outside the audio callback. Tests compare actual surface/particle
+node transforms and shading for all eight controls, excluding header text.
 
 ## DSP budget and validation
 

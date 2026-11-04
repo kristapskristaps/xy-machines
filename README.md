@@ -1,16 +1,16 @@
 # XY Machines
 
-39 Open-XY machines: **21 synths, 1 drum machine, 16 send effects and 1 sample engine**.
+38 Open-XY machines: **21 synths, 1 drum machine, 15 send effects and 1 sample engine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
-- `machines/<id>/`: Vader, Vapour, Halo, Westfold, Acidline,
+- `machines/<id>/`: Vader, Halo, Westfold, Acidline,
   Rebound, Mando, X0X, and the five standalone Weave models.
 - `machines/hundekraft/`: all 26 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 39 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 38 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK effects
   and HK Granular remain excluded from hardware test kits.
@@ -29,7 +29,7 @@ is available for review.
 ## First release candidates
 
 The first release group is **Acidline, Halo, Mando, Rebound,
-Vader, Vapour and Westfold**. Its source selection is
+Vader and Westfold**. Its source selection is
 [collections/first-release.json](collections/first-release.json). These are
 release candidates; catalog publication follows final source-bound hardware
 qualification and the required SDK integration.
@@ -41,7 +41,7 @@ Each machine has its own README, license, controls and audition instructions.
 The seven synth previews are available in the **first-ten-synth-previews**
 artifact of a successful [Collection checks](https://github.com/kristapskristaps/xy-machines/actions/workflows/checks.yml)
 run. Download it and serve one preview folder with the pinned SDK's
-`tools/serve_harness.py --preview <folder>`. Halo, Rebound and Vapour provide
+`tools/serve_harness.py --preview <folder>`. Halo and Rebound provide
 local effect auditions in their READMEs; projects save their send settings.
 
 Use per-machine release tags such as `halo-v1.0.0`. Multiple machine tags may
@@ -176,7 +176,6 @@ and documentation; it does not replace the licences of the machines.
 | mando | Mando | synth | [machines/mando](machines/mando/README.md) |
 | rebound | Rebound | effect | [machines/rebound](machines/rebound/README.md) |
 | vader | Vader | synth | [machines/vader](machines/vader/README.md) |
-| vapour | Vapour | effect | [machines/vapour](machines/vapour/README.md) |
 | weave_analog | Tandem | synth | [machines/weave_analog](machines/weave_analog/README.md) |
 | weave_chords | Choir | synth | [machines/weave_chords](machines/weave_chords/README.md) |
 | weave_grain | Sift | synth | [machines/weave_grain](machines/weave_grain/README.md) |

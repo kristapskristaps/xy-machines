@@ -38,7 +38,7 @@ async function audio() {
       gain = context.createGain(); gain.gain.value = +$('volume').value;
       node.connect(gain).connect(context.destination);
       node.port.onmessage = ({data}) => {
-        if (data.type !== 'meter') return;
+        if (data.type !== 'meter' || context.state !== 'running') return;
         $('meter').value = data.peak;
         $('wet-state').textContent = data.wetPeak > .00001 ? 'Effect signal active' : playing ? 'Listening…' : 'Input stopped';
       };
@@ -100,7 +100,7 @@ function renderControls() {
 }
 $('play').onclick = play;
 $('stop').onclick = () => { stopInput(); status('Input stopped · tail continues'); };
-$('clear').onclick = async () => { stopInput(); node?.port.postMessage({type:'reset'}); await context?.suspend(); $('meter').value = 0; status('Tail cleared'); };
+$('clear').onclick = async () => { stopInput(); node?.port.postMessage({type:'reset'}); await context?.suspend(); $('meter').value = 0; $('wet-state').textContent = 'Input stopped'; status('Tail cleared'); };
 $('bypass').onclick = () => { bypass = !bypass; $('bypass').setAttribute('aria-pressed', String(bypass)); $('bypass').textContent = bypass ? 'Compare · original audio' : 'Compare · effect on'; master(); };
 $('reset').onclick = () => { values = controls.defaults(); update(); };
 $('loop').onchange = () => { if (source) source.loop = $('loop').checked; };

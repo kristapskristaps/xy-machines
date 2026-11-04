@@ -1,20 +1,23 @@
 #pragma once
 #include <opxy/effect.hpp>
 #include <opxy/transport.hpp>
-
 namespace halo {
-const unsigned network_rate=11025;
-const unsigned buffer_words=57856;
-const unsigned echo_frames=33792;
-struct State {
-    opxy::u32 ready, written, positions[19];
-    opxy::u32 down_write[2], up_write[2], half, quarter, phase[2], grain_phase;
-    opxy::i32 controls[7], delay;
-    opxy::i32 input_low[2], input_high[2], echo_low[2], echo_high[2], echo_error[2];
-    opxy::i32 plate[2], damping[2], shimmer_high[2], shimmer_low[2][2];
-    opxy::i32 body[2], duck[2];
+const unsigned network_rate = 11025;
+const unsigned buffer_words = 48448;
+const unsigned echo_frames = 33792;
+struct Cic {
+    opxy::u32 integrator[3], comb[3];
 };
-static_assert(sizeof(State)<=opxy::effect_buffered_state_bytes,"Halo state exceeds send storage");
-void initialize(State&);
-void process(State&,opxy::Buffer,const opxy::Transport&,opxy::Channel,opxy::Channel,opxy::Parameters);
-}
+struct State {
+    opxy::u32 ready, written, clock, echo_position, phase, grain_phase;
+    Cic down[2], up[2];
+    opxy::i32 controls[7], delay, input_high[2], input_low[2], echo_low[2];
+    opxy::i32 damping[4], feedback_dc[4], shimmer_high, shimmer_low[2];
+    opxy::i32 peak, body, duck;
+};
+static_assert(sizeof(State) <= opxy::effect_buffered_state_bytes,
+              "Halo state exceeds send storage");
+void initialize(State &);
+void process(State &, opxy::Buffer, const opxy::Transport &, opxy::Channel,
+             opxy::Channel, opxy::Parameters);
+} // namespace halo

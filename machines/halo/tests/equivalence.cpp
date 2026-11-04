@@ -1,4 +1,4 @@
-#include "../fx.cpp"
+#include "plate_reference/fx.cpp"
 #include <cstdio>
 #include <cstring>
 
@@ -15,12 +15,12 @@ const i32 presets[][8]={
     {1675037245,1825361100,601295421,1546188226,1331439861,1116691496,0,2147483647}
 };
 Hash word(Hash hash,u32 value){return (hash^value)*1099511628211ull;}
-static i32 memory[halo::buffer_words],left[64],right[64];
+static i32 memory[halo_plate::buffer_words],left[64],right[64];
 Hash scenario(unsigned setting){
-    halo::State state;halo::initialize(state);
+    halo_plate::State state;halo_plate::initialize(state);
     for(auto& sample:memory)sample=0x3f3f3f3f;
     i32 parameters[8];std::memcpy(parameters,presets[setting%3],sizeof parameters);
-    opxy::Buffer buffer={memory,halo::buffer_words};
+    opxy::Buffer buffer={memory,halo_plate::buffer_words};
     opxy::Transport transport={1200,0,true};
     u32 random=7139,phase=0;Hash hash=14695981039346656037ull;
     for(unsigned block=0;block<4096;++block){
@@ -31,13 +31,13 @@ Hash scenario(unsigned setting){
         if(setting==4 && block%127==0)
             for(unsigned control=0;control<8;++control)parameters[control]=(block/127+control)%2?2147483647:0;
         if(setting==5)parameters[6]=block>=512 && block<3072?2147483647:0;
-        if(setting==3 && block==2048)halo::initialize(state);
+        if(setting==3 && block==2048)halo_plate::initialize(state);
         for(unsigned i=0;i<64;++i){
             phase+=23192823u;
             left[i]=block<256 || setting>=3?static_cast<i32>(phase)/4:0;
             right[i]=block%113==0 && i==0?536870912:-left[i]/2;
         }
-        halo::process(state,buffer,transport,left,right,parameters);
+        halo_plate::process(state,buffer,transport,left,right,parameters);
         for(unsigned i=0;i<64;++i){hash=word(hash,static_cast<u32>(left[i]));hash=word(hash,static_cast<u32>(right[i]));}
     }
     static_assert(sizeof(state)%sizeof(u32)==0,"word-shaped Halo state");

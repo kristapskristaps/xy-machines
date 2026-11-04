@@ -31,25 +31,27 @@ The track's send controls how much enters Halo. Time follows transport at
 40–300 BPM, using 120 BPM when no tempo is available. At 40 BPM the longest
 echo is three seconds. The browser tempo control spans 40–240 BPM.
 
-The wet network runs at 11.025 kHz behind two cascaded stages of 31-tap halfband filters; the callback
-runs at 44.1 kHz. This deliberately suits a warm, diffuse tail, with a 4 kHz maximum Color
-cutoff and less high-frequency shimmer than the earlier 22.05 kHz network.
-Delay lengths, modulation, ducking and pitch-shift timing are retimed for the
-lower rate; tempo echoes still reach three seconds. The symmetric conversion filters share mirrored histories and paired taps.
-Control-dependent tone, room and feedback coefficients update once per block;
-the modulated audio network still runs per wet sample. The long stereo
-echo uses packed 16-bit samples with error feedback. Plate, diffusion, pre-delay
-and shimmer storage use Q24 words. Each send borrows 231,424 bytes (226 KiB)
-of scratch memory and has its own 248-byte state. Reset cannot expose previous
-scratch audio. Hold maintains an audible tail; it is not a lossless recording.
+The wet network runs at 11.025 kHz using a modulated four-line feedback-delay
+network. An energy-preserving Hadamard matrix spreads the tail between four
+unequal paths; independent damping and DC servos keep the bloom controlled.
+A stereo predelay and input allpasses feed the network. Tempo echoes remain
+stereo; a shared pair of Hann-windowed octave-up heads feeds opposite sides of
+the space. Shimmer-dependent decay compensation preserves long ambient tails.
 
-The conversion filters expand their seven nonzero mirrored tap pairs directly,
-preserving each product's rounding and accumulation order. Unpacked delay rings
-use masks for their power-of-two lengths; the packed three-second echo retains
-its original wrap. Network gains are scaled to Q31 once per callback. These
-changes preserve the original output, 248-byte send state and scratch layout.
-Fractional delay reads share one history bound and derive the second sample's
-index from the first, preserving zero-filled startup history and stereo packing.
+Three-stage CIC filters convert between 44.1 and 11.025 kHz. This is a warm
+reverb design: conversion deliberately rolls off the highest input frequencies,
+rather than reproducing the old 31-tap conversion filters exactly. Input/tail
+filtering and the current controls keep their physical timing and order.
+
+Scratch is 193,792 bytes (189.25 KiB), with a 232-byte independent send state.
+Every ring read checks its written history, so reset and Hold cannot expose
+stale scratch. No callback allocates, performs I/O or uses floating point.
+
+The earlier plate is retained only as an independent test reference. Frozen
+plate tests are not presented as equivalence of the new topology. Spatial tests
+compare factory-preset impulse energy, late energy, decay scale and stereo
+correlation against that reference. Listening acceptance and revision-bound
+hardware CPU qualification remain separate from these host checks.
 
 The hardware uses the SDK's stock FX page and a halo glyph. The animated rings
 belong to the machine-owned browser audition, not a custom native FX screen.
@@ -93,31 +95,22 @@ clang++ -std=c++11 -O2 -I ../../../xy-machines-sdk/sdk/include tests/parity.cpp 
 node tools/check_audition.mjs ../../../xy-machines-sdk/local/halo-audition-001 "$(/tmp/halo-parity)"
 ```
 
-`tests/equivalence.cpp` freezes complete stereo output plus final state and
-scratch from the preceding implementation across six long scenarios. The
-numerical tests also check every ring's wrap boundaries against modulo indexing.
-Fractional taps are checked against wide integer interpolation, including
-partially written history, both stereo channels and the last readable age.
-For paired host comparisons against that implementation, from the collection
-root run:
+`tests/equivalence.cpp` freezes the earlier plate's stereo output, state and
+scratch through its namespaced reference. `legacy_numerics.cpp` retains its
+arithmetic/ring checks. Neither claims that the FDN sounds identical.
+`space.cpp` compares factory impulse energy, late energy, decay and stereo width.
+`numerics.cpp` independently checks CIC conversion through unsigned wrap,
+ring bounds, physical echo timing and the octave-up heads.
 
-```sh
-python machines/halo/tools/benchmark.py --cxx /path/to/clang++
-```
-
-The benchmark alternates timing order for five repeats across 60 preset,
-control, tail and automation scenarios, checking matching output hashes, state
-and scratch. Host timings do not establish the Blackfin benefit of removing
-tap loops and coefficient scaling; measure the exact revision on the device.
-Use `--baseline <commit> --verify-only` to compare every output sample, state
-field and scratch word after each of 4,096 blocks per scenario, including reset
-with dirty scratch, tails and control/tempo automation.
+For later exact optimizations within the FDN topology, use
+`python machines/halo/tools/benchmark.py --baseline <FDN-commit> --verify-only`.
+It refuses plate-to-FDN state comparisons. Host timing never establishes device CPU.
 
 The SDK needs a synth in a native collection. Compile alongside a sibling
 instrument or the core 2op FM example, with output outside every checkout:
 
 ```sh
-python ../../../xy-machines-sdk/sdk.py compile --machine . --machine ../subvista \
+python ../../../xy-machines-sdk/sdk.py compile --machine . --machine ../weave_analog \
   --profiling on --out "$HOME/Library/Application Support/OPXY-SDK/private/halo-module-001"
 ```
 

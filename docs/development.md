@@ -202,6 +202,28 @@ Use `--all` instead of `--machine vader` to generate every included machine's
 report from the same capture batch. Repeating `--machine` selects a subset of
 reports without repeating the hardware capture batch.
 
+## Public machine gallery
+
+GitHub Pages serves the [machine gallery](https://kristapskristaps.github.io/xy-machines/).
+`.github/workflows/pages.yml` builds it from `collection.json` and the pinned SDK
+on changes to main. Synths and drums use the SDK's authenticated WebAssembly
+previews; effects and sample engines link to their guides. The export includes
+licenses and pinned source links, strips local build metadata, and contains no
+native objects, firmware, stock assets or device data.
+
+To inspect a fresh static export locally:
+
+```sh
+python tools/build_site.py --out local/gallery-001
+python tools/check_site.py --site local/gallery-001
+python tools/serve_site.py --site local/gallery-001
+```
+
+The localhost server uses a hashed file allowlist and the same `/xy-machines/`
+URL prefix as GitHub Pages. Opening a machine creates one audition iframe;
+closing it unloads the audio context. Generated modules remain ignored under
+`local/`; GitHub Actions uploads only the verified static export.
+
 ## Parallel work and final checks
 
 Use separate branches/worktrees per chat. Original sibling working folders are

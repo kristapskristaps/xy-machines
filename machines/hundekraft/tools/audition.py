@@ -26,7 +26,7 @@ def render_source(items,out):
     includes=[];functions=[];dispatch=[]
     for p in items:
         ident=p['id'];kind=p['kind'];folder=p['folder'];d=p['definition']
-        includes.append('#include "'+str(folder/('engine.cpp' if kind=='synth' else 'sample.cpp' if kind=='sample' else 'fx.cpp'))+'"')
+        includes.append('#include "'+str(folder/('engine.cpp' if kind=='synth' else 'fx.cpp'))+'"')
         q=[round(c['default']*2147483647) for c in d['parameters']];q+=[0]*(8-len(q))
         head='void audition_'+ident+'(){\nconst opxy::i32 initial[8]={'+','.join(map(str,q))+'};\nopxy::i32 parameters[8];for(unsigned i=0;i<8;++i)parameters[i]=initial[i];\n'
         if kind=='synth':
@@ -72,22 +72,6 @@ def render_source(items,out):
         for(unsigned i=0;i<64;++i){{const double t=(block*64+i)/44100.;left[i]=static_cast<opxy::i32>(input(t,0)*2147483647.);right[i]=static_cast<opxy::i32>(input(t,1)*2147483647.);}}
         {ident}::process(state,opxy::Buffer{{memory,{words}}},{tempo}left,right,parameters);
         for(unsigned i=0;i<64;++i)write(left[i]/2147483648.f*.6f,right[i]/2147483648.f*.6f);
-    }}
-'''
-        else:
-            body=f'''
-    static opxy::i16 sample[44100*2];for(unsigned i=0;i<44100;++i){{sample[i*2]=static_cast<opxy::i16>(input(.5+i/44100.,0)*60000.);sample[i*2+1]=static_cast<opxy::i16>(input(.5+i/44100.,1)*60000.);}}
-    {ident}::Voice voice;{ident}::initialize(voice,opxy::SampleView{{sample,44100,44100,2}});
-    opxy::i32 output[128];opxy::u32 pitch[64];
-    opxy::SampleBlock context={{output,parameters,pitch,{{1200,0,true}},{{0,44100,opxy::sample_unity_level,false,0}},0,0,2,0,0}};
-    for(unsigned block=0;block<blocks;++block){{
-        const unsigned note=block<2756?60:67;
-        const opxy::u32 increment=static_cast<opxy::u32>(440.*std::pow(2.,(int(note)-69)/12.)*4294967296./44100.);
-        for(unsigned i=0;i<64;++i)pitch[i]=increment;
-        if(block%1000==0){ident}::start(voice);
-        parameters[0]=static_cast<opxy::i32>((block%2000u)*1000000u);
-        {ident}::render_sample(voice,context);
-        for(unsigned i=0;i<64;++i)write(output[i*2]/2147483648.f*.6f,output[i*2+1]/2147483648.f*.6f);
     }}
 '''
         functions.append(head+body+'}\n');dispatch.append('if(!std::strcmp(argv[1],"'+ident+'")){audition_'+ident+'();return 0;}')

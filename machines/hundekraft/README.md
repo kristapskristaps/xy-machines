@@ -1,7 +1,7 @@
 # Hundekraft for Open-XY — development collection
 
-26 private development ports of the Hundekraft 3.0.3 workshop collection:
-12 synths, 13 stereo send effects and one sample engine. Machine source lives
+25 private development ports of the Hundekraft 3.0.3 workshop collection:
+12 synths and 13 stereo send effects. Machine source lives
 outside the SDK, in one standalone machine folder per port. The Open-XY SDK
 checkout is unchanged.
 
@@ -15,13 +15,12 @@ The audition server is running at **http://127.0.0.1:9137/**.
   controls. A/B compares the processed return with the dry source.
 - **Synths:** open a machine's workbench from the page, enable audio and play
   its keyboard or phrase. Export/import keeps all controls in a patch file.
-- **Screens:** open [the 26-screen gallery](http://127.0.0.1:9137/gallery.html),
+- **Screens:** open [the 25-screen gallery](http://127.0.0.1:9137/gallery.html),
   hold a note and change the controls. It recreates the original artwork in
   monochrome with selective red, orange and blue. Native synths use these
-  displays; effect and sample displays are browser studies pending an SDK interface.
+  displays; effect displays are browser studies pending an SDK interface.
 - **Recordings:** the page includes one WAV for every machine and a common dry
-  reference. Granular's sample-engine audition is a recording; the SDK does
-  not supply an interactive sample-engine workbench.
+  reference.
 - **In a room:** play some input and change Capture from Off to On. Each
   change starts a new capture; the captured loop then evolves through the room.
 - **Freeze / Latch:** these controls are exposed as Off/On parameters, including
@@ -64,10 +63,9 @@ Its synth workbenches use the SDK's authenticated preview server on ports
 | --- | --- |
 | Synth | Wavetable, Taffy, PEW, Elg, Supersaw, FM Bell, SID, MBIRA, Oxbow, EVA, Arc, Mixtur |
 | Send effect | Washer, Crush, Tape, Warble, Plate, Snowglobe, Father, Reverb, Clouds, HAIL, Stutter, Palme, In a room |
-| Sample | Granular: four overlapping grains, Hann windows, spray, tuning, trim, reverse and stereo PCM |
 
 Each machine has `machine.json`, `definition.json`, its C++ implementation,
-source attribution and host tests. `collection.json` builds all 26 together.
+source attribution and host tests. `collection.json` builds all 25 together.
 
 Not included: Aether needs a tilt input service, Amp needs a live-input engine
 service, and Gin's complete kit/editor workflow needs native drum-synth services.
@@ -111,37 +109,12 @@ where the XY compiler does not provide a 64-bit runtime helper. No firmware
 addresses, assembly, platform conditionals, allocation or file I/O are in the
 machine callbacks.
 
-## Validation completed
+## Validation
 
-- `sdk.py test --no-cpu` passed for **all 26 machines**, including all 12 WASM synth
-  previews and 77 host test executables. Voice interleaving, audio/input guards,
-  dirty send buffers, reset tails, dry routing, sample trim and stereo handling
-  are covered. Wide arithmetic is compared with host 64-bit arithmetic.
-- All 26 sound checks passed AddressSanitizer plus bounds, alignment, null and
-  division-by-zero checks.
-- All 26 display invariant tests also passed AddressSanitizer and undefined-behavior
-  checks (excluding the imported DSP's signed-wrap/shift conventions). Each covers
-  1,800 control/activity frames plus activation, idle and reduced motion.
-- The pinned Blackfin compiler linked all 26 machines, including the 12 custom
-  synth displays, and passed the SDK's module checks:
-  **1,035,280 bytes / 1011.0 KiB of 2040 KiB**. All 26 drawing callbacks also
-  cross-compile independently; effect/sample studies remain unregistered.
-- `sdk.py check` passed its public suite (209 tests); its 11 private-fixture
-  tests were explicitly skipped by that public command. This is not firmware
-  release verification.
-- All 13 live effect WASM modules loaded in the browser without console errors.
-  Clouds produced audio through the effect workbench; Wavetable's SDK workbench
-  played its phrase. Local WAV loading and playback after switching effects were also checked. All 26 recorded auditions have finite, nonzero output.
-- All 26 reconstructed screens load in the gallery without rendering errors.
-  Note/control motion, reduced motion and effect playback/switching were checked.
-  The 127 audio implementation/header files match the pre-visual-pass hashes.
-
-Logs, audition metrics and compiled previews are in ignored `local/`. The main
-test log is `local/sdk-visual-tests-final.log`; display sanitizer results are in
-`local/visual-checks.log`, and the earlier sound sanitizers are in `local/sanitizers.log`.
-Host timing estimates exceed the SDK's preferred aim
-for Arc, Wavetable, SID, Clouds, Reverb and Palme. They are estimates, not
-measured device cycles. Start hardware profiling with a small workload.
+Each remaining machine includes host sound, arithmetic and display checks. Run
+`./xy test` from the repository root for the current collection. Earlier local
+logs and compiled outputs describe historical snapshots, not this inventory.
+Host tests and browser auditions do not establish hardware acceptance or CPU.
 
 ## Native development module and firmware
 

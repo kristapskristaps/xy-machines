@@ -1,6 +1,6 @@
 # XY Machines
 
-38 Open-XY machines: **21 synths, 1 drum machine, 15 send effects and 1 sample engine**.
+37 Open-XY machines: **21 synths, 1 drum machine, 15 send effects**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
@@ -8,12 +8,12 @@ in a separate sibling checkout. No firmware or device data is included.
 
 - `machines/<id>/`: Vader, Halo, Westfold, Acidline,
   Rebound, Mando, X0X, and the five standalone Weave models.
-- `machines/hundekraft/`: all 26 Hundekraft ports, retaining their collection
+- `machines/hundekraft/`: all 25 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 38 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 37 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
-  `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK effects
-  and HK Granular remain excluded from hardware test kits.
+  `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK
+  effects remain excluded from hardware test kits.
 - `provenance/`: source commits, branch/tag references, original file hashes,
   snapshot records and the documentation/tooling-only layout adaptations.
 
@@ -158,7 +158,6 @@ and documentation; it does not replace the licences of the machines.
 | hkeva | HK EVA | synth | [machines/hundekraft/hkeva](machines/hundekraft/hkeva/README.md) |
 | hkfather | HK Father | effect | [machines/hundekraft/hkfather](machines/hundekraft/hkfather/README.md) |
 | hkfmbell | HK FM Bell | synth | [machines/hundekraft/hkfmbell](machines/hundekraft/hkfmbell/README.md) |
-| hkgranular | HK Granular | sample | [machines/hundekraft/hkgranular](machines/hundekraft/hkgranular/README.md) |
 | hkhail | HK HAIL | effect | [machines/hundekraft/hkhail](machines/hundekraft/hkhail/README.md) |
 | hkinaroom | HK In a room | effect | [machines/hundekraft/hkinaroom](machines/hundekraft/hkinaroom/README.md) |
 | hkmbira | HK MBIRA | synth | [machines/hundekraft/hkmbira](machines/hundekraft/hkmbira/README.md) |

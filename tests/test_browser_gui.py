@@ -24,8 +24,7 @@ class BrowserPoolTests(unittest.TestCase):
             (root / 'capture/extension.json').write_text('{"id":"capture"}')
             custom_rows = [machine(root / 'private', 'shared', 'synth'),
                            machine(root / 'vader', 'vader', 'synth'),
-                           machine(root / 'badfx', 'hkcrush', 'effect'),
-                           machine(root / 'sampler', 'hkgranular', 'sample')]
+                           machine(root / 'badfx', 'hkcrush', 'effect')]
             public, custom, output = [root / name for name in ('public.json', 'custom.json', 'pool.json')]
             public.write_text(json.dumps(dict(machines=public_rows, extensions=[dict(path='capture')])))
             custom.write_text(json.dumps(dict(machines=custom_rows)))
@@ -34,9 +33,8 @@ class BrowserPoolTests(unittest.TestCase):
                              ['private', 'core', 'vader'])
             self.assertEqual([Path(e['path']).name for e in json.loads(output.read_text())['extensions']], ['capture'])
             self.assertEqual(summary['local_overrides'], ['shared'])
-            self.assertEqual(summary['excluded'], ['hkcrush', 'hkgranular'])
+            self.assertEqual(summary['excluded'], ['hkcrush'])
             self.assertTrue((root / 'badfx/machine.json').is_file())
-            self.assertTrue((root / 'sampler/machine.json').is_file())
 
     def test_duplicate_catalog_id_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:

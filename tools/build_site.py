@@ -59,7 +59,7 @@ def thumbnail(asset, metadata, words):
     return ET.tostring(svg, encoding='unicode')
 
 
-def export_player(sdk, preview, target):
+def export_player(sdk, preview, target, description):
     sys.path.insert(0, str(sdk))
     from tooling.preview import preview_bundle
     bundle = preview_bundle(preview)  # authenticate the exact compiled payloads
@@ -69,6 +69,7 @@ def export_player(sdk, preview, target):
         if url.endswith('/manifest.json'):
             metadata = json.loads(data)
             metadata = {key: metadata[key] for key in ('schema', 'kind', 'engine', 'description', 'definition', 'sample_rate', 'wasm_sha256', 'graphics')}
+            metadata['description'] = description
             data = (json.dumps(metadata, indent=2) + '\n').encode()
         path.write_bytes(data)
     for name in BROWSER:
@@ -76,10 +77,14 @@ def export_player(sdk, preview, target):
         path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(sdk / 'sdk/browser' / name, path)
     for name in HARNESS:
-        source = (sdk / 'harness' / name).read_text()
+        source = (sdk / 'harness' / name).read_text().replace('Open-XY Machine Workbench', 'XY Machines Player')
         if name == 'index.html':
             source = source.replace('="/harness/', '="./harness/').replace('href="/"', 'href="../../"')
             source = source.replace('Open-XY Machine Workbench</a>', '← XY Machines</a>')
+            source = source.replace('Preview Limitations', 'About this preview')
+            source = source.replace('The audition applies its own simple amplitude gate after the engine.', 'Try the presets, then turn the controls to make the sound your own.')
+            source = source.replace('Shared C++ sound and display. Device fonts, filters, envelopes and CPU timing still need hardware qualification.', 'This is a browser preview. Sound and display can differ on the OP-XY; see the machine guide for hardware testing status.')
+            source = source.replace('Patch exports preserve every control. Rebuild the preview after changing the engine or display.', 'Export a patch to save your settings, or import one to pick up where you left off.')
             source = source.replace('</head>', '<link rel="stylesheet" href="player.css"></head>')
             path = target / 'index.html'
         else:
@@ -98,14 +103,15 @@ def build(sdk, out, cxx):
         shutil.copyfile(ROOT / 'site' / name, out / name)
     revision = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     machines = inventory()
+    descriptions = json.loads((ROOT / 'site/descriptions.json').read_text())
+    require(set(descriptions) == set(machines), 'Public descriptions must match the current inventory.')
     cards, records = [], []
     for ident, item in sorted(machines.items(), key=lambda pair: pair[1]['definition']['name'].casefold()):
         definition, metadata, folder = item['definition'], item['metadata'], item['path']
         name, kind = definition['name'], metadata['kind']
         require(kind in KINDS and re.fullmatch('[a-z][a-z0-9_]{0,14}', ident), 'Invalid public machine identity')
-        description = metadata.get('description', KINDS[kind])
-        if description.startswith('Hundekraft ') and description.endswith('DSP port for private OP-XY testing.'):
-            description = f'An OP-XY port of the Hundekraft {name.removeprefix("HK ")} {"instrument" if kind == "synth" else "effect"}.'
+        description = descriptions[ident]
+        require(isinstance(description, str) and description.strip(), 'Missing public machine description')
         relative = folder.relative_to(ROOT).as_posix()
         guide = f'{REPOSITORY}/blob/{revision}/{relative}/README.md'
         playable = kind in ('synth', 'drum')
@@ -114,7 +120,7 @@ def build(sdk, out, cxx):
             preview = out.parent / (out.name + '-previews') / ident
             subprocess.run([sys.executable, str(sdk / 'sdk.py'), 'preview', '--machine', str(folder), '--cxx', cxx, '--out', str(preview)], check=True)
             target = out / 'play' / ident
-            export_player(sdk, preview, target)
+            export_player(sdk, preview, target, description)
             manifest = json.loads((preview / 'manifest.json').read_text())
             words = json.loads(subprocess.check_output(['node', str(ROOT / 'site/render_screen.mjs'), str(sdk), str(preview / 'engine.wasm'), str(preview / 'manifest.json')], text=True))
             thumb = out / 'screens' / (ident + '.svg')

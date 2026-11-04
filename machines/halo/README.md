@@ -1,7 +1,7 @@
 # Halo
 
 A stereo bloom, echo and shimmer send for OP-XY OS 1.2.1. Halo combines one
-modulated plate network with softened tempo echoes, an octave-up feedback layer
+modulated feedback-delay network with softened tempo echoes, an octave-up feedback layer
 and Hold. Three presets start at different points in that connected space:
 **Soft Space**, **Cloud Echo** and **Silver Air**.
 
@@ -31,19 +31,19 @@ The track's send controls how much enters Halo. Time follows transport at
 40–300 BPM, using 120 BPM when no tempo is available. At 40 BPM the longest
 echo is three seconds. The browser tempo control spans 40–240 BPM.
 
-The wet network runs at 11.025 kHz using a modulated four-line feedback-delay
+The wet network runs at 5.5125 kHz using a modulated four-line feedback-delay
 network. An energy-preserving Hadamard matrix spreads the tail between four
 unequal paths; independent damping and DC servos keep the bloom controlled.
 A stereo predelay and input allpasses feed the network. Tempo echoes remain
 stereo; a shared pair of Hann-windowed octave-up heads feeds opposite sides of
 the space. Shimmer-dependent decay compensation preserves long ambient tails.
 
-Three-stage CIC filters convert between 44.1 and 11.025 kHz. This is a warm
+Three-stage CIC filters convert between 44.1 and 5.5125 kHz. This is a warm
 reverb design: conversion deliberately rolls off the highest input frequencies,
 rather than reproducing the old 31-tap conversion filters exactly. Input/tail
 filtering and the current controls keep their physical timing and order.
 
-Scratch is 193,792 bytes (189.25 KiB), with a 232-byte independent send state.
+Scratch is 97,536 bytes (95.25 KiB), with a 232-byte independent send state.
 Every ring read checks its written history, so reset and Hold cannot expose
 stale scratch. No callback allocates, performs I/O or uses floating point.
 

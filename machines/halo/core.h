@@ -2,9 +2,9 @@
 #include <opxy/effect.hpp>
 #include <opxy/transport.hpp>
 namespace halo {
-const unsigned network_rate = 11025;
-const unsigned buffer_words = 48448;
-const unsigned echo_frames = 33792;
+const unsigned rate_numerator = 11025, rate_denominator = 2;
+const unsigned buffer_words = 24384;
+const unsigned echo_frames = 16896;
 struct Cic {
     opxy::u32 integrator[3], comb[3];
 };

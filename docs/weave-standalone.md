@@ -20,7 +20,10 @@ common tables and adapter code are duplicated. Selecting only the models needed
 is the benefit; Choir alone does not carry Shaper's transfer tables or FM banks.
 
 Each machine has four controls corresponding to Weave Harmonic, Timbre, Morph
-and Output. Choir labels these Chord, Voicing, Colour and Root. Inapplicable
+and Output. Choir labels these Chord, Voicing, Colour and Root. The fourth control
+is labelled Lo fi on Atlas, Alt mix on Crease, and Z mix on Sift. It selects
+main versus alternate output, not volume. The inherited 7-bit mapping is main-only
+up to about 43%, blends around 43–57%, and is alternate-only above about 57%. Inapplicable
 Strike, Mode and Seed slots are removed. No extra envelope or LFO is added.
 Curated engine presets are included. Newly created IDs do not reinterpret old
 Weave projects or presets; recreate a sound by copying the four corresponding

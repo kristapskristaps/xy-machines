@@ -115,7 +115,7 @@ to build only. It serves the SDK allowlist, never the source checkout.
 No IDs means the complete inventory. Changed-file selection includes staged,
 unstaged and untracked machine sources. Inventory/SDK-pin changes select all.
 Normal tests skip the slower CPU sweep; `--cpu` enables its host estimate.
-Native effects are linked with Subvista because SDK startup requires an engine.
+Native effects are linked with Tandem because SDK startup requires an engine.
 Temporary native modules are not installable OS images.
 
 The SDK browser workbench supports synths and drums and uses an audition gate;

@@ -38,7 +38,7 @@
     },
     {
       "id": "output",
-      "label": "Output",
+      "label": "Lo fi",
       "default": 0,
       "mapping": {
         "kind": "linear",

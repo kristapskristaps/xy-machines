@@ -46,5 +46,18 @@ int main(){
  geometry.held_notes=1;++geometry.note_serial;
  for(unsigned tick=0;tick<220;++tick){auto before=drawing;weave_chords::display(motion,geometry,drawing);if(tick>20)for(unsigned n=0;n<24;++n){require(std::abs(drawing.nodes[n].cos-before.nodes[n].cos)<120 && std::abs(drawing.nodes[n].sin-before.nodes[n].sin)<120,"FAIL phase-wrap rotation discontinuity");}}
 
+ for(unsigned control=0;control<4;++control){
+  Input low={};low.reduced_motion=1;low.elapsed=17;low.slots[0]=858993459;low.slots[1]=1073741823;low.slots[2]=858993459;
+  weave_chords::DisplayState check={};weave_chords::Frame first={},last={};
+  low.slots[control]=0;weave_chords::display(check,low,first);
+  low.slots[control]=2147483647;weave_chords::display(check,low,last);
+  require(std::memcmp(first.nodes,last.nodes,sizeof first.nodes)!=0 || std::memcmp(first.paths,last.paths,sizeof first.paths)!=0,"FAIL control changes only header, not artwork");
+ }
+ for(unsigned mask=0;mask<16;++mask){
+  Input extreme={};extreme.elapsed=17;extreme.held_notes=1;
+  for(unsigned control=0;control<4;++control)extreme.slots[control]=mask&(1u<<control)?2147483647:0;
+  weave_chords::DisplayState check={};weave_chords::Frame frame={};
+  for(unsigned tick=0;tick<220;++tick){weave_chords::display(check,extreme,frame);require(valid(frame),"FAIL invalid moving control corner");}
+ }
  std::puts("PASS: bounded vector frames, noncollapsed outlines, note response, idle settling, reduced motion and track changes");
 }

@@ -11,10 +11,12 @@ Four controls map directly to the selected Weave model’s Harmonic, Timbre, Mor
 | Harmonic | The Z/bank coordinate of the wavetable atlas. |
 | Timbre | The X coordinate. |
 | Morph | The Y coordinate. |
-| Output | Crossfade toward the reduced-resolution auxiliary. |
+| Lo fi | Crossfade toward the reduced-resolution auxiliary. |
 
 The original retained vector animation reacts to notes and controls, settles when idle, and respects reduced motion. It illustrates the mechanism; no firmware or stock artwork is included.
 
 Run `./xy test weave_waves --native` or `./xy preview weave_waves --watch` from the collection root. Hardware CPU qualification and normal-playback acceptance for this new ID remain pending. Earlier Weave measurements are historical evidence only.
 
 DSP derives from Plaits by Émilie Gillet and the attributed integer port under MIT. See LICENSE and vendor/VENDOR.md.
+
+The fourth control is **Lo fi**: Crossfade from the main wavetable output to its reduced-resolution alternate. It is not volume. The inherited selector is main-only below about 43%, blends around 43–57%, and is alternate-only above about 57%. Compare the two endpoints to hear the difference.

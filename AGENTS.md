@@ -26,7 +26,7 @@ Read the SDK's authoring, UX, API, build and profiling guides before machine wor
    The default chooses a free port; never stop another chat's server.
 6. Run `./xy test <id> --native` before hardware work. Add `--cpu` for DSP
    performance changes; this is an advisory host estimate, not Blackfin timing.
-   Effect native checks include Subvista because the SDK startup check needs an engine.
+   Effect native checks include Tandem because the SDK startup check needs an engine.
 
 The SDK browser workbench supports synths and drum machines. Effects/sample engines use the same
 test/build commands plus their specialist auditions listed in the development

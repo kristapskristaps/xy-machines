@@ -57,8 +57,8 @@ def main():
                            '--machine', str(machine), '--out', str(Path(folder) / ident)]
                 if json.loads((machine / 'machine.json').read_text())['kind'] == 'effect':
                     # SDK startup requires an engine. Pair an isolated effect
-                    # with the collection's small Subvista synth for linking.
-                    command += ['--machine', str(ROOT / 'machines/subvista')]
+                    # with the collection's small Tandem synth for linking.
+                    command += ['--machine', str(ROOT / 'machines/weave_analog')]
                 toolchain = settings().get('toolchain')
                 if toolchain:
                     command += ['--toolchain', str(Path(toolchain) / 'bin'), '--compiler', toolchain]

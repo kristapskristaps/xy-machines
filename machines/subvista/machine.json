@@ -1,6 +1,0 @@
-{
-  "schema": 1,
-  "sdk": "1.8",
-  "kind": "synth",
-  "description": "Detuned saw/pulse subtractive synth with a resonant low-pass, pluck contour and animated signal-flow display."
-}

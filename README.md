@@ -1,16 +1,16 @@
 # XY Machines
 
-41 Open-XY machines: **23 synths, 1 drum machine, 16 send effects and 1 sample engine**.
+39 Open-XY machines: **21 synths, 1 drum machine, 16 send effects and 1 sample engine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
-- `machines/<id>/`: Vader, Matter, Vapour, Halo, Westfold, Acidline,
-  Subvista, Rebound, Mando, X0X, and the five standalone Weave models.
+- `machines/<id>/`: Vader, Vapour, Halo, Westfold, Acidline,
+  Rebound, Mando, X0X, and the five standalone Weave models.
 - `machines/hundekraft/`: all 26 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 41 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 39 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK effects
   and HK Granular remain excluded from hardware test kits.
@@ -28,7 +28,7 @@ is available for review.
 
 ## First release candidates
 
-The first release group is **Acidline, Halo, Mando, Matter, Rebound, Subvista,
+The first release group is **Acidline, Halo, Mando, Rebound,
 Vader, Vapour and Westfold**. Its source selection is
 [collections/first-release.json](collections/first-release.json). These are
 release candidates; catalog publication follows final source-bound hardware
@@ -89,7 +89,7 @@ On Homebrew macOS, add `--cxx /opt/homebrew/opt/llvm/bin/clang++` to host checks
 Native checks need the SDK's pinned Blackfin tools (`python sdk.py toolchain fetch`
 from the SDK checkout). They compile each machine into an external temporary
 directory, without stock firmware or device operations. Each effect is paired
-with the small Subvista synth because SDK startup requires at least one engine.
+with the small Tandem synth because SDK startup requires at least one engine.
 `--native` runs both
 host and native checks. For one machine, use the SDK directly:
 
@@ -174,9 +174,7 @@ and documentation; it does not replace the licences of the machines.
 | hkwasher | HK Washer | effect | [machines/hundekraft/hkwasher](machines/hundekraft/hkwasher/README.md) |
 | hkwavetable | HK Wavetable | synth | [machines/hundekraft/hkwavetable](machines/hundekraft/hkwavetable/README.md) |
 | mando | Mando | synth | [machines/mando](machines/mando/README.md) |
-| matter | Matter | synth | [machines/matter](machines/matter/README.md) |
 | rebound | Rebound | effect | [machines/rebound](machines/rebound/README.md) |
-| subvista | Subvista | synth | [machines/subvista](machines/subvista/README.md) |
 | vader | Vader | synth | [machines/vader](machines/vader/README.md) |
 | vapour | Vapour | effect | [machines/vapour](machines/vapour/README.md) |
 | weave_analog | Tandem | synth | [machines/weave_analog](machines/weave_analog/README.md) |

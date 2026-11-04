@@ -22,7 +22,8 @@ inline void ribbon(Frame& f,unsigned p,i32 base,i32 phase,i32 amplitude,bool fol
     for(unsigned i=0;i<32;++i) {
         const i32 column=static_cast<i32>(i<16?i:31-i);
         const i32 wave=folded?((column%6<3?static_cast<i32>(column%6):6-static_cast<i32>(column%6))*2*unit/3-unit):sine(column*220+phase);
-        const i32 y=base+floor_q10(wave*amplitude)+(i<16?-5:5)*unit;
+        const i32 bend=folded ? floor_q10(sine(phase+column*120)*6*unit) : 0;
+        const i32 y=base+floor_q10(wave*amplitude)+bend+(i<16?-5:5)*unit;
         f.paths[p].points[i]={(-62*unit+column*124*unit/15)/2,(y-123*unit)/2};
     }
     key(f,p);
@@ -80,13 +81,15 @@ void display(DisplayState& s,const opxy::draw::Input& in,Frame& f) {
     // Five nested apertures breathe independently, like a harmonic sculpture.
     for(unsigned i=0;i<5;++i) {
         const i32 voice=static_cast<i32>(i),order=(voice+b/6554)%5;
-        const i32 breathe=floor_q10(sine(phase+order*720)*(energy*3));
-        const i32 height=(68+order*2)*unit+breathe+pulse*2;
-        if(i<3) {arch(f,i,height,(c/7000)*unit);place(f,i,(74+voice*83)*unit,123*unit,2*unit,4,stroke);}
-        else place(f,3+i-3,(74+voice*83)*unit,123*unit,unit+breathe/100,4,stroke);
+        const i32 breathe=floor_q10(sine(phase+order*720)*(energy*7));
+        const i32 root=i==2?0:d/1800;
+        const i32 height=(61+a/3277+order*2-root)*unit+breathe+pulse*4;
+        const i32 centre=(74+voice*83)*unit+(voice-2)*(b-16384)/5;
+        if(i<3) {arch(f,i,height,(c/4000)*unit);place(f,i,centre,123*unit,2*unit,4,stroke);}
+        else place(f,3+i-3,centre,123*unit,height/72,4,stroke);
         for(unsigned ring=0;ring<3;++ring) {
             const unsigned node=5+i*3+ring;
-            place(f,node,(74+voice*83)*unit,123*unit,800-static_cast<i32>(ring)*170+breathe/65,4,stroke);
+            place(f,node,centre,123*unit,clamp(800-static_cast<i32>(ring)*170+breathe/26+a/160-root*12,140,1080),4,stroke);
         }
     }
     (void)a;(void)d;

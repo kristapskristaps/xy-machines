@@ -22,7 +22,8 @@ inline void ribbon(Frame& f,unsigned p,i32 base,i32 phase,i32 amplitude,bool fol
     for(unsigned i=0;i<32;++i) {
         const i32 column=static_cast<i32>(i<16?i:31-i);
         const i32 wave=folded?((column%6<3?static_cast<i32>(column%6):6-static_cast<i32>(column%6))*2*unit/3-unit):sine(column*220+phase);
-        const i32 y=base+floor_q10(wave*amplitude)+(i<16?-5:5)*unit;
+        const i32 bend=folded ? floor_q10(sine(phase+column*120)*6*unit) : 0;
+        const i32 y=base+floor_q10(wave*amplitude)+bend+(i<16?-5:5)*unit;
         f.paths[p].points[i]={(-62*unit+column*124*unit/15)/2,(y-123*unit)/2};
     }
     key(f,p);
@@ -79,13 +80,13 @@ void display(DisplayState& s,const opxy::draw::Input& in,Frame& f) {
 
     // An accordion surface, drawn as one continuous folded sheet.
     for(unsigned p=0;p<3;++p) {
-        ribbon(f,p,123*unit,phase,(65+b/6000)*unit,true);
+        ribbon(f,p,123*unit,phase,(48+b/2500+d/9000)*unit+floor_q10(sine(phase)*energy)/130+pulse*3,true);
         place(f,p,(110+static_cast<i32>(p)*130)*unit,123*unit+floor_q10(sine(phase)*energy)/150,2*unit,4,fill_and_stroke);
     }
     for(unsigned i=0;i<16;++i) {
         const i32 at=static_cast<i32>(i);
         place(f,3+i,(48+at*25)*unit,123*unit,unit,4,stroke);
-        turn(f,3+i,rotation(sine(phase+at*180)*(a/1600)/unit+(c-16384)/2400));
+        turn(f,3+i,rotation(sine(phase+at*180)*(120+a/500)/unit+(c-16384)/400));
     }
     (void)d;(void)pulse;
 

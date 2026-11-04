@@ -4,6 +4,11 @@ A Clouds-derived stereo granular send for OP-XY OS 1.2.1. It records incoming
 audio, overlaps up to 8 grains, transposes them, freezes the recording buffer,
 and adds diffusion. It uses the [Open-XY SDK](https://github.com/etcetc000/open-xy).
 
+The initial sound emphasizes the granular return: lower dry level,
+a longer window and upward transposition. The default density keeps its previous
+overlap demand; the effect does not add voices. For a frozen cloud, play input first,
+then enable Freeze and move Position/Pitch. Density has a silent zone near 50%.
+
 ## Controls
 
 | Control | Behavior |

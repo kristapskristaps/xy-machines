@@ -38,7 +38,7 @@
     },
     {
       "id": "output",
-      "label": "Output",
+      "label": "Alt mix",
       "default": 0,
       "mapping": {
         "kind": "linear",

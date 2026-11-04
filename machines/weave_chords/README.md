@@ -18,3 +18,5 @@ The original retained vector animation reacts to notes and controls, settles whe
 Run `./xy test weave_chords --native` or `./xy preview weave_chords --watch` from the collection root. Hardware CPU qualification and normal-playback acceptance for this new ID remain pending. Earlier Weave measurements are historical evidence only.
 
 DSP derives from Plaits by Émilie Gillet and the attributed integer port under MIT. See LICENSE and vendor/VENDOR.md.
+
+The fourth control is **Root**: Crossfade from the complete chord to its root-only alternate. It is not volume. The inherited selector is main-only below about 43%, blends around 43–57%, and is alternate-only above about 57%. Compare the two endpoints to hear the difference.

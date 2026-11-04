@@ -1,6 +1,6 @@
 # Engine inventory
 
-41 source engines: 23 synths, 16 effects, 1 drum machine and 1 sample engine. This is source availability, not a release list or a promise that all engines fit together. The combined Weave engine is retired; its source remains in Git history. HK effects and HK Granular remain excluded from the default builder/test selection.
+39 source engines: 21 synths, 16 effects, 1 drum machine and 1 sample engine. This is source availability, not a release list or a promise that all engines fit together. The combined Weave engine is retired; its source remains in Git history. HK effects and HK Granular remain excluded from the default builder/test selection.
 
 ## Synths
 
@@ -23,9 +23,7 @@
 | HK Taffy | `hktaffy` | [machines/hundekraft/hktaffy](../machines/hundekraft/hktaffy/README.md) |
 | HK Wavetable | `hkwavetable` | [machines/hundekraft/hkwavetable](../machines/hundekraft/hkwavetable/README.md) |
 | Mando | `mando` | [machines/mando](../machines/mando/README.md) |
-| Matter | `matter` | [machines/matter](../machines/matter/README.md) |
 | Sift | `weave_grain` | [machines/weave_grain](../machines/weave_grain/README.md) |
-| Subvista | `subvista` | [machines/subvista](../machines/subvista/README.md) |
 | Tandem | `weave_analog` | [machines/weave_analog](../machines/weave_analog/README.md) |
 | Vader | `vader` | [machines/vader](../machines/vader/README.md) |
 | Westfold | `westfold` | [machines/westfold](../machines/westfold/README.md) |

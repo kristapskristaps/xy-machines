@@ -43,6 +43,40 @@ inline i32 saturate(i32 x) {
     const i32 value = baked_tables::tanh[at];
     return x < 0 ? -value : value;
 }
+// Uniform segments fit in one cache line group; endpoint and slope share a
+// word.
+inline i32 bass_saturate(i32 x) {
+    const u32 a = static_cast<u32>(x < 0 ? -x : x);
+    i32 y;
+    if (a >= 65536u) {
+        const u32 tail = 16373u + ((a - 65536u) >> 13);
+        y = tail > 16384u ? 16384 : static_cast<i32>(tail);
+    } else {
+        static const u32 transfer[32] = {
+            133496832u, 129501173u, 121769901u, 111417071u, 99360147u,
+            86451071u,  73869478u,  61943053u,  51261630u,  41825228u,
+            33896010u,  27211855u,  21707246u,  17185593u,  13646911u,
+            10763535u,  8404403u,   6635059u,   5193368u,   4079335u,
+            3161893u,   2506581u,   1916795u,   1523608u,   1195951u,
+            933825u,    737231u,    540634u,    475106u,    344041u,
+            278510u,    212978u};
+        const u32 word = transfer[a >> 11];
+        const opxy::i16 slope = static_cast<opxy::i16>(word >> 16);
+        const opxy::i16 fraction = static_cast<opxy::i16>(a & 2047u);
+        y = static_cast<i32>(word & 65535u) + (slope * fraction >> 11);
+    }
+    return x < 0 ? -y : y;
+}
+inline i32 bass_knee(i32 x) {
+    const u32 a = static_cast<u32>(x < 0 ? -x : x);
+    if (a <= 10240u)
+        return x;
+    if (a >= 18432u)
+        return x < 0 ? -14336 : 14336;
+    const opxy::i16 delta = static_cast<opxy::i16>(a - 10240u);
+    const i32 y = 10240 + delta - (delta * delta >> 14);
+    return x < 0 ? -y : y;
+}
 inline i32 output_knee(i32 x) {
     const u32 magnitude = static_cast<u32>(x < 0 ? -x : x);
     if (magnitude <= 10240u)
@@ -177,8 +211,9 @@ inline i32 morph(const Oscillator &saw, const Oscillator &pulse, u32 phase,
 struct Filter : FilterCoefficients {
     explicit Filter(const FilterCoefficients &cached)
         : FilterCoefficients(cached) {}
-    Filter(i32 coefficient, i32 amount, bool half=false) {
-        const auto* bank=half ? half_rate_tables::coefficients : four_pole_tables::coefficients;
+    Filter(i32 coefficient, i32 amount, bool half = false) {
+        const auto *bank = half ? half_rate_tables::coefficients
+                                : four_pole_tables::coefficients;
         g = coefficient;
         unsigned low = 0, high = 73;
         while (high - low > 1) {
@@ -201,13 +236,10 @@ struct Filter : FilterCoefficients {
         for (unsigned i = 0; i < 6; ++i) {
             const i32 a =
                 bank[row][low][i] +
-                multiply(bank[row][high][i] -
-                             bank[row][low][i],
-                         fraction);
+                multiply(bank[row][high][i] - bank[row][low][i], fraction);
             const i32 b =
                 bank[row + 1][low][i] +
-                multiply(bank[row + 1][high][i] -
-                             bank[row + 1][low][i],
+                multiply(bank[row + 1][high][i] - bank[row + 1][low][i],
                          fraction);
             result[i] = a + multiply(b - a, weight);
         }

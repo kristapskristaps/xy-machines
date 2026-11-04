@@ -85,7 +85,10 @@ glide and the second oscillator's octave/detune. The bass path caps its filter
 design at 8.5 kHz and adds four output frames of reconstruction latency. This
 softens the highest harmonics compared with the full-rate design, while retaining
 the dual oscillators, resonant four-pole lowpass and all 16 factory presets.
-No extra voices, envelopes or LFOs are added.
+No extra voices, envelopes or LFOs are added. The bass path uses a compact
+32-segment input transfer and a smooth quadratic output knee. Exhaustive
+curve comparisons differ by at most 30 and 179 Q14 counts respectively; the
+full-rate path retains the previous curves.
 
 Generate the low-rate coefficient bank with
 `python machines/mando/tools/generate_half_rate.py` after the generators below.

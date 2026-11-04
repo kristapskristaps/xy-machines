@@ -13,7 +13,9 @@ __attribute__((noinline)) void first_section(Voice &voice,
         y2 = voice.history[3];
     const i32 b = filter.b0[0], a = filter.a1[0], c = filter.a2[0];
     for (unsigned i = 0; i < Frames; ++i) {
-        const i32 x = saturate(output[i]) * 1024;
+        const i32 x =
+            (Frames == 32 ? bass_saturate(output[i]) : saturate(output[i])) *
+            1024;
         const i32 y = clamp(multiply(x + 2 * x1 + x2, b) - multiply(y1, a) * 2 -
                                 multiply(y2, c),
                             -67108864, 67108864);
@@ -60,7 +62,8 @@ __attribute__((noinline)) void filter_audio(Voice &voice,
     second_section<Frames>(voice, output, filter, previous_first,
                            previous_second);
     for (unsigned i = 0; i < Frames; ++i) {
-        const i32 filtered = output_knee(output[i] >> 10);
+        const i32 filtered = Frames == 32 ? bass_knee(output[i] >> 10)
+                                          : output_knee(output[i] >> 10);
         const i32 charge =
             voice.dc_output * (Frames == 32 ? 32750 : 32759) + voice.dc_residue;
         const i32 dc = filtered - voice.dc_input + (charge >> 15);

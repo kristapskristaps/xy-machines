@@ -13,7 +13,10 @@ static Hash legacy_hash(Hash hash,const acidline_legacy::Voice& voice,const i32*
     const unsigned prefix=offsetof(acidline_legacy::Voice,fir1)/sizeof(u32)+32;
     u32 words[prefix+6];std::memcpy(words,&voice,prefix*sizeof(u32));
     std::memcpy(words+prefix,&voice.cursor1,6*sizeof(u32));
-    for(auto value:words)hash=word(hash,value);return hash;
+    for(auto value:words){
+        hash=word(hash,value);
+    }
+    return hash;
 }
 struct Metrics {double old_energy,new_energy,old_edge,new_edge,difference,old_last,new_last;};
 static void accumulate(Metrics& m,const i32* old,const i32* now){
@@ -69,8 +72,10 @@ int main(){
         if(level<0.5 || level>2 || brightness<0.5 || brightness>2){
             std::printf("FAIL sound-comparison tolerance scene %u: RMS %.3f edge %.3f\n",scenario,level,brightness);return 1;
         }
-        if(level<min_level)min_level=level;if(level>max_level)max_level=level;
-        if(brightness<min_brightness)min_brightness=brightness;if(brightness>max_brightness)max_brightness=brightness;
+        if(level<min_level)min_level=level;
+        if(level>max_level)max_level=level;
+        if(brightness<min_brightness)min_brightness=brightness;
+        if(brightness>max_brightness)max_brightness=brightness;
         std::printf("scene %u: level %.3f brightness %.3f\n",scenario,level,brightness);++cases;
     }
     std::printf("SUMMARY %u frozen legacy scenes retained; new/old RMS %.3f..%.3f, normalized-edge %.3f..%.3f; block-end pole maxima %d / last %d\n",cases,min_level,max_level,min_brightness,max_brightness,max_pole,max_last_pole);

@@ -33,6 +33,10 @@ The SDK public check completed 382 tests successfully, with 16 private/optional
 tests skipped under its public-check contract. No SDK source was modified.
 
 Raw MIDI captures, packages, reboot evidence and full device readbacks remain
-outside the repository. The pre-test audition collection is restored after
-testing; no presets were transferred or overwritten. This Halo work remains
-local and has not been pushed or submitted to the catalog.
+outside the repository. The pre-test audition collection was transferred back
+and readback-verified as generation 166; the software USB restart was observed.
+The final active-collection check is pending: normal MIDI endpoints disappeared
+after startup, and the device could not be opened over MTP. A normal-screen/USB
+reconnect confirmation has been requested. No presets were transferred or
+overwritten. This Halo work remains local and has not been pushed or submitted
+to the catalog.

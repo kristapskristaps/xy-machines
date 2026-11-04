@@ -1,0 +1,10 @@
+{
+  "cpu": {
+    "benchmark": "opxy-effect-callback-v1",
+    "commit": "16ee2c863de8552ea9769f83ca869e4b5010c1ba",
+    "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+    "runs": 1,
+    "block_percent": 2.418555,
+    "collection_sha256": "9d484556b54cbdf18ea6ca5e9325bc012ff24ab30a0cffb5272e8eb7f7957aed"
+  }
+}

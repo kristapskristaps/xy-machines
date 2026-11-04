@@ -47,6 +47,8 @@ void xy_process(unsigned bpm,unsigned ticks,unsigned playing){{
         shutil.copyfile(ROOT / 'site/effect' / name, target / name)
     shutil.copyfile(sdk / 'sdk/browser/controls.mjs', target / 'controls.mjs')
     page = (ROOT / 'site/effect/index.html').read_text()
+    app_revision = hashlib.sha256((target / 'app.mjs').read_bytes()).hexdigest()[:16]
+    page = page.replace('src="app.mjs"', f'src="app.mjs?v={app_revision}"')
     for key, value in {'NAME':definition['name'], 'DESCRIPTION':description, 'GUIDE':guide}.items():
         page = page.replace('{{' + key + '}}', html.escape(value, quote=True))
     if ident.startswith('hk'):

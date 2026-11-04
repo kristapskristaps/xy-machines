@@ -114,8 +114,8 @@ python ../../../xy-machines-sdk/sdk.py compile --machine . --machine ../weave_an
   --profiling on --out "$HOME/Library/Application Support/OPXY-SDK/private/halo-module-001"
 ```
 
-Host comparisons are development guidance; hardware CPU timing for this
-revision and normal project playback remain unvalidated. A full package
+Host comparisons are development guidance. Revision-bound hardware CPU results
+and their scope are recorded in the [qualification notes](../../docs/profiling/2026-11-04/halo/README.md); normal project playback and listening acceptance are separate. A full package
 requires an authenticated stock OS 1.2.1 from the user's device. Follow the
 SDK's [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md)
 and [profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).

@@ -75,6 +75,24 @@ controls only; the full AMP and voice settings apply on the OP-XY.
 
 The original eight engine presets keep their exact parameter values.
 
+## Adaptive sample rate
+
+Bass notes use a 22.05 kHz oscillator/filter core with cubic reconstruction to
+44.1 kHz. Both oscillator frequencies must stay below 2,756 Hz. A voice leaving
+that range switches to full-rate synthesis until its next note start; a short
+crossfade smooths the handoff. Pitch phase accumulation stays exact, including
+glide and the second oscillator's octave/detune. The bass path caps its filter
+design at 8.5 kHz and adds four output frames of reconstruction latency. This
+softens the highest harmonics compared with the full-rate design, while retaining
+the dual oscillators, resonant four-pole lowpass and all 16 factory presets.
+No extra voices, envelopes or LFOs are added.
+
+Generate the low-rate coefficient bank with
+`python machines/mando/tools/generate_half_rate.py` after the generators below.
+Tests cover its coefficient stability, reconstruction images, rate handoff,
+output headroom and the existing preset/alias/pitch checks. Hardware timing is
+revision-bound and must be measured before this candidate is accepted.
+
 ## Sound and display
 
 This experimental redesign keeps the twin harmonic-limited saw/square

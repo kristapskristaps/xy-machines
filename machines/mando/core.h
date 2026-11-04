@@ -17,6 +17,8 @@ struct Voice {
     i32 dc_input, dc_output, dc_residue;
     FilterCoefficients cached_filter;
     i32 cached_resonance;
+    i32 reconstruction[3], last_output;
+    u32 rate_mode;
 };
 struct Shared {};
 } // namespace mando

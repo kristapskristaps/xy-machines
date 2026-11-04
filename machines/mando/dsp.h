@@ -2,6 +2,7 @@
 #include "baked_tables.h"
 #include "core.h"
 #include "four_pole_tables.h"
+#include "half_rate_tables.h"
 #include "tables.h"
 #include <opxy/q31.hpp>
 
@@ -176,7 +177,8 @@ inline i32 morph(const Oscillator &saw, const Oscillator &pulse, u32 phase,
 struct Filter : FilterCoefficients {
     explicit Filter(const FilterCoefficients &cached)
         : FilterCoefficients(cached) {}
-    Filter(i32 coefficient, i32 amount) {
+    Filter(i32 coefficient, i32 amount, bool half=false) {
+        const auto* bank=half ? half_rate_tables::coefficients : four_pole_tables::coefficients;
         g = coefficient;
         unsigned low = 0, high = 73;
         while (high - low > 1) {
@@ -198,14 +200,14 @@ struct Filter : FilterCoefficients {
         i32 result[6];
         for (unsigned i = 0; i < 6; ++i) {
             const i32 a =
-                four_pole_tables::coefficients[row][low][i] +
-                multiply(four_pole_tables::coefficients[row][high][i] -
-                             four_pole_tables::coefficients[row][low][i],
+                bank[row][low][i] +
+                multiply(bank[row][high][i] -
+                             bank[row][low][i],
                          fraction);
             const i32 b =
-                four_pole_tables::coefficients[row + 1][low][i] +
-                multiply(four_pole_tables::coefficients[row + 1][high][i] -
-                             four_pole_tables::coefficients[row + 1][low][i],
+                bank[row + 1][low][i] +
+                multiply(bank[row + 1][high][i] -
+                             bank[row + 1][low][i],
                          fraction);
             result[i] = a + multiply(b - a, weight);
         }

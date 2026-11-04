@@ -1,16 +1,16 @@
 # XY Machines
 
-37 Open-XY machines: **21 synths, 1 drum machine, 15 send effects**.
+38 Open-XY machines: **22 synths, 15 send effects and 1 drum machine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
 - `machines/<id>/`: Vader, Halo, Westfold, Acidline,
-  Rebound, Mando, X0X, and the five standalone Weave models.
+  Rebound, Mando, Bitflip, X0X, and the five standalone Weave models.
 - `machines/hundekraft/`: all 25 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 37 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 38 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK
   effects remain excluded from hardware test kits.
@@ -150,6 +150,7 @@ and documentation; it does not replace the licences of the machines.
 | ID | Name | Kind | Folder |
 | --- | --- | --- | --- |
 | acidline | Acidline | synth | [machines/acidline](machines/acidline/README.md) |
+| bitflip | Bitflip | synth | [machines/bitflip](machines/bitflip/README.md) |
 | halo | Halo | effect | [machines/halo](machines/halo/README.md) |
 | hkarc | HK Arc | synth | [machines/hundekraft/hkarc](machines/hundekraft/hkarc/README.md) |
 | hkclouds | HK Clouds | effect | [machines/hundekraft/hkclouds](machines/hundekraft/hkclouds/README.md) |

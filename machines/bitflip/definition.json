@@ -1,0 +1,325 @@
+{
+  "schema": 1,
+  "id": "bitflip",
+  "name": "Bitflip",
+  "press": "page",
+  "parameters": [
+    {
+      "id": "model",
+      "label": "Model",
+      "default": 0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Pulse",
+          "Tri",
+          "Twin",
+          "Wave",
+          "FM",
+          "Metal",
+          "Noise",
+          "Logic"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "color",
+      "label": "Color",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "edge",
+      "label": "Edge",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "sweep",
+      "label": "Sweep",
+      "default": 0.5,
+      "mapping": {
+        "kind": "linear",
+        "minimum": -24,
+        "maximum": 24
+      },
+      "display": "semitones"
+    },
+    {
+      "id": "chord",
+      "label": "Chord",
+      "default": 0,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "Off",
+          "Oct",
+          "Major",
+          "Minor",
+          "Sus",
+          "Maj7",
+          "Min7",
+          "Power"
+        ]
+      },
+      "display": "enum",
+      "control": 0
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "default": 0.4,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "8Hz",
+          "12Hz",
+          "16Hz",
+          "24Hz",
+          "32Hz",
+          "40Hz",
+          "64Hz",
+          "80Hz"
+        ]
+      },
+      "display": "enum",
+      "control": 1
+    },
+    {
+      "id": "bits",
+      "label": "Bits",
+      "default": 1,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16"
+        ]
+      },
+      "display": "enum",
+      "control": 2
+    },
+    {
+      "id": "clock",
+      "label": "Clock",
+      "default": 1,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "1.4k",
+          "2.8k",
+          "5.5k",
+          "8.8k",
+          "11.0k",
+          "14.7k",
+          "22.1k",
+          "44.1k"
+        ]
+      },
+      "display": "enum",
+      "control": 3
+    }
+  ],
+  "presets": {
+    "Init Pulse": {
+      "model": 0,
+      "color": 1,
+      "edge": 0,
+      "sweep": 0.5,
+      "chord": 0,
+      "speed": 0.4,
+      "bits": 1,
+      "clock": 1
+    },
+    "Pocket Hero": {
+      "model": 0,
+      "color": 0.3333333333333333,
+      "edge": 0.15,
+      "sweep": 0.5,
+      "chord": 0,
+      "speed": 0.4,
+      "bits": 1,
+      "clock": 1
+    },
+    "Triangle Bass": {
+      "model": 0.1875,
+      "color": 0.1,
+      "edge": 0.12,
+      "sweep": 0.5,
+      "chord": 0,
+      "speed": 0.3,
+      "bits": 1,
+      "clock": 1
+    },
+    "Twin Blades": {
+      "model": 0.3125,
+      "color": 0.7,
+      "edge": 0.44,
+      "sweep": 0.5,
+      "chord": 0,
+      "speed": 0.35,
+      "bits": 1,
+      "clock": 1
+    },
+    "Cartridge Keys": {
+      "model": 0.4375,
+      "color": 0.38,
+      "edge": 0.18,
+      "sweep": 0.5,
+      "chord": 0,
+      "speed": 0.4,
+      "bits": 0.88,
+      "clock": 1
+    },
+    "Crystal Bell": {
+      "model": 0.5625,
+      "color": 0.44,
+      "edge": 0.32,
+      "sweep": 0.5,
+      "chord": 0,
+      "speed": 0.4,
+      "bits": 1,
+      "clock": 1
+    },
+    "Metal Coin": {
+      "model": 0.6875,
+      "color": 0.18,
+      "edge": 0.85,
+      "sweep": 0.64,
+      "chord": 0,
+      "speed": 0.4,
+      "bits": 1,
+      "clock": 1
+    },
+    "Pixel Dust": {
+      "model": 0.8125,
+      "color": 0.75,
+      "edge": 0,
+      "sweep": 0.65,
+      "chord": 0,
+      "speed": 0.5,
+      "bits": 0.88,
+      "clock": 1
+    },
+    "Short Circuit": {
+      "model": 0.8125,
+      "color": 0.5,
+      "edge": 1,
+      "sweep": 0.5,
+      "chord": 0,
+      "speed": 0.5,
+      "bits": 0.75,
+      "clock": 0.8
+    },
+    "Glitch Dungeon": {
+      "model": 0.9375,
+      "color": 0.75,
+      "edge": 0.4,
+      "sweep": 0.5,
+      "chord": 0,
+      "speed": 0.4,
+      "bits": 0.6,
+      "clock": 0.86
+    },
+    "Major Quest": {
+      "model": 0,
+      "color": 0.45,
+      "edge": 0.1,
+      "sweep": 0.5,
+      "chord": 0.3125,
+      "speed": 0.6,
+      "bits": 1,
+      "clock": 1
+    },
+    "Minor Boss": {
+      "model": 0.4375,
+      "color": 0.8,
+      "edge": 0.25,
+      "sweep": 0.5,
+      "chord": 0.4375,
+      "speed": 0.72,
+      "bits": 0.88,
+      "clock": 1
+    },
+    "Power Up": {
+      "model": 0,
+      "color": 0.5,
+      "edge": 0.3,
+      "sweep": 0,
+      "chord": 0.1875,
+      "speed": 0.7,
+      "bits": 1,
+      "clock": 1
+    },
+    "Laser Down": {
+      "model": 0.9375,
+      "color": 0.25,
+      "edge": 0.2,
+      "sweep": 1,
+      "chord": 0,
+      "speed": 0.4,
+      "bits": 1,
+      "clock": 1
+    },
+    "Save Point": {
+      "model": 0.5625,
+      "color": 0.2,
+      "edge": 0.2,
+      "sweep": 0.5,
+      "chord": 0.6875,
+      "speed": 0.4,
+      "bits": 1,
+      "clock": 1
+    },
+    "Game Over": {
+      "model": 0.3125,
+      "color": 0.7,
+      "edge": 0.3,
+      "sweep": 0.5,
+      "chord": 0.8125,
+      "speed": 0.25,
+      "bits": 0.8,
+      "clock": 0.82
+    }
+  },
+  "resources": {
+    "voiceBytes": 92,
+    "voiceAlignment": 4,
+    "voiceCapacity": 8,
+    "sharedBytes": 0,
+    "outputPeakQ31": 268435456,
+    "display": {
+      "stateBytes": 36,
+      "stateAlignment": 4,
+      "paths": 1,
+      "points": 64,
+      "nodes": 28,
+      "texts": 16,
+      "palette": 8
+    }
+  }
+}

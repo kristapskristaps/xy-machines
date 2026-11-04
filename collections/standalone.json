@@ -5,6 +5,9 @@
       "path": "../machines/acidline"
     },
     {
+      "path": "../machines/bitflip"
+    },
+    {
       "path": "../machines/halo"
     },
     {

@@ -69,6 +69,35 @@ struct Shaper {
     }
 };
 
+
+// Two blocks with the same waveform choices let a sustained voice reuse the
+// blended bank. Moving controls and pitch-band transitions retain the direct path.
+bool cached_shaper(Voice& voice, u32 mode, u32 drive, u32 band, i32 band_mix) {
+    const u32 key[4] = {mode, drive, band, static_cast<u32>(band_mix)};
+    bool same = voice.cache_status != 0;
+    for (unsigned i = 0; i < 4; ++i) if (!same || voice.cache_key[i] != key[i]) same = false;
+    if (!same) {
+        for (unsigned i = 0; i < 4; ++i) voice.cache_key[i] = key[i];
+        voice.cache_status = 1;
+        return false;
+    }
+    if (voice.cache_status == 2) return true;
+    const u32 level = drive >> 15, next = level < 8 ? level + 1 : 8;
+    const i32 blend = static_cast<i32>(drive & 32767u);
+    for (unsigned i = 0; i < 513; ++i) {
+        const i32 a = waves[mode][level][band][i];
+        i32 value = blend ? a + ((waves[mode][next][band][i] - a) * blend >> 15) : a;
+        if (band && band_mix != 32768) {
+            const i32 c = waves[mode][level][band - 1][i];
+            const i32 lean = blend ? c + ((waves[mode][next][band - 1][i] - c) * blend >> 15) : c;
+            value = lean + ((value - lean) * band_mix >> 15);
+        }
+        voice.cached_wave[i] = static_cast<opxy::i16>(value);
+    }
+    voice.cache_status = 2;
+    return true;
+}
+
 u32 swept(u32 pitch, i32 sweep, u32 ratio) {
     const u32 excess = (((ratio - 65536u) >> 5) * static_cast<u32>(sweep >> 16)) >> 10;
     const u32 factor = 65536u + excess;
@@ -86,6 +115,7 @@ inline void initialize(Voice& voice, Shared&, u32 owner) {
     voice.fade = voice.body = voice.body2 = voice.drive = voice.sub = voice.color = voice.boost = 0;
     voice.noise = owner * 2654435761u | 1u;
     voice.click = voice.click_low = 0;
+    voice.cache_status = 0;
 }
 inline void start(Voice& voice, Shared& shared, u32 owner) { initialize(voice, shared, owner); }
 inline void destroy(Voice&, Shared&, u32) {}
@@ -129,13 +159,15 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
         mip(swept(maximum, voice.sweep, ratio), band, band_mix);
     }
     const Shaper shaper(mode,static_cast<u32>(voice.drive),band,band_mix);
+    const bool cache = !pure_body && !drive_step && cached_shaper(voice, mode, static_cast<u32>(voice.drive), band, band_mix);
+    if (drive_step || pure_body) voice.cache_status = 0;
     for (u32 i = 0; i < opxy::block_frames; ++i) {
         voice.drive += drive_step;
         voice.sub += sub_step;
         voice.color += color_step;
         voice.boost += boost_step;
         const i32 pure = lookup(waves[0][0][0], voice.phase);
-        const i32 body = pure_body ? pure : drive_step
+        const i32 body = pure_body ? pure : cache ? lookup(voice.cached_wave, voice.phase) : drive_step
             ? shaped(mode,static_cast<u32>(voice.drive),band,band_mix,voice.phase) : shaper.read(voice.phase);
         // Q23 filter state resolves the bottom of the 20 Hz..open tone range.
         // The clean foundation bypasses both poles, preserving the sub at dark settings.

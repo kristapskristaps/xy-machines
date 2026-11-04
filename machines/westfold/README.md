@@ -1,103 +1,131 @@
 # Westfold
 
-A playable West Coast synthesis voice for [Open-XY](https://github.com/etcetc000/open-xy): a rounded triangle core, progressive harmonic folding, odd/even overtones, audio-rate phase modulation, a cycling slope and a plucked low-pass gate.
+A playable West Coast voice for [Open-XY](https://github.com/etcetc000/open-xy):
+a rounded triangle foundation, animated folding harmonics, audio-rate phase
+modulation, a cycling slope and a bright, plucked low-pass gate. Twelve presets
+cover woody strikes, rubbery bass, coppery bells, moving keys and unstable drones.
 
-The screen follows the instrument: a teal clean core sits behind the amber folded wave, partials grow below it, and a twelve-part iris opens on each note. Overtone has an odd/even position marker. The lettering is vector artwork, so it needs no installed fonts. Reduced motion keeps note and control feedback while stopping continuous animation. The drawing illustrates the synthesis settings and note events; it does not measure the output spectrum.
+The design takes cues from Make Noise's [0-Coast manual](https://www.makenoise-manuals.com/0-coast/0-coast-manual.pdf):
+its triangle foundation, odd/even Overtone, Slope-to-Multiply motion, extreme
+Overtone audio interaction and transistor Dynamics section. Westfold is an
+original digital instrument, with musical approximations of those behaviors.
+It is not a circuit model or a patch-compatible reproduction.
 
 ## Play
 
-Four main controls, with a second control on each encoder press:
+Press an encoder to switch between the two fixed header rows.
 
-| Encoder | Main control | Press for |
+| Encoder | Main control | Second row |
 | --- | --- | --- |
-| 1 | **Overtone:** odd to even harmonic families | **FM Ratio:** 0.5, 1, 1.5, 2, 3, 4, 6, 8, with continuous positions between |
-| 2 | **Multiply:** progressively fold the waveform | **FM Depth:** audio-rate phase modulation with a squared response |
-| 3 | **Balance:** clean fundamental to shaped overtones | **Slope Hz:** 0.05–400 Hz cycling function |
-| 4 | **Decay:** 45 ms–8 s low-pass-gate contour | **Motion:** bipolar slope modulation of Multiply |
+| 1 | **Overtone:** odd through mixed to even harmonics; the upper quarter brings Slope into the audio | **FM Ratio:** 0.5, 1, 1.5, 2, 3, 4, 6, 8, with continuous positions between |
+| 2 | **Multiply:** increase folding complexity | **FM Depth:** audio-rate phase modulation with a squared response |
+| 3 | **Balance:** triangle foundation to shaped overtones | **Slope Hz:** 0.05–400 Hz cycling function |
+| 4 | **Decay:** 45 ms–8 s gate contour | **Motion:** bipolar slope modulation of Multiply |
 
-The last half-percent of Decay opens the gate continuously; its caption reads **hold**. The stock amplitude envelope still determines note release. Increase its release if a long internal contour is cut short. The factory presets provide full sustain and a longer release for the internal gate.
+Overtone reaches its even family around two-thirds. Above three-quarters the
+caption reads **!!** and the slope progressively multiplies the shaped audio,
+creating sidebands even with Motion at zero. Slow Slope rates give amplitude
+movement; audio rates become metallic and unruly. Balance at zero preserves the
+clean foundation independently of Overtone, Multiply and Motion.
 
-Start with **Initial Coast**, then try **Buchla Wood** for woody strikes, **Rubber Bass** for rounded sequences, **Copper Bells** for metallic notes and **Slow Voltage** for moving sustained tones. **Circuit Birds** takes the slope into audio rate. All twelve patches are in the audition; matching device presets are in `presets/`. Copy those JSON files into `/content/presets/westfold/` after installing firmware that contains this machine.
+Decay's last half-percent selects **hold**. The stock AMP envelope still controls
+note release; increase its release if it cuts off a long internal contour.
+Factory presets supply sustain and a longer release for the internal gate.
+The existing eight saved parameter IDs, order and ranges remain unchanged.
+This revision intentionally changes the sound and retunes the factory presets;
+existing projects keep their saved words and stock AMP settings.
 
-For a lively sequence, vary Multiply and Overtone with parameter locks, leave some clean signal in Balance, and try FM Ratio between its harmonic anchors. The stock LFOs can target all eight parameters.
+Start with **Initial Coast**, **Buchla Wood**, **Rubber Bass** and **Copper Bells**.
+Try **Slow Voltage** for moving sustained notes and **Circuit Birds** or
+**Open Drone** for extreme slope interaction. Vary Multiply and Overtone with
+parameter locks, keep some triangle in Balance, and move FM Ratio between its
+harmonic anchors. The stock LFOs can target all eight parameters.
 
-## Audition and check
+The teal core, amber folded wave, partials and note-responsive iris illustrate
+the settings; they do not measure the output spectrum. Reduced motion preserves
+note and control feedback without continuous animation.
 
-Keep the SDK beside this repository as `../../../xy-machines-sdk`. Use Python 3.11+, NumPy 2.3.5, Node 22.12+ and Clang with a WebAssembly linker. On macOS, Homebrew LLVM and LLD provide the preview compiler. Use `--cxx /opt/homebrew/opt/llvm/bin/clang++` if Apple Clang cannot link WebAssembly.
+## Develop and audition
 
-```sh
-python ../../../xy-machines-sdk/sdk.py test --machine . --cxx clang++ --firmware
-python ../../../xy-machines-sdk/sdk.py preview --machine . --cxx clang++ --out ../../../xy-machines-sdk/local/westfold-preview-001
-python ../../../xy-machines-sdk/tools/serve_harness.py --preview ../../../xy-machines-sdk/local/westfold-preview-001 --port 8947
-```
-
-Open `http://127.0.0.1:8947`, enable audio and hold the on-screen keys or use `A W S E D F T G Y H U J K`. The audition has its own simple amplitude gate; the device adds its stock envelopes, filter, velocity and mixer.
-
-Render dry WAV demonstrations and run the static folding alias check:
-
-```sh
-python resources/render_demo.py --out ../../../xy-machines-sdk/local/westfold-audition-001
-```
-
-Output directories must be new. Generated audio, previews and binaries stay outside this repository. `tests/sound.cpp` checks harmonic families, spectral growth, clean balance, pitch, decay, modulation, deterministic restarts and randomized automation. `tests/display.cpp` checks frame bounds, track changes, note response, alternate captions and reduced motion. Both also run with AddressSanitizer and UndefinedBehaviorSanitizer during development.
-
-## Sound and implementation
-
-The folding transfer comes from Emilie Gillet’s MIT-licensed Braids triangle folder; its original table and notice are in `vendor/`. This is an original voice inspired by the 0-Coast’s synthesis approach. Its gate and modulation behavior are musical approximations.
-
-Offline generation projects the folding curve into 17 continuously interpolated fold levels and eight harmonic limits. Interpolating between those limits preserves smooth pitch changes. The even branch runs at twice the core phase. A separate clean branch keeps Balance independent of folding and slope modulation. All audio processing uses bounded integer arithmetic; there are no runtime allocations, OS calls or platform conditionals.
-
-A bandwidth allowance reduces upper harmonics under modulation. Even overtones and modulation depth taper at very high pitches. The low-pass gate couples gain to two gentle filter poles, and a DC blocker removes offsets. Its exponential contour is interpolated over each 64-sample block; filter coefficients update every eight samples.
-
-The engine retains all eight audio banks. The display uses only bank 1, so its
-generated `display_tables.h` holds that bank and the lookups the drawing needs.
-This avoids copying seven unused banks into the display and removes about
-119 KiB from the native module. Both headers come from the same generator;
-their integer values are unchanged.
-
-An exactly zero smoothed Balance skips the unused folded branches; zero Overtone skips
-the unused even branch. The high-pitch guard also skips an even branch whose
-gain is zero. Controls, phase, modulation and gate state still advance on every
-sample. Band crossfades and the FM guard use exact bounded reciprocal arithmetic
-in place of three native software division sites. Voice storage and native
-audio stack usage are unchanged.
-
-From the collection root, compare against the preceding revision with:
+From the XY Machines collection root, with its pinned SDK configured:
 
 ```sh
-python machines/westfold/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
-python machines/westfold/tools/benchmark.py --cxx /path/to/clang++ --full-grid --verify-only
+./xy test westfold --native --cpu
+./xy preview westfold --watch
 ```
 
-The paired run covers 528 scenarios: defaults, all twelve presets, five positions
-of each control, both pages' control corners at six pitches, and control/pitch
-motion. The wider check adds all 256 eight-control corners, for 2,064 scenarios.
-Each compares audio and complete voice state after every block over 256 blocks,
-including retriggers and reinitialization. Both compare 4,096 complete display
-frames and display states against the preceding revision. The arithmetic test
-checks the compact drawing data against the original tables, every bounded
-reciprocal input, band transitions and one million random
-phase increments. Host timings remain advisory; use device profiling to measure
-the native CPU benefit.
-
-
-To regenerate the committed tables, metadata, presets and panel:
+The preview prints a localhost URL. Playing a key starts audio. It has a simple
+audition gate; the device adds stock envelopes, filter, velocity and mixer.
+Render the twelve dry demonstrations and static folding alias checks with:
 
 ```sh
-python resources/generate_tables.py
-python resources/configure.py
+python machines/westfold/resources/render_demo.py --sdk /absolute/path/to/sdk \
+  --out /absolute/external/path/westfold-audition-001
 ```
 
-## Device validation
+Use a fresh external output folder. Generated audio, previews, native objects
+and firmware stay outside every checkout. Device installation and diagnostics
+require separate authorization.
 
-The machine compiles for Blackfin through the public SDK. The source declares a pool of eight voices; usable polyphony depends on the full device workload. Swept host estimates on the development Mac varied materially, and some exceeded the SDK's 24,000-instruction advisory threshold. Treat the native module as a development build until device CPU, polyphony, rendering and sound have been validated in an authorized hardware test.
+## Implementation and checks
 
-Prepare a profiling-enabled development module outside every checkout:
+The original MIT-licensed Braids folding transfer remains in `vendor/`.
+Offline generation projects it into seventeen odd/even harmonic frames. Nine
+band-limited partials retain the triangle foundation and folding character;
+phase modulation and slope interaction add further motion and sidebands.
+This deliberately limits the unmodulated upper detail compared with the previous
+128-harmonic wavetable implementation.
+
+A Q13 Clenshaw recurrence evaluates the partials using bounded 32-bit products.
+Generated coefficient bounds leave product headroom at both oscillator rails.
+Coefficients and gate brightness update every sixteen samples and interpolate
+between updates; phase, gate, DC blocker and slope interaction run each sample.
+Individual partial gains taper before Nyquist with additional modulation room.
+The gate couples gain and brightness through two filter poles, with a fast onset
+and exponential decay. Audio callbacks allocate no memory and perform no I/O.
+
+The audio coefficient bank is about 0.6 KiB, replacing the former 136 KiB folding
+bank at runtime. The native module is about 79 KiB including its SDK adapter.
+The illustrative display retains its compact drawing bank. Voice storage grows
+from 72 to 108 bytes; the eight-voice pool is preserved.
+
+Tests cover all 65,536 quantized oscillator values across every harmonic frame,
+independent trigonometric agreement within a conservative fixed-point error
+bound, coefficient/product bounds, monotonic partial guards, parity, spectral
+growth, dry balance, pitch, decay, phase modulation, slope sidebands, lifecycle,
+automation and display. The frozen pre-redesign renderer and its fingerprints
+remain in `tests/reference/` and `tests/legacy_vectors.cpp` as historical vectors;
+they do not assert that the redesigned sound is unchanged.
+
+The paired host timing tool supports an explicit redesign comparison:
 
 ```sh
-python ../../../xy-machines-sdk/sdk.py compile --machine . --profiling on --out /absolute/external/path/westfold-module-001
+python machines/westfold/tools/benchmark.py --timing-only \
+  --cxx /path/to/clang++ --blocks 2000
 ```
 
-An installable image additionally needs the exact stock OS 1.2.1 from the owner’s device. Follow the SDK’s [build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md) and [hardware profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md). Firmware and firmware-containing packages belong outside every checkout. No device installation or diagnostics are performed by the development commands above.
+This compares the same controls and pitches, skipping intentional audio/state
+and display differences. Sound acceptance comes from the dedicated tests and
+audition. Host timing varied with workload: the 528-scenario median improved
+about 5%, while the local SDK estimate was approximately 11,700 instructions per
+voice block against its 15,000 advisory target. Neither is measured Blackfin CPU.
 
-Westfold is MIT licensed; see [LICENSE](LICENSE) and the [Braids attribution](vendor/README.md).
+To regenerate committed coefficients, drawing tables, metadata and presets:
+
+```sh
+python machines/westfold/resources/generate_coast.py
+python machines/westfold/resources/generate_tables.py
+python machines/westfold/resources/configure.py
+```
+
+## Hardware validation
+
+Native compilation and host checks pass. The redesigned revision has no device
+CPU measurement yet and is not qualified below the recommended 3.5%. The older
+9.13% readout describes the previous engine. Hardware sound, polyphony, display
+and a revision-bound control-sweep CPU capture remain pending. Follow the SDK's
+[build guide](https://github.com/etcetc000/open-xy/blob/staging/docs/build.md) and
+[profiling guide](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md)
+when device work is authorized. Building locally does not install anything.
+
+Westfold is MIT licensed; see [LICENSE](LICENSE) and [Braids attribution](vendor/README.md).

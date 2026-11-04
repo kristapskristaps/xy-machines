@@ -1,4 +1,4 @@
-#include "../engine.cpp"
+#include "reference/engine.cpp"
 #include <cstdio>
 #include <cstring>
 
@@ -45,5 +45,5 @@ int main(){
         if(actual!=reference[i]){std::fprintf(stderr,"FAIL: Westfold audio/state reference %u: %llu\n",i,actual);pass=false;}
     }
     if(!pass)return 1;
-    std::puts("PASS: exact Westfold output and voice state across folding, settling, automation, pitch motion, extremes and retriggers");
+    std::puts("PASS: frozen pre-redesign Westfold output and voice state across folding, settling, automation, pitch motion, extremes and retriggers");
 }

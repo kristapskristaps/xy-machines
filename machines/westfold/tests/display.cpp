@@ -26,6 +26,9 @@ int main() {
     in.held_notes=0;in.note_off_serial=1;
     westfold::display(state,in,frame);
     if (state.gate) return 5;
+    in.shown[0]=0;in.parameters[0]=2147483647;
+    westfold::display(state,in,frame);
+    if(std::strcmp(frame.header[0],"!!"))return 7;
     opxy::u32 seed=1;
     for(unsigned f=0;f<4096;++f){
         for(unsigned i=0;i<8;++i){seed=1664525u*seed+1013904223u;in.slots[i]=static_cast<opxy::i32>(seed);}

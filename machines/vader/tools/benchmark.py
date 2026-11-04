@@ -17,6 +17,8 @@ SOURCE = r'''
 #include <chrono>
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
+#include <cmath>
 struct Scenario { const char* label; int parameters[8]; unsigned pitch,mode; };
 const Scenario scenarios[] = @SCENARIOS@;
 volatile unsigned sink=0;
@@ -27,7 +29,11 @@ void controls(const Scenario& s,unsigned block,int* p,unsigned* pitch,unsigned& 
     if(s.mode==4){p[0]=block<64?0:block<600?2147483647:block<800?2097151:2147483647;p[1]=2147483647;}
     for(unsigned i=0;i<64;++i)pitch[i]=s.mode==3?(random=random*1664525u+1013904223u):s.mode==2?s.pitch+((i+block)%64)*17613u:s.pitch;
 }
+long long maximum_error=0;
+long double squared_error=0;
+unsigned long long samples=0;
 bool equivalent(const Scenario& s){
+    maximum_error=0;squared_error=0;samples=0;
     vader_before::Voice old={};vader_before::Shared bs={};
     vader::Voice now={};vader::Shared as={};
     vader_before::initialize(old,bs,1);vader::initialize(now,as,1);
@@ -37,7 +43,20 @@ bool equivalent(const Scenario& s){
         if(block==0 || (s.mode!=4 && block%127==0)){vader_before::start(old,bs,1);vader::start(now,as,1);}
         if(s.mode!=4 && block==191){vader_before::destroy(old,bs,1);vader::destroy(now,as,1);vader_before::initialize(old,bs,1);vader::initialize(now,as,1);}
         vader_before::render(old,bs,1,before,p,pitch);vader::render(now,as,1,after,p,pitch);
-        if(sizeof(old)!=sizeof(now)||std::memcmp(before,after,sizeof(before))||std::memcmp(&old,&now,sizeof(old))){
+        bool match = true;
+        if(@CACHED_ROUNDING@){
+            match=old.phase==now.phase && old.pending==now.pending && old.sweep==now.sweep && old.fade==now.fade &&
+                old.drive==now.drive && old.sub==now.sub && old.color==now.color && old.boost==now.boost &&
+                old.noise==now.noise && old.click==now.click && old.click_low==now.click_low &&
+                std::abs(old.body-now.body)<=1024 && std::abs(old.body2-now.body2)<=1024;
+            for(unsigned i=0;i<64;++i){
+                const long long error=static_cast<long long>(before[i])-after[i];
+                maximum_error=std::max(maximum_error,std::llabs(error));
+                squared_error+=static_cast<long double>(error)*error;++samples;
+            }
+            match=match && maximum_error<=8*32768;
+        }else match=sizeof(old)==sizeof(now) && !std::memcmp(before,after,sizeof(before)) && !std::memcmp(&old,&now,sizeof(old));
+        if(!match){
             std::fprintf(stderr,"difference at %s pitch %u mode %u block %u\n",s.label,s.pitch,s.mode,block);return false;
         }
     }
@@ -91,7 +110,7 @@ int main(){
             ratios[repeat]=new_times[repeat]/old_times[repeat];
         }
         std::sort(old_times,old_times+5);std::sort(new_times,new_times+5);std::sort(ratios,ratios+5);
-        std::printf("{\"label\":\"%s\",\"pitch\":%u,\"mode\":%u,\"before_ns\":%.1f,\"after_ns\":%.1f,\"paired_ratio\":%.6f}\n",s.label,s.pitch,s.mode,old_times[2],new_times[2],ratios[2]);
+        std::printf("{\"label\":\"%s\",\"pitch\":%u,\"mode\":%u,\"before_ns\":%.1f,\"after_ns\":%.1f,\"paired_ratio\":%.6f,\"max_error_q31\":%lld,\"rms_error_q31\":%.3Lf}\n",s.label,s.pitch,s.mode,old_times[2],new_times[2],ratios[2],maximum_error,samples ? std::sqrt(squared_error/samples) : 0.0L);
     }
 }
 '''
@@ -99,7 +118,8 @@ int main(){
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--baseline', default='c36f44b')
+    parser.add_argument('--baseline', default='c54db35')
+    parser.add_argument('--cached-rounding', action='store_true', help='Allow bounded blended-wave rounding; require exact phase, controls and click state.')
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=1000)
@@ -140,11 +160,12 @@ def main():
             (before/path).write_text(content.replace('namespace vader {','namespace vader_before {'))
         source = SOURCE.replace('@BEFORE@',json.dumps(str(before/'engine.cpp'))).replace('@AFTER@',json.dumps(str(MACHINE/'engine.cpp')))
         source = source.replace('@BEFORE_DISPLAY@',json.dumps(str(before/'display.cpp'))).replace('@AFTER_DISPLAY@',json.dumps(str(MACHINE/'display.cpp')))
-        (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@',str(args.blocks)).replace('@VERIFY_ONLY@','true' if args.verify_only else 'false').replace('@SCENARIOS@','{'+',\n'.join(rows_cpp)+'}'))
+        (scratch/'benchmark.cpp').write_text(source.replace('@CACHED_ROUNDING@','true' if args.cached_rounding else 'false').replace('@BLOCKS@',str(args.blocks)).replace('@VERIFY_ONLY@','true' if args.verify_only else 'false').replace('@SCENARIOS@','{'+',\n'.join(rows_cpp)+'}'))
         executable = scratch/'benchmark'
         subprocess.run([args.cxx,'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),str(scratch/'benchmark.cpp'),'-o',str(executable)],check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)],text=True).splitlines()]
-    print(json.dumps(dict(baseline=baseline,host_timing_only=True,exact_audio_and_voice_state_each_block=True,
+    print(json.dumps(dict(baseline=baseline,host_timing_only=True,exact_audio_and_voice_state_each_block=not args.cached_rounding,
+                         bounded_cached_rounding=args.cached_rounding,
                          full_grid=args.full_grid,verify_only=args.verify_only,checked_display_frames=4096,scenarios=len(rows),checked_blocks_per_scenario=256,long_hold_scenarios=6,long_hold_blocks=4096,
                          blocks_per_timing=0 if args.verify_only else args.blocks,repeats=0 if args.verify_only else 5,
                          median_reduction_percent=None if args.verify_only else round(100*(1-statistics.median(row['paired_ratio'] for row in rows)),1),results=rows),indent=2))

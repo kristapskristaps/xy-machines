@@ -75,9 +75,9 @@ bool display_equivalent(){
     return true;
 }
 int main(){
-    if(!display_equivalent())return 1;
+    if(!@TIMING_ONLY@ && !display_equivalent())return 1;
     for(const auto& s:scenarios){
-        if(!equivalent(s))return 1;
+        if(!@TIMING_ONLY@ && !equivalent(s))return 1;
         double old_times[5]={},new_times[5]={},ratios[5]={};
         if(!@VERIFY_ONLY@)for(unsigned repeat=0;repeat<5;++repeat){
             if(repeat&1){
@@ -98,13 +98,16 @@ int main(){
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--baseline', default='151be1e')
+    parser.add_argument('--baseline', default='c54db35')
+    parser.add_argument('--timing-only', action='store_true', help='Compare performance of intentional sound redesigns; skip audio/state/display equivalence.')
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=1000)
     parser.add_argument('--full-grid', action='store_true')
     parser.add_argument('--verify-only', action='store_true')
     args = parser.parse_args()
+    if args.timing_only and args.verify_only:
+        parser.error('--timing-only cannot be combined with --verify-only.')
     if args.blocks < 400:
         parser.error('Use at least 400 blocks to reduce timer noise.')
     config_file = REPO/'local/dev.json'
@@ -134,17 +137,17 @@ def main():
     rows_cpp = ['{'+json.dumps(name)+',{'+','.join(map(str,values))+'},'+str(pitch)+'u,'+str(mode)+'}' for name,values,pitch,mode in scenarios]
     with tempfile.TemporaryDirectory(prefix='westfold-benchmark-') as directory:
         scratch = Path(directory); before = scratch/'before'; before.mkdir()
-        for path in ['core.h','engine.cpp','dsp.h','tables.h','display.h','display.cpp']:
+        for path in ['core.h','engine.cpp','dsp.h','dsp_common.h','tables.h','display_tables.h','display.h','display.cpp']:
             content = subprocess.check_output(['git','show',baseline+':machines/westfold/'+path],cwd=REPO,text=True)
             (before/path).write_text(content.replace('namespace westfold {','namespace westfold_before {'))
         source = SOURCE.replace('@BEFORE@',json.dumps(str(before/'engine.cpp'))).replace('@AFTER@',json.dumps(str(MACHINE/'engine.cpp')))
         source = source.replace('@BEFORE_DISPLAY@',json.dumps(str(before/'display.cpp'))).replace('@AFTER_DISPLAY@',json.dumps(str(MACHINE/'display.cpp')))
-        (scratch/'benchmark.cpp').write_text(source.replace('@BLOCKS@',str(args.blocks)).replace('@VERIFY_ONLY@','true' if args.verify_only else 'false').replace('@SCENARIOS@','{'+',\n'.join(rows_cpp)+'}'))
+        (scratch/'benchmark.cpp').write_text(source.replace('@TIMING_ONLY@','true' if args.timing_only else 'false').replace('@BLOCKS@',str(args.blocks)).replace('@VERIFY_ONLY@','true' if args.verify_only else 'false').replace('@SCENARIOS@','{'+',\n'.join(rows_cpp)+'}'))
         executable = scratch/'benchmark'
         subprocess.run([args.cxx,'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),str(scratch/'benchmark.cpp'),'-o',str(executable)],check=True)
         rows = [json.loads(line) for line in subprocess.check_output([str(executable)],text=True).splitlines()]
-    print(json.dumps(dict(baseline=baseline,host_timing_only=True,exact_audio_and_voice_state_each_block=True,
-                         full_grid=args.full_grid,verify_only=args.verify_only,checked_display_frames=4096,scenarios=len(rows),checked_blocks_per_scenario=256,
+    print(json.dumps(dict(baseline=baseline,host_timing_only=True,exact_audio_and_voice_state_each_block=not args.timing_only,
+                         full_grid=args.full_grid,verify_only=args.verify_only,checked_display_frames=0 if args.timing_only else 4096,scenarios=len(rows),checked_blocks_per_scenario=0 if args.timing_only else 256,
                          blocks_per_timing=0 if args.verify_only else args.blocks,repeats=0 if args.verify_only else 5,
                          median_reduction_percent=None if args.verify_only else round(100*(1-statistics.median(row['paired_ratio'] for row in rows)),1),results=rows),indent=2))
 

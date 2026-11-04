@@ -7,38 +7,38 @@ ROOT=Path(__file__).resolve().parents[1]
 keys=['overtone','fold','balance','decay','fm_ratio','fm_depth','slope_rate','slope_amount']
 params=[]
 for key,label,default,mapping,display in [
- ('overtone','Overtone',.24,{'kind':'linear','minimum':0,'maximum':1},'percent'),
- ('fold','Multiply',.44,{'kind':'linear','minimum':0,'maximum':1},'percent'),
- ('balance','Balance',.68,{'kind':'linear','minimum':0,'maximum':1},'percent'),
- ('decay','Decay',.62,{'kind':'exponential','minimum':45,'maximum':8000},'duration'),
+ ('overtone','Overtone',.18,{'kind':'linear','minimum':0,'maximum':1},'percent'),
+ ('fold','Multiply',.52,{'kind':'linear','minimum':0,'maximum':1},'percent'),
+ ('balance','Balance',.78,{'kind':'linear','minimum':0,'maximum':1},'percent'),
+ ('decay','Decay',.45,{'kind':'exponential','minimum':45,'maximum':8000},'duration'),
  ('fm_ratio','FM Ratio',1/7,{'kind':'anchors','values':[.5,1,1.5,2,3,4,6,8]},'ratio'),
- ('fm_depth','FM Depth',.05,{'kind':'linear','minimum':0,'maximum':1},'percent'),
- ('slope_rate','Slope Hz',.32,{'kind':'exponential','minimum':.05,'maximum':400},'ratio'),
- ('slope_amount','Motion',.12,{'kind':'linear','minimum':0,'maximum':1},'percent')]:
+ ('fm_depth','FM Depth',.08,{'kind':'linear','minimum':0,'maximum':1},'percent'),
+ ('slope_rate','Slope Hz',.35,{'kind':'exponential','minimum':.05,'maximum':400},'ratio'),
+ ('slope_amount','Motion',.27,{'kind':'linear','minimum':0,'maximum':1},'percent')]:
  parameter=dict(id=key,label=label,default=default,mapping=mapping,display=display)
  if len(params)>=4:parameter['control']=len(params)-4
  params.append(parameter)
 presets={
- 'Initial Coast':[.24,.44,.68,.62,1/7,.05,.32,.12],
- 'Buchla Wood':[.12,.58,.74,.40,3/7,.12,.43,.08],
- 'Rubber Bass':[.18,.36,.52,.56,0,.16,.25,.10],
- 'Copper Bells':[.55,.42,.68,.78,4/7,.56,.34,.04],
- 'Broken Marimba':[.42,.75,.76,.36,2/7,.27,.54,.20],
- 'Velvet Fold':[.08,.23,.40,.86,1/7,.05,.14,.18],
- 'Coastline Keys':[.38,.47,.65,.70,2/7,.19,.29,.12],
- 'Glass Current':[.68,.66,.71,.81,5/7,.43,.38,.17],
- 'Wire Choir':[.30,.81,.66,.90,4/7,.33,.21,.34],
- 'Slow Voltage':[.28,.60,.75,1,1/7,.12,.13,.72],
- 'Circuit Birds':[.65,.50,.80,.67,6/7,.64,.90,.64],
- 'Open Drone':[.16,.69,.65,1,3/7,.24,.32,.46],
+ 'Initial Coast':[.18,.52,.78,.45,1/7,.08,.35,.27],
+ 'Buchla Wood':[.07,.72,.85,.32,3/7,.04,.43,.12],
+ 'Rubber Bass':[.16,.45,.38,.57,0,.24,.28,.30],
+ 'Copper Bells':[.61,.68,.83,.80,4/7,.43,.25,.06],
+ 'Broken Marimba':[.42,.77,.88,.28,2/7,.16,.55,.26],
+ 'Velvet Fold':[.08,.33,.42,.86,1/7,.03,.14,.22],
+ 'Coastline Keys':[.36,.61,.72,.67,2/7,.16,.42,.20],
+ 'Glass Current':[.65,.84,.86,.81,5/7,.50,.38,.30],
+ 'Wire Choir':[.86,.73,.78,.90,4/7,.40,.73,.34],
+ 'Slow Voltage':[.42,.62,.80,1,1/7,.16,.13,.82],
+ 'Circuit Birds':[1,.80,.93,.50,6/7,.72,.95,.70],
+ 'Open Drone':[.90,.71,.85,1,3/7,.38,.82,.62],
 }
 definition=dict(schema=1,id='westfold',name='Westfold',parameters=params,
  presets={name:dict(zip(keys,values)) for name,values in presets.items()},
- resources=dict(voiceBytes=72,voiceAlignment=4,voiceCapacity=8,sharedBytes=0,outputPeakQ31=268435456,
+ resources=dict(voiceBytes=108,voiceAlignment=4,voiceCapacity=8,sharedBytes=0,outputPeakQ31=268435456,
  display=dict(stateBytes=44,stateAlignment=4,paths=4,points=64,nodes=61,texts=0,palette=16)))
 (ROOT/'definition.json').write_text(json.dumps(definition,indent=2)+'\n')
 machine=json.loads((ROOT/'machine.json').read_text())
-machine['description']='A West Coast voice: animated harmonic folding, odd/even overtones, FM, cycling slope and a plucked low-pass gate.'
+machine['description']='Woody plucks, rubbery bass and metallic bells, with animated folding, a snappy low-pass gate and wild Slope interaction.'
 machine['icon']='M3 24h7l5-15 9 30 8-30 7 15h5'
 machine['presetDefaults']={'amp':{'attack':0,'decay':0,'sustain':32767,'release':25000}}
 (ROOT/'machine.json').write_text(json.dumps(machine,indent=2)+'\n')

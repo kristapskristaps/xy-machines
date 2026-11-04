@@ -38,5 +38,4 @@ and readback-verified as generation 166; the software USB restart was observed.
 The final active-collection check is pending: normal MIDI endpoints disappeared
 after startup, and the device could not be opened over MTP. A normal-screen/USB
 reconnect confirmation has been requested. No presets were transferred or
-overwritten. This Halo work remains local and has not been pushed or submitted
-to the catalog.
+overwritten. Catalog submission is separate from this hardware qualification.

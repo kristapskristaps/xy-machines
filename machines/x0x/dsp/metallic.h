@@ -4,14 +4,12 @@
 #include "metallic_coefficients.h"
 
 namespace x0x { namespace dsp {
-// Signals and coefficient magnitudes stay below 32768. Multiply magnitudes
-// through the DSP primitive, then restore each Q14 term's truncation toward zero.
-__attribute__((always_inline)) static inline i32 metal_product(i32 sample, i32 coefficient) {
+// Signed Q14 products now use the DSP floor directly. Negative fractional
+// terms differ from the preceding truncation by at most one Q14 count.
+// Samples and coefficient magnitudes remain below32768, so scaling is safe.
+__attribute__((always_inline)) static inline i32 metal_product(i32 sample,i32 coefficient) {
     if(!coefficient)return 0;
-    const i32 magnitude=sample<0?-sample:sample;
-    const i32 gain=coefficient<0?-coefficient:coefficient;
-    const i32 product=opxy::q31::multiply(magnitude*2,gain*65536);
-    return (sample<0)!=(coefficient<0)?-product:product;
+    return opxy::q31::multiply(sample*2,coefficient*65536);
 }
 // Each Q14 product fits i32. Scale before summing so resonant feedback never
 // needs a wider accumulator; clamp every stored signal to the same bound.

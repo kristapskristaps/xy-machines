@@ -196,7 +196,7 @@ Settings settings(const State &state) {
     result.grain_width = 386u + (static_cast<u32>(distance) * 771u >> 15);
     return result;
 }
-void network(State &__restrict state, i32 *__restrict memory,
+__attribute__((noinline)) void network(State &__restrict state, i32 *__restrict memory,
              i32 *__restrict input, i32 *__restrict output,
              const Settings &__restrict config) {
     i32 echoes[2], seed[2];

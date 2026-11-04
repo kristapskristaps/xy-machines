@@ -31,7 +31,9 @@ int main(){
     for(unsigned scenario=0;scenario<73;++scenario){
         acidline::Voice now;acidline::Shared ns;acidline::initialize(now,ns,1);acidline::start(now,ns,1);
         acidline_legacy::Voice old;acidline_legacy::Shared os;acidline_legacy::initialize(old,os,1);acidline_legacy::start(old,os,1);
-        i32 p[8],a[64],b[64];u32 pitch[64],random=73;
+        acidline_legacy::Voice macro_old;acidline_legacy::Shared ms;
+        acidline_legacy::initialize(macro_old,ms,1);acidline_legacy::start(macro_old,ms,1);
+        i32 p[8],a[64],b[64],legacy_audio[64];u32 pitch[64],random=73;
         for(unsigned slot=0;slot<8;++slot)p[slot]=slot==5?0x40000000:0x50000000;
         if(scenario<72)p[scenario/9]=i32(Hash(values[scenario%9])*0x7fffffffu/127);
         Metrics m={};Hash hash=14695981039346656037ull;
@@ -42,10 +44,18 @@ int main(){
                 for(auto& increment:pitch){random=random*1664525u+1013904223u;increment=1000000+random%300000000;}
             }else for(unsigned i=0;i<64;++i)pitch[i]=8123456u+(i+block*64)*7919u;
             if((scenario<72 && block==16) || (scenario==72 && block%127==0)){
-                acidline::start(now,ns,1);acidline_legacy::start(old,os,1);
+                acidline::start(now,ns,1);acidline_legacy::start(old,os,1);acidline_legacy::start(macro_old,ms,1);
             }
-            acidline_legacy::render(old,os,1,a,p,pitch);acidline::render(now,ns,1,b,p,pitch);
-            hash=legacy_hash(hash,old,a);accumulate(m,a,b);
+            acidline_legacy::render(old,os,1,legacy_audio,p,pitch);
+            hash=legacy_hash(hash,old,legacy_audio);
+            // Compare filter designs at the same physical targets; keep the
+            // unmodified historical renderer and its authenticated hashes too.
+            i32 mapped[8];std::memcpy(mapped,p,sizeof(mapped));
+            const i32 bite=p[1]/131072,burn=p[2]/131072,sweep=p[3]/131072,shade=p[7]/131072;
+            mapped[3]=(sweep+((16383-sweep)*bite>>14)/4)*131072;
+            mapped[7]=(shade+((16383-shade)*burn>>14)/4)*131072;
+            acidline_legacy::render(macro_old,ms,1,a,mapped,pitch);
+            acidline::render(now,ns,1,b,p,pitch);accumulate(m,a,b);
             if(now.phase!=old.phase || now.sub_phase!=old.sub_phase || now.envelope!=old.envelope){
                 std::puts("FAIL note, octave or contour timing changed");return 1;
             }

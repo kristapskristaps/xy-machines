@@ -1,99 +1,74 @@
 # Acidline
 
-An acid synth for Open-XY: band-limited saw/triangle/square, a resonant four-pole
-filter, a pluck envelope, soft clipping and an octave-down sine sub. Stock OP-XY supplies pitch,
-portamento, velocity, amplitude envelopes and mixing.
+A mono acid voice with a four-stage 303 ladder, band-limited saw/triangle/square,
+linked drive and clipping, an octave sub and darkening. The monochrome display
+shows liquid threads stretching from a ceiling, falling drops and impact rings.
 
-## Mono playback
+## Playing and slide
 
-The default and all five named factory presets select stock **mono** play mode.
-This is mono independently on each track: using Acidline on another track does
-not steal the first track's voice. Existing projects retain their saved play
-mode; load an updated factory preset or switch M2 / Shift play mode to mono
-once. Loading a preset replaces its sound settings, so save an edited sound
-first. The machine API does not lock the stock play-mode menu: selecting poly
-manually enables overlapping voices and multiplies DSP cost again.
+All six native factory presets select stock **legato** and stock portamento amount
+**1800** (a raw preset value, not milliseconds). Existing projects retain their
+saved play mode and portamento; load a new preset or edit M2 + Shift to use these
+settings. Save edited sounds before loading a factory preset.
 
-Stock portamento follows the supplied sample-by-sample pitch ramp. No second
-glide, global voice lock, velocity detector or internal amplitude gate is added.
-Use parameter locks on Cutoff, Env Amt, Reso or Distort for filter accents.
-The 16-slot DSP pool remains available for independent tracks and stock fades;
-it is not a per-track polyphony setting.
+Overlap notes for connected phrases; leave gaps for fresh attacks. XY also has a
+Portamento step component for selective pitch glides. Acidline consumes the stock
+sample-by-sample pitch ramp exactly and never adds a second glide. A pitch change
+without a new start preserves its internal filter-envelope decay; a new start
+retriggers it. Tests establish this machine-side behavior, **not** whether stock
+Legato supplies the necessary callbacks for every sequenced overlap. That needs
+an on-device listening test. This is a stock-legato slide candidate, not a claim
+of complete TB-303 sequencer/circuit emulation. The public synth API has no
+explicit slide/tie/gate flag; if stock restarts tied voices, proper suppression
+needs a separate SDK API change rather than a pitch-change heuristic.
 
-## Controls and display
+## Performance controls
 
-Press any encoder to switch the complete page. The SDK's shared two-page
-header shows both rows and highlights the active row. The original six saved
-slots keep their order; Sub and Damp use the two previously unused slots.
+Press any encoder to switch pages. Saved indices and parameter IDs are preserved.
 
-| Encoder | Page 1 | Page 2 |
+| Encoder | Main page | Second page |
 | --- | --- | --- |
-| 1 | Cutoff | Decay |
-| 2 | Reso | Wave |
-| 3 | Distort | Sub |
-| 4 | Env Amt | Damp |
+| 1 | **Flow**: opens the filter across its logarithmic range | **Length**: short pluck to long filter decay |
+| 2 | **Bite**: resonance, bass compensation and extra envelope sweep | **Shape**: Saw / Triangle / Square |
+| 3 | **Burn**: pre-filter drive, soft clipping and linked darkening | **Body**: octave-down sine blend |
+| 4 | **Sweep**: filter movement within the headroom above Flow | **Shade**: bright edge to dark low-pass |
 
-Wave now selects **Saw / Triangle / Square** with a named readout, rather than
-morphing continuously between saw and pulse. Existing low/high settings still
-select saw/square, but intermediate saved values now select one of the three
-shapes. Waveform changes crossfade over one audio block.
+Bite adds up to one quarter of the unused envelope depth. Burn adds up to one
+quarter of the remaining darkening range. These couplings are computed once per
+block. Length still controls the contour independently. The main page is the
+performance surface; the second page shapes the underlying voice. These are real
+sound changes, including for existing projects. Control slots have not been
+removed or reordered, and factory raw sound values remain intact.
 
-Sub blends in a sine exactly one octave below the supplied pitch, including
-stock glide. At full Sub the main and sub each contribute half, preserving
-output headroom. Sub bypasses its lookup when off. Damp is a post-distortion
-low-pass: zero bypasses it, turning clockwise increasingly darkens the sound.
-Both new controls default off; the bass factory presets demonstrate them.
+Each track retains its own stock mono/legato behavior. The 16-slot DSP pool
+supports independent tracks and stock fades; it is not per-track polyphony.
+Stock supplies amplitude envelopes, velocity, mixing and effects. Filter accents
+can use parameter locks on Flow, Bite, Burn or Sweep.
 
-A laboratory bench holds a red triangular Erlenmeyer flask, a blue round-bottom
-reaction flask and a slender green test tube. Their liquid outlines and bubble
-positions follow their different vessel profiles. All three are connected
-by a recirculating glass pipe network. Coloured fluid packets travel through
-the pipes while notes sound; cutoff controls flow speed. Turning valves, two
-pressure gauges and droplets respond to the controls and
-note pulses. The apparatus sits against a tiled lab wall with pump housings
-and an instrument cabinet. Cutoff,
-resonance and distortion change the liquid levels. Notes trigger ripples,
-bubbles and short vapour bursts; held notes keep the reaction active. Idle
-motion settles, track changes reset activity, and reduced motion removes the
-continuous movement. Display work is separate from the audio callback.
+## Display
 
-## DSP and control shaping
+White liquid threads hang from a thin ceiling on black. Bite and Burn stretch
+and bend them; Flow controls travel speed. Notes excite the threads, falling
+drops and expanding rings. More intensity increases drop density and movement.
+Idle animation settles; track changes reset it; reduced motion shows a static
+composition. All animation uses bounded display state and stays outside audio.
+Both control pages remain visible through the SDK's shared header.
 
-The base cutoff spans 35 Hz to 14 kHz logarithmically. Env Amt uses the remaining
-cutoff range above that base, so high Cutoff/Env settings no longer hit an early
-ceiling. Decay spans roughly 30 ms to 1.4 s, with more room for short acid plucks.
-Resonance brings in squelch earlier and applies a gradual body compensation so
-raising it does not simply remove the bass.
+## DSP budget and validation
 
-Distort links pre-filter drive to a smooth post-filter soft clipper. Low settings
-add edge, the middle pushes the resonant filter harder, and the top becomes
-compressed and gritty. Post-clip gain has a gentler range than before. Damp
-rolls the main sound down toward 220 Hz at its dark end; the octave sub stays
-clean beneath it. Factory presets are revoiced around these curves. Existing
-saved controls keep their indices but sound different with the revised DSP.
+This candidate uses the experimental 44.1 kHz Open303 ladder adaptation and its
+150 Hz feedback high-pass, replacing the old 88.2 kHz TPT filter/FIR. It is an
+intentional sound change: a darker ladder response, different resonance and
+more high-note distortion aliasing. See [NOTICE.md](NOTICE.md) for attribution.
+Stable output controls select specialized loops before processing samples.
+There is no output lookup-cache rebuild on automation and no new slide DSP loop.
 
-The voice now runs at 44.1 kHz. Its four-stage Open303 TB_303 ladder and
-150 Hz feedback highpass replace the preceding 88.2 kHz TPT filter and 31-tap
-decimator. Coefficients still ramp over each block; separate oscillator, ladder
-and output passes reduce live state. The original band-limited waveform banks,
-filter envelope, linked pre-drive/post-clip, octave sub and damping remain.
-The filter adaptation and MIT notices are in [NOTICE.md](NOTICE.md).
-
-This is an intentional sound change for the CPU budget. The new ladder is
-generally darker, its resonance and overdrive respond differently, and strong
-high-note distortion has more aliasing without the old oversampling filter.
-The original 73 audio/state hashes still authenticate the frozen legacy renderer
-in `tests/reference`; they have not been replaced with new hashes. Quantitative
-comparisons require RMS level and normalized edge energy within a factor of two
-of that renderer across the same scenes, alongside unchanged pitch and contour
-timing. The extreme 6 kHz clipping fixture reports the lost alias rejection.
-
-The saved machine ID, eight control slots, waveform choices and all factory
-preset values are unchanged. Voice state is 84 bytes after removing the FIR
-history; the 16-slot pool remains unchanged. This revision needs a fresh hardware
-control sweep before claiming the required 3.5% CPU target or catalog acceptance.
-
-## Development
+The last qualified preceding design measured **9.323%**, above the requested
+**3.5%** maximum. This revision has **no hardware CPU measurement**. The host
+estimate remains above the SDK's advisory 15,000-instruction target; it cannot
+qualify the 3.5% requirement. Keep this revision experimental until a full control
+sweep on the exact built revision passes that ceiling. Device installation,
+reboot, slide listening and profiling require separate user authorization.
 
 From the XY Machines root:
 
@@ -103,37 +78,16 @@ node --test machines/acidline/tests/presets.test.mjs
 ./xy preview acidline --watch
 ```
 
-The C++ tests cover control extremes, peak bounds, filter attenuation,
-monotonic symmetric soft clipping, waveform spectra, octave-down sub,
-damping, exact stock pitch ramps, independent DSP states, display bounds,
-both header pages, idle/reduced-motion behavior, quantitative legacy level/brightness comparisons
-and the explicit 1x aliasing tradeoff. Preset tests check stock mono mode and unchanged
-sound parameters. The optional dedicated acid sequencer under `audition/`
-provides its own simple mono gate and glide; it does not emulate stock's
-allocator or envelopes.
+Tests cover control extremes, headroom, independent voices, spectral behavior,
+control sweet spots, exact supplied pitch ramps, tied contour continuity,
+detached retriggers, display validity, idle/reduced motion and both pages.
+Frozen historical renderer hashes remain unchanged. Sound comparisons apply the
+same macro targets to the old filter before comparing level and spectral edge;
+no old reference hashes were replaced to admit the new design.
 
-Use the root browser workflow to refresh the cached builder after source
-changes. The retuned revision still needs wider device listening tests and a complete
-revision-bound control sweep before publication.
-Host/native checks do not establish real-time hardware headroom. Keep firmware
-and stock content outside every checkout; device operations require a separate
-user instruction.
+The browser has a simple audition gate and does not reproduce stock Legato,
+portamento, allocation, envelopes or device CPU. Use the dedicated acid audition
+for its simulated tie/glide pattern; it too is test equipment, not stock firmware.
 
-Stable saw, triangle and square settings select their oscillator path once per
-block; waveform transitions retain a one-block crossfade. All filter and output
-coefficients are bounded and ramped. Tests exercise all control corners, rapid
-random automation, retriggers, constant and moving pitch, independent voices,
-finite/headroom limits and the supplied stock pitch phase exactly.
-
-For paired host render timing against the frozen preceding design:
-
-```sh
-python machines/acidline/tools/benchmark.py --baseline 97b6a9c --cxx /path/to/clang++
-```
-
-These host timings compare different filter designs and are not device CPU
-measurements or sound-equivalence claims. `./xy test acidline` runs the frozen
-reference/quantitative sound checks. Device listening and revision-bound CPU
-qualification remain pending.
-
-MIT; see LICENSE and [third-party notices](NOTICE.md).
+MIT; see LICENSE and NOTICE.md. Keep firmware and stock content outside all
+checkouts. Hardware acceptance and revision-bound CPU qualification remain pending.

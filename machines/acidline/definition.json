@@ -5,7 +5,7 @@
   "parameters": [
     {
       "id": "cutoff",
-      "label": "Cutoff",
+      "label": "Flow",
       "default": 0.26,
       "mapping": {
         "kind": "linear",
@@ -16,7 +16,7 @@
     },
     {
       "id": "resonance",
-      "label": "Reso",
+      "label": "Bite",
       "default": 0.68,
       "mapping": {
         "kind": "linear",
@@ -27,7 +27,7 @@
     },
     {
       "id": "drive",
-      "label": "Distort",
+      "label": "Burn",
       "default": 0.28,
       "mapping": {
         "kind": "linear",
@@ -38,7 +38,7 @@
     },
     {
       "id": "env",
-      "label": "Env Amt",
+      "label": "Sweep",
       "default": 0.62,
       "mapping": {
         "kind": "linear",
@@ -49,7 +49,7 @@
     },
     {
       "id": "decay",
-      "label": "Decay",
+      "label": "Length",
       "default": 0.38,
       "mapping": {
         "kind": "linear",
@@ -61,7 +61,7 @@
     },
     {
       "id": "wave",
-      "label": "Wave",
+      "label": "Shape",
       "default": 0,
       "mapping": {
         "kind": "enum",
@@ -76,7 +76,7 @@
     },
     {
       "id": "sub",
-      "label": "Sub",
+      "label": "Body",
       "default": 0,
       "mapping": {
         "kind": "linear",
@@ -88,7 +88,7 @@
     },
     {
       "id": "damp",
-      "label": "Damp",
+      "label": "Shade",
       "default": 0,
       "mapping": {
         "kind": "linear",

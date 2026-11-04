@@ -203,7 +203,10 @@ reports without repeating the hardware capture batch.
 GitHub Pages serves the [machine gallery](https://kristapskristaps.github.io/xy-machines/).
 `.github/workflows/pages.yml` builds it from `collection.json` and the pinned SDK
 on changes to main. Synths and drums use the SDK's authenticated WebAssembly
-previews; effects link to their guides. The export includes
+previews. Effects use collection-owned fixed-memory WebAssembly bridges around
+their unchanged C++ callbacks. Each effect player offers three synthesized demo
+loops, browser-local audio loading, dry comparison, send/volume and tail controls.
+The export includes
 licenses and pinned source links, strips local build metadata, and contains no
 native objects, firmware, stock assets or device data.
 
@@ -216,6 +219,7 @@ To inspect a fresh static export locally:
 ```sh
 python tools/build_site.py --out local/gallery-001
 python tools/check_site.py --site local/gallery-001
+node tools/check_effect_site.mjs local/gallery-001
 python tools/serve_site.py --site local/gallery-001
 ```
 

@@ -39,9 +39,9 @@ matched optimization comparisons, combined-source readouts and remaining integra
 
 Each machine has its own README, license, controls and audition instructions.
 The [machine gallery](https://kristapskristaps.github.io/xy-machines/) lists the
-current source collection with browser auditions for synths and drums. Choose a
-machine to play its keyboard, explore presets and edit its controls. Effects
-and sample engines link to their guides. The gallery rebuilds from `main` through
+current source collection with browser auditions for synths, drums and effects.
+Play a keyboard, explore presets, or try an effect on three demo loops or your
+own audio. Files stay in your browser. The gallery rebuilds from `main` through
 GitHub Actions; it publishes browser modules and artwork, never firmware.
 
 The CI **first-ten-synth-previews** artifact remains available for local audition

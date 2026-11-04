@@ -50,7 +50,14 @@ def check(root):
         if not record['playable']:
             continue
         folder = root / record['player']
+        if record['kind'] == 'effect':
+            manifest = json.loads((folder / 'manifest.json').read_text())
+            require(manifest['description'] == record['description'], 'Player and catalog descriptions differ')
+            require(hashlib.sha256((folder / 'effect.wasm').read_bytes()).hexdigest() == manifest['wasm_sha256'], 'Changed effect audio payload')
+            require(0 <= manifest['dryIndex'] < len(manifest['definition']['parameters']), 'Invalid effect dry control')
+            continue
         manifest = json.loads((folder / 'preview/manifest.json').read_text())
+        require(manifest['description'] == record['description'], 'Player and catalog descriptions differ')
         require(not {'root', 'compiler', 'sources'} & manifest.keys(), 'Public audition contains local build metadata')
         require(hashlib.sha256((folder / 'preview/engine.wasm').read_bytes()).hexdigest() == manifest['wasm_sha256'], 'Changed audition audio payload')
         require(hashlib.sha256((folder / 'preview/panel.svg').read_bytes()).hexdigest() == manifest['graphics']['asset_sha256'], 'Changed audition artwork payload')

@@ -41,16 +41,12 @@ The public SDK registers synth displays only. Every effect therefore has its por
 | Palme | Original palm soundboard: vibrating strings along the source geometry, metal rings, opening damper wings and breathing speaker. |
 | In a room | Original room panel: size/shape floor plan, nodal grid, loop-waveform illustration and moving playhead. |
 
-## Granular: browser display study
-
-The original sample window, pointers, position/spray/size guides and four grain markers are reconstructed. The gallery waveform is explicitly an illustration, not a reading of the assigned sample. A native Granular machine still uses the SDK's stock sampler page; no sample custom-display API exists yet.
-
 ## Fidelity and validation
 
 - The display API supplies parameter snapshots, held-note count and note serials. It does not expose per-voice envelopes, oscillator traces, grain positions, sample peaks or effect internals. Where upstream reads those, the reconstruction uses a display-only model driven by controls and note activity. Effect auditions gate this model from the measured wet return. No audio callback was changed to publish unsafe shared state.
 - Continuous translation, rotation and uniform scaling use retained nodes. Nonuniform source transforms, such as pipe height or visor fog, use pre-baked geometry keyframes within the native artwork and node limits. Small outlines are resampled, some strokes are coalesced, procedural traces are reduced to bounded segment counts and tiny subpixel lines are omitted. Fonts and native rasterization can differ from the browser.
 - To follow XY UX conventions, idle scenes stay still and reduced motion snaps to a static pose. Track activation establishes a baseline without fabricating a strike. These deliberately differ from upstream's continuously running idle effects.
-- All 26 displays have host invariant tests for bounds, geometry budgets, activation, track changes, idle and reduced motion, including 1,800 control/activity frames each. Native and WASM builds use the same C++ source. The existing sound and arithmetic checks remain in each machine.
-- Device appearance, GUI load and hardware audio CPU measurements remain unverified. Only the 12 synth display registrations are included in the native development module. A separate SDK change is needed to register effect/sample custom displays and to expose any additional safe telemetry.
+- All 25 displays have host invariant tests for bounds, geometry budgets, activation, track changes, idle and reduced motion, including 1,800 control/activity frames each. Native and WASM builds use the same C++ source. The existing sound and arithmetic checks remain in each machine.
+- Device appearance, GUI load and hardware audio CPU measurements remain unverified. Only the 12 synth display registrations are included in the native development module. A separate SDK change is needed to register effect custom displays and to expose any additional safe telemetry.
 
 `tools/visuals.py` regenerates the artwork and C++ from the pinned upstream source, the machine-specific translations in `tools/visual_motion/`, and `tools/visual_runtime.hpp.in`. Every machine's `VISUALS.md` and `visual.json` identify its original artwork and hash. Original Hundekraft notices and licences continue to apply; the SDK's generated header and browser renderer retain the Open-XY MIT notice.

@@ -8,11 +8,11 @@ can be transferred and reloaded while its engine contract remains unchanged.
 
 `collections/hundekraft-test.json` selects **12 synths**. The 13 HK effects
 remain excluded after failing device listening tests; do not add them to a
-normal hardware kit. HK Granular is also excluded.
+normal hardware kit.
 
 `collections/standalone.json` selects seven synths, one drum machine and three
-effects. `collections/hundekraft.json` retains all 26 HK sources, including the
-excluded effects and sample engine. The complete inventory has 37 entries;
+effects. `collections/hundekraft.json` retains all 25 HK sources, including the
+excluded effects. The complete inventory has 37 entries;
 it is not a hardware kit. Every combined image must pass the shared 2,032 KiB
 module limit. Do not assume the complete inventory fits together.
 

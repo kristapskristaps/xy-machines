@@ -19,7 +19,7 @@ def collection(public, custom, output):
         folder = (custom.parent / row['path']).resolve()
         metadata = json.loads((folder / 'machine.json').read_text())
         ident = json.loads((folder / 'definition.json').read_text())['id']
-        if ident == 'hkgranular' or (ident.startswith('hk') and metadata['kind'] == 'effect'):
+        if ident.startswith('hk') and metadata['kind'] == 'effect':
             excluded.append(ident)
         else:
             require(ident not in local, 'Duplicate local machine: ' + ident)

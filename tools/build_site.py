@@ -10,6 +10,7 @@ import struct
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from effect_site import export_effect
 from workspace import ROOT, checked_sdk, compiler, inventory, require
 
 REPOSITORY = 'https://github.com/kristapskristaps/xy-machines'
@@ -59,7 +60,7 @@ def thumbnail(asset, metadata, words):
     return ET.tostring(svg, encoding='unicode')
 
 
-def export_player(sdk, preview, target):
+def export_player(sdk, preview, target, description):
     sys.path.insert(0, str(sdk))
     from tooling.preview import preview_bundle
     bundle = preview_bundle(preview)  # authenticate the exact compiled payloads
@@ -69,6 +70,7 @@ def export_player(sdk, preview, target):
         if url.endswith('/manifest.json'):
             metadata = json.loads(data)
             metadata = {key: metadata[key] for key in ('schema', 'kind', 'engine', 'description', 'definition', 'sample_rate', 'wasm_sha256', 'graphics')}
+            metadata['description'] = description
             data = (json.dumps(metadata, indent=2) + '\n').encode()
         path.write_bytes(data)
     for name in BROWSER:
@@ -76,10 +78,14 @@ def export_player(sdk, preview, target):
         path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(sdk / 'sdk/browser' / name, path)
     for name in HARNESS:
-        source = (sdk / 'harness' / name).read_text()
+        source = (sdk / 'harness' / name).read_text().replace('Open-XY Machine Workbench', 'XY Machines Player')
         if name == 'index.html':
             source = source.replace('="/harness/', '="./harness/').replace('href="/"', 'href="../../"')
-            source = source.replace('Open-XY Machine Workbench</a>', '← XY Machines</a>')
+            source = source.replace('XY Machines Player</a>', '← XY Machines</a>')
+            source = source.replace('Preview Limitations', 'About this preview')
+            source = source.replace('The audition applies its own simple amplitude gate after the engine.', 'Try the presets, then turn the controls to make the sound your own.')
+            source = source.replace('Shared C++ sound and display. Device fonts, filters, envelopes and CPU timing still need hardware qualification.', 'This is a browser preview. Sound and display can differ on the OP-XY; see the machine guide for hardware testing status.')
+            source = source.replace('Patch exports preserve every control. Rebuild the preview after changing the engine or display.', 'Export a patch to save your settings, or import one to pick up where you left off.')
             source = source.replace('</head>', '<link rel="stylesheet" href="player.css"></head>')
             path = target / 'index.html'
         else:
@@ -98,29 +104,35 @@ def build(sdk, out, cxx):
         shutil.copyfile(ROOT / 'site' / name, out / name)
     revision = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     machines = inventory()
+    descriptions = json.loads((ROOT / 'site/descriptions.json').read_text())
+    require(set(descriptions) == set(machines), 'Public descriptions must match the current inventory.')
     cards, records = [], []
     for ident, item in sorted(machines.items(), key=lambda pair: pair[1]['definition']['name'].casefold()):
         definition, metadata, folder = item['definition'], item['metadata'], item['path']
         name, kind = definition['name'], metadata['kind']
         require(kind in KINDS and re.fullmatch('[a-z][a-z0-9_]{0,14}', ident), 'Invalid public machine identity')
-        description = metadata.get('description', KINDS[kind])
-        if description.startswith('Hundekraft ') and description.endswith('DSP port for private OP-XY testing.'):
-            description = f'An OP-XY port of the Hundekraft {name.removeprefix("HK ")} {"instrument" if kind == "synth" else "effect"}.'
+        description = descriptions[ident]
+        require(isinstance(description, str) and description.strip(), 'Missing public machine description')
         relative = folder.relative_to(ROOT).as_posix()
         guide = f'{REPOSITORY}/blob/{revision}/{relative}/README.md'
-        playable = kind in ('synth', 'drum')
+        playable = kind in ('synth', 'drum', 'effect')
         record = dict(id=ident, name=name, kind=kind, description=description, guide=guide, playable=playable)
-        if playable:
+        if kind == 'effect':
+            target = out / 'play' / ident
+            export_effect(sdk, item, target, out.parent / (out.name + '-effect-build'), cxx, description, guide)
+            record.update(player=f'play/{ident}/')
+        if kind in ('synth', 'drum'):
             preview = out.parent / (out.name + '-previews') / ident
             subprocess.run([sys.executable, str(sdk / 'sdk.py'), 'preview', '--machine', str(folder), '--cxx', cxx, '--out', str(preview)], check=True)
             target = out / 'play' / ident
-            export_player(sdk, preview, target)
+            export_player(sdk, preview, target, description)
             manifest = json.loads((preview / 'manifest.json').read_text())
             words = json.loads(subprocess.check_output(['node', str(ROOT / 'site/render_screen.mjs'), str(sdk), str(preview / 'engine.wasm'), str(preview / 'manifest.json')], text=True))
             thumb = out / 'screens' / (ident + '.svg')
             thumb.parent.mkdir(exist_ok=True)
             thumb.write_text(thumbnail((preview / 'panel.svg').read_text(), manifest, words))
             record.update(player=f'play/{ident}/', screen=f'screens/{ident}.svg')
+        if playable:
             licenses = target / 'licenses'
             licenses.mkdir()
             shutil.copyfile(sdk / 'LICENSE', licenses / 'SDK-LICENSE.txt')
@@ -131,12 +143,12 @@ def build(sdk, out, cxx):
                     shutil.copyfile(path, destination)
         escape = html.escape
         data = f'data-name="{escape(name, quote=True)}" data-guide="{escape(guide, quote=True)}"'
-        image = f'<a class="machine-screen" href="{record["player"]}" data-play {data} aria-label="Play {escape(name, quote=True)}"><img src="{record["screen"]}" alt="{escape(name, quote=True)} instrument screen" width="480" height="220" loading="lazy"></a>' if playable else ''
-        play = f'<a href="{record["player"]}" data-play {data}>Play machine ↗</a>' if playable else ''
+        image = f'<a class="machine-screen" href="{record["player"]}" data-play {data} aria-label="Play {escape(name, quote=True)}"><img src="{record["screen"]}" alt="{escape(name, quote=True)} instrument screen" width="480" height="220" loading="lazy"></a>' if 'screen' in record else ''
+        play = f'<a href="{record["player"]}" data-play {data}>{'Try effect' if kind == 'effect' else 'Play machine'} ↗</a>' if playable else ''
         presets = len(definition.get('presets', {}))
         detail = f' · {presets} {"preset" if presets == 1 else "presets"}' if presets else ''
         search = f'{name} {ident} {description}'.casefold()
-        cards.append(f'<article class="machine-card {"" if playable else "documentation"}" data-kind="{kind}" data-search="{escape(search, quote=True)}">{image}<p class="machine-meta">{KINDS[kind]}{detail}</p><h3>{escape(name)}</h3><p class="machine-description">{escape(description)}</p><div class="machine-links">{play}<a href="{escape(guide, quote=True)}">Read guide ↗</a></div></article>')
+        cards.append(f'<article class="machine-card {"" if "screen" in record else "documentation"}" data-kind="{kind}" data-search="{escape(search, quote=True)}">{image}<p class="machine-meta">{KINDS[kind]}{detail}</p><h3>{escape(name)}</h3><p class="machine-description">{escape(description)}</p><div class="machine-links">{play}<a href="{escape(guide, quote=True)}">Read guide ↗</a></div></article>')
         records.append(record)
     featured = next(record for record in records if record['id'] == 'acidline')
     feature = f'<div class="featured"><a class="featured-screen" href="{featured["player"]}" data-play data-name="Acidline" data-guide="{html.escape(featured["guide"], quote=True)}" aria-label="Play Acidline"><img src="{featured["screen"]}" alt="Acidline’s monochrome liquid display" width="480" height="220" fetchpriority="high"></a><div class="featured-caption"><div><h2>Acidline</h2><p>Resonant bass, liquid movement.<br>Take the controls for a spin.</p></div><a class="play-link" href="{featured["player"]}" data-play data-name="Acidline" data-guide="{html.escape(featured["guide"], quote=True)}">Play Acidline <span aria-hidden="true">↗</span></a></div></div>'
@@ -147,7 +159,7 @@ def build(sdk, out, cxx):
     files = {path.relative_to(out).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in out.rglob('*') if path.is_file()}
     require(not any(Path(name).suffix.lower() in ('.ldr', '.tfw', '.zfw', '.elf', '.o', '.bin', '.zip') for name in files), 'Private/native output in public site')
     (out / 'site-files.json').write_text(json.dumps(files, indent=2) + '\n')
-    print(f'PASS: {len(records)} catalog entries, {sum(record["playable"] for record in records)} authenticated auditions. Static site: {out}')
+    print(f'PASS: {len(records)} catalog entries, {sum(record["playable"] for record in records)} hashed auditions. Static site: {out}')
 
 
 def main():

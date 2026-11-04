@@ -5,6 +5,8 @@ on:
     paths:
       - 'site/**'
       - 'tools/build_site.py'
+      - 'tools/effect_site.py'
+      - 'tools/check_effect_site.mjs'
       - 'tools/check_site.py'
       - 'tools/serve_site.py'
       - 'collection.json'
@@ -16,6 +18,7 @@ on:
     paths:
       - 'site/**'
       - 'tools/*site.py'
+      - 'tools/check_effect_site.mjs'
       - 'collection.json'
       - 'SDK_REVISION'
       - 'SDK_REPOSITORY'
@@ -62,6 +65,9 @@ jobs:
       - name: Verify public artifact
         working-directory: xy-machines
         run: python tools/check_site.py --site local/pages
+      - name: Exercise every effect audition
+        working-directory: xy-machines
+        run: node tools/check_effect_site.mjs local/pages
       - uses: actions/upload-pages-artifact@v3
         with:
           path: xy-machines/local/pages

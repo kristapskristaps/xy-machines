@@ -256,3 +256,52 @@ hat/cymbal scenes across low/middle/high controls differ by at most 0.000464
 of full scale RMS; audible-level scenes stay within 1% RMS level.
 Hardware CPU remains pending. The installed public image remains at 4.201%
 for its worst X0X case; no publication is made from this host evidence.
+
+## Final three-run public-SDK result
+
+Qualified source: `1fa86cf9f4f2a610050283244c594c928333b57d`, tagged
+`collection-v1.0.0`. The cymbal change passes all 14 X0X host tests and native
+compilation; the seven-machine image rebuilds identically and allocates
+1,963,704 of 2,080,768 bytes. All 42 saved layout reservations are unchanged.
+The user accepted the installed Tandem Output, Sift Body, X0X controls and
+selected-pad animation before the final tiny cluster-curve approximation.
+That approximation's error is quantified above; no other sounds or controls
+changed. The latest source has not had a full manual project/scene/lock QA pass.
+
+Three complete captures of the same installed image each contain all 332
+expected reports, 334 frames and zero protocol errors. [Final SDK-generated
+reports](../profiling/2026-11-05/public-sdk-final/) publish each setting's
+median across those three captures. Every X0X capture independently reports
+3.988708% at its heaviest setting, open hat/model8 with controls at127.
+
+| Machine | Three-run reported maximum |
+| --- | ---: |
+| Atlas | 2.908% |
+| Tandem | 3.430% |
+| Sift | 2.545% |
+| X0X | 3.989% |
+| Bitflip | 3.893% |
+| Choir | 3.268% |
+| Crease | 3.516% |
+
+All seven meet the requested under-4% ceiling. X0X, Bitflip and Crease still
+carry the SDK's recommended-3.5% warning; X0X has little spare headroom.
+These synthetic workloads are not total-project CPU or maximum polyphony.
+A full QA.md pass on the pinned release remains recommended before broad use.
+
+The first final capture encountered a host ENOSPC error only while writing
+its final JSON file. Its original flushed MIDI traffic contains the complete
+run. The capture was reconstructed with the original collector's framing,
+CRC and payload codec, and validated by the unchanged SDK's complete-run
+decoder. All 332 reports, endpoint/length checks, package hashes and original
+measured values were preserved; no CPU numbers were added or estimated.
+The two subsequent captures completed normally and reproduce X0X's result.
+Raw logs, recovery provenance and firmware remain private. Space became
+available again without deleting user data.
+
+Observed software reboots separate every measured run. After the final run,
+a software reboot and normal OS1.2.1 identity probe succeeded. All seven stay
+installed; existing presets/projects were not transferred or overwritten.
+The four existing Acidline/Halo/Mando/Vader records retain their independently
+qualified v1.1.0 tags. The consolidated submission adds those four plus these
+seven; Rebound's merged catalog record is unchanged.

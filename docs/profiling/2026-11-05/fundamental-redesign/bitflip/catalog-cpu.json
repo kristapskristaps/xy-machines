@@ -1,0 +1,17 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "d07d8c9677b692ca044b01ed8d9018c05e9064a8",
+    "firmware_sha256": "881167fb726a3020d0e4ed00591776bfeb554a842ef79b91e30ed9141e61eb7d",
+    "runs": 1,
+    "block_percent": 3.689631,
+    "midpoint_percent": 3.665217,
+    "combined_percent": 3.117418,
+    "worst_setting": {
+      "control": 0,
+      "label": "Model",
+      "value": 1207959551,
+      "option": "FM"
+    }
+  }
+}

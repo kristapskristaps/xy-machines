@@ -239,3 +239,20 @@ failure. Open hat and ride peak at 3.931% and 3.903%, respectively. Its kit
 workload is 17.801%; eight voices remain available. No publication or catalog
 consolidation occurs while X0X still fails. Full listening/project QA remains
 separate from this synthetic CPU capture.
+
+## Local cymbal-cluster lookup follow-up
+
+The remaining measured failure is the synthesized cymbal, which reads six
+interpolated band-limited cluster curves per sample. The follow-up samples
+that same existing curve into an 8192-point table and uses rounded nearest
+reads. It removes six interpolations per sample without substituting a hard
+square waveform. Cowbell's separate curve and the recorded/808 stem paths
+are unchanged. The added table is 16 KiB.
+
+All 14 X0X host tests, preview checks and Blackfin compilation pass. An
+independent comparison against the installed curve covers 1,048,576 phases:
+maximum error five signed16 counts, relative RMS 0.000386. Nine complete
+hat/cymbal scenes across low/middle/high controls differ by at most 0.000464
+of full scale RMS; audible-level scenes stay within 1% RMS level.
+Hardware CPU remains pending. The installed public image remains at 4.201%
+for its worst X0X case; no publication is made from this host evidence.

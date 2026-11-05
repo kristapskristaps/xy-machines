@@ -3,6 +3,7 @@
 #include "metal_stems.h"
 #include "drive_curve.h"
 #include "tonal_sine.h"
+#include "cluster_lookup.h"
 #include <opxy/q31.hpp>
 
 namespace x0x { namespace dsp {
@@ -64,7 +65,9 @@ static inline i32 metallic_shape(u32 phase,u32 shape) {
     return a+multiply16(b-a,i32((phase>>7)&32767));
 }
 static inline i32 square(u32 phase) { return metallic_shape(phase,0); }
-static inline i32 square_sixth(u32 phase) { return metallic_shape(phase,1); }
+// Six oscillators read this curve per sample; pre-resampling removes six
+// interpolations without replacing the band-limited waveform with hard edges.
+static inline opxy::i16 square_sixth(u32 phase) { return cluster_lookup[(phase+0x00040000u)>>19]; }
 static inline i32 noise(u32& seed) {
     seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
     return i32(seed >> 17) - 16384;

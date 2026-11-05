@@ -1,0 +1,16 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "06af6c4a9036c3305d3cd02a3237dea3f0944c04",
+    "firmware_sha256": "877c1a4921e9de5b644c04fc6a068d00b2b5e7ae572c928879905dc6ef0224e5",
+    "runs": 1,
+    "block_percent": 3.515679,
+    "midpoint_percent": 3.515679,
+    "combined_percent": 2.723735,
+    "worst_setting": {
+      "control": 3,
+      "label": "Alt mix",
+      "value": 1073741823
+    }
+  }
+}

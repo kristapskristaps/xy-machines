@@ -201,10 +201,14 @@ def stage(args, sdk):
         if not name.startswith('candidate/'):
             continue
         remote = name.removeprefix('candidate/')
+        preset = re.fullmatch(r'content/presets/[a-z][a-z0-9_]{0,14}/[a-z0-9][a-z0-9_-]{0,23}\.json', remote)
         require(remote in ('os.ldr', 'content/op1_factory.json') or
-                re.fullmatch(r'content/display/[a-z][a-z0-9_]*\.svg', remote), 'Unexpected install path: ' + remote)
+                re.fullmatch(r'content/display/[a-z][a-z0-9_]*\.svg', remote) or preset,
+                'Unexpected install path: ' + remote)
         source = package / name
         require(source.is_file() and digest(source) == sha, 'Package hash mismatch: ' + name)
+        if preset:
+            continue  # Presets are generated from verified source only when explicitly requested below.
         files[remote] = source
     require('os.ldr' in files and 'content/op1_factory.json' in files, 'Incomplete firmware package.')
     previous = json.loads(Path(args.against).read_text())['files'] if args.against else {}

@@ -345,7 +345,7 @@ static void wsh_transfer_render(const int16_t* const curves[2][2],struct ramp* o
     }
 }
 
-static void wsh_render(struct macro_wsh *__restrict w, const uint8_t *p, uint32_t inc, int32_t *__restrict out, int32_t *__restrict aux, int n,
+__attribute__((always_inline)) static inline void wsh_render(struct macro_wsh *__restrict w, const uint8_t *p, uint32_t inc, int32_t *__restrict out, int32_t *__restrict aux, int n,
                        int want_out, int want_aux, uint32_t design_inc = 0)
 {
     int32_t harm = k16(p[MACRO_P_HARM]), timb = k15(p[MACRO_P_TIMB]), morph = k16(p[MACRO_P_MORPH]);

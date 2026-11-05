@@ -671,6 +671,10 @@ static void wt_render(struct macro_wavetable *__restrict w, const uint8_t *p, ui
         cur[k] = w->tgt[k];
         w->tgt[k] = tg[k];
     }
+    const bool settled_coordinates = d[0]==0 && d[1]==0 && d[2]==0
+        && fmac1(cur[0]-w->lp[0],lpc)==0
+        && fmac1(cur[1]-w->lp[1],lpc)==0
+        && fmac1(cur[2]-w->lp[2],lpc)==0;
     wt_cache(w,static_cast<unsigned>(n));
     fd = divide_block((int32_t)inc - (int32_t)f, n);
     /* y = d / (128 f), table units a table step, Q8: d x 2^25 / inc (as wtv_render) */
@@ -683,9 +687,11 @@ static void wt_render(struct macro_wavetable *__restrict w, const uint8_t *p, ui
         for (i = 0; i < n; i++) {
             int32_t pi,pf,mix,dd,y,c;
             f += (uint32_t)fd;
-            for (k = 0; k < 3; k++) {
-                cur[k] += d[k];
-                w->lp[k] += fmac1(cur[k] - w->lp[k], lpc);
+            if (!settled_coordinates) {
+                for (k = 0; k < 3; k++) {
+                    cur[k] += d[k];
+                    w->lp[k] += fmac1(cur[k] - w->lp[k], lpc);
+                }
             }
             ph += f;
             pi=static_cast<int32_t>(ph>>25);

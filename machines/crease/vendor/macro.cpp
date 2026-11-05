@@ -239,7 +239,7 @@ static COLD void slope_init(struct macro_slope *o)
 }
 
 /* pw: Q16, already kept in 2f..1-2f. out: Q15. */
-static void slope_render(struct macro_slope *__restrict o, uint32_t inc, int32_t pw, int32_t *__restrict out, int n)
+__attribute__((always_inline)) static inline void slope_render(struct macro_slope *__restrict o, uint32_t inc, int32_t pw, int32_t *__restrict out, int n)
 {
     uint32_t pw32 = (uint32_t)pw << 16;
     int32_t rup = (int32_t)(0x80000000u / (uint32_t)pw);            /* 1/pw, Q15       */
@@ -317,7 +317,7 @@ __attribute__((always_inline)) static inline int32_t wsh_read(const int16_t* cur
     return curve[p.index]+((slope*p.fraction)>>p.bits);
 }
 template <bool Main, bool Auxiliary, bool Changing>
-static void wsh_transfer_render(const int16_t* const curves[2][2],struct ramp* overtone,
+__attribute__((always_inline)) static inline void wsh_transfer_render(const int16_t* const curves[2][2],struct ramp* overtone,
                                 int32_t* out,int32_t* aux,int n) {
     const int32_t fade_step=Changing ? 32768/n : 0;
     int32_t fade=0;

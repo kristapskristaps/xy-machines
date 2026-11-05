@@ -7,11 +7,11 @@ are unaffected by this source removal. No SDK or device changes are part of this
 
 | Name | ID | Original animation label | Visual mechanism | Native machine footprint |
 | --- | --- | --- | --- | ---: |
-| Tandem | weave_analog | analog | Woven interference engraving with three phase lenses | 31.1 KiB |
-| Atlas | weave_waves | waves | An elastic contour field and travelling wavefront | 80.0 KiB |
-| Choir | weave_chords | chords | Five nested archways with independent harmonic breathing | 407.1 KiB |
-| Sift | weave_grain | grain | A turbulent particle field passing through overlapping lenses | 26.9 KiB |
-| Crease | weave_shaper | shaper | A continuous white accordion ribbon with fine crease marks | 308.0 KiB |
+| Tandem | tandem | analog | Woven interference engraving with three phase lenses | 31.1 KiB |
+| Atlas | atlas | waves | An elastic contour field and travelling wavefront | 80.0 KiB |
+| Choir | choir | chords | Five nested archways with independent harmonic breathing | 407.1 KiB |
+| Sift | sift | grain | A turbulent particle field passing through overlapping lenses | 26.9 KiB |
+| Crease | crease | shaper | A continuous white accordion ribbon with fine crease marks | 308.0 KiB |
 
 Figures are native non-bootable compile footprints, excluding shared SDK
 support. A combined selection shares SDK support between machines.
@@ -59,10 +59,20 @@ SDK public checks are also run; their private fixtures remain explicit skips.
 Historical Weave/Chords measurements cannot be reused as catalog CPU records.
 The connected XY remains on its previous audition collection.
 
-Regenerate DSP with `machines/weave_analog/tools/extract_standalones.py`, passing
+Regenerate DSP with `machines/tandem/tools/extract_standalones.py`, passing
 `--source` for the clean frozen source worktree, `--sdk` for the pinned SDK and
 `--cxx` for LLVM. Regenerate original artwork with
-`python machines/weave_analog/tools/generate_split_art.py`. The independent fixture
+`python machines/tandem/tools/generate_split_art.py`. The independent fixture
 regenerator is `generate_standalone_reference.py`, with the same source/SDK,
 a host `--cxx`, and a fresh external `--out` for all compiled host artifacts.
 Use `collections/weave-standalone.json` to select the five siblings.
+# Current machine names
+
+The five standalone machines use `tandem`, `atlas`, `choir`, `sift` and `crease`
+as their IDs, so the OP-XY engine picker shows their actual names. The former
+`weave_*` IDs remain in historical measurements and Git history only. Builds
+for an existing device must migrate the five layout keys to these names while
+keeping each engine/page number unchanged. Keep the retired Westfold slot
+reserved. Existing user presets and project companions naming an old ID need
+an explicit migration; installing this build does not rewrite them.
+

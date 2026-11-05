@@ -110,7 +110,7 @@ The SDK needs a synth in a native collection. Compile alongside a sibling
 instrument or the core 2op FM example, with output outside every checkout:
 
 ```sh
-python ../../../xy-machines-sdk/sdk.py compile --machine . --machine ../weave_analog \
+python ../../../xy-machines-sdk/sdk.py compile --machine . --machine ../tandem \
   --profiling on --out "$HOME/Library/Application Support/OPXY-SDK/private/halo-module-001"
 ```
 

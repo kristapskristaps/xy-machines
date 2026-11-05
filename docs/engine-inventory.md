@@ -7,9 +7,10 @@
 | Name | ID | Source |
 | --- | --- | --- |
 | Acidline | `acidline` | [machines/acidline](../machines/acidline/README.md) |
-| Atlas | `weave_waves` | [machines/weave_waves](../machines/weave_waves/README.md) |
-| Choir | `weave_chords` | [machines/weave_chords](../machines/weave_chords/README.md) |
-| Crease | `weave_shaper` | [machines/weave_shaper](../machines/weave_shaper/README.md) |
+| Atlas | `atlas` | [machines/atlas](../machines/atlas/README.md) |
+| Bitflip | `bitflip` | [machines/bitflip](../machines/bitflip/README.md) |
+| Choir | `choir` | [machines/choir](../machines/choir/README.md) |
+| Crease | `crease` | [machines/crease](../machines/crease/README.md) |
 | HK Arc | `hkarc` | [machines/hundekraft/hkarc](../machines/hundekraft/hkarc/README.md) |
 | HK EVA | `hkeva` | [machines/hundekraft/hkeva](../machines/hundekraft/hkeva/README.md) |
 | HK Elg | `hkelg` | [machines/hundekraft/hkelg](../machines/hundekraft/hkelg/README.md) |
@@ -23,10 +24,9 @@
 | HK Taffy | `hktaffy` | [machines/hundekraft/hktaffy](../machines/hundekraft/hktaffy/README.md) |
 | HK Wavetable | `hkwavetable` | [machines/hundekraft/hkwavetable](../machines/hundekraft/hkwavetable/README.md) |
 | Mando | `mando` | [machines/mando](../machines/mando/README.md) |
-| Sift | `weave_grain` | [machines/weave_grain](../machines/weave_grain/README.md) |
-| Tandem | `weave_analog` | [machines/weave_analog](../machines/weave_analog/README.md) |
+| Sift | `sift` | [machines/sift](../machines/sift/README.md) |
+| Tandem | `tandem` | [machines/tandem](../machines/tandem/README.md) |
 | Vader | `vader` | [machines/vader](../machines/vader/README.md) |
-| Westfold | `westfold` | [machines/westfold](../machines/westfold/README.md) |
 
 ## Drums
 

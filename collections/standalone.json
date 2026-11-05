@@ -20,22 +20,19 @@
       "path": "../machines/vader"
     },
     {
-      "path": "../machines/weave_analog"
+      "path": "../machines/tandem"
     },
     {
-      "path": "../machines/weave_chords"
+      "path": "../machines/choir"
     },
     {
-      "path": "../machines/weave_grain"
+      "path": "../machines/sift"
     },
     {
-      "path": "../machines/weave_shaper"
+      "path": "../machines/crease"
     },
     {
-      "path": "../machines/weave_waves"
-    },
-    {
-      "path": "../machines/westfold"
+      "path": "../machines/atlas"
     },
     {
       "path": "../machines/x0x"

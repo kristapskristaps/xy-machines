@@ -1,16 +1,16 @@
 # XY Machines
 
-38 Open-XY machines: **22 synths, 15 send effects and 1 drum machine**.
+37 Open-XY machines: **21 synths, 15 send effects and 1 drum machine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
-- `machines/<id>/`: Vader, Halo, Westfold, Acidline,
+- `machines/<id>/`: Vader, Halo, Acidline,
   Rebound, Mando, Bitflip, X0X, and the five standalone Weave models.
 - `machines/hundekraft/`: all 25 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 38 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 37 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK
   effects remain excluded from hardware test kits.
@@ -29,7 +29,7 @@ is available for review.
 ## First release candidates
 
 The first release group is **Acidline, Halo, Mando, Rebound,
-Vader and Westfold**. Its source selection is
+and Vader**. Its source selection is
 [collections/first-release.json](collections/first-release.json). These are
 release candidates; catalog publication follows final source-bound hardware
 qualification and the required SDK integration.
@@ -44,7 +44,7 @@ Play a keyboard, explore presets, or try an effect on three demo loops or your
 own audio. Files stay in your browser. The gallery rebuilds from `main` through
 GitHub Actions; it publishes browser modules and artwork, never firmware.
 
-The CI **first-ten-synth-previews** artifact remains available for local audition
+The CI **release-synth-previews** artifact remains available for local audition
 with the pinned SDK's `tools/serve_harness.py --preview <folder>`. Specialist
 effect auditions are documented in their machine READMEs.
 
@@ -180,10 +180,9 @@ and documentation; it does not replace the licences of the machines.
 | mando | Mando | synth | [machines/mando](machines/mando/README.md) |
 | rebound | Rebound | effect | [machines/rebound](machines/rebound/README.md) |
 | vader | Vader | synth | [machines/vader](machines/vader/README.md) |
-| weave_analog | Tandem | synth | [machines/weave_analog](machines/weave_analog/README.md) |
-| weave_chords | Choir | synth | [machines/weave_chords](machines/weave_chords/README.md) |
-| weave_grain | Sift | synth | [machines/weave_grain](machines/weave_grain/README.md) |
-| weave_shaper | Crease | synth | [machines/weave_shaper](machines/weave_shaper/README.md) |
-| weave_waves | Atlas | synth | [machines/weave_waves](machines/weave_waves/README.md) |
-| westfold | Westfold | synth | [machines/westfold](machines/westfold/README.md) |
+| tandem | Tandem | synth | [machines/tandem](machines/tandem/README.md) |
+| choir | Choir | synth | [machines/choir](machines/choir/README.md) |
+| sift | Sift | synth | [machines/sift](machines/sift/README.md) |
+| crease | Crease | synth | [machines/crease](machines/crease/README.md) |
+| atlas | Atlas | synth | [machines/atlas](machines/atlas/README.md) |
 | x0x | X0X | drum | [machines/x0x](machines/x0x/README.md) |

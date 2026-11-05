@@ -2,19 +2,19 @@
   "schema": 1,
   "machines": [
     {
-      "path": "../machines/weave_analog"
+      "path": "../machines/tandem"
     },
     {
-      "path": "../machines/weave_waves"
+      "path": "../machines/atlas"
     },
     {
-      "path": "../machines/weave_chords"
+      "path": "../machines/choir"
     },
     {
-      "path": "../machines/weave_grain"
+      "path": "../machines/sift"
     },
     {
-      "path": "../machines/weave_shaper"
+      "path": "../machines/crease"
     }
   ]
 }

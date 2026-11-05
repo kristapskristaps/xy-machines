@@ -536,34 +536,41 @@ static void grain_render(struct macro_grain *__restrict z, const uint8_t *p, uin
         lim = inc >= 0x0aaaaaaau ? 0 : 65536 - (int32_t)((inc >> 12) * 24 >> 4);
         shape = 21627 + (((morph - 21627) * (lim >> 1)) >> 15);
         carrier_coefs(&cc, shape < 0 ? 0 : shape > 65535 ? 65535 : shape);
-        for (i = 0; i < n; i++)
-            out[i] = 0;
+        // Both grainlets share the carrier clock. Prepare its Q15 window once.
+        // Window <=16384; (sine+bleed) fits signed17, so products fit i32.
+        int32_t carrier[32]; uint32_t carrier_phase=z->gc[0];
+        const int32_t bleed15=(bleed+256)>>9;
+        const int32_t inv15=static_cast<int32_t>((static_cast<uint32_t>(inv)+32768u)>>16);
+        for (i = 0; i < n; i++) {
+            out[i]=0; carrier_phase+=c_inc;
+            carrier[i]=(carrier24(&cc,carrier_phase>>1)+256)>>9;
+        }
         for (j = 0; j < 2; j++) {
             uint32_t fi = f_inc[j], gc = z->gc[j], gf = z->gf[j];   /* (in locals: registers) */
-            int32_t gn = z->gnext[j];
+            int32_t gn = z->gnext[j]>>9;
             for (i = 0; i < n; i++) {
                 int32_t this_s = gn, next = 0, g;
                 uint32_t old = gc;
                 gc += c_inc;
                 if (gc < old) {                                  /* the carrier restarts: the formant too */
                     int32_t rt = sub_sample(gc, c_inc), before, after, disc;
-                    before = fmac1(defined_shift(carrier24(&cc, 0x80000000u), 7),
-                                   sine24(gf + mul_inc(fi, (uint32_t)(65536 - rt))) + bleed);
-                    after = fmac1(defined_shift(carrier24(&cc, 0), 7), bleed);
-                    disc = fmac1(after - before, inv);
-                    this_s += fmac1(disc, defined_shift(blep_q15(rt), 16));
-                    next -= fmac1(disc, defined_shift(blep_q15(65536 - rt), 16));
+                    before = (((carrier24(&cc,0x80000000u)+256)>>9) *
+                              (sin32(gf+mul_inc(fi,static_cast<uint32_t>(65536-rt)))+bleed15))>>15;
+                    after = (((carrier24(&cc,0)+256)>>9)*bleed15)>>15;
+                    disc = ((after-before)*inv15)>>15;
+                    this_s += (disc*blep_q15(rt))>>15;
+                    next -= (disc*blep_q15(65536-rt))>>15;
                     gf = mul_inc(fi, (uint32_t)rt);
                 } else
                     gf += fi;
-                g = fmac1(defined_shift(carrier24(&cc, gc >> 1), 7), sine24(gf) + bleed);
-                next += fmac1(g, inv);
+                g = (carrier[i]*(sin32(gf)+bleed15))>>15;
+                next += (g*inv15)>>15;
                 gn = next;
-                out[i] += this_s;
+                out[i] += this_s*512;
             }
             z->gc[j] = gc;
             z->gf[j] = gf;
-            z->gnext[j] = gn;
+            z->gnext[j] = gn*512;
         }
         for (i = 0; i < n; i++) {                               /* the DC blocker (a one-pole high-pass) */
             int32_t lp;
@@ -574,7 +581,7 @@ static void grain_render(struct macro_grain *__restrict z, const uint8_t *p, uin
     if (want_aux) {
         /* the formant: NoteToFrequency(note + 96 TIMBRE), at most 0.25; the shape MORPH; the mode HARMONICS */
         uint32_t fi = inc_of_log2(lf0 + 8 * timb), ps;
-        int32_t offset, s2 = 0, lowshape = morph < 32768, i2;
+        int32_t offset, lowshape = morph < 32768, i2;
         if (fi > 0x40000000u)
             fi = 0x40000000u;
         if (harm < 21823) {                                     /* 0.333 */
@@ -584,19 +591,17 @@ static void grain_render(struct macro_grain *__restrict z, const uint8_t *p, uin
             ps = 0xbfdf3b64u - (uint32_t)(harm - 21627) * 49152u;   /* 0.7495 - 0.75 (mode - 0.33) */
             offset = harm < 43647 ? -sine24(ps) : Q24(0.001);
         }
-        if (lowshape)
-            s2 = defined_shift(morph, 16);                                     /* 2 shape, Q31 */
-#define ZFN(C, D, F, R) do {                                                                       \
-            int32_t rd_ = (sine24(((uint32_t)(D)) + 0x40000000u) + (1 << 24)) >> 1;               \
-            int32_t ct_;                                                                           \
-            if (lowshape) {                                                                        \
-                if ((C) >= 0x40000000u)                                                            \
-                    rd_ = fmac1(rd_, s2);                                                          \
-                ct_ = (1 << 24) + fmac1(sine24(((uint32_t)(C) << 1) + 0x40000000u) - (1 << 24), s2); \
-            } else                                                                                 \
-                ct_ = sine24(((uint32_t)(C) << 1) + ((uint32_t)morph << 15));                     \
-            R = defined_shift(fmac1((fmac1(defined_shift(rd_,7), offset + sine24((F) + ps)) - offset), defined_shift(ct_,6)),1);       \
-        } while (0)
+#define ZFN(C,D,F,R) do { \
+    int32_t rd_=(sin32(static_cast<uint32_t>(D)+0x40000000u)+32768)>>1; \
+    int32_t ct_; \
+    if(lowshape) { \
+        if((C)>=0x40000000u)rd_=(rd_*morph)>>15; \
+        ct_=32768+((sin32((static_cast<uint32_t>(C)<<1)+0x40000000u)-32768)*morph>>15); \
+    } else ct_=sin32((static_cast<uint32_t>(C)<<1)+(static_cast<uint32_t>(morph)<<15)); \
+    const int32_t offset15=offset>>9; \
+    const int32_t inner=((rd_*(offset15+sin32((F)+ps)))>>15)-offset15; \
+    R=((inner*ct_)>>15)*512; \
+} while(0)
         for (i = 0; i < n; i++) {
             int32_t this_s = z->znext, next = 0, v;
             uint32_t zi = c_inc >> 1;                             /* f0, Q31 */

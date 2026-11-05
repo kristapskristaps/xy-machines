@@ -48,3 +48,20 @@ A combined seven-machine profiling build must preserve the installed layout and 
 Measure all four in one capture, also listen to the redesigned attacks, rapid notes, glides,
 control/LFO motion, high registers, Sift's Z mix and Tandem's sync. Keep this branch local
 until measured CPU is below 4% and listening/boot checks pass. Ideally reach 3.5% or less.
+
+## Batch verification record
+
+Source commit: `b6533da`, local branch `codex/fundamental-engine-redesign-20261105`.
+All four machine checks and Blackfin compilations passed: 24 machine-local host tests
+and 21 shared workflow tests. The combined seven-machine image rebuilds identically and
+allocates 1,931,444 of 2,080,768 bytes. All 42 layout reservations match the installed image.
+Staging contains nine files, only the firmware differs, and presets/projects are excluded.
+No transfer, hardware capture or push was performed for this batch.
+
+The unchanged SDK's 438-test public suite still has two existing macOS failures
+(`test_pad_edit_alternates_shift_and_model_changes`, unused `kAuxTab`;
+`test_registered_processors_have_independent_bindings_and_can_be_omitted`, unresolved
+master-filter extension registration symbols), with 19 private-fixture skips. The suite
+was rerun with a canonical temporary-directory path to eliminate unrelated symlink errors.
+The SDK was not edited to hide or bypass these failures. These are separate from the
+passing machine/native checks and the verified combined firmware reconstruction.

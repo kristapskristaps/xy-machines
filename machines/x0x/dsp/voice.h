@@ -91,6 +91,7 @@ static inline const Settings& voice_settings(Voice& v, opxy::Parameters paramete
 static inline i32 read(const pcm::Sample& sample, u32 cursor, u32 fraction) {
     if (cursor >= sample.frames) return 0;
     const i32 a = pcm::decode[sample.data[cursor]];
+    if(!fraction)return a;
     const i32 b = cursor + 1 < sample.frames ? pcm::decode[sample.data[cursor + 1]] : 0;
     return a + multiply(b - a, i32(fraction >> 1));
 }
@@ -223,7 +224,10 @@ template <u32 Model=model_count> static inline i32 synth_source(Voice& v, const 
     return limit(signal);
 }
 static inline i32 stem_read(u32 anchor,u32 branch,u32 cursor,u32 fraction){
-    const i32 a=tables::metal_stems[anchor][branch][cursor],b=tables::metal_stems[anchor][branch][cursor+1];
+    const i32 a=tables::metal_stems[anchor][branch][cursor];
+    if(!fraction)return a;
+    const i32 b=tables::metal_stems[anchor][branch][cursor+1];
+    if(fraction==32768)return (a+b+1)>>1;
     return a+multiply16(b-a,i32(fraction>>1));
 }
 template <bool Cymbal,bool Blend> static inline void metal_source_block(Voice& v,const Settings& s,
@@ -235,20 +239,22 @@ template <bool Cymbal,bool Blend> static inline void metal_source_block(Voice& v
     i32 fast=v.metal.fast,medium=v.metal.medium;
     const i32 fast_rate=Cymbal?rate(180):0,medium_rate=Cymbal?rate(700):0;
     const u32 anchor=s.metal_reciprocals[0];const i32 blend=i32(s.metal_reciprocals[1]);
+    const i32 bright_gain=32767-i32(s.raw[tone])*160,air_gain=i32(s.raw[tone])*512;
+    const i32 bell_gain=8192+i32(s.raw[body])*192;
     for(u32 i=0;i<frames;++i){
         i32 bright=stem_read(anchor,1,cursor,fraction),air=stem_read(anchor,2,cursor,fraction);
         if(Blend){bright+=multiply(stem_read(anchor+1,1,cursor,fraction)-bright,blend);
                   air+=multiply(stem_read(anchor+1,2,cursor,fraction)-air,blend);}
-        if(!Cymbal)output[i]=limit((multiply16(bright,32767-i32(s.raw[tone])*160)
-                                  +multiply(air,i32(s.raw[tone])*512))*32);
+        if(!Cymbal)output[i]=limit((multiply16(bright,bright_gain)
+                                  +multiply(air,air_gain))*32);
         else{
             i32 bell=stem_read(anchor,0,cursor,fraction);
             if(Blend)bell+=multiply(stem_read(anchor+1,0,cursor,fraction)-bell,blend);
             const i32 strike=multiply16(bell,fast>>16);
             const i32 shimmer=multiply16(bright,8192+(medium>>17));
             fast=envelope(fast,fast_rate);medium=envelope(medium,medium_rate);
-            output[i]=limit((multiply16(strike,8192+i32(s.raw[body])*192)+shimmer
-                            +multiply(air,i32(s.raw[tone])*512))*18);
+            output[i]=limit((multiply16(strike,bell_gain)+shimmer
+                            +multiply(air,air_gain))*18);
         }
         const u32 next=fraction+s.sample_step;
         cursor+=next>>16;fraction=next&65535;

@@ -99,3 +99,22 @@ After capture, one software reboot produced an observed USB disconnect/reconnect
 A normal-mode OS 1.2.1 probe after the boot wait completed without errors. Diagnostic
 settings were not saved. All seven remain installed, presets/projects untouched.
 The branch stays local while X0X optimization and redesigned-sound listening QA continue.
+
+## Local X0X lookup follow-up (not installed or measured)
+
+The remaining kit-wide gap is targeted with a 2048-point nearest/rounded tonal
+sine table: one lookup replaces two table reads plus interpolation per partial.
+A machine-local test compares 1,048,576 phases with the previous interpolated
+sine: peak error must be at most 53 signed-Q15 counts and relative RMS below
+0.001. This is a small intentional quantization change, not a pitch change.
+
+PCM reads at exact sample positions skip their unused neighbor/interpolation.
+Metallic stems also use the exact midpoint average for half-sample positions,
+covering octave playback rates without changing their audio. 900,000 stem
+reads check both fast paths and general fractional interpolation for exact
+equality. Metallic branch gain calculations are hoisted out of the sample loop.
+
+The follow-up passes all 14 X0X host tests, preview checks and Blackfin compilation.
+Eight-voice capacity remains unchanged. Hardware CPU is pending; the installed
+image and the published local historical report still measure X0X at 4.347%.
+No source has been pushed and no further transfer has been performed.

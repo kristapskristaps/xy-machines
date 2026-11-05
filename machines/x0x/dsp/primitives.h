@@ -2,6 +2,7 @@
 #include "tables.h"
 #include "metal_stems.h"
 #include "drive_curve.h"
+#include "tonal_sine.h"
 #include <opxy/q31.hpp>
 
 namespace x0x { namespace dsp {
@@ -45,10 +46,10 @@ static inline u32 scale(u32 value, u32 q16) {
     return (value >> 16) * q16 + ((value & 65535u) * (q16 >> 8) >> 8);
 }
 static inline u32 step(u32 hz) { return hz * 97392u; }
-static inline i32 sine(u32 phase) {
-    const u32 index = phase >> 23;
-    const i32 a = tables::sine[index], b = tables::sine[index + 1];
-    return a + multiply16(b - a, i32((phase >> 8) & 32767));
+// A larger nearest-point table removes interpolation from every tonal partial.
+// Rounding the phase halves the quantization error compared with truncation.
+static inline opxy::i16 sine(u32 phase) {
+    return tonal_sine[(phase+0x00100000u)>>21];
 }
 static inline i32 triangle(u32 phase) {
     const u32 folded = phase & 0x7fffffffu;

@@ -79,9 +79,10 @@ inline void start(Voice& voice, Shared&, u32 owner) {
 inline void initialize(Voice& voice, Shared& shared, u32 owner) { start(voice, shared, owner); }
 inline void destroy(Voice&, Shared&, u32) {}
 
-inline void render(Voice& voice, Shared&, u32, opxy::Output output,
+template <u32 Model>
+static void render_model(Voice& voice, opxy::Output output,
                    opxy::Parameters parameters, opxy::Pitch pitch) {
-    const u32 model = choice(parameters[0]), arp = choice(parameters[4]);
+    const u32 model = Model, arp = choice(parameters[4]);
     const i32 target_color = control(parameters[1]), target_edge = control(parameters[2]);
     if (!voice.initialized) {
         voice.color = target_color; voice.edge = target_edge;
@@ -174,4 +175,18 @@ inline void render(Voice& voice, Shared&, u32, opxy::Output output,
     }
     voice.color = next_color; voice.edge = next_edge; voice.sweep_envelope = next_sweep;
 }
+inline void render(Voice& voice, Shared&, u32, opxy::Output output,
+                   opxy::Parameters parameters, opxy::Pitch pitch) {
+    switch (choice(parameters[0])) {
+    case 0: render_model<0>(voice,output,parameters,pitch); break;
+    case 1: render_model<1>(voice,output,parameters,pitch); break;
+    case 2: render_model<2>(voice,output,parameters,pitch); break;
+    case 3: render_model<3>(voice,output,parameters,pitch); break;
+    case 4: render_model<4>(voice,output,parameters,pitch); break;
+    case 5: render_model<5>(voice,output,parameters,pitch); break;
+    case 6: render_model<6>(voice,output,parameters,pitch); break;
+    case 7: render_model<7>(voice,output,parameters,pitch); break;
+    }
+}
+
 }

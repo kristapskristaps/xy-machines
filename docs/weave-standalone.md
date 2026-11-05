@@ -2,8 +2,8 @@
 
 Five new IDs extract the preferred models from optimized Weave revision
 `957afdbac6f2ef9916991366e24517f1483dc0e4`. The original combined Weave engine is retired from the active inventory;
-its source and saved ID remain in Git history. Existing device installations
-are unaffected by this source removal. No SDK or device changes are part of this split.
+its source remains in Git history. The current device identities and migration
+requirements are described below.
 
 | Name | ID | Original animation label | Visual mechanism | Native machine footprint |
 | --- | --- | --- | --- | ---: |
@@ -66,7 +66,8 @@ Regenerate DSP with `machines/tandem/tools/extract_standalones.py`, passing
 regenerator is `generate_standalone_reference.py`, with the same source/SDK,
 a host `--cxx`, and a fresh external `--out` for all compiled host artifacts.
 Use `collections/weave-standalone.json` to select the five siblings.
-# Current machine names
+
+## Current machine names
 
 The five standalone machines use `tandem`, `atlas`, `choir`, `sift` and `crease`
 as their IDs, so the OP-XY engine picker shows their actual names. The former
@@ -75,4 +76,3 @@ for an existing device must migrate the five layout keys to these names while
 keeping each engine/page number unchanged. Keep the retired Westfold slot
 reserved. Existing user presets and project companions naming an old ID need
 an explicit migration; installing this build does not rewrite them.
-

@@ -27,7 +27,7 @@ int main(){
         const double ratio=std::sqrt(candidate_energy/(reference_energy+1));
         if(relative>maximum_error)maximum_error=relative;
         if(ratio<min_ratio)min_ratio=ratio;if(ratio>max_ratio)max_ratio=ratio;
-        if(relative>.005 || ratio<.995 || ratio>1.005){std::printf("FAIL scene%u error%.6f level%.6f\n",scene,relative,ratio);return 1;}
+        if(relative>.001 || ratio<.995 || ratio>1.005){std::printf("FAIL scene%u error%.6f level%.6f\n",scene,relative,ratio);return 1;}
     }
     std::printf("PASS: 45 long Atlas scenes: maximum relative RMS error %.6f, level ratio %.6f..%.6f; phases unchanged\n",maximum_error,min_ratio,max_ratio);
 }

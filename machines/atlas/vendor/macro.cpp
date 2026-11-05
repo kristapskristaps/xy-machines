@@ -551,14 +551,7 @@ static inline int32_t wt_hermite(const int32_t *t, int32_t i, int32_t f)
 {
     int32_t xm1=t[i],x0=t[i+1],x1=t[i+2],x2=t[i+3];
     int32_t c=(x1-xm1)>>1,v=x0-x1,w=c+v,a=w+v+((x2-x0)>>1),bn=w+a;
-    // Q14 phase and Q5 coefficients keep every product in signed32.
-    // The wave bank bounds are checked independently in interpolation.cpp.
-    const int32_t fraction=f>>17;
-    int32_t value=((a>>3)*fraction)>>14;
-    value-=bn>>3;
-    value=((value*fraction)>>14)+(c>>3);
-    value=(value*fraction)>>14;
-    return value*8+x0;
+    return opxy::q31::multiply(opxy::q31::multiply(opxy::q31::multiply(a,f)-bn,f)+c,f)+x0;
 }
 
 static inline const int16_t *wt_wave(int x, int y, int z)
@@ -642,8 +635,10 @@ static void wt_cache(struct macro_wavetable* w,unsigned n)
     }
 }
 
-static void wt_render(struct macro_wavetable *__restrict w, const uint8_t *p, uint32_t inc, int32_t *__restrict out,
-                      int32_t *__restrict aux, int n)
+// Both wavetable outputs use the same gain. Fuse their transfer after reading
+// the oscillator; preserve the original separate clips near the output rails.
+static const int32_t WT_GAIN=19661;
+static void wt_render_fused(struct macro_wavetable *__restrict w, const uint8_t *p, uint32_t inc, int16_t *__restrict out, int n, int32_t output_mix)
 {
     static const int32_t lg[3] = { -21098, -21098, -4850 };          /* log2 (1 - 0.2), (1 - 0.2), (1 - 0.05), Q16 */
     int32_t knob[3], tg[3], d[3], cur[3], q, lpc, i, k, sh, z;
@@ -716,8 +711,21 @@ static void wt_render(struct macro_wavetable *__restrict w, const uint8_t *p, ui
             y = sh >= 0 ? defined_shift(y, sh) : y >> -sh;
             c = f >= (1u << 25) ? 0x7fffffff : (int32_t)(f << 6);   /* min(128 f, 1) */
             dlp += fmac1(y - dlp, c);
-            out[i] = fmac1(defined_shift(dlp, 2), g31) >> 5;                     /* x (0.95 - f) / 1024, Q15 */
-            aux[i] = (out[i] / 1024) * 1024;                        /* int(x 32) / 32 */
+            const int32_t signal=fmac1(defined_shift(dlp,2),g31)>>5;
+            const int32_t crushed=(signal/1024)*1024;
+            if(signal>=-54000 && signal<=54000) {
+                const int32_t mixed=output_mix==0 ? signal : output_mix>=32767 ? crushed
+                    : signal+(((crushed-signal)*output_mix)>>15);
+                out[i]=static_cast<int16_t>(fmac1t(mixed,WT_GAIN<<16));
+            } else {
+                int32_t x=signal<-65535?-65535:signal>65535?65535:signal;
+                int32_t y=crushed<-65535?-65535:crushed>65535?65535:crushed;
+                x=(x*WT_GAIN)>>15;y=(y*WT_GAIN)>>15;
+                x=x<-32768?-32768:x>32767?32767:x;
+                y=y<-32768?-32768:y>32767?32767:y;
+                const int32_t mixed=output_mix==0?x:output_mix>=32767?y:x+(((y-x)*output_mix)>>15);
+                out[i]=static_cast<int16_t>(mixed);
+            }
         }
     }
     w->f = inc;
@@ -993,8 +1001,8 @@ static const int32_t string_shift[129] = {                         /* lut_svf_sh
 
 /* the gains Plaits' voice gives each engine's OUT and AUX (voice.cc, RegisterInstance), Q15. An engine
  * Plaits registers with a negative gain goes through its limiter (limit()) and then 0.8. */
-static const int16_t gain_out[MACRO_ENGINES] = {22938, 19661, 26214, 26214, 26214, 26214, 26214, 22938, 26214, 26214, 19661, 26214, 26214, 26214, 32767};  /* WSH .7, FM .6, NOISE, PART lim; drums .8; GRAIN .7 */
-static const int16_t gain_aux[MACRO_ENGINES] = {19661, 19661, 26214, 32767, 26214, 26214, 26214, 19661, 26214, 32767, 19661, 26214, 26214, 26214, 32767};  /* WSH .6, FM .6, NOISE lim, PART 1; drums .8; GRAIN .6 */
+static const int16_t gain_out[MACRO_ENGINES] = {22938, 19661, 26214, 26214, 26214, 26214, 26214, 22938, 26214, 26214, WT_GAIN, 26214, 26214, 26214, 32767};  /* WSH .7, FM .6, NOISE, PART lim; drums .8; GRAIN .7 */
+static const int16_t gain_aux[MACRO_ENGINES] = {19661, 19661, 26214, 32767, 26214, 26214, 26214, 19661, 26214, 32767, WT_GAIN, 26214, 26214, 26214, 32767};  /* WSH .6, FM .6, NOISE lim, PART 1; drums .8; GRAIN .6 */
 
 const char *const macro_engine_name[MACRO_ENGINES] = {"WSHAPE", "2OP FM", "NOISE", "PARTCL", "BDRUM", "SNARE", "HIHAT", "GRAIN", "CHORDS", "SWARM", "WAVES", "VA", "MODAL", "STRING", "6-OP"};
 
@@ -1063,85 +1071,18 @@ void macro_render(struct macro_voice *m, const uint8_t *p, uint32_t inc, int16_t
 #define CL2(v) ((v) > 65535 ? 65535 : (v) < -65535 ? -65535 : (v))     /* +-2 in Q15: clipped below anyway */
 
 template <unsigned Rate, int Model, unsigned Frames>
-static void macro_render_e(struct macro_voice *m, const uint8_t *p, uint32_t inc, int16_t *out, int frames)
+static void macro_render_e(struct macro_voice* m,const uint8_t* p,uint32_t inc,int16_t* out,int frames)
 {
-    const int n=Frames ? static_cast<int>(Frames) : frames;
-    int32_t o[Frames>32?Frames:32], a[Frames>32?Frames:32], go, ga, mix;
-    int i;
-    if (m->latch) {                                 /* a note start: the engine, and its per-note choices */
-        int e = macro_engine_of(p[MACRO_P_ENGINE]);
-        m->latch = 0;
-        if (e != m->engine) {
-            m->engine = (uint8_t)e;
-            engine_init(m);
-        }
+    const int n=Frames?static_cast<int>(Frames):frames;
+    if(m->latch) {
+        const int engine=macro_engine_of(p[MACRO_P_ENGINE]);m->latch=0;
+        if(engine!=m->engine){m->engine=static_cast<uint8_t>(engine);engine_init(m);}
     }
-    const uint32_t maximum_inc=Rate==44100 && Model==MACRO_CHORD ? 1168698583u : INC_MAX;
-    if (inc > maximum_inc) inc=maximum_inc;
-    if (inc < INC_MIN)
-        inc = INC_MIN;
-    /* F: OUT up to 55, AUX from 72, a crossfade between (only there are both outputs computed) */
-    mix = p[MACRO_P_AUX] <= 55 ? 0 : p[MACRO_P_AUX] >= 72 ? 32767 : (p[MACRO_P_AUX] - 55) * 1927;
-    switch (Model >= 0 ? Model : m->engine) {
-    case MACRO_WAVETABLE:
-        if (!HAS(MACRO_WAVETABLE)) goto none;
-        wt_render(&m->e.wt, p, inc, o, a, n);
-        break;
-    default:
-    none:
-        for (i = 0; i < n; i++)
-            out[i] = 0;
-        return;
-    }
-    if (Rate == 44100 && Model == MACRO_WSH) {
-        // Prepared WSH curves and their sine blend stay inside signedQ15.
-        // Fuse the output gains/crossfade with two signed16 products. The
-        // generic path's +/-2 rails and post-gain clips cannot activate here.
-        const int16_t main_gain=static_cast<int16_t>(gain_out[MACRO_WSH]);
-        const int16_t aux_gain=static_cast<int16_t>(gain_aux[MACRO_WSH]);
-        if (mix == 0 || mix >= 32767) {
-            const int32_t* signal=mix ? a : o;
-            const int16_t gain=mix ? aux_gain : main_gain;
-            for (i=0;i<n;++i) out[i]=static_cast<int16_t>((static_cast<int16_t>(signal[i])*gain)>>15);
-        } else {
-            const int16_t mg=static_cast<int16_t>((main_gain*(32768-mix))>>15);
-            const int16_t ag=static_cast<int16_t>((aux_gain*mix)>>15);
-            for (i=0;i<n;++i) {
-                const int16_t x=static_cast<int16_t>(o[i]);
-                const int16_t y=static_cast<int16_t>(a[i]);
-                out[i]=static_cast<int16_t>((x*mg+y*ag)>>15);
-            }
-        }
-        return;
-    }
-    if(Rate==44100 && Model==MACRO_CHORD && mix>0 && mix<32767) {
-        const uint16_t weight=static_cast<uint16_t>(mix);
-        for(i=0;i<n;++i)out[i]=static_cast<int16_t>(chord_output_blend(o[i],a[i],weight));
-        return;
-    }
-    go = gain_out[Model >= 0 ? Model : m->engine];
-    ga = gain_aux[Model >= 0 ? Model : m->engine];
-    if (mix == 0 || mix >= 32767) {                 /* OUT only (the default) or AUX only */
-        /* x g / 2^15 on the EMAC: no product overflows, so no clip before it (the gains are over 0.5:
-         * whatever CL2 would clip lands past +-1 either way) */
-        const int32_t *x = mix ? a : o;
-        int32_t g = defined_shift((mix ? ga : go), 16);
-        for (i = 0; i < n; i++) {
-            int32_t y = fmac1t(x[i], g);
-            out[i] = (int16_t)(y > 32767 ? 32767 : y < -32768 ? -32768 : y);
-        }
-        return;
-    }
-    for (i = 0; i < n; i++) {
-        int32_t x = (CL2(o[i]) * go) >> 15, y = (CL2(a[i]) * ga) >> 15;
-        x = x > 32767 ? 32767 : x < -32768 ? -32768 : x;
-        y = y > 32767 ? 32767 : y < -32768 ? -32768 : y;
-        x += ((y - x) * mix) >> 15;
-        out[i] = (int16_t)(x > 32767 ? 32767 : x < -32768 ? -32768 : x);
-    }
+    if((Model>=0?Model:m->engine)!=MACRO_WAVETABLE){for(int i=0;i<n;++i)out[i]=0;return;}
+    if(inc>INC_MAX)inc=INC_MAX;
+    if(inc<INC_MIN)inc=INC_MIN;
+    const int32_t mix=p[MACRO_P_AUX]<=55?0:p[MACRO_P_AUX]>=72?32767:(p[MACRO_P_AUX]-55)*1927;
+    wt_render_fused(&m->e.wt,p,inc,out,n,mix);
 }
-
-
-
 
 }

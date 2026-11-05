@@ -54,6 +54,22 @@ inline i32 wave(u32 family, i32 color, const Band& limit, u32 phase) {
     return limit.index == 4 || limit.rich == 32768 ? rich
         : mix(frame_wave(family, color, limit.index + 1, phase), rich, limit.rich);
 }
+inline bool prepare_wave(Voice& voice,u32 family,i32 color,const Band& limit,bool steady) {
+    if (!steady) { voice.prepared_cursor=0; voice.prepared_family=~0u; return false; }
+    if (voice.prepared_family!=family || voice.prepared_color!=static_cast<u32>(color)
+        || voice.prepared_band!=limit.index || voice.prepared_rich!=static_cast<u32>(limit.rich)) {
+        voice.prepared_family=family; voice.prepared_color=static_cast<u32>(color);
+        voice.prepared_band=limit.index; voice.prepared_rich=static_cast<u32>(limit.rich);
+        voice.prepared_cursor=0;
+        return false;
+    }
+    // Spread preparation across callbacks; controls never wait for the cache.
+    const u32 end=voice.prepared_cursor+32u<257u ? voice.prepared_cursor+32u : 257u;
+    for (u32 i=voice.prepared_cursor;i<end;++i)
+        voice.prepared_wave[i]=static_cast<opxy::i16>(wave(family,color,limit,i<<24));
+    voice.prepared_cursor=end;
+    return end==257u;
+}
 inline i32 quantize(i32 sample, unsigned shift) {
     const i32 magnitude = sample < 0 ? -sample : sample;
     const i32 reduced = (magnitude >> shift) << shift;
@@ -75,6 +91,8 @@ inline void start(Voice& voice, Shared&, u32 owner) {
     voice.dc_input = voice.dc_output = 0;
     voice.model_fade = voice.sweep_envelope = 32768;
     voice.sweep_ratio = 4096;
+    voice.prepared_family=~0u; voice.prepared_cursor=0;
+    voice.prepared_color=voice.prepared_band=voice.prepared_rich=0;
 }
 inline void initialize(Voice& voice, Shared& shared, u32 owner) { start(voice, shared, owner); }
 inline void destroy(Voice&, Shared&, u32) {}
@@ -111,6 +129,9 @@ static void render_model(Voice& voice, opxy::Output output,
     const bool octave = model == 0 || model == 1 || model == 3 || model == 7;
     const Band limit = band(transpose(maximum, model == 5 ? 36864u : octave && (voice.edge || next_edge) ? 8192u : 4179u));
     const u32 family = model == 1 ? 1 : model == 3 ? 2 : model == 7 ? 3 : 0;
+    const bool cached_wave = (Model < 4 || Model == 7)
+        && prepare_wave(voice,family,voice.color,limit,color_step==0);
+    (void)cached_wave;
     const i32 maximum_color = voice.color > next_color ? voice.color : next_color;
     const u32 maximum_harmonic = 1u + ((static_cast<u32>(maximum_color) * 7u + 16384u) >> 15);
     const u32 sideband = transpose(maximum, (maximum_harmonic + 1) * 4096u);
@@ -142,12 +163,12 @@ static void render_model(Voice& voice, opxy::Output output,
             sample = mix(carrier, ring, voice.edge * ring_guard >> 15) * 3 / 4;
             voice.mod_phase += transpose(increment, harmonic * 4096u);
         } else {
-            sample = wave(family, voice.color, limit, voice.phase);
+            sample = cached_wave ? read(voice.prepared_wave,voice.phase) : wave(family, voice.color, limit, voice.phase);
             if (model == 2) {
-                sample = (sample + wave(0, voice.color, limit, voice.phase2)) / 2;
+                sample = (sample + (cached_wave ? read(voice.prepared_wave,voice.phase2) : wave(0, voice.color, limit, voice.phase2))) / 2;
                 voice.phase2 += transpose(increment, 4096u + (static_cast<u32>(voice.edge) * 84u >> 15));
             } else if (voice.edge) {
-                sample = mix(sample, wave(family, voice.color, limit, voice.phase * 2u), voice.edge / 2);
+                sample = mix(sample, (cached_wave ? read(voice.prepared_wave,voice.phase*2u) : wave(family, voice.color, limit, voice.phase*2u)), voice.edge / 2);
             }
         }
         if (voice.model_fade < 32768) {

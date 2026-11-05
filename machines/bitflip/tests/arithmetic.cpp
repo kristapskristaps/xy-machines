@@ -5,7 +5,7 @@
 
 void require(bool value,const char* message){if(!value){std::fprintf(stderr,"FAIL: %s\n",message);std::exit(1);}}
 int main(){
-    static_assert(sizeof(bitflip::Voice)==92,"declared voice storage");
+    static_assert(sizeof(bitflip::Voice)==628,"declared voice storage");
     unsigned random=7139;
     for(unsigned i=0;i<1000000;++i){
         const unsigned pitch=(random=random*1664525u+1013904223u);

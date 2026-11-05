@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstddef>
 
 static void require(bool value, const char* message) {
     if (!value) { std::puts(message); std::exit(1); }
@@ -36,7 +37,7 @@ int main() {
             bitflip::render(actual, shared, scene+1, a, parameters, pitch);
             bitflip_reference::render(expected, shared, scene+1, b, parameters, pitch);
             require(!std::memcmp(a,b,sizeof(a)), "FAIL specialized model changed PCM");
-            require(!std::memcmp(&actual,&expected,sizeof(actual)), "FAIL specialized model changed voice state");
+            require(!std::memcmp(&actual,&expected,offsetof(bitflip::Voice,prepared_wave)), "FAIL specialized model changed original voice state");
         }
     }
     std::puts("PASS: all eight specialized models match frozen PCM/state through automation, glide, model changes and retriggers");

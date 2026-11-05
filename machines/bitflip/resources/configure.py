@@ -46,7 +46,7 @@ for index, (label, default, mapping, display) in enumerate(PARAMETERS):
     params.append(item)
 definition = dict(schema=1,id='bitflip',name='Bitflip',press='page',parameters=params,
     presets={name:dict(zip(KEYS,values)) for name,values in PRESETS.items()},
-    resources=dict(voiceBytes=92,voiceAlignment=4,voiceCapacity=8,sharedBytes=0,outputPeakQ31=268435456,
+    resources=dict(voiceBytes=628,voiceAlignment=4,voiceCapacity=8,sharedBytes=0,outputPeakQ31=268435456,
         display=dict(stateBytes=56,stateAlignment=4,paths=0,points=0,nodes=116,texts=16,palette=8)))
 (ROOT/'definition.json').write_text(json.dumps(definition,indent=2)+'\n')
 amp = dict(attack=128,decay=0,sustain=32767,release=13000)

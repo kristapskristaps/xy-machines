@@ -1,6 +1,14 @@
 // Frozen wavetable renderer before settled-coordinate skipping.
 #pragma once
 namespace atlas_dsp {
+static inline int32_t wt_hermite_q31_reference(const int32_t *t, int32_t i, int32_t f)
+{
+    int32_t xm1=t[i],x0=t[i+1],x1=t[i+2],x2=t[i+3];
+    int32_t c=(x1-xm1)>>1,v=x0-x1,w=c+v,a=w+v+((x2-x0)>>1),bn=w+a;
+    return opxy::q31::multiply(opxy::q31::multiply(opxy::q31::multiply(a,f)-bn,f)+c,f)+x0;
+}
+
+template <int32_t(*Reader)(const int32_t*,int32_t,int32_t)=wt_hermite>
 static void wt_render_reference(struct macro_wavetable *__restrict w, const uint8_t *p, uint32_t inc, int32_t *__restrict out,
                       int32_t *__restrict aux, int n)
 {
@@ -56,9 +64,9 @@ static void wt_render_reference(struct macro_wavetable *__restrict w, const uint
             ph += f;
             pi=static_cast<int32_t>(ph>>25);
             pf=static_cast<int32_t>((ph<<7)>>1);
-            mix=wt_hermite(w->blend[w->active],pi,pf);
+            mix=Reader(w->blend[w->active],pi,pf);
             if(w->fade) {
-                const int32_t next=wt_hermite(w->blend[w->active^1],pi,pf);
+                const int32_t next=Reader(w->blend[w->active^1],pi,pf);
                 const int32_t alpha=static_cast<int32_t>((64-w->fade)*33554432u);
                 mix+=fmac1(next-mix,alpha);
                 if(!--w->fade)w->active^=1;

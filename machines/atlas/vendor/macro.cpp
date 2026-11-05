@@ -551,7 +551,14 @@ static inline int32_t wt_hermite(const int32_t *t, int32_t i, int32_t f)
 {
     int32_t xm1=t[i],x0=t[i+1],x1=t[i+2],x2=t[i+3];
     int32_t c=(x1-xm1)>>1,v=x0-x1,w=c+v,a=w+v+((x2-x0)>>1),bn=w+a;
-    return opxy::q31::multiply(opxy::q31::multiply(opxy::q31::multiply(a,f)-bn,f)+c,f)+x0;
+    // Q14 phase and Q5 coefficients keep every product in signed32.
+    // The wave bank bounds are checked independently in interpolation.cpp.
+    const int32_t fraction=f>>17;
+    int32_t value=((a>>3)*fraction)>>14;
+    value-=bn>>3;
+    value=((value*fraction)>>14)+(c>>3);
+    value=(value*fraction)>>14;
+    return value*8+x0;
 }
 
 static inline const int16_t *wt_wave(int x, int y, int z)

@@ -74,11 +74,11 @@ and explicit `profile` commands are described in the guide; previews/tests never
 contact a device. Existing machines' DSP and artwork are unchanged by these tools.
 
 Use Python 3.12, Node 22.12+, NumPy 2.3.5 and Clang with wasm32 support.
-The SDK is pinned by `SDK_REPOSITORY` and `SDK_REVISION` to a tested integration
-branch in `kristapskristaps/open-xy`. It combines current upstream staging, the
-existing builder workflow, X0X's per-pad encoder stepping and played-pad drawing
-snapshots, compact native state, and exact drum-control decoding. These SDK
-changes remain a development draft; Windows release-host qualification is pending.
+The SDK is pinned by `SDK_REPOSITORY` and `SDK_REVISION` to official
+`etcetc000/open-xy` main commit `71566d29f0087c793f392e9c09768ae3c866a379`.
+X0X uses its public drum API with ordinary Style edits, selected-pad activity
+animation and a builder-compatible init preset. Its seven full kit presets
+are retained in `preset-packs/x0x/` separately. No custom SDK PR is required.
 Other local SDK checkouts remain independent.
 
 ```sh

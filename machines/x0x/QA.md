@@ -73,8 +73,7 @@ Then play scene 1.
 
 ## Presets
 
-- [ ] Shift + track key lists presets: X0X's are listed where they belong, and choosing one sets its
-      values
+- [ ] The public builder's X0X init preset loads neutral track offsets and the 808 Classic default pads. Check separately installed authored kits independently; they are not builder-bundled.
 - [ ] Save the track's sound as a preset, change it, load the preset: the saved values come back
 - [ ] A stock preset loaded on a track holding X0X (and the reverse) gives what it says, with no stray
       values
@@ -90,6 +89,7 @@ Unmute it everywhere.
 
 ## Machine-specific checks
 
+- [ ] Check ordinary Style raw-value stepping and family boundaries; the selected-pad animation responds to track activity without claiming another played pad.
 - [ ] Trigger every pad, including sampled percussion. Check each available style and all eight controls per pad on both pages; switching pads retains independent values. Verify fast rolls, overlapping hats/choke, per-pad locks, kit reload and individual output levels.
 
 ## Saving and loading

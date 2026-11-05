@@ -4,7 +4,6 @@ import {shownControls} from '/sdk/browser/controls.mjs';
 
 const $ = id => document.getElementById(id);
 const pads = LAYOUT.map((_, i) => defaultPad(i));
-let lastTrigger = null;
 let presets = [];
 let selected = 0, page = 0, configLocked = false, shifted = false;
 let module, display, scene, context, processor, outputGain, analyser, starting;
@@ -42,7 +41,6 @@ async function enableAudio() {
   try { await starting; } finally { starting = null; }
 }
 function flash(index) {
-  lastTrigger = {key:53+index,model:pads[index].model,controls:pads[index].raw.map(word)};
   activity.noteOn(53 + index); padButtons[index].classList.add('hit');
   later(() => { padButtons[index].classList.remove('hit'); activity.noteOff(53 + index); }, 85);
 }
@@ -141,7 +139,7 @@ $('tempo').addEventListener('input', () => { $('tempo-value').textContent = $('t
 $('preset').addEventListener('change', () => {
   const kit = presets.find(kit => kit.id === $('preset').value);
   if (!kit) return;
-  stopBeat(); send({type:'panic'}); lastTrigger = null;
+  stopBeat(); send({type:'panic'});
   const next = kitPads(kit);
   for (let i = 0; i < pads.length; ++i) {
     const pad = next[i];
@@ -192,7 +190,7 @@ async function load() {
   function draw(now) {
     try {
       const pad = pads[selected], shown = [0,1,2,3].map(i => i + page * 4);
-      scene.apply(display.tick(shownControls(pad.raw.map(word),shown),Math.round(Math.min(100,now-last)*1024/1000),activity.note_on_serial,0,reduced.matches,activity,pad.model,Number(isConfig()),[pad.model,pad.choke,0,0],lastTrigger));
+      scene.apply(display.tick(shownControls(pad.raw.map(word),shown),Math.round(Math.min(100,now-last)*1024/1000),activity.note_on_serial,0,reduced.matches,activity,pad.model,Number(isConfig()),[pad.model,pad.choke,0,0]));
       encoders.forEach((encoder, i) => { encoder.output.textContent = scene.header[i] || '—'; });
       if (analyser) { analyser.getFloatTimeDomainData(waveform); let level = 0; for (const sample of waveform) level = Math.max(level,Math.abs(sample)); heldLevel = Math.max(level * 4, heldLevel * .91); $('level').value = heldLevel; }
       last = now; requestAnimationFrame(draw);

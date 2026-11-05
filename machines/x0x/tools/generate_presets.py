@@ -42,8 +42,8 @@ def preset(regions):
 
 def generate(sdk, cxx):
     bank = []
-    folder = ROOT / 'presets'
-    folder.mkdir(exist_ok=True)
+    folder = ROOT.parents[1] / 'preset-packs/x0x/content/presets/x0x'
+    folder.mkdir(parents=True,exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='x0x-presets-') as temporary:
         binary = Path(temporary) / 'preset-export'
         subprocess.run([cxx,'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),
@@ -59,6 +59,7 @@ def generate(sdk, cxx):
                 raise ValueError('Preset exceeds the SDK file limit')
             (folder/(identity+'.json')).write_text(data)
             bank.append({'id':identity,'name':name,'offsets':offsets})
+    (ROOT / 'presets/default.json').write_text(json.dumps(preset([]),indent=2)+'\n')
     (ROOT / 'audition/presets.json').write_text(json.dumps(bank,indent=2)+'\n')
 
 

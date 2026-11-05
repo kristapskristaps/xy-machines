@@ -15,11 +15,16 @@ new collection/SDK build or measure whole-project CPU.
 ## SDK
 
 Use the collection root's `SDK_REPOSITORY` and `SDK_REVISION`, configured by
-`./xy setup`. X0X requires the draft drum `parameterEdit` callback for one
-Style choice per encoder detent, drawing ABI 6 played-pad snapshots for
-sequencer animation, and bounded sample-free drum preset records. The pinned
-SDK includes these interfaces, native memory reductions and exact pad decoding.
-Windows release-host qualification remains pending.
+`./xy setup`. The release targets the unmodified public SDK, pinned to official
+`main` commit `71566d29f0087c793f392e9c09768ae3c866a379` (SDK 1.9). It does not
+require PR #422, custom `parameterEdit`, played-pad drawing fields or bundled
+sample-free pad records. Drum DSP, 24 independent pads and eight voices remain.
+
+The public builder includes one init preset with neutral track offsets. It
+uses `drum_defaults` to supply the 808 Classic pad mapping. The seven authored
+24-pad kits are preserved separately at [preset-packs/x0x](../../preset-packs/x0x/README.md),
+not presented as builder-bundled presets. Public-SDK hardware save/reload and
+CPU qualification remain pending; existing device presets are not deleted.
 
 ## Controls
 
@@ -40,7 +45,7 @@ The screen shows a baby-faced Grogu drummer with Wayfarer-style sunglasses,
 long ears and a wrapped robe,
 in grayscale with small blue/red accents on the kit. A separate label shows
 the selected drum and its 606/707/808/909 style, including single-family sounds;
-sequencer hits animate the played drum without changing that selection label.
+track activity animates the selected drum without changing that selection label.
 The parameter bar gives labels 50 pixels and values 70 pixels within each
 encoder column, with 17px active values and 12px inactive values. All
 18 drum types have their own band-style emblem printed on the kick head. All
@@ -52,10 +57,10 @@ the hands as the joints rebound at different rates. The 606 snaps, 707 steps,
 808 rolls back smoothly and 909 recoils sharply. Movement settles within
 0.2 seconds, with hit brightness following the pad's decay. Reduced motion
 keeps static feedback. Entering a track or browsing a type/style establishes a
-still pose instead of inventing a hit. Drawing follows the latest played pad on the track, including sequencer hits,
-while the header and encoders stay on the selected pad. It uses drawing ABI 6
-trigger snapshots; simultaneous hits between display frames can coalesce, and
-GUI control snapshots are not a history of audio-side step locks.
+still pose instead of inventing a hit. The public display snapshot identifies the selected pad, not the pad that a
+sequencer hit played. Its artwork reacts to track note activity using that
+selection; it cannot identify a different playing drum. Selected labels and
+controls remain stable. This is an intentional public-API limitation.
 Run `python artwork/drummer.py` to regenerate the vector scene, pivots and contact
 poses. The same C++ animates the browser and native display; no bitmap is loaded
 by the machine.
@@ -66,7 +71,7 @@ low/mid/high conga and tambourine. The default mapping is in `models.h`.
 
 Style selects the available 606, 707, 808 and 909 families for that type. For
 example, kick offers all four; ride offers 707/909, and congas offer 808.
-Style uses consistent family positions across drum types. A missing family
+Style uses ordinary one-unit encoder edits and consistent family positions across drum types. Each family occupies a 32-value zone, so crossing to another family can take several detents; saved raw values are unchanged. A missing family
 uses the next available family, or the last available one if none is higher.
 Single-family types leave the style position blank. Tune has an exact zero centre and a ±12-semitone
 range. Decay shows milliseconds or seconds and controls the sound envelope. Sampled
@@ -103,17 +108,16 @@ helps compare tuning, envelopes and hat choke groups while playing.
 The Kit menu offers 808 Classic, 606 Dry, 707 Studio, 909 Club, Night Wire,
 Warehouse and Soft Machines. Loading one resets all 24 audition pads; each
 pad remains independently editable. `python machines/x0x/tools/generate_presets.py --sdk ../xy-machines-sdk` rebuilds
-the audition bank and the matching device files in `presets/`. Device presets
+the audition bank, the builder init in `presets/`, and separate files under `preset-packs/x0x/`. The separate device kits
 store all 24 pads with neutral track parameters, keeping model selection and
 both pages freely editable. Their open/closed hats share choke group 1.
 
 The browser uses the full C++ engine, including the 707 and 909 recordings,
 and the actual C++ display. It is not a device/project-storage simulator.
-This branch declares `parameterEdit` and maps each Style detent directly to
-the next available family, in either direction, using the same saved raw-value
-encoding. For example, ride steps directly between 707 and 909. Other controls
-retain their unit steps. The draft SDK integration checks all 4,608 combinations
-of model, stored Style value and direction through its real pad editor.
+The audition's family buttons can jump between available families. Device
+Style edits use the public SDK's ordinary one-unit stepping rather than that
+browser shortcut. Host integration checks verify raw-value boundaries and
+preservation of the established saved-family encoding.
 
 The integration checks also exercise the real SDK pad editor and native audio adapter:
 
@@ -138,14 +142,14 @@ preset words. These checks use the pinned SDK's existing stock-boundary doubles.
 ## Hardware validation
 
 Build into a fresh folder outside every checkout using the SDK's
-[build guide](https://github.com/etcetc000/open-xy/blob/sdk/drum-synthesis/docs/build.md).
+[build guide](https://github.com/etcetc000/open-xy/blob/main/docs/build.md).
 A development package can test pad selection, Shift config, both control pages,
 copy/paste, project save/reload, preset save/reload and the individual drum sounds.
 Installation/device diagnostics require a separate user instruction. Do not
 replace an existing custom collection without preserving its layout and machines.
 
 Before publishing the finished sound engine, follow
-[hardware profiling](https://github.com/etcetc000/open-xy/blob/sdk/drum-synthesis/docs/profiling.md)
+[hardware profiling](https://github.com/etcetc000/open-xy/blob/main/docs/profiling.md)
 and collect revision-bound CPU evidence. A host check or successful build
 proves neither hardware acceptance nor measured CPU cost.
 

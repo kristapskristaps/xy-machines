@@ -17,9 +17,6 @@ inline void drum_select(Voice& voice, Shared&, opxy::u32, opxy::u32 model) { voi
 inline const char* model_name(opxy::u32 model) { return short_name(model); }
 inline const char* parameter_name(opxy::u32 model, opxy::u32 slot) { return control_name(model, slot); }
 inline opxy::u32 parameter_count(opxy::u32 model) { return control_count(model); }
-inline opxy::u32 edit_parameter(opxy::u32 model, opxy::u32 slot, opxy::u32 value, opxy::i32 delta) {
-    return stepped_value(model, slot, value, delta);
-}
 inline bool finished(const Voice& voice, const Shared&) { return voice.age && !voice.active; }
 inline void render(Voice& voice, Shared&, opxy::u32, opxy::Output output, opxy::Parameters parameters, opxy::Pitch) {
     dsp::render(voice, output, parameters);

@@ -10,7 +10,7 @@ SYNTHS = ('tandem', 'atlas', 'choir', 'sift', 'crease', 'bitflip')
 
 
 class ReleasePresets(unittest.TestCase):
-    def test_all_seven_ship_native_presets(self):
+    def test_all_seven_ship_supported_native_presets(self):
         total = 0
         for mid in (*SYNTHS, 'x0x'):
             with self.subTest(machine=mid):
@@ -24,10 +24,9 @@ class ReleasePresets(unittest.TestCase):
                     preset = json.loads(file.read_text())
                     self.assertEqual((preset['version'], preset['platform'], preset['type']), (4, 'OP-XY', mid))
                     self.assertEqual(len(preset['engine']['params']), 8)
-                    if mid != 'x0x':
-                        self.assertEqual(preset['regions'], [])
+                    self.assertEqual(preset['regions'], [])
                 total += len(files)
-        self.assertEqual(total, 43)
+        self.assertEqual(total, 37)
 
     def test_synth_native_engine_settings_match_browser_patches(self):
         for mid in SYNTHS:
@@ -40,3 +39,16 @@ class ReleasePresets(unittest.TestCase):
                     words = [math.floor(patch.get(p['id'], p['default']) * 32767 + .5)
                              for p in definition['parameters']]
                     self.assertEqual(preset['engine']['params'], words + [0] * (8-len(words)))
+
+    def test_x0x_authored_kits_are_preserved_separately(self):
+        folder=ROOT.parent/'preset-packs/x0x/content/presets/x0x'
+        files=list(folder.glob('*.json'))
+        self.assertEqual(len(files),7)
+        for path in files:
+            with self.subTest(kit=path.stem):
+                kit=json.loads(path.read_text())
+                self.assertEqual((kit['type'],kit['version']),('x0x',4))
+                self.assertEqual(kit['engine']['params'],[16384]*8)
+                self.assertEqual(len(kit['regions']),24)
+                self.assertEqual([p['hikey'] for p in kit['regions']],list(range(53,77)))
+                self.assertTrue(all('sample' not in p and 'file' not in p for p in kit['regions']))

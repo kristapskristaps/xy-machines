@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "sdk": "1.11",
+  "sdk": "1.8",
   "kind": "drum",
   "presets": "presets",
   "description": "606/808/909-inspired drum synthesis and sampled 707/909 percussion, with independent per-pad styles and two control pages.",

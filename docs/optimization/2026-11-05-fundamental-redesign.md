@@ -175,3 +175,39 @@ Hardware CPU and listening acceptance of this revision remain pending.
 The previous staged mix-fix image is superseded for the next installation;
 prepare a fresh combined package from this revision after the sound review.
 The XY remains on its earlier measured image, unchanged by these local edits.
+
+## Public-SDK release route
+
+The user chose a public-SDK release with one bundled default kit, keeping the
+other authored kits separate rather than depending on SDK PR #422. The repo
+now pins official `etcetc000/open-xy` main at
+`71566d29f0087c793f392e9c09768ae3c866a379` (SDK 1.9), in a separate clean
+checkout. No SDK source was edited. X0X uses the existing public drum API:
+ordinary raw-value Style edits, selected-pad activity animation, and a valid
+empty-region init preset backed by `drum_defaults`. Drum DSP, all 18 models,
+47 type/style combinations, 24 pads and eight voices are unchanged.
+
+All seven authored packed-pad kits are preserved in `preset-packs/x0x/`.
+They regenerate byte-for-byte through the public codec, and the real public
+pad editor/decoder checks every kit's model, controls and choke settings.
+They are not builder-bundled. Existing presets on the XY remain untouched.
+Separate-kit hardware import/save/reload still needs QA.
+
+All 37 inventory machines pass public-SDK previews/host tests and Blackfin
+compilation. X0X passes 13 C++ host tests, six browser audition tests, the real
+pad-editor integration check, and all 47 sounds through the generated native
+audio adapter. All 22 shared workflow/preset tests pass. The unused custom
+edit callback and its obsolete one-detent C++ test were removed; public raw
+stepping and saved-value boundaries are covered in the integration check.
+
+The unchanged public SDK suite ran 424 Python tests with 18 private-fixture
+skips and the same two pre-existing macOS failures (unused `kAuxTab` in the
+drum-services fixture; Darwin master-filter extension registration linking).
+No checks, hashes or release-host guards were bypassed. Machine checks pass
+independently; the SDK suite is not claimed fully green on this Mac.
+
+A fresh public-SDK combined image must be measured before release; older
+custom-SDK reports do not qualify it. After CPU and listening acceptance,
+consolidate open catalog PRs #348, #349, #350 and #354 with the new qualified
+engines in one catalog-only PR against public main. Rebound #352 is already
+merged and is excluded. SDK PRs remain separate; X0X no longer depends on #422.

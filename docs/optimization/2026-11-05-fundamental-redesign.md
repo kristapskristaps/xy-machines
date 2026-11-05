@@ -211,3 +211,31 @@ custom-SDK reports do not qualify it. After CPU and listening acceptance,
 consolidate open catalog PRs #348, #349, #350 and #354 with the new qualified
 engines in one catalog-only PR against public main. Rebound #352 is already
 merged and is excluded. SDK PRs remain separate; X0X no longer depends on #422.
+
+## Public-SDK hardware capture
+
+The user confirmed the public-SDK image's physical OS write and normal boot.
+All nine transferred files passed device readback; only firmware changed,
+and presets/projects were not transferred. The complete 332-case capture
+contains 334 frames and zero protocol errors. The actual MIDI capture span
+was 91.7 seconds; the earlier 12-minute estimate was unnecessarily conservative.
+Generated [revision-bound reports](../profiling/2026-11-05/public-sdk/) bind
+source commit `d8246183f45d556a176f1b37c9b8dd29ae2d5ee0`.
+
+| Machine | Hardware maximum | Heaviest setting |
+| --- | ---: | --- |
+| Atlas | 2.901% | Lo fi 50% |
+| Tandem | 3.369% | Output 25% |
+| Sift | 2.615% | Body 25% |
+| X0X | **4.201%** | Cymbal/model9, all controls0 |
+| Bitflip | 3.879% | Model FM |
+| Choir | 3.284% | Root50% |
+| Crease | 3.529% | Alt mix50% |
+
+The three redesigned synths are below 3.5% with their latest controls. Six
+of seven engines meet the requested under-4% ceiling. X0X's kick is now
+3.830% at its heaviest tested setting; its synthesized cymbal is the remaining
+failure. Open hat and ride peak at 3.931% and 3.903%, respectively. Its kit
+workload is 17.801%; eight voices remain available. No publication or catalog
+consolidation occurs while X0X still fails. Full listening/project QA remains
+separate from this synthetic CPU capture.

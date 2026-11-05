@@ -64,11 +64,14 @@ int main() {
             for (unsigned block = 0; block < 64; ++block)
                 sift::render(voice, shared, 1, out, p, pitch);
             auto h = 14695981039346656037ull;
-            for (unsigned i = 0; i < 256; ++i)
-                h = split_cases::hash(h, static_cast<opxy::u32>(voice.cycle[voice.active][i]));
+            for (auto sample : out)
+                h = split_cases::hash(h, static_cast<opxy::u32>(sample));
             hashes[setting] = h;
         }
-        require(hashes[0] != hashes[1], "FAIL inaudible control");
+        if (hashes[0] == hashes[1]) {
+            std::printf("FAIL inaudible control %u\n", control);
+            return 1;
+        }
     }
     std::puts("PASS: 45 long redesign scenes, bounded preparation under automation, exact "
               "pitch/glide, output limits, retriggers and audible control changes");

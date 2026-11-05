@@ -11,9 +11,9 @@ Four controls map directly to the selected Weave model’s Harmonic, Timbre, Mor
 | Harmonic | Detuning between the oscillator branches, with flat regions around musical intervals. |
 | Timbre | Oscillator synchronization amount. |
 | Morph | Wave shape and pulse width. |
-| Output | Crossfade between the main oscillator mix and auxiliary sync output. |
+| Output | Full-range crossfade between the main oscillator mix and phase-aligned sync alternate. |
 
-Wave preparation takes about 23 ms, followed by a 5.8 ms crossfade. Moving controls finish the current bounded preparation before starting the latest target; playback never returns to the old expensive renderer. Pitch changes advance the oscillator every sample. Newly initialized voices begin with a quiet simple waveform while the first requested wave is prepared. These attack and modulation differences need a listening pass before release.
+Both endpoints are prepared together in about 23 ms, followed by a 5.8 ms timbre crossfade. Harmonic, Timbre, Morph and pitch changes finish the current bounded preparation before starting the latest target. Output blends the ready endpoints directly, ramps over one 64-frame block and never rebuilds the waves. Its entire travel is active; the alternate root now shares the main root’s polarity. Playback never returns to the old expensive renderer. Pitch changes advance the oscillator every sample. Newly initialized voices begin with a quiet simple waveform while the first requested wave is prepared. These attack and modulation differences need a listening pass before release.
 
 The original retained vector animation reacts to notes and controls, settles when idle, and respects reduced motion. It illustrates the mechanism; no firmware or stock artwork is included.
 

@@ -8,8 +8,8 @@ struct Voice {
     opxy::i16 cache[32];
     opxy::i16 history[48];
     opxy::u32 cache_read, history_write, resample_phase;
-    opxy::i16 cycle[2][257];
-    opxy::i32 cycle_mean[2], build_sum;
+    opxy::i16 cycle[2][2][257];
+    opxy::i32 cycle_mean[2][2], build_sum[2];
     opxy::u32 phase, active, valid, building, build_at, fade;
     opxy::u32 prepared[5];
     opxy::u32 ratio[3];

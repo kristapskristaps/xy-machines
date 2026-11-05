@@ -12,8 +12,8 @@ struct Voice {
     opxy::i16 cache[32];
     opxy::i16 history[48];
     opxy::u32 cache_read, history_write, resample_phase;
-    opxy::i16 cycle[2][2][257];
-    opxy::i32 mean[2][2], sum[2];
+    opxy::i16 cycle[2][2][2][257];
+    opxy::i32 mean[2][2][2], sum[2][2];
     opxy::u32 phase[2], active, valid, building, build_at, fade;
     opxy::u32 key[5], detune;
     Shape pulse, primary, auxiliary, saw;

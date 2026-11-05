@@ -56,7 +56,7 @@ i32 saw(const Shape &s, u32 phase) {
 }
 bool equal(const u32 *a, const u32 *b) {
     for (unsigned i = 0; i < 5; ++i)
-        if (a[i] != b[i])
+        if (i != 3 && a[i] != b[i])
             return false;
     return true;
 }
@@ -83,39 +83,55 @@ void prepare(Voice &v, const u32 *key) {
     v.detune = ratio16(settings.auxiliary.mf, key[4]);
     v.pulse_gain = settings.sq_gain >> 9;
     v.saw_gain = settings.saw_gain >> 9;
-    v.mix = key[3] <= 55 ? 0 : key[3] >= 72 ? 32767 : static_cast<i32>(key[3] - 55) * 1927;
     v.build_at = 0;
-    v.sum[0] = v.sum[1] = 0;
+    for (auto &endpoint : v.sum)
+        for (auto &value : endpoint)
+            value = 0;
     v.building = 1;
 }
-i32 point(const Voice &v, unsigned channel, u32 phase) {
-    const i32 main = channel ? ((saw(v.saw, phase) * v.saw_gain) >> 15)
-                             : ((variable(v.pulse, phase) * v.pulse_gain) >> 15);
-    const i32 auxiliary =
-        channel ? variable(v.auxiliary, phase) / 2 : -variable(v.primary, phase) / 2;
-    return (main + (((auxiliary - main) * v.mix) >> 15)) * 26214 >> 15;
+i32 point(const Voice &v, unsigned channel, unsigned endpoint, u32 phase) {
+    const i32 signal = endpoint  ? variable(channel ? v.auxiliary : v.primary, phase) / 2
+                       : channel ? ((saw(v.saw, phase) * v.saw_gain) >> 15)
+                                 : ((variable(v.pulse, phase) * v.pulse_gain) >> 15);
+    return (signal * 26214) >> 15;
+}
+i32 blended(const Voice &v, unsigned bank, u32 root, u32 detuned, i32 mix) {
+    i32 main = 0, alternate = 0;
+    if (mix != 32768)
+        main = read(v.cycle[bank][0][0], root) - v.mean[bank][0][0] +
+               read(v.cycle[bank][0][1], detuned) - v.mean[bank][0][1];
+    if (mix)
+        alternate = read(v.cycle[bank][1][0], root) - v.mean[bank][1][0] +
+                    read(v.cycle[bank][1][1], detuned) - v.mean[bank][1][1];
+    if (!mix)
+        return main;
+    if (mix == 32768)
+        return alternate;
+    return main + static_cast<i32>(opxy::q31::wide(alternate - main, mix) >> 15);
 }
 void build_tile(Voice &v) {
     const unsigned end = v.build_at + 16;
-    for (unsigned channel = 0; channel < 2; ++channel) {
-        auto *table = v.cycle[v.active ^ 1u][channel];
-        // Frequency-aware phase taps replace per-sample BLEP corrections/SRC.
-        u32 spread = v.key[4] >> 2;
-        if (channel)
-            spread = tandem_dsp::mulq16(spread, v.detune);
-        for (unsigned i = v.build_at; i < end; ++i) {
-            const u32 phase = i << 24;
-            const i32 sample = (point(v, channel, phase - spread) + 2 * point(v, channel, phase) +
-                                point(v, channel, phase + spread)) /
-                               4;
-            table[i] = static_cast<opxy::i16>(sample);
-            v.sum[channel] += sample;
+    for (unsigned endpoint = 0; endpoint < 2; ++endpoint)
+        for (unsigned channel = 0; channel < 2; ++channel) {
+            auto *table = v.cycle[v.active ^ 1u][endpoint][channel];
+            // Frequency-aware phase taps replace per-sample BLEP corrections/SRC.
+            u32 spread = v.key[4] >> 2;
+            if (channel)
+                spread = tandem_dsp::mulq16(spread, v.detune);
+            for (unsigned i = v.build_at; i < end; ++i) {
+                const u32 phase = i << 24;
+                const i32 sample = (point(v, channel, endpoint, phase - spread) +
+                                    2 * point(v, channel, endpoint, phase) +
+                                    point(v, channel, endpoint, phase + spread)) /
+                                   4;
+                table[i] = static_cast<opxy::i16>(sample);
+                v.sum[endpoint][channel] += sample;
+            }
+            if (end == 256) {
+                table[256] = table[0];
+                v.mean[v.active ^ 1u][endpoint][channel] = v.sum[endpoint][channel] / 256;
+            }
         }
-        if (end == 256) {
-            table[256] = table[0];
-            v.mean[v.active ^ 1u][channel] = v.sum[channel] / 256;
-        }
-    }
     v.build_at = end;
     if (end == 256) {
         v.building = 0;
@@ -132,13 +148,15 @@ void initialize(Voice &v, Shared &, u32 owner) {
     v.phase[1] = 0x40000000u;
     v.active = v.valid = v.building = v.build_at = v.fade = 0;
     v.detune = 65536;
+    v.mix = 0;
     for (unsigned bank = 0; bank < 2; ++bank)
-        for (unsigned channel = 0; channel < 2; ++channel) {
-            v.mean[bank][channel] = 0;
-            for (unsigned i = 0; i <= 256; ++i)
-                v.cycle[bank][channel][i] =
-                    static_cast<opxy::i16>((static_cast<i32>((i & 255u) * 256u) - 32768) / 4);
-        }
+        for (unsigned endpoint = 0; endpoint < 2; ++endpoint)
+            for (unsigned channel = 0; channel < 2; ++channel) {
+                v.mean[bank][endpoint][channel] = 0;
+                for (unsigned i = 0; i <= 256; ++i)
+                    v.cycle[bank][endpoint][channel][i] =
+                        static_cast<opxy::i16>((static_cast<i32>((i & 255u) * 256u) - 32768) / 4);
+            }
 }
 void start(Voice &v, Shared &, u32) { v.pending = 1; }
 void destroy(Voice &v, Shared &, u32) { v.pending = 0; }
@@ -157,12 +175,13 @@ void render(Voice &v, Shared &, u32, opxy::Output output, opxy::Parameters p, op
     if (v.building)
         build_tile(v);
     u32 root = v.phase[0], detuned = v.phase[1];
+    const i32 target = p[3] < 0 ? 0 : static_cast<i32>((static_cast<u32>(p[3]) + 32768u) >> 16);
+    const i32 mix_from = v.mix, mix_delta = target - mix_from;
     for (unsigned i = 0; i < 64; ++i) {
-        i32 signal = read(v.cycle[v.active][0], root) - v.mean[v.active][0] +
-                     read(v.cycle[v.active][1], detuned) - v.mean[v.active][1];
+        const i32 mix = mix_from + ((mix_delta * static_cast<i32>(i + 1)) >> 6);
+        i32 signal = blended(v, v.active, root, detuned, mix);
         if (v.fade) {
-            const i32 next = read(v.cycle[v.active ^ 1u][0], root) - v.mean[v.active ^ 1u][0] +
-                             read(v.cycle[v.active ^ 1u][1], detuned) - v.mean[v.active ^ 1u][1];
+            const i32 next = blended(v, v.active ^ 1u, root, detuned, mix);
             signal += ((next - signal) * static_cast<i32>(256 - v.fade)) >> 8;
             if (!--v.fade)
                 v.active ^= 1u;
@@ -178,6 +197,7 @@ void render(Voice &v, Shared &, u32, opxy::Output output, opxy::Parameters p, op
             opxy::q31::wide(static_cast<i32>(step), static_cast<i32>(v.detune)) >> 16);
         detuned += auxiliary > 0x40000000u ? 0x40000000u : auxiliary;
     }
+    v.mix = target;
     v.phase[0] = root;
     v.phase[1] = detuned;
     v.pending = 0;

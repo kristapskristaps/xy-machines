@@ -118,3 +118,33 @@ The follow-up passes all 14 X0X host tests, preview checks and Blackfin compilat
 Eight-voice capacity remains unchanged. Hardware CPU is pending; the installed
 image and the published local historical report still measure X0X at 4.347%.
 No source has been pushed and no further transfer has been performed.
+
+## Listening feedback and local mix fixes (not installed)
+
+The user accepted Atlas's sound and the main sounds of Tandem/Sift. Tandem's
+Output was not a pleasant crossfade; Sift's Z mix sounded like a high-pitched
+noise layer. Inspection found both inherited selectors put the whole blend
+into raw values 55..72 (roughly 43..57% travel), with delayed rebuilding for
+every mix change. Tandem also subtracted its alternate root while the main
+root used the opposite polarity.
+
+The revised engines prepare main and alternate endpoints separately. Mixing
+uses the whole parameter range at runtime with a 64-frame ramp, without
+rebuilding tables. Tandem aligns the alternate root's polarity. Sift's alternate
+now combines a fundamental with a Hann-windowed lower formant (up to six times
+the carrier, further limited for high notes) and moderate phase warping.
+Main-only PCM remains bit-identical to the installed redesign in 37 scenes per
+engine, including their initial attacks. Atlas is unchanged.
+
+Ten host tests across Tandem/Sift and both Blackfin compilations pass. New
+fixed-phase checks verify full-range linear blending, endpoint response, no
+rebuilding from mix changes and no midpoint collapse at the default sound.
+Across 81 Sift alternate patches, at least 76.1% of periodic-wave energy is in
+the fundamental. These checks support the intended change but do not replace
+listening. Before/after host sweeps are available for audition.
+
+Private voice memory changes to 4,656 bytes for Tandem and 2,400 bytes for Sift;
+saved IDs, parameter contracts and presets remain unchanged. More endpoint
+reads are needed for a mixed sound, so the previous CPU figures are historical;
+the fixes require fresh hardware measurement. The next local batch also contains
+the unmeasured X0X lookup follow-up. No additional transfer or push has occurred.

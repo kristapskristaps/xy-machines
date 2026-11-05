@@ -1,9 +1,10 @@
 # Atlas, Tandem, Sift and X0X: local optimization batch
 
 This batch targets a hardware control-sweep result below 4% for each machine,
-preferably 3.5% or less. **No hardware CPU result exists for this batch.** Host
-estimates and generated-code inspection do not qualify a catalog submission.
-The installed seven-machine collection has not been changed by this work.
+preferably 3.5% or less. The complete 332-case hardware capture finished without protocol errors. All
+four candidates **failed the under-4% acceptance target**. No source or catalog
+changes have been published. The combined seven-machine image is installed;
+all presets and saved machine IDs were preserved.
 
 | Machine | Retained change | Sound checks |
 | --- | --- | --- |
@@ -37,6 +38,30 @@ transfer bundle. One complete 332-case capture can provide reports for the
 whole collection; no separate per-engine bank is required. Firmware, raw
 captures, compiler objects and transfer bundles remain outside every checkout.
 
+## Hardware result
+
+| Machine | Heaviest measured run | Heaviest setting |
+| --- | ---: | --- |
+| Atlas | 5.090410% | Lo fi at midpoint |
+| Tandem | 10.330358% | Output at midpoint |
+| Sift | 8.213931% | Z mix at midpoint |
+| X0X | 5.520714% | Model 0, controls at 127 |
+
+The unchanged references measured Bitflip 3.778134%, Choir 3.263905% and Crease
+3.553826%. The [generated reports](../profiling/2026-11-05/four-engine-batch/)
+bind commit `b6c7af888eabd7ffb63e22a0c9c1d30074a2db1b` and the tested firmware.
+Atlas's earlier qualification result was about 5.66%; its current 5.09% is
+useful progress, but insufficient. The other candidates show no useful absolute
+improvement over their historical results. These images have different layouts,
+so those comparisons do not isolate each code change's effect.
+
+Host estimates were insufficient to predict these Blackfin results. The next
+batch needs larger rendering changes: reduce whole oscillator/window passes,
+reuse periodic waveform components and reduce hot-state traffic. Avoid another
+hardware round for isolated compiler or precision changes. Keep the grain,
+analog/sync and wavetable characters and all 47 drum styles; compare deliberate
+sound changes locally before another combined measurement.
+
 ## Rejected local experiments
 
 - Removing Atlas's 48 kHz conversion produced larger waveform differences at
@@ -48,7 +73,6 @@ captures, compiler objects and transfer bundles remain outside every checkout.
   The SDK already implements Q31 multiplication with one Blackfin instruction;
   counting a Q31 operation as a software wide multiply would overstate savings.
 
-The next hardware run must confirm the CPU figures, boot, preset behavior and
-control motion. Retain only measured improvements. This document does not claim
-that any of the four is already below its hardware CPU target, or that the
-catalog workload bounds arbitrary project CPU usage.
+The current batch is not qualified for release or catalog submission. Further
+optimization remains local. The catalog workload does not bound arbitrary
+project CPU usage, and the CPU capture is separate from preset and project QA.

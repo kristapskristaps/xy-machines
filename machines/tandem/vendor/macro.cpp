@@ -605,7 +605,7 @@ static inline void slopes(int32_t pw31, uint32_t *up, uint32_t *down)
 }
 
 /* the naive variable shape (saw, square, triangle) at phase ph, Q28; sq, tri: Q16 amounts */
-static inline int32_t vso_naive(uint32_t ph, uint32_t pw32, uint32_t up, uint32_t down, int32_t tri, int32_t sq)
+__attribute__((always_inline)) static inline int32_t vso_naive(uint32_t ph, uint32_t pw32, uint32_t up, uint32_t down, int32_t tri, int32_t sq)
 {
     int32_t saw = (int32_t)(ph >> 4), square = ph < pw32 ? 0 : defined_shift(1, 28), triangle;
     if (ph < pw32)
@@ -630,7 +630,7 @@ static void vso_init(struct macro_vso *o, uint32_t master_phase)
 }
 
 /* VariableShapeOscillator::Render (sync: master mf, slave sf); writes Q28 into out */
-static void vso_render(struct macro_vso *__restrict o, int sync, uint32_t mf, uint32_t sf, int32_t pw31, int32_t ws,
+template <unsigned Shape> static void vso_shape_render(struct macro_vso *__restrict o, int sync, uint32_t mf, uint32_t sf, int32_t pw31, int32_t ws,
                        int32_t *__restrict out, int n)
 {
     uint32_t up, down, mph = o->mph, sph = o->sph, m_f = o->mf, s_f = o->sf;
@@ -659,8 +659,8 @@ static void vso_render(struct macro_vso *__restrict o, int sync, uint32_t mf, ui
         s_f += (uint32_t)sfd;
         pw += pwd;
         w += wsd;
-        sq = w > 32768 ? (w - 32768) * 2 : 0;
-        tri = w < 32768 ? 65536 - 2 * w : 0;
+        sq = Shape==3 ? 65536 : Shape==2 ? 0 : w > 32768 ? (w - 32768) * 2 : 0;
+        tri = Shape==1 || Shape==3 ? 0 : w < 32768 ? 65536 - 2 * w : 0;
         pw32 = (uint32_t)pw << 1;
         step = amt((int32_t)((((up + down) >> 1) * (s_f >> 16)) >> 2), tri);   /* (up + down) f tri, Q28 */
         if (sync) {
@@ -728,6 +728,14 @@ static void vso_render(struct macro_vso *__restrict o, int sync, uint32_t mf, ui
     o->ws = ws;
     o->next = next;
     o->high = high;
+}
+
+static void vso_render(struct macro_vso* o,int sync,uint32_t mf,uint32_t sf,int32_t pw31,int32_t ws,int32_t* out,int n)
+{
+    if(o->ws==65536 && ws==65536)vso_shape_render<3>(o,sync,mf,sf,pw31,ws,out,n);
+    else if(o->ws>=32768 && ws>=32768)vso_shape_render<1>(o,sync,mf,sf,pw31,ws,out,n);
+    else if(o->ws<=32768 && ws<=32768)vso_shape_render<2>(o,sync,mf,sf,pw31,ws,out,n);
+    else vso_shape_render<0>(o,sync,mf,sf,pw31,ws,out,n);
 }
 
 #define NOTCH (53687091)                                     /* kVariableSawNotchDepth 0.2, Q28 */

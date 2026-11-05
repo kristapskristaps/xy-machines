@@ -3,5 +3,6 @@
   "sdk": "1.6",
   "kind": "synth",
   "description": "Two coupled virtual-analog oscillators with sync and detune. Extracted from Weave.",
-  "icon": "M4 20 A10 10 0 1 0 24 20 A10 10 0 1 0 4 20 M16 20 A10 10 0 1 0 36 20 A10 10 0 1 0 16 20"
+  "icon": "M4 20 A10 10 0 1 0 24 20 A10 10 0 1 0 4 20 M16 20 A10 10 0 1 0 36 20 A10 10 0 1 0 16 20",
+  "presets": "presets"
 }

@@ -20,3 +20,7 @@ Run `./xy test choir --native` or `./xy preview choir --watch` from the collecti
 DSP derives from Plaits by Émilie Gillet and the attributed integer port under MIT. See LICENSE and vendor/VENDOR.md.
 
 The fourth control is **Root**: Crossfade from the complete chord to its root-only alternate. It is not volume. The inherited selector is main-only below about 43%, blends around 43–57%, and is alternate-only above about 57%. Compare the two endpoints to hear the difference.
+
+## Factory presets
+
+Four native OP-XY presets ship with this machine: **Init**, **Glass choir**, **Low brass**, **Root study**. They use the same engine settings as the browser patches. `default.json` is Init; other presets have their own files. Stock AMP/filter/LFO settings start from the SDK’s public preset template.

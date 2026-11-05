@@ -50,7 +50,7 @@ definition = dict(schema=1,id='bitflip',name='Bitflip',press='page',parameters=p
         display=dict(stateBytes=56,stateAlignment=4,paths=0,points=0,nodes=116,texts=16,palette=8)))
 (ROOT/'definition.json').write_text(json.dumps(definition,indent=2)+'\n')
 amp = dict(attack=128,decay=0,sustain=32767,release=13000)
-machine = dict(schema=1,sdk='1.8',kind='synth',
+machine = dict(schema=1,sdk='1.8',kind='synth',presets='presets',
     description='Eight chip voices for pulse leads, triangle bass, game arpeggios, FM bells, metallic hits and digital noise.',
     icon='M8 4h32v36H8z M14 10h20v12H14z M14 30h4v6h-4z M24 30h4v6h-4z',
     presetDefaults={'amp':amp})

@@ -18,3 +18,7 @@ The original retained vector animation reacts to notes and controls, settles whe
 Run `./xy test tandem --native` or `./xy preview tandem --watch` from the collection root. Hardware CPU qualification and normal-playback acceptance for this new ID remain pending. Earlier Weave measurements are historical evidence only.
 
 DSP derives from Plaits by Émilie Gillet and the attributed integer port under MIT. See LICENSE and vendor/VENDOR.md.
+
+## Factory presets
+
+Four native OP-XY presets ship with this machine: **Init**, **Warm analog**, **Octave pair**, **Crossed wires**. They use the same engine settings as the browser patches. `default.json` is Init; other presets have their own files. Stock AMP/filter/LFO settings start from the SDK’s public preset template.

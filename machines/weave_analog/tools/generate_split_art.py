@@ -1,5 +1,6 @@
 """Generate abstract geometric native scenes; audio and controls are unchanged."""
 from pathlib import Path
+import math
 
 ROOT = Path(__file__).resolve().parents[2]
 NAMES = {'analog': 'Tandem', 'waves': 'Atlas', 'chords': 'Choir', 'grain': 'Sift', 'shaper': 'Crease'}
@@ -163,59 +164,73 @@ SCENES = {
 ''',
 }
 
+def path(points, closed=False):
+    value = ' '.join(('M' if i == 0 else 'L') + f'{round(x)} {round(y)}'
+                     for i, (x, y) in enumerate(points))
+    return value + (' Z' if closed else '')
+
+
 def scene_shapes():
-    import math
+    # Authored startup geometry uses integer polylines and full-pixel strokes.
+    # Runtime mutable geometry and animation remain in the drawing callback.
     shapes = {short: {} for short in NAMES}
+    curve = []
+    for controls in [((-190,-18),(-110,-70),(-65,70),(0,0)),
+                     ((0,0),(65,-70),(110,70),(190,18))]:
+        for j in range(17):
+            if curve and j == 0:
+                continue
+            t = j / 16
+            weights = ((1-t)**3, 3*(1-t)**2*t, 3*(1-t)*t*t, t**3)
+            curve.append(tuple(sum(w*p[axis] for w,p in zip(weights,controls)) for axis in (0,1)))
     for i in range(21):
-        shapes['analog'][3+i] = ('M-190 -18 C-110 -70 -65 70 0 0 C65 -70 110 70 190 18', '#000000')
+        shapes['analog'][3+i] = (path(curve), 'none')
     for i in range(15):
-        contour = []
-        for j in range(33):
-            x = -192+j*12
-            y = 9*math.sin(j/32*math.tau*1.5+i*.18)+4*math.sin(j/32*math.tau*3)
-            contour.append(('M' if j == 0 else 'L')+f'{x:g} {y:.2f}')
-        shapes['waves'][3+i] = (' '.join(contour), '#000000')
+        contour = [(-192+j*12, 9*math.sin(j/32*math.tau*1.5+i*.18)+4*math.sin(j/32*math.tau*3))
+                   for j in range(33)]
+        shapes['waves'][3+i] = (path(contour), 'none')
+    capsule = [(-26,65),(-26,-40)]
+    for controls in [((-26,-40),(-26,-70),(0,-70)), ((0,-70),(26,-70),(26,-40))]:
+        for j in range(1,9):
+            t=j/8
+            capsule.append(tuple((1-t)**2*controls[0][axis]+2*(1-t)*t*controls[1][axis]+t*t*controls[2][axis]
+                                 for axis in (0,1)))
+    capsule.append((26,65))
     for i in range(3,20):
-        shapes['chords'][i] = ('M-26 65 L-26 -40 Q-26 -70 0 -70 Q26 -70 26 -40 L26 65 Z', '#000000')
+        shapes['chords'][i] = (path(capsule,True), '#000000')
     for i in range(21):
         particles = []
         for j in range(11):
-            y = -65+j*13
-            x = math.sin(i*.5+j*.9)*4
-            r = .65+((i*7+j*3)%5)*.18
-            particles.append(f'M{x-r:.2f} {y} a{r:.2f} {r:.2f} 0 1 0 {r*2:.2f} 0 '
-                             f'a{r:.2f} {r:.2f} 0 1 0 {-r*2:.2f} 0 Z')
+            y=-65+j*13; x=round(math.sin(i*.5+j*.9)*4)
+            particles.append(path([(x-2,y),(x,y-2),(x+2,y),(x,y+2)],True))
         shapes['grain'][3+i] = (' '.join(particles), '#eeeeee')
     for i in range(16):
-        shapes['shaper'][3+i] = ('M-2 -35 L2 35', '#000000')
+        shapes['shaper'][3+i] = ('M-2 -35 L2 35', 'none')
     return shapes
 
 SHAPES = scene_shapes()
 
-def generate(short, name):
+def generate(short, name, artwork_only=False):
     mid='weave_'+short
     root=ROOT/mid
     for colour in PALETTE + [fill for _, fill in SHAPES[short].values()]:
-        if not (colour[1:3] == colour[3:5] == colour[5:7]):
+        if colour != 'none' and not (colour[1:3] == colour[3:5] == colour[5:7]):
             raise ValueError('Display artwork must remain monochrome')
     nodes={}
     for n in range(3,24):
         d,fill=SHAPES[short].get(n,('M-1 -1 L1 -1 L1 1 L-1 1 Z','#000000'))
-        nodes[n]=f'<path id="{mid}_node_{n}" d="{d}" fill="{fill}" stroke="#eeeeee" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round"/>'
+        nodes[n]=f'<path id="{mid}_node_{n}" d="{d}" fill="{fill}" stroke="#eeeeee" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>'
     paths=[]
-    corners=[(-56,-47),(56,-47),(56,47),(-56,47)]
-    points=[]
-    for i,a in enumerate(corners):
-        b=corners[(i+1)%4]
-        points.extend((a[0]+(b[0]-a[0])*j/8,a[1]+(b[1]-a[1])*j/8) for j in range(8))
-    d=' '.join(('M' if i==0 else 'L')+f'{x:g} {y:g}' for i,(x,y) in enumerate(points))+' Z'
+    points=[(round(56*math.cos(i*math.tau/32)),round(47*math.sin(i*math.tau/32))) for i in range(32)]
+    d=path(points,True)
     paths += [nodes[n] for n in range(3,12)]
-    paths += [f'<path id="{mid}_node_{p}" d="{d}" fill="none" stroke="#eeeeee" stroke-width="0.45"/>' for p in range(3)]
+    paths += [f'<path id="{mid}_node_{p}" d="{d}" fill="none" stroke="#eeeeee" stroke-width="1"/>' for p in range(3)]
     paths += [nodes[n] for n in range(12,24)]
     for i,colour in enumerate(PALETTE):
         paths.append(f'<circle id="{mid}_palette_{i}" cx="640" cy="0" r="1" fill="{colour}" stroke="{colour}" stroke-width="1"/>')
     (root/'panel.svg.fragment').write_text('<g id="'+mid+'_panel">\n'+'\n'.join(paths)+'\n</g>\n')
-    (root/'display.cpp').write_text(COMMON.replace('ID',mid).replace('SCENE',SCENES[short]))
+    if not artwork_only:
+        (root/'display.cpp').write_text(COMMON.replace('ID',mid).replace('SCENE',SCENES[short]))
 
 if __name__=='__main__':
     for short,name in NAMES.items():generate(short,name)

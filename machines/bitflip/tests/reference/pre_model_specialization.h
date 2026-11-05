@@ -76,7 +76,7 @@ inline void start(Voice& voice, Shared&, u32 owner) {
     voice.model_fade = voice.sweep_envelope = 32768;
     voice.sweep_ratio = 4096;
 }
-inline void initialize(Voice& voice, Shared& shared, u32 owner) { start(voice, shared, owner); }
+inline void initialize(Voice& voice, Shared& shared, u32 owner) { bitflip_reference::start(voice, shared, owner); }
 inline void destroy(Voice&, Shared&, u32) {}
 
 inline void render(Voice& voice, Shared&, u32, opxy::Output output,

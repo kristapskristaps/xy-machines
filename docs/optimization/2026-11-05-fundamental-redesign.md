@@ -148,3 +148,30 @@ saved IDs, parameter contracts and presets remain unchanged. More endpoint
 reads are needed for a mixed sound, so the previous CPU figures are historical;
 the fixes require fresh hardware measurement. The next local batch also contains
 the unmeasured X0X lookup follow-up. No additional transfer or push has occurred.
+
+## Sift Body revision (local, not installed)
+
+The user still found the Z/formant alternate musically unclear and noisy.
+The fourth control is now **Body**, keeping its saved parameter ID `output`.
+It blends the accepted grain endpoint toward a clean played note and a
+phase-locked sub octave, with quiet upper-octave and third-harmonic colour.
+No formant warping remains in this endpoint. Harmonic adjusts note/sub
+balance, Timbre adds octave colour and Morph adds a restrained third harmonic.
+At 0% main-only PCM remains unchanged; 50% retains grain over the tonal body;
+100% is the clean tonal voice. Existing preset files/values are not overwritten.
+
+A separate half-rate phase accumulator tracks the sub octave. Its fractional
+carry follows the root phase, so `(sub_phase << 1) == (phase & ~1)` holds
+through pitch movement without losing odd increment bits. Wave preparation
+uses the half-rate bandwidth for the body endpoint. Private voice size is
+2,408 bytes.
+
+All five Sift host tests, preview checks and Blackfin compilation pass.
+The 81-patch spectrum check requires at least 90% note/sub energy, a present
+played-note component, a present sub, and no significant bins beyond the
+locked sub/note/octave/third family. Main PCM comparisons still cover 37
+scenes. A short host phrase demonstrates clean Body, grain, then halfway.
+Hardware CPU and listening acceptance of this revision remain pending.
+The previous staged mix-fix image is superseded for the next installation;
+prepare a fresh combined package from this revision after the sound review.
+The XY remains on its earlier measured image, unchanged by these local edits.

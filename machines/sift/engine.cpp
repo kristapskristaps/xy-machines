@@ -45,19 +45,17 @@ void prepare(Voice &v, const u32 *key) {
     const u32 limit = root > 0x02000000u ? 0x33333333u : root * 25u;
     v.ratio[0] = ratio16(first > limit ? limit : first, root);
     v.ratio[1] = ratio16(second > limit ? limit : second, root);
-    // The alternate stays in the lower harmonic family instead of jumping up
-    // eight octaves with Timbre. Its Hann window closes every carrier period.
-    const u32 z_ratio = 65536u + ((static_cast<u32>(timb) * static_cast<u32>(timb)) >> 16) * 5u;
-    const u32 safe_ratio = ratio16(0x33333333u, root);
-    v.ratio[2] = z_ratio < safe_ratio ? z_ratio : safe_ratio;
+    // Body uses only locked octave-family tones. These gains sum to unity.
+    v.body_gain[1] = 8192 + (harm >> 3);
+    v.body_gain[2] = timb >> 4;
+    v.body_gain[3] = morph >> 5;
+    v.body_gain[0] = 32768 - v.body_gain[1] - v.body_gain[2] - v.body_gain[3];
     i32 bleed = harm < 32768 ? (32768 - harm) * 2 - (harm == 0) : 0;
     bleed = static_cast<i32>((static_cast<u32>(bleed) * static_cast<u32>(131072 - bleed)) >> 16);
     v.bleed = bleed >> 1;
     v.inverse = static_cast<i32>(1073741824u / (32768u + v.bleed));
     const i32 tame = root >= 0x0aaaaaaau ? 0 : 65536 - static_cast<i32>((root >> 12) * 24 >> 4);
     v.shape = 21627 + (((morph - 21627) * (tame >> 1)) >> 15);
-    v.harmonic = harm;
-    v.morph = morph;
     v.build_at = 0;
     v.build_sum[0] = v.build_sum[1] = 0;
     v.building = 1;
@@ -69,24 +67,22 @@ i32 point(const Voice &v, unsigned endpoint, u32 phase, const sift_dsp::carrier_
         const i32 a = sift_dsp::sin32(index * v.ratio[0]), b = sift_dsp::sin32(index * v.ratio[1]);
         return (((((window * (a + b + 2 * v.bleed)) >> 15) * v.inverse) >> 15) * 22938) >> 15;
     }
-    const i32 root = sift_dsp::sin32(phase);
-    const i32 window = (32767 - sift_dsp::sin32(phase + 0x40000000u)) >> 1;
-    const i32 envelope =
-        ((window * (65535 - v.morph)) >> 16) + ((((window * window) >> 15) * v.morph) >> 16);
-    const i32 warp = opxy::q31::multiply(root * 65536, v.harmonic * 8192);
-    const i32 formant = sift_dsp::sin32((phase >> 16) * v.ratio[2] + static_cast<u32>(warp));
-    const i32 resonance = (formant * envelope) >> 15;
-    const i32 amount = 8192 + (v.morph >> 3);
-    const i32 voiced = root + (((resonance - root) * amount) >> 15);
-    return (voiced * 19661) >> 15;
+    // This period plays one octave below the note: bins 1/2/4/6 are
+    // sub, played note, upper octave and a restrained third harmonic.
+    const i32 sub = sift_dsp::sin32(phase), note = sift_dsp::sin32(phase * 2u);
+    const i32 octave = sift_dsp::sin32(phase * 4u), third = sift_dsp::sin32(phase * 6u);
+    const i32 body = (note * v.body_gain[0] + sub * v.body_gain[1] + octave * v.body_gain[2] +
+                      third * v.body_gain[3]) >>
+                     15;
+    return (body * 19661) >> 15;
 }
-i32 blended(const Voice &v, unsigned bank, u32 phase, i32 mix) {
+i32 blended(const Voice &v, unsigned bank, u32 phase, u32 sub_phase, i32 mix) {
     if (!mix)
         return sample(v.cycle[bank][0], phase) - v.cycle_mean[bank][0];
     if (mix == 32768)
-        return sample(v.cycle[bank][1], phase) - v.cycle_mean[bank][1];
+        return sample(v.cycle[bank][1], sub_phase) - v.cycle_mean[bank][1];
     const i32 main = sample(v.cycle[bank][0], phase) - v.cycle_mean[bank][0];
-    const i32 alternate = sample(v.cycle[bank][1], phase) - v.cycle_mean[bank][1];
+    const i32 alternate = sample(v.cycle[bank][1], sub_phase) - v.cycle_mean[bank][1];
     return main + static_cast<i32>(opxy::q31::wide(alternate - main, mix) >> 15);
 }
 void build_tile(Voice &v) {
@@ -97,7 +93,7 @@ void build_tile(Voice &v) {
         auto *table = v.cycle[v.active ^ 1u][endpoint];
         for (unsigned i = v.build_at; i < end; ++i) {
             // Three phase taps soften formant edges without an audio-rate SRC.
-            const u32 phase = i << 24, spread = v.prepared[4] >> 2;
+            const u32 phase = i << 24, spread = v.prepared[4] >> (endpoint ? 3 : 2);
             const i32 value = (point(v, endpoint, phase - spread, carrier) +
                                2 * point(v, endpoint, phase, carrier) +
                                point(v, endpoint, phase + spread, carrier)) /
@@ -126,7 +122,7 @@ void initialize(Voice &v, Shared &, u32 owner) {
     v.history_write = v.resample_phase = 0;
     for (auto &value : v.history)
         value = 0;
-    v.phase = 0;
+    v.phase = v.sub_phase = 0;
     v.active = v.valid = v.building = v.build_at = v.fade = 0;
     v.mix = 0;
     for (unsigned bank = 0; bank < 2; ++bank)
@@ -153,14 +149,14 @@ void render(Voice &v, Shared &, u32, opxy::Output out, opxy::Parameters p, opxy:
         prepare(v, key);
     if (v.building)
         build_tile(v);
-    u32 phase = v.phase;
+    u32 phase = v.phase, sub_phase = v.sub_phase;
     const i32 target = p[3] < 0 ? 0 : static_cast<i32>((static_cast<u32>(p[3]) + 32768u) >> 16);
     const i32 mix_from = v.mix, mix_delta = target - mix_from;
     for (unsigned i = 0; i < 64; ++i) {
         const i32 mix = mix_from + ((mix_delta * static_cast<i32>(i + 1)) >> 6);
-        i32 signal = blended(v, v.active, phase, mix);
+        i32 signal = blended(v, v.active, phase, sub_phase, mix);
         if (v.fade) {
-            const i32 next = blended(v, v.active ^ 1u, phase, mix);
+            const i32 next = blended(v, v.active ^ 1u, phase, sub_phase, mix);
             signal += ((next - signal) * static_cast<i32>(256 - v.fade)) >> 8;
             if (!--v.fade)
                 v.active ^= 1u;
@@ -171,10 +167,12 @@ void render(Voice &v, Shared &, u32, opxy::Output out, opxy::Parameters p, opxy:
             signal = 32767;
         out[i] = signal * 16384;
         const u32 step = pitch[i] > 0x22d3b6a0u ? 0x22d3b6a0u : pitch[i];
+        sub_phase += (step >> 1) + ((phase & 1u) & (step & 1u));
         phase += step;
     }
     v.mix = target;
     v.phase = phase;
+    v.sub_phase = sub_phase;
     v.pending = 0;
 }
 } // namespace sift

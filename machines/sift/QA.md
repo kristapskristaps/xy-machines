@@ -31,7 +31,7 @@ Any deferred section needs a reason and remains pending.
 
 ## Its page and controls
 
-Controls to exercise: **Harmonic**, **Timbre**, **Morph**, **Z mix**.
+Controls to exercise: **Harmonic**, **Timbre**, **Morph**, **Body**.
 
 - [ ] Each control through its whole range, both directions: the sound follows, with no clicks, jumps or
       silence at the ends; the value shown reads in its unit (Hz, ms, %, a name)
@@ -91,7 +91,7 @@ Unmute it everywhere.
 
 ## Machine-specific checks
 
-- [ ] Compare Harmonic, Timbre, Morph and both Z mix extremes on held notes and chords. Check grain texture and note-off; animation responds to notes and controls.
+- [ ] Compare Harmonic, Timbre, Morph and both Body extremes on held notes and chords. Check that Body adds a rounded note/sub voice, stays in tune during bends/glides, and introduces no shrill noise layer. Check grain texture and note-off; animation responds to notes and controls.
 
 ## Saving and loading
 

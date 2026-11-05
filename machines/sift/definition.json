@@ -38,7 +38,7 @@
     },
     {
       "id": "output",
-      "label": "Z mix",
+      "label": "Body",
       "default": 0,
       "mapping": {
         "kind": "linear",
@@ -75,7 +75,7 @@
     }
   },
   "resources": {
-    "voiceBytes": 2400,
+    "voiceBytes": 2408,
     "voiceAlignment": 4,
     "voiceCapacity": 2,
     "sharedBytes": 0,

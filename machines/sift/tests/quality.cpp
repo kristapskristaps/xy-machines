@@ -36,6 +36,8 @@ int main() {
                     out[i] < 0 ? -static_cast<long long>(out[i]) : out[i]);
             }
             require(voice.phase == expected, "FAIL sample-accurate pitch/glide");
+            require((voice.sub_phase << 1) == (voice.phase & ~1u),
+                    "FAIL sub octave lost phase lock");
             require(voice.build_at <= 256, "FAIL table extent");
             if (building)
                 require(voice.build_at == previous + 16, "FAIL unbounded preparation tile");
@@ -46,7 +48,7 @@ int main() {
             require(voice.valid, "FAIL no prepared wave");
     }
     require(prepared > 40000 && total > 0, "FAIL inactive renderer");
-    // Every control, including Z mix and Morph in the Z-only sound, must change
+    // Every control, including Body and Morph in the body-only sound, must change
     // the actual prepared waveform, not merely its animation or cache key.
     for (unsigned control = 0; control < 4; ++control) {
         unsigned long long hashes[2] = {};

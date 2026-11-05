@@ -1,8 +1,8 @@
 #include "../engine.cpp"
 #include <cmath>
-#include <initializer_list>
 #include <cstdio>
 #include <cstdlib>
+#include <initializer_list>
 static void require(bool okay, const char *why) {
     if (!okay) {
         std::puts(why);
@@ -10,7 +10,7 @@ static void require(bool okay, const char *why) {
     }
 }
 int main() {
-    double minimum_fundamental = 1, maximum_upper = 0;
+    double minimum_low = 1, maximum_upper = 0;
     for (unsigned h : {0u, 63u, 127u})
         for (unsigned t : {0u, 63u, 127u})
             for (unsigned m : {0u, 63u, 127u})
@@ -28,7 +28,7 @@ int main() {
                     for (unsigned block = 0; block < 64; ++block)
                         sift::render(v, shared, 1, output, p, pitch);
                     const auto *wave = v.cycle[v.active][1];
-                    double energy = 0, fundamental = 0, upper = 0;
+                    double energy = 0, low = 0, upper = 0, unlocked = 0, note = 0, sub = 0;
                     for (unsigned i = 0; i < 256; ++i) {
                         const double sample = wave[i] - v.cycle_mean[v.active][1];
                         energy += sample * sample;
@@ -43,20 +43,29 @@ int main() {
                         }
                         const double bin = (k == 128 ? 1. : 2.) * (real * real + imag * imag) / 256;
                         if (k == 1)
-                            fundamental = bin;
-                        if (k > 10)
+                            sub = bin;
+                        if (k == 2)
+                            note = bin;
+                        if (k <= 2)
+                            low += bin;
+                        else
                             upper += bin;
+                        if (k != 1 && k != 2 && k != 4 && k != 6)
+                            unlocked += bin;
                     }
                     require(energy > 1000000, "FAIL alternate lost its body");
-                    const double body = fundamental / energy, air = upper / energy;
-                    if (body < minimum_fundamental)
-                        minimum_fundamental = body;
+                    const double body = low / energy, air = upper / energy;
+                    if (body < minimum_low)
+                        minimum_low = body;
                     if (air > maximum_upper)
                         maximum_upper = air;
-                    require(body > .5, "FAIL alternate lost its pitched fundamental");
-                    require(air < .025, "FAIL alternate dominated by upper harmonics");
+                    require(body > .9 && note / energy > .2 && sub / energy > .08,
+                            "FAIL body lost note/sub weight");
+                    require(unlocked / energy < .00001,
+                            "FAIL body contains unlocked or noisy harmonics");
+                    require(air < .1, "FAIL Body adds too much upper-harmonic energy");
                 }
-    std::printf("PASS: 81 alternate patches retain at least %.1f%% fundamental energy; above "
-                "harmonic10 at most %.2f%%\n",
-                100 * minimum_fundamental, 100 * maximum_upper);
+    std::printf("PASS: 81 Body patches: note/sub at least %.1f%% energy, upper harmonics at most "
+                "%.2f%%; only locked tones\n",
+                100 * minimum_low, 100 * maximum_upper);
 }

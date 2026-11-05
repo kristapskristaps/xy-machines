@@ -325,26 +325,31 @@ static inline void render(Voice& v, opxy::Output output, opxy::Parameters parame
     // and synthesized oscillators in separate sample loops.
     if(s.metal808)render_metal_block(v,output,s);
     else if(s.sample>=0)render_sample_block(v,output,s);
-    else switch(v.model) {
-    case kick: render_block<false,false,kick>(v,output,s); break;
-    case snare: render_block<false,false,snare>(v,output,s); break;
-    case clap: render_block<false,false,clap>(v,output,s); break;
-    case rim: render_block<false,false,rim>(v,output,s); break;
-    case low_tom: render_block<false,false,low_tom>(v,output,s); break;
-    case mid_tom: render_block<false,false,mid_tom>(v,output,s); break;
-    case high_tom: render_block<false,false,high_tom>(v,output,s); break;
-    case closed_hat: render_block<false,false,closed_hat>(v,output,s); break;
-    case open_hat: render_block<false,false,open_hat>(v,output,s); break;
-    case cymbal: render_block<false,false,cymbal>(v,output,s); break;
-    case ride: render_block<false,false,ride>(v,output,s); break;
-    case cowbell: render_block<false,false,cowbell>(v,output,s); break;
-    case claves: render_block<false,false,claves>(v,output,s); break;
-    case maracas: render_block<false,false,maracas>(v,output,s); break;
-    case low_conga: render_block<false,false,low_conga>(v,output,s); break;
-    case mid_conga: render_block<false,false,mid_conga>(v,output,s); break;
-    case high_conga: render_block<false,false,high_conga>(v,output,s); break;
-    case tambourine: render_block<false,false,tambourine>(v,output,s); break;
-    default: render_block<false>(v,output,s); break;
+    else {
+        // Separate mutable synthesis state from its cached read-only settings.
+        Voice working=v;
+        switch(working.model) {
+        case kick: render_block<false,false,kick>(working,output,s); break;
+        case snare: render_block<false,false,snare>(working,output,s); break;
+        case clap: render_block<false,false,clap>(working,output,s); break;
+        case rim: render_block<false,false,rim>(working,output,s); break;
+        case low_tom: render_block<false,false,low_tom>(working,output,s); break;
+        case mid_tom: render_block<false,false,mid_tom>(working,output,s); break;
+        case high_tom: render_block<false,false,high_tom>(working,output,s); break;
+        case closed_hat: render_block<false,false,closed_hat>(working,output,s); break;
+        case open_hat: render_block<false,false,open_hat>(working,output,s); break;
+        case cymbal: render_block<false,false,cymbal>(working,output,s); break;
+        case ride: render_block<false,false,ride>(working,output,s); break;
+        case cowbell: render_block<false,false,cowbell>(working,output,s); break;
+        case claves: render_block<false,false,claves>(working,output,s); break;
+        case maracas: render_block<false,false,maracas>(working,output,s); break;
+        case low_conga: render_block<false,false,low_conga>(working,output,s); break;
+        case mid_conga: render_block<false,false,mid_conga>(working,output,s); break;
+        case high_conga: render_block<false,false,high_conga>(working,output,s); break;
+        case tambourine: render_block<false,false,tambourine>(working,output,s); break;
+        default: render_block<false>(working,output,s); break;
+        }
+        v=working;
     }
 }
 }}

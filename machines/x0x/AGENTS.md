@@ -5,7 +5,7 @@ This machine is `machines/x0x`. Follow the repository root AGENTS.md and
 `SDK_REPOSITORY` and `SDK_REVISION` pin its SDK; use the clean checkout
 configured by `./xy setup`, without modifying or resetting other checkouts.
 
-X0X needs the drum `parameterEdit` callback, drawing ABI 5 played-pad
+X0X needs the drum `parameterEdit` callback, drawing ABI 6 played-pad
 snapshots and bounded sample-free drum presets. Preserve these requirements
 when changing the SDK dependency. Use `./xy test x0x --native` and
 `./xy preview x0x --watch` from the repository root. Its full 24-pad audition

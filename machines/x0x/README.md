@@ -16,7 +16,7 @@ new collection/SDK build or measure whole-project CPU.
 
 Use the collection root's `SDK_REPOSITORY` and `SDK_REVISION`, configured by
 `./xy setup`. X0X requires the draft drum `parameterEdit` callback for one
-Style choice per encoder detent, drawing ABI 5 played-pad snapshots for
+Style choice per encoder detent, drawing ABI 6 played-pad snapshots for
 sequencer animation, and bounded sample-free drum preset records. The pinned
 SDK includes these interfaces, native memory reductions and exact pad decoding.
 Windows release-host qualification remains pending.
@@ -53,7 +53,7 @@ the hands as the joints rebound at different rates. The 606 snaps, 707 steps,
 0.2 seconds, with hit brightness following the pad's decay. Reduced motion
 keeps static feedback. Entering a track or browsing a type/style establishes a
 still pose instead of inventing a hit. Drawing follows the latest played pad on the track, including sequencer hits,
-while the header and encoders stay on the selected pad. It uses drawing ABI 5
+while the header and encoders stay on the selected pad. It uses drawing ABI 6
 trigger snapshots; simultaneous hits between display frames can coalesce, and
 GUI control snapshots are not a history of audio-side step locks.
 Run `python artwork/drummer.py` to regenerate the vector scene, pivots and contact

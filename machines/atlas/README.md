@@ -2,7 +2,7 @@
 
 A wavetable atlas with three-dimensional scanning and a crushed auxiliary.
 
-Standalone extraction of Weave’s `waves` model from optimized revision `957afdbac6f2ef9916991366e24517f1483dc0e4`. It preserves that model’s audio path, output gain, clock and existing stock envelope behavior. The original combined Weave engine is retired; its source remains in Git history. This machine has its own saved ID `atlas`.
+Originally extracted from Weave’s `waves` model at revision `957afdbac6f2ef9916991366e24517f1483dc0e4`. It now renders directly at 44.1 kHz with linear reads of the integrated wavetable. The source wave atlas, coordinate scanning, differentiator and reconstruction low-pass remain. Removing Hermite reads and the extra sample-rate filter intentionally changes fine high-frequency detail. The saved machine ID and stock envelope behavior remain unchanged. The retired combined Weave source remains in Git history.
 
 Four controls map directly to the selected Weave model’s Harmonic, Timbre, Morph and Output. The model selector and the inapplicable Strike/Mode/Seed controls are omitted. No other synthesis model is selectable.
 

@@ -1,5 +1,6 @@
 // Original adapter and output path, bound to the frozen Q31 waveform reader.
 #pragma once
+#include "../../resample.h"
 #include "wt_before_settled.h"
 namespace atlas_dsp {
 template <unsigned Rate, int Model, unsigned Frames>

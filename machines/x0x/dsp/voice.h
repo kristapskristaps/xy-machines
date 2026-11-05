@@ -127,6 +127,13 @@ static inline i32 pcm_source(Voice& v, const Settings& s) {
     v.fraction = next & 65535;
     return signal;
 }
+// Only clocks read by this model need audio-rate updates. The remaining clocks
+// receive the same accumulated phase at the block boundary, preserving live
+// type changes and the complete voice state without five redundant stores.
+template <u32 Model> struct ClockCount {
+    static const u32 value=Model==model_count || (Model>=closed_hat && Model<=cymbal) ? 6
+        : Model==snare || Model==rim || Model==cowbell ? 2 : 1;
+};
 template <u32 Model=model_count> static inline i32 synth_source(Voice& v, const Settings& s, i32 random) {
     const u32 model=Model<model_count ? Model : v.model;
     (void)model;
@@ -205,13 +212,13 @@ template <u32 Model=model_count> static inline i32 synth_source(Voice& v, const 
         bend += scale(s.raw[character] * 350u, u32(v.pitch_envelope >> 15));
     }
     if (bend == 65536) {
-        for (u32 i = 0; i < 6; ++i)
+        for (u32 i = 0; i < ClockCount<Model>::value; ++i)
             v.phase[i] += s.increments[i] > 0x60000000u ? 0x60000000u : s.increments[i];
     } else {
         // All six increments are equal for the kick/tom/conga pitch sweep.
         const u32 advance = scale(s.increments[0], bend);
         const u32 bounded = advance > 0x60000000u ? 0x60000000u : advance;
-        for (u32 i = 0; i < 6; ++i) v.phase[i] += bounded;
+        for (u32 i = 0; i < ClockCount<Model>::value; ++i) v.phase[i] += bounded;
     }
     return limit(signal);
 }
@@ -256,6 +263,7 @@ template <bool Sampled, bool Metal=false,u32 Model=model_count> static inline vo
         v.pending = 0;
         v.amplitude = v.transient = v.pitch_envelope = 0x7fffffff;
     }
+    const u32 phase_before=v.phase[0];
     bool silent = true, ended = false;
     const u32 end = s.duration * 441u / 10;
     const u32 sample_length = !Sampled ? 0 :
@@ -304,6 +312,10 @@ template <bool Sampled, bool Metal=false,u32 Model=model_count> static inline vo
         output[i] = clean * 32768; // Declared half-scale Q31 peak.
         silent = silent && clean == 0;
         if (v.active) ++v.age;
+    }
+    if(!Sampled && !Metal && ClockCount<Model>::value<6){
+        const u32 advance=v.phase[0]-phase_before;
+        for(u32 clock=ClockCount<Model>::value;clock<6;++clock)v.phase[clock]+=advance;
     }
     if (silent && ended && v.age && !v.pending) v.active = 0;
 }

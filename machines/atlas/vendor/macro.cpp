@@ -698,9 +698,9 @@ static void wt_render_fused(struct macro_wavetable *__restrict w, const uint8_t 
             ph += f;
             pi=static_cast<int32_t>(ph>>25);
             pf=static_cast<int32_t>((ph<<7)>>1);
-            mix=wt_hermite(w->blend[w->active],pi,pf);
+            mix=w->blend[w->active][pi+1]+fmac1(w->blend[w->active][pi+2]-w->blend[w->active][pi+1],pf);
             if(w->fade) {
-                const int32_t next=wt_hermite(w->blend[w->active^1],pi,pf);
+                const int32_t next=w->blend[w->active^1][pi+1]+fmac1(w->blend[w->active^1][pi+2]-w->blend[w->active^1][pi+1],pf);
                 const int32_t alpha=static_cast<int32_t>((64-w->fade)*33554432u);
                 mix+=fmac1(next-mix,alpha);
                 if(!--w->fade)w->active^=1;

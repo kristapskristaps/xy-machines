@@ -2,7 +2,7 @@
 
 Two coupled virtual-analog oscillators with sync and detune.
 
-Standalone extraction of Weave’s `analog` model from optimized revision `957afdbac6f2ef9916991366e24517f1483dc0e4`. It preserves that model’s audio path, output gain, clock and existing stock envelope behavior. The original combined Weave engine is retired; its source remains in Git history. This machine has its own saved ID `tandem`.
+Originally extracted from Weave’s `analog` model at revision `957afdbac6f2ef9916991366e24517f1483dc0e4`. It now prepares two independently tuned periodic components in bounded 16-point tiles and reads them directly at 44.1 kHz. The original detuning, PWM, shape, sync and gain maps define the components. Their edges use frequency-aware phase taps rather than four running BLEP oscillators. This intentionally changes the edge character and attack. The saved machine ID and stock envelope behavior remain unchanged. The retired combined Weave source remains in Git history.
 
 Four controls map directly to the selected Weave model’s Harmonic, Timbre, Morph and Output. The model selector and the inapplicable Strike/Mode/Seed controls are omitted. No other synthesis model is selectable.
 
@@ -12,6 +12,8 @@ Four controls map directly to the selected Weave model’s Harmonic, Timbre, Mor
 | Timbre | Oscillator synchronization amount. |
 | Morph | Wave shape and pulse width. |
 | Output | Crossfade between the main oscillator mix and auxiliary sync output. |
+
+Wave preparation takes about 23 ms, followed by a 5.8 ms crossfade. Moving controls finish the current bounded preparation before starting the latest target; playback never returns to the old expensive renderer. Pitch changes advance the oscillator every sample. Newly initialized voices begin with a quiet simple waveform while the first requested wave is prepared. These attack and modulation differences need a listening pass before release.
 
 The original retained vector animation reacts to notes and controls, settles when idle, and respects reduced motion. It illustrates the mechanism; no firmware or stock artwork is included.
 

@@ -1,5 +1,6 @@
 // Frozen Q24 grain renderer and adapter before the Q15 signal redesign.
 #pragma once
+#include "../../resample.h"
 namespace sift_dsp {
 static void grain_reference_render(struct macro_grain *__restrict z, const uint8_t *p, uint32_t inc, int32_t *__restrict out, int32_t *__restrict aux, int n,
                          int want_out, int want_aux)

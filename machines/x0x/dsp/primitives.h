@@ -1,6 +1,7 @@
 #pragma once
 #include "tables.h"
 #include "metal_stems.h"
+#include "drive_curve.h"
 #include <opxy/q31.hpp>
 
 namespace x0x { namespace dsp {
@@ -81,8 +82,10 @@ static inline i32 envelope(i32 value, i32 coefficient) { return opxy::q31::multi
 static inline i32 drive(i32 sample, u32 amount) {
     if (!amount) return sample;
     const i32 boosted = limit(sample + product16(sample,i32(amount))/16);
-    const i32 half = boosted / 2;
-    const i32 cube = product16(product16(half,half)/16384,half)/16384;
-    return boosted - divide_signal<3>(2 * cube);
+    const u32 magnitude=boosted<0?0u-static_cast<u32>(boosted):static_cast<u32>(boosted);
+    const u32 index=magnitude>>7,fraction=magnitude&127u;
+    const i32 a=drive_curve[index],b=drive_curve[index+1];
+    const i32 shaped=a+((b-a)*static_cast<i32>(fraction)+64)/128;
+    return boosted<0?-shaped:shaped;
 }
 }}

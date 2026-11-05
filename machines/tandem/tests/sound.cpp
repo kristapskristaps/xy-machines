@@ -1,18 +1,19 @@
 #include "../engine.cpp"
 #include "cases.h"
+#include "reference/engine_before_cycles.h"
 #include "weave_reference.h"
 #include <cstdio>
 #include <cstring>
 int main(){
- using namespace tandem;
+ using namespace tandem_reference;
  for(unsigned scene=0;scene<split_cases::count;++scene){
-  Voice v={};Shared shared;initialize(v,shared,scene+1);start(v,shared,scene+1);
+  Voice v={};Shared shared;tandem_reference::initialize(v,shared,scene+1);tandem_reference::start(v,shared,scene+1);
   unsigned long long pcm=14695981039346656037ull,state=pcm;
   for(unsigned block=0;block<96;++block){
    opxy::i32 p[8]={},out[64];opxy::u32 pitch[64];split_cases::parameters(scene,block,p);
    for(unsigned i=0;i<64;++i)pitch[i]=split_cases::pitch(scene,block,i);
-   if(scene==43 && block%11==0)start(v,shared,scene+1);
-   render(v,shared,scene+1,out,p,pitch);
+   if(scene==43 && block%11==0)tandem_reference::start(v,shared,scene+1);
+   tandem_reference::render(v,shared,scene+1,out,p,pitch);
    for(auto sample:out){if(sample < -536870912 || sample > 536870912){std::puts("FAIL output peak");return 1;}pcm=split_cases::hash(pcm,static_cast<opxy::u32>(sample));}
   }
   const auto& model=v.oscillator.e.va;

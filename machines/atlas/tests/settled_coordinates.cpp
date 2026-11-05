@@ -5,6 +5,9 @@
 #include <cstring>
 
 static void require(bool value,const char* message){if(!value){std::puts(message);std::exit(1);}}
+static opxy::i32 linear(const opxy::i32* table,opxy::i32 index,opxy::i32 fraction){
+    return table[index+1]+opxy::q31::multiply(table[index+2]-table[index+1],fraction);
+}
 int main(){
     unsigned random=7719;
     for(unsigned scene=0;scene<8;++scene){
@@ -20,7 +23,7 @@ int main(){
             if(scene==7)inc=0x40000000u;
             const opxy::i32 mix=static_cast<opxy::i32>((scene%3)==0?0:(scene%3)==1?32767:16384);
             atlas_dsp::wt_render_fused(&a,p,inc,actual,32,mix);
-            atlas_dsp::wt_render_reference(&b,p,inc,bo,ba,32);
+            atlas_dsp::wt_render_reference<linear>(&b,p,inc,bo,ba,32);
             for(unsigned i=0;i<32;++i){
                 opxy::i32 x=bo[i]<-65535?-65535:bo[i]>65535?65535:bo[i];
                 opxy::i32 y=ba[i]<-65535?-65535:ba[i]>65535?65535:ba[i];

@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "sdk": "1.6",
+  "kind": "synth",
+  "description": "A slope oscillator pressed through a prepared shaper and wavefolder. Extracted from Weave.",
+  "icon": "M5 11 L14 27 L22 12 L30 28 L36 14 M5 33 L36 33",
+  "presets": "presets"
+}

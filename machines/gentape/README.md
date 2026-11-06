@@ -60,15 +60,29 @@ Audio is integer-only. The delay uses 32,800 bytes of per-send scratch, guarded
 against stale reads after initialization/reset. State fits the native effect
 slot. Disabled saturation and clean recorder stages use cheaper paths.
 
-**The CPU goal is at most 3.5% per stereo effect instance. This revision still
-needs hardware measurement.** The initial installed revision `4fe5772` measured
-4.42–4.43% average with its recorder models and a worst observed peak of 7.33%
-in one complete hardware capture. That failed the target. This revision reduces
-recorder processing and startup interpolation work; those earlier measurements
-do not qualify the changed code. Host instruction estimates are advisory, not cycles or a device
-percentage. The SDK sweep varies one control at a time from clean defaults;
-use the combined benchmark below as well. Neither establishes a hardware bound.
-Full-effect diagnostic copies keep Dry at 0, since Dry 100 now mutes the return.
+**The CPU goal is at most 3.5% average and peak per stereo effect instance.
+This optimization still needs hardware measurement.** The installed revision
+`02e6de3` measured 3.79–3.80% average with all controls enabled on the recorder
+models, and a worst observed peak of 6.68% in one complete capture. Clean with
+all controls enabled measured 3.41% average and 6.12% peak. Those results fail
+the target and do not qualify this changed code.
+
+This revision packs each saturation-curve segment with its slope, omits unused
+curve tails beyond the full-scale driven signal range, skips
+unchanged per-sample control increments, folds the advancing delay writer into
+one read-phase accumulator, keeps the hiss RNG in a local register, and caches
+unchanged make-up gain and event reciprocals. Saturating output scaling removes
+data-dependent clipping branches. The saturation curve, cubic interpolation,
+filter settings and modulation/event trajectories retain their precision and
+ranges. The only intended audio difference is one Q31 bit at negative clipping.
+
+`tools/compare_revision.py` compares complete callbacks with a committed
+reference over startup, resets, full-scale transients, low/high tones, DC,
+silence, all four models, failures and moving controls. It requires matching
+recorded delay audio, exact transport/noise sequences and at most one Q31 bit
+of output difference. Host timing remains advisory. The standard hardware
+effect benchmark covers defaults; full-effect diagnostic copies keep every
+musical control at maximum and Dry at 0 (fully wet), testing each model.
 Two send instances incur two processing costs.
 
 ## Listen and check
@@ -80,6 +94,7 @@ From the collection root, after `./xy setup` and `./xy doctor`:
 .venv/bin/python machines/gentape/tools/render_examples.py --out local/gentape-audio-001
 .venv/bin/python machines/gentape/tools/quality.py --out local/gentape-quality.json
 .venv/bin/python machines/gentape/tools/benchmark.py --out local/gentape-timing.json
+.venv/bin/python machines/gentape/tools/compare_revision.py --before 02e6de3 --out local/gentape-comparison.json
 ```
 
 Choose a fresh audio output directory. The renderer compiles and runs the real

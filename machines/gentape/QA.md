@@ -55,6 +55,6 @@ Install/flash/reboot and diagnostics require separate user authorization.
       and both slots; the standard effect benchmark covers defaults only.
 - [ ] Collect at least three fresh-boot runs for this random effect. Preserve
       private captures and publish only sanitized revision-bound reports.
-- [ ] Verify at most 3.5% for one stereo instance in the required hardware scope.
+- [ ] Verify both average and worst observed peak at most 3.5% for one stereo instance in the required hardware scope.
       If a demanding path exceeds it, optimize and repeat qualification before
       advertising the target as achieved. Do not substitute host estimates.

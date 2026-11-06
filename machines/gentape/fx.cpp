@@ -25,10 +25,9 @@ u32 random(State &s) {
     x ^= x << 5;
     return s.random = x;
 }
-i32 noise_audio(State &s) {
-    s.noise_random =
-        static_cast<u32>(opxy::q31::wide(static_cast<i32>(s.noise_random), 1664525)) + 1013904223u;
-    return static_cast<i32>(s.noise_random >> 4) - one;
+i32 noise_audio(u32 &seed) {
+    seed = static_cast<u32>(opxy::q31::wide(static_cast<i32>(seed), 1664525)) + 1013904223u;
+    return static_cast<i32>(seed >> 4) - one;
 }
 i32 random_audio(State &s) { return static_cast<i32>(random(s) >> 4) - one; }
 i32 smooth_random(State &s, i32 *memory, i32 rate) {
@@ -43,37 +42,56 @@ i32 smooth_random(State &s, i32 *memory, i32 rate) {
 // foldback; filtering a distorted output could not undo it.
 i32 shape(i32 input) {
     // The record poles are convex, and maximum drive is 3.5. The table's
-    // +/-8 domain therefore also covers every full-scale transient.
-    const u32 position = static_cast<u32>(input + 8 * one), index = position >> 20;
-    return blend(tanh_table[index], tanh_table[index + 1], static_cast<i32>((position & 1048575) << 11));
+    // +/-4 domain therefore also covers every full-scale transient.
+    const u32 position = static_cast<u32>(input + 4 * one), index = position >> 20;
+    const CurveSegment &segment = tanh_curve[index];
+    return segment.base + mul(segment.delta, static_cast<i32>((position & 1048575) << 11));
 }
-void saturation_block(i32 *input, i32 *line, State &s, u32 channel, i32 drive_step, i32 makeup_step,
-                      i32 amount_step) {
+template <bool moving>
+void saturate(i32 *input, i32 *line, State &s, u32 channel, i32 drive_step, i32 makeup_step,
+              i32 amount_step) {
     i32 record0 = s.record[channel][0], record1 = s.record[channel][1];
     i32 drive = s.drive, makeup = s.makeup, amount = s.amount;
     for (u32 i = 0; i < 64; ++i) {
-        drive += drive_step;
-        makeup += makeup_step;
-        amount += amount_step;
+        if (moving) {
+            drive += drive_step;
+            makeup += makeup_step;
+            amount += amount_step;
+        }
         const i32 clean = input[i] >> 4;
-        record0 = blend(record0, clean, 485819789); // 1.8 kHz record bandwidth
+        record0 = blend(record0, clean, 485819789);
         record1 = blend(record1, record0, 485819789);
         const i32 colored = mul(shape(mul(record1, drive) * 8), makeup);
-        line[i] = clean + mul(colored - record1, amount);
+        const i32 change = colored - record1;
+        line[i] = clean + mul(change, amount);
     }
     s.record[channel][0] = record0;
     s.record[channel][1] = record1;
 }
+void saturation_block(i32 *input, i32 *line, State &s, u32 channel, i32 drive_step, i32 makeup_step,
+                      i32 amount_step) {
+    if (drive_step || makeup_step || amount_step)
+        saturate<true>(input, line, s, channel, drive_step, makeup_step, amount_step);
+    else
+        saturate<false>(input, line, s, channel, 0, 0, 0);
+}
+
 i32 sample(const i32 *line, u32 write, u32 written, u32 age) {
     return age > written ? 0 : line[(write - age) & (line_frames - 1)];
 }
 
+i32 cubic(i32 a, i32 b, i32 c, i32 d, i32 f) {
+    const i32 c1 = (c - a) >> 1;
+    const i32 c3 = ((d - a) >> 1) + ((3 * (b - c)) >> 1);
+    const i32 c2 = c - b - c1 - c3;
+    return b + mul(f, c1 + mul(f, c2 + mul(f, c3)));
+}
 // Four-point cubic Hermite interpolation. Fractional delay has 16 fractional
 // bits; all taps stay behind the writer, including at maximum wow and snag.
 template <bool complete> i32 tap(const i32 *line, u32 write, u32 written, i32 delay) {
     const u32 age = static_cast<u32>(delay) >> 16;
     const i32 f = static_cast<i32>((static_cast<u32>(delay) & 65535) << 15);
-    if (!f)
+    if (!complete && !f)
         return sample(line, write, written, age);
     if (!complete && written < age - 1)
         return 0;
@@ -90,47 +108,71 @@ template <bool complete> i32 tap(const i32 *line, u32 write, u32 written, i32 de
         c = sample(line, write, written, age + 1);
         d = sample(line, write, written, age + 2);
     }
-    const i32 c1 = (c - a) >> 1;
-    const i32 c3 = ((d - a) >> 1) + ((3 * (b - c)) >> 1);
-    const i32 c2 = c - b - c1 - c3;
-    return b + mul(f, c1 + mul(f, c2 + mul(f, c3)));
+    return cubic(a, b, c, d, f);
 }
 template <bool complete>
-__attribute__((noinline)) void delay_block(i32 *out, const i32 *line, u32 write, u32 written, i32 delay,
-                                           i32 step) {
-    for (u32 i = 0; i < 64; ++i) {
-        delay += step;
-        out[i] = tap<complete>(line, write + i, written + i, delay);
+__attribute__((noinline)) void delay_block(i32 *out, const i32 *line, u32 write, u32 written,
+                                           i32 delay, i32 step) {
+    if (!step && !(delay & 65535)) {
+        const u32 age = static_cast<u32>(delay) >> 16;
+        for (u32 i = 0; i < 64; ++i)
+            out[i] = complete ? line[(write + i - age) & (line_frames - 1)]
+                              : sample(line, write + i, written + i, age);
+    } else if (complete) {
+        // Fold the advancing writer into the read phase. Unsigned wrapping is
+        // exact because the ring length divides the phase accumulator's range.
+        u32 phase = static_cast<u32>(delay + step) - (write - 2) * 65536u;
+        const u32 advance = static_cast<u32>(step) - 65536u;
+        for (u32 i = 0; i < 64; ++i) {
+            const i32 *p = line + ((0u - (phase >> 16)) & (line_frames - 1));
+            const i32 f = static_cast<i32>((phase & 65535u) << 15);
+            out[i] = cubic(p[3], p[2], p[1], p[0], f);
+            phase += advance;
+        }
+    } else {
+        for (u32 i = 0; i < 64; ++i) {
+            delay += step;
+            out[i] = tap<complete>(line, write + i, written + i, delay);
+        }
     }
 }
 i32 output(i32 value) {
-    const i32 limit = one - 1;
-    return value > limit ? full : value < -limit ? -full : value * 16;
+    // Saturating scale-up avoids data-dependent clipping branches. Only the
+    // negative clipped endpoint differs from the old limiter, by one Q31 LSB.
+    value = opxy::q31::add(value, value);
+    value = opxy::q31::add(value, value);
+    value = opxy::q31::add(value, value);
+    return opxy::q31::add(value, value);
 }
 // Two-pole recorder voicing: one bandwidth pole, one low-band shelf/cut.
 // The retained low-band gain is stored at half scale so every coefficient stays
 // positive and model changes interpolate safely. Gain and Dry are folded into
 // the block-rate gate target, avoiding another multiply per audio sample.
-__attribute__((noinline)) void color_block(i32 *out, State &s, u32 ch, i32 hp, i32 lp, i32 bass_gain,
-                                           i32 gate_step, i32 hiss_step) {
+template <unsigned noise_mode>
+__attribute__((noinline)) void color_block(i32 *out, State &s, u32 ch, i32 hp, i32 lp,
+                                           i32 bass_gain, i32 gate_step, i32 hiss_step) {
     i32 low = s.low[ch][0], bass = s.dc[ch], gate = s.gate[ch], hiss = s.hiss;
+    u32 seed = s.noise_random;
     for (u32 i = 0; i < 64; ++i) {
         gate += gate_step;
-        hiss += hiss_step;
+        if (noise_mode == 2)
+            hiss += hiss_step;
         low = blend(low, out[i], lp);
         bass = blend(bass, low, hp);
         const i32 colored = ((low - bass) >> 1) + mul(bass, bass_gain);
         i32 value = mul(colored, gate) * 4;
-        if (hiss)
-            value += mul(noise_audio(s), hiss * 16);
+        if (noise_mode == 1 || (noise_mode == 2 && hiss))
+            value += mul(noise_audio(seed), hiss * 16);
         out[i] = output(value);
     }
     s.low[ch][0] = low;
     s.dc[ch] = bass;
+    s.noise_random = seed;
 }
 
 void plain_block(i32 *out, State &s, u32 ch, i32 gate_step, i32 hiss_step) {
     i32 gate = s.gate[ch], hiss = s.hiss;
+    u32 seed = s.noise_random;
     const i32 last = out[63];
     if (!hiss && !hiss_step && gate == half && !gate_step) {
         for (u32 i = 0; i < 64; ++i)
@@ -141,10 +183,11 @@ void plain_block(i32 *out, State &s, u32 ch, i32 gate_step, i32 hiss_step) {
             hiss += hiss_step;
             i32 value = mul(out[i], gate) * 2;
             if (hiss)
-                value += mul(noise_audio(s), hiss * 16);
+                value += mul(noise_audio(seed), hiss * 16);
             out[i] = output(value);
         }
     }
+    s.noise_random = seed;
     s.dc[ch] = 0;
     s.low[ch][0] = s.low[ch][1] = last;
     s.bass[ch] = last;
@@ -192,10 +235,15 @@ void process(State &s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
     // Gentle make-up restores body as the record band compresses; the
     // complementary upper band keeps its original level.
     const i32 makeup =
-        static_cast<i32>(2147483647u / (16384u + ((static_cast<u32>(drive_amount) >> 16) * 3 / 4))) * 16384;
+        s.written && sat == s.amount
+            ? s.makeup
+            : static_cast<i32>(2147483647u /
+                               (16384u + ((static_cast<u32>(drive_amount) >> 16) * 3 / 4))) *
+                  16384;
     const Model &model_data = models[model];
     const i32 hp = coefficient(s.hp, model_data.hp), lp = coefficient(s.lp, model_data.lp);
-    const i32 bump = coefficient(s.bump, model_data.bump), gain = coefficient(s.gain, model_data.gain);
+    const i32 bump = coefficient(s.bump, model_data.bump),
+              gain = coefficient(s.gain, model_data.gain);
     i32 wow[2], flutter[2];
     for (u32 ch = 0; ch < 2; ++ch) {
         wow[ch] = smooth_random(s, s.wow[ch], 22000000);
@@ -206,7 +254,9 @@ void process(State &s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
     const i32 f[2] = {flutter[0], blend(flutter[0], flutter[1], spread)};
     i32 event_envelope = 0;
     if (s.event) {
-        const i32 t = (full / static_cast<i32>(s.duration)) * static_cast<i32>(s.event);
+        if (s.event == 1)
+            s.event_scale = full / static_cast<i32>(s.duration);
+        const i32 t = s.event_scale * static_cast<i32>(s.event);
         event_envelope = mul(mul(t, full - t), fail) * 4;
         if (++s.event >= s.duration)
             s.event = 0;
@@ -231,13 +281,16 @@ void process(State &s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
             target_delay[ch] = 4 * 65536;
         if (target_delay[ch] > 1500 * 65536)
             target_delay[ch] = 1500 * 65536;
-        const i32 loss = s.kind & 1 ? event_envelope / 5 : event_envelope - event_envelope / 16;
+        const i32 loss = s.kind & 1
+                             ? static_cast<i32>(opxy::q31::wide(event_envelope, 1717986919) >> 33)
+                             : event_envelope - event_envelope / 16;
         const i32 channel_loss = ch && spread ? mul(loss, full - spread / 2) : loss;
         // Flutter carries a little amplitude movement as well as pitch.
         target_gate[ch] =
             full - channel_loss - mul(mul(f[ch] < 0 ? -f[ch] : f[ch], flutter_amount), 250000000);
-        target_gate[ch] =
-            target_gate[ch] == full && wet == full ? gain * 8 : mul(mul(target_gate[ch], wet), gain * 8);
+        target_gate[ch] = target_gate[ch] == full && wet == full
+                              ? gain * 8
+                              : mul(mul(target_gate[ch], wet), gain * 8);
         step_delay[ch] = (target_delay[ch] - s.delay[ch]) / 64;
         step_gate[ch] = (target_gate[ch] - s.gate[ch]) / 64;
     }
@@ -269,8 +322,12 @@ void process(State &s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
             delay_block<false>(out, line, s.write, s.written, s.delay[ch], step_delay[ch]);
         if (!hp && lp == full && bump == half && gain == one)
             plain_block(out, s, ch, step_gate[ch], hiss_step);
+        else if (hiss_step)
+            color_block<2>(out, s, ch, hp, lp, bump, step_gate[ch], hiss_step);
+        else if (s.hiss)
+            color_block<1>(out, s, ch, hp, lp, bump, step_gate[ch], 0);
         else
-            color_block(out, s, ch, hp, lp, bump, step_gate[ch], hiss_step);
+            color_block<0>(out, s, ch, hp, lp, bump, step_gate[ch], 0);
     }
     s.write = (s.write + 64) & (line_frames - 1);
     s.written = s.written + 64 < line_frames ? s.written + 64 : line_frames;

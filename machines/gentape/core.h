@@ -11,6 +11,7 @@ struct State {
     opxy::i32 delay[2], gate[2], drive, makeup, amount, hiss;
     opxy::i32 hp, lp, bump, gain;
     opxy::i32 dc[2], low[2][2], bass[2], record[2][2];
+    opxy::i32 event_scale;
 };
 void initialize(State &state);
 void process(State &state, opxy::Buffer buffer, opxy::Channel left, opxy::Channel right,

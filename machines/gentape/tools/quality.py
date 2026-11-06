@@ -18,7 +18,7 @@ def main():
         temp=Path(temp);source=temp/'quality.cpp';binary=temp/'quality'
         source.write_text('#include "'+str(MACHINE/'fx.cpp')+'"\n#include <cstdio>\nint main(){int a;while(std::scanf("%d",&a)==1)std::printf("%d\\n",gentape::shape(a));}\n')
         subprocess.run([config['cxx'],'-std=c++11','-O2','-I'+str(sdk/'sdk/include'),str(source),'-o',str(binary)],check=True)
-        rng=np.random.default_rng(2701);values=rng.uniform(-7.99,7.99,12000);integers=np.rint(values*(1<<27)).astype(np.int64)
+        rng=np.random.default_rng(2701);values=rng.uniform(-3.99,3.99,12000);integers=np.rint(values*(1<<27)).astype(np.int64)
         actual=np.array(subprocess.check_output([str(binary)],input=''.join(f'{x}\n' for x in integers),text=True).split(),dtype=float)/(1<<27)
         expected=np.tanh(integers/(1<<27));error=actual-expected
         report={'table_samples':len(actual),'max_curve_error':float(np.max(np.abs(error))),'rms_curve_error':float(np.sqrt(np.mean(error**2))),'hardware_cpu_measured':False}

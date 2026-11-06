@@ -83,10 +83,15 @@ top end. It uses 335,872 bytes of per-send scratch, no audio-thread allocation,
 and less than the SDK's 472-byte state limit. Each line tracks valid history,
 so changing effects or resetting never exposes old scratch contents.
 Audio uses Q28 internally with guard bits for mixing, while coefficient products
-use the SDK's Q31 operations. Shared stereo tap checks and coefficients prepared
-once per block reduce audio-loop work. Gain and filter coefficients ramp within
-each block to keep automation smooth. The six-grain capacity and four reverb
-lines are preserved; the CPU saving does not shorten the tail or lower the sample rate.
+use the SDK's Q31 operations. Rendering runs in short passes: input filtering,
+grains, tone/feedback capture, diffusion, reverb damping/mixing and output.
+Stereo samples and the four reverb lines are interleaved in scratch memory.
+Grain state stays local during a span; integer-speed grains skip interpolation.
+Near the live history writer, spans shorten to one frame to preserve feedback
+and wrap behavior. Gain and filter coefficients still ramp sample by sample.
+The six-grain capacity, four-line reverb, rate, mix and tail length are unchanged.
+The streaming tests compare exact audio signatures against accepted revision
+`6de273f`, including maximum controls, automation, startup and ring wraps.
 
 The return has fourfold gain relative to the initial prototype, restored tank
 level, and a soft knee above half-scale. This output gain is outside the feedback
@@ -106,9 +111,12 @@ return was reported too muted, and its stock readout uses 00–99 rather than th
 previous guide's units. That revision did not pass sound QA. Its rendered demos
 also mixed the return with an extra 2.3× wet gain; current demos use unity wet.
 
-The current gain, Space and source-mix corrections still need device listening
-and new CPU measurements. Host estimates are advisory and cannot establish the
-native cost or acceptance of a new revision.
+Revision `6de273f` corrected return level and source mixing; initial device
+listening was reported much better. It measured **10.074% average** and
+**13.535% worst observed block** at defaults, still above the recommendation.
+The current block-rendering optimization preserves that revision's audio and
+still needs its own device CPU measurement. Full QA remains pending. Host
+estimates cannot establish native cost or acceptance of a new revision.
 
 Build a profiling image from committed source. This SDK revision's effect-only
 collection fails an SDK startup compilation check; including the core FM synth

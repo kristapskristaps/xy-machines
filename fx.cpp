@@ -15,7 +15,6 @@ const u32 kDiffLengths[4] = {113, 173, 241, 337};
 // Audio uses Q28, leaving three guard bits for sums and differences. Only
 // scratch writes and the Q31 return need limiting; coefficients remain Q31.
 i32 add(i32 a, i32 b) { return a + b; }
-i32 difference(i32 a, i32 b) { return a - b; }
 i32 bounded(i32 value) {
     return value > kSignalLimit ? kSignalLimit : value < -kSignalLimit ? -kSignalLimit : value;
 }
@@ -51,19 +50,6 @@ u32 random(State& s) {
 }
 u32 control(i32 value) { return value < 0 ? 0 : static_cast<u32>(value) >> 16; }
 
-// Send scratch is never cleared by stock. Read only this instance's history.
-void read(const i32* memory, const State& s, u32 position, i32& left, i32& right) {
-    const u32 index = (position >> 16) & (kHistory - 1);
-    const u32 next = (index + 1) & (kHistory - 1);
-    const u32 age = (s.write - index) & (kHistory - 1);
-    const u32 next_age = (s.write - next) & (kHistory - 1);
-    const bool valid = age && age <= s.written;
-    const bool next_valid = next_age && next_age <= s.written;
-    left = interpolate(valid ? memory[index] : 0, next_valid ? memory[next] : 0, position & 65535);
-    right = interpolate(valid ? memory[kHistory + index] : 0, next_valid ? memory[kHistory + next] : 0,
-                        position & 65535);
-}
-
 void launch(State& s) {
     unsigned searched = 0;
     while (s.grains[s.next].remaining && searched < 6) {
@@ -75,8 +61,7 @@ void launch(State& s) {
     s.next = (s.next + 1) % 6;
     // 60..360 ms at 22.05 kHz. Decisions latch under a zero-ended envelope.
     const u32 length = 1323 + control(s.controls[0]) * 6615 / 32767;
-    const u32 delay = length + 441 + random(s) % (length + 1);
-    g.position = ((s.write + kHistory - delay) & (kHistory - 1)) << 16;
+    u32 delay = length + 441 + random(s) % (length + 1);
     g.remaining = length;
     g.phase = 0;
     g.increment = 0xffffffffu / length;
@@ -88,15 +73,9 @@ void launch(State& s) {
     const i32 detune = (static_cast<i32>(random(s) >> 17) - 16384) * drift / 262144;
     g.speed = (octave ? 131072 : 65536) + detune;
     if (reverse) g.speed = -g.speed;
+    g.position = ((s.write + kHistory - delay) & (kHistory - 1)) << 16;
     g.pan = 4096 + static_cast<i32>(random(s) % 24576);
     s.countdown = length * 32767 / (65534 + control(s.controls[1]) * 4);
-}
-
-i32 diffuse(i32 value, i32* line, u32 write, u32 written, u32 length) {
-    const i32 delayed = written < length ? 0 : line[(write - length) & (kDiffuser - 1)];
-    const i32 out = difference(delayed, half(value));
-    line[write & (kDiffuser - 1)] = bounded(add(value, half(out)));
-    return out;
 }
 
 struct Coefficients {
@@ -130,71 +109,182 @@ Coefficients coefficients(const State& s) {
     return c;
 }
 
-void tick(State& s, i32* memory, i32 a, i32 b, const Coefficients& c) {
-    if (!s.countdown) launch(s);
-    --s.countdown;
-    i32 wet[2] = {0, 0};
+// Render old history in blocks. A read near the live writer uses a one-frame
+// segment instead, preserving the original feedback and wrap behavior.
+template<bool Ready>
+inline void history_pair(const i32* memory, u32 index, u32 write, u32 written, i32& l, i32& r) {
+    const u32 age = (write-index) & (kHistory-1);
+    if (!age || age > written) { l = r = 0; return; }
+    l = memory[2*index];
+    r = memory[2*index+1];
+}
+
+template<>
+inline void history_pair<true>(const i32* memory, u32 index, u32, u32, i32& l, i32& r) {
+    l = memory[2*index];
+    r = memory[2*index+1];
+}
+
+template<bool Ready, bool Fractional>
+__attribute__((noinline)) void grain_span(Grain& g, const i32* __restrict memory,
+                                         u32 write, u32 written, u32 frames,
+                                         i32* __restrict left, i32* __restrict right) {
+    const u32 count = g.remaining < frames ? g.remaining : frames;
+    u32 position = g.position, phase = g.phase;
+    const u32 speed = static_cast<u32>(g.speed), increment = g.increment;
+    const opxy::u16 pan_l = static_cast<opxy::u16>(65536 - g.pan);
+    const opxy::u16 pan_r = static_cast<opxy::u16>(32768 + g.pan);
+    for (u32 i = 0; i < count; ++i) {
+        const u32 index = position >> 16;
+        i32 l, r;
+        history_pair<Ready>(memory,index,write,written,l,r);
+        if (Fractional) {
+            const u32 next = (index + 1) & (kHistory - 1);
+            i32 next_l, next_r;
+            history_pair<Ready>(memory,next,write,written,next_l,next_r);
+            l = interpolate(l,next_l,position & 65535);
+            r = interpolate(r,next_r,position & 65535);
+        }
+        const opxy::u16 part = static_cast<opxy::u16>(phase >> 17);
+        const opxy::u16 complement = static_cast<opxy::u16>(32768 - part);
+        const opxy::u16 arch = static_cast<opxy::u16>((static_cast<u32>(part) * complement) >> 13);
+        const u32 squared = static_cast<u32>(arch) * arch >> 15;
+        const opxy::u16 window = static_cast<opxy::u16>(squared < 32768 ? squared : 32767);
+        const i32 gain_l = static_cast<i32>(static_cast<u32>(window) * pan_l >> 2);
+        const i32 gain_r = static_cast<i32>(static_cast<u32>(window) * pan_r >> 2);
+        left[i] += multiply(l, gain_l);
+        right[i] += multiply(r, gain_r);
+        position = (position + speed) & 0x7fffffffu;
+        phase += increment;
+    }
+    g.position = position;
+    g.phase = phase;
+    g.remaining -= count;
+}
+
+bool history_safe(const State& s, u32 frames) {
+    for (unsigned j = 0; j < 6; ++j) {
+        const Grain& g = s.grains[j];
+        if (!g.remaining) continue;
+        const u32 count = g.remaining < frames ? g.remaining : frames;
+        const u32 end = (g.position + static_cast<u32>(g.speed) * (count-1)) & 0x7fffffffu;
+        const u32 first_age = (s.write-(g.position>>16)) & (kHistory-1);
+        const u32 last_age = (s.write-(end>>16)) & (kHistory-1);
+        if (first_age < 64 || last_age < 64 || first_age > kHistory-64 || last_age > kHistory-64)
+            return false;
+        if ((g.speed < 0 && last_age < first_age) || (g.speed > 0 && last_age > first_age))
+            return false;
+    }
+    return true;
+}
+
+__attribute__((noinline)) void cloud_span(State& s, const i32* memory, i32 wet[2][32],
+                                         u32 offset, u32 count, bool safe) {
     for (unsigned j = 0; j < 6; ++j) {
         Grain& g = s.grains[j];
         if (!g.remaining) continue;
-        const u32 p = g.phase >> 17;
-        const i32 arch = static_cast<i32>((p * (32768 - p)) >> 13);
-        const u32 squared = static_cast<u32>(arch * arch) >> 15;
-        const opxy::u16 window = static_cast<opxy::u16>(squared < 32768 ? squared : 32767);
-        // Window and pan fit unsigned halfwords. Their unshifted product is
-        // already four times the Q31 gain: no wide audio product is needed.
-        const opxy::u16 l_pan = static_cast<opxy::u16>(65536 - g.pan);
-        const opxy::u16 r_pan = static_cast<opxy::u16>(32768 + g.pan);
-        const i32 l_gain = static_cast<i32>(static_cast<u32>(window) * l_pan >> 2);
-        const i32 r_gain = static_cast<i32>(static_cast<u32>(window) * r_pan >> 2);
-        i32 l, r;
-        read(memory, s, g.position, l, r);
-        wet[0] = add(wet[0], multiply(l, l_gain));
-        wet[1] = add(wet[1], multiply(r, r_gain));
-        g.position = (g.position + static_cast<u32>(g.speed)) & 0x7fffffffu;
-        g.phase += g.increment;
-        --g.remaining;
+        const bool fractional = (g.position & 65535) || (static_cast<u32>(g.speed) & 65535);
+        if (s.written == kHistory && safe) {
+            if (fractional) grain_span<true,true>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
+            else grain_span<true,false>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
+        } else {
+            if (fractional) grain_span<false,true>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
+            else grain_span<false,false>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
+        }
     }
-    for (unsigned ch = 0; ch < 2; ++ch) {
-        s.tone_memory[ch] = add(s.tone_memory[ch], multiply(difference(wet[ch], s.tone_memory[ch]), c.tone));
-        wet[ch] = s.tone_memory[ch];
-        s.dc[ch] = add(s.dc[ch], multiply(difference(wet[ch], s.dc[ch]), 4000000));
-        s.feedback[ch] = multiply(difference(wet[ch], s.dc[ch]), c.recycle);
-    }
-    memory[s.write] = bounded(add(half(a), s.feedback[1]));
-    memory[kHistory + s.write] = bounded(add(half(b), s.feedback[0]));
-    s.write = (s.write + 1) & (kHistory - 1);
-    if (s.written < kHistory) ++s.written;
+}
 
-    i32* const tank = memory + 2 * kHistory;
-    i32* const diff = tank + 4 * kReverb;
-    const i32 l = diffuse(diffuse(wet[0], diff, s.reverb_write, s.reverb_written, kDiffLengths[0]),
-                          diff + kDiffuser, s.reverb_write, s.reverb_written, kDiffLengths[1]);
-    const i32 r = diffuse(diffuse(wet[1], diff + 2 * kDiffuser, s.reverb_write, s.reverb_written, kDiffLengths[2]),
-                          diff + 3 * kDiffuser, s.reverb_write, s.reverb_written, kDiffLengths[3]);
-    i32 taps[4];
-    i32 average = 0;
-    for (unsigned j = 0; j < 4; ++j) {
-        const i32 tap = s.reverb_written < kLengths[j] ? 0 :
-            tank[j * kReverb + ((s.reverb_write - kLengths[j]) & (kReverb - 1))];
-        s.damping[j] = add(s.damping[j], multiply(difference(tap, s.damping[j]), c.damping));
-        taps[j] = s.damping[j];
-        average = add(average, half(half(taps[j])));
+__attribute__((noinline)) void input_block(State& s, unsigned ch, const i32* input, i32* output) {
+    i32 anti = s.antialias[ch], low = s.input[ch];
+    for (unsigned i = 0; i < 32; ++i) {
+        anti += multiply(input[2*i] / 8 - anti, 750000000);
+        low += multiply(anti-low, 750000000);
+        output[i] = low;
+        anti += multiply(input[2*i+1] / 8 - anti, 750000000);
+        low += multiply(anti-low, 750000000);
     }
-    // Orthogonal Householder feedback, with loss on every traversal.
-    const i32 sum_half = add(average, average);
-    for (unsigned j = 0; j < 4; ++j) {
-        tank[j * kReverb + (s.reverb_write & (kReverb - 1))] =
-            bounded(add(half(j & 1 ? r : l), multiply(difference(taps[j], sum_half), c.gain)));
+    s.antialias[ch] = anti;
+    s.input[ch] = low;
+}
+
+__attribute__((noinline)) void capture(State& s, unsigned ch, i32* memory, u32 write,
+                                      const i32* input, i32* wet,
+                                      const Coefficients& start, const Coefficients& step, u32 frames) {
+    i32 low = s.tone_memory[ch], dc = s.dc[ch], feedback = 0;
+    i32 tone = start.tone, recycle = start.recycle;
+    for (unsigned i = 0; i < frames; ++i) {
+        tone += step.tone;
+        recycle += step.recycle;
+        low += multiply(wet[i]-low, tone);
+        wet[i] = low;
+        dc += multiply(low-dc, 4000000);
+        feedback = multiply(low-dc, recycle);
+        memory[2 * ((write+i) & (kHistory-1)) + 1-ch] = bounded(half(input[i]) + feedback);
     }
-    // The tank's injection and stereo projection reduce its level. Restore
-    // that level before the Space crossfade; maximum Space is all reverb.
-    const i32 room_l = difference(half(taps[0]), half(taps[2])) * 3;
-    const i32 room_r = difference(half(taps[1]), half(taps[3])) * 3;
-    s.output[0] = add(multiply(wet[0], c.direct), multiply(room_l, c.space));
-    s.output[1] = add(multiply(wet[1], c.direct), multiply(room_r, c.space));
-    ++s.reverb_write;
-    if (s.reverb_written < kReverb) ++s.reverb_written;
+    s.tone_memory[ch] = low;
+    s.dc[ch] = dc;
+}
+
+template<unsigned Line, unsigned Length, bool Ready>
+__attribute__((noinline)) void diffuser(i32* memory, u32 write, u32 written, i32* audio) {
+    for (unsigned i = 0; i < 32; ++i) {
+        const u32 cursor = write+i;
+        const i32 delayed = Ready || written+i >= Length
+            ? memory[4 * ((cursor-Length) & (kDiffuser-1)) + Line] : 0;
+        const i32 value = audio[i];
+        const i32 out = delayed-half(value);
+        memory[4 * (cursor & (kDiffuser-1)) + Line] = bounded(value+half(out));
+        audio[i] = out;
+    }
+}
+
+template<unsigned Line, unsigned Length, bool Ready>
+__attribute__((noinline)) void damping(State& s, const i32* memory, u32 write, u32 written,
+                                      i32 coefficient, i32 step, i32* output) {
+    i32 low = s.damping[Line];
+    for (unsigned i = 0; i < 32; ++i) {
+        coefficient += step;
+        const i32 value = Ready || written+i >= Length
+            ? memory[4 * ((write+i-Length) & (kReverb-1)) + Line] : 0;
+        low += multiply(value-low, coefficient);
+        output[i] = low;
+    }
+    s.damping[Line] = low;
+}
+
+__attribute__((noinline)) void tank(i32* memory, u32 write, i32 wet[2][32], i32 diffused[2][32],
+                                   i32 damped[4][32], i32 output[2][32],
+                                   const Coefficients& start, const Coefficients& step) {
+    i32 gain = start.gain, space = start.space, direct = start.direct;
+    for (unsigned i = 0; i < 32; ++i) {
+        gain += step.gain;
+        space += step.space;
+        direct += step.direct;
+        const i32 a = damped[0][i], b = damped[1][i], c = damped[2][i], d = damped[3][i];
+        const i32 average = half(half(a))+half(half(b))+half(half(c))+half(half(d));
+        const i32 sum = average+average;
+        const i32 l = half(diffused[0][i]), r = half(diffused[1][i]);
+        i32* frame = memory + 4 * ((write+i) & (kReverb-1));
+        frame[0] = bounded(l+multiply(a-sum,gain));
+        frame[1] = bounded(r+multiply(b-sum,gain));
+        frame[2] = bounded(l+multiply(c-sum,gain));
+        frame[3] = bounded(r+multiply(d-sum,gain));
+        const i32 room_l = (half(a)-half(c))*3;
+        const i32 room_r = (half(b)-half(d))*3;
+        output[0][i] = multiply(wet[0][i],direct)+multiply(room_l,space);
+        output[1][i] = multiply(wet[1][i],direct)+multiply(room_r,space);
+    }
+}
+
+__attribute__((noinline)) void output_block(State& s, unsigned ch, const i32* input, i32* output) {
+    i32 previous = s.output[ch];
+    for (unsigned i = 0; i < 32; ++i) {
+        const i32 next = input[i];
+        output[2*i] = restore(half(previous)+half(next));
+        output[2*i+1] = restore(next);
+        previous = next;
+    }
+    s.output[ch] = previous;
 }
 }
 
@@ -215,33 +305,65 @@ void process(State& s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
         const i32 target = parameters[j] < 0 ? 0 : parameters[j];
         if (!started) s.controls[j] = target;
         else {
-            const i32 delta = target - s.controls[j];
-            const i32 step = delta / 8;
-            s.controls[j] += step ? step : (delta > 0) - (delta < 0);
+            const i32 delta = target-s.controls[j], step = delta/8;
+            s.controls[j] += step ? step : (delta>0)-(delta<0);
         }
     }
     s.started = 1;
     const Coefficients end = coefficients(s);
-    Coefficients c = started ? previous : end;
-    const Coefficients step = c.step_to(end);
-    for (unsigned i = 0; i < opxy::block_frames; ++i) {
-        const i32 input[2] = {left[i] / 8, right[i] / 8};
-        for (unsigned ch = 0; ch < 2; ++ch) {
-            s.antialias[ch] = add(s.antialias[ch], multiply(difference(input[ch], s.antialias[ch]), 750000000));
-            s.input[ch] = add(s.input[ch], multiply(difference(s.antialias[ch], s.input[ch]), 750000000));
-        }
-        if (!s.half) {
-            c.advance(step);
-            s.previous[0] = s.output[0];
-            s.previous[1] = s.output[1];
-            tick(s, buffer.words, s.input[0], s.input[1], c);
-            left[i] = restore(add(half(s.previous[0]), half(s.output[0])));
-            right[i] = restore(add(half(s.previous[1]), half(s.output[1])));
-        } else {
-            left[i] = restore(s.output[0]);
-            right[i] = restore(s.output[1]);
-        }
-        s.half ^= 1;
+    const Coefficients start = started ? previous : end;
+    const Coefficients step = start.step_to(end);
+    i32 input[2][32], wet[2][32] = {}, diffused[2][32], damped[4][32];
+    input_block(s,0,left,input[0]);
+    input_block(s,1,right,input[1]);
+    u32 offset = 0;
+    Coefficients tone = start;
+    while (offset < 32) {
+        if (!s.countdown) launch(s);
+        u32 count = s.countdown < 32-offset ? s.countdown : 32-offset;
+        const bool safe = history_safe(s,count);
+        if (!safe) count = 1;
+        cloud_span(s,buffer.words,wet,offset,count,safe);
+        capture(s,0,buffer.words,s.write,input[1]+offset,wet[0]+offset,tone,step,count);
+        capture(s,1,buffer.words,s.write,input[0]+offset,wet[1]+offset,tone,step,count);
+        s.countdown -= count;
+        s.write = (s.write+count) & (kHistory-1);
+        s.written = s.written+count < kHistory ? s.written+count : kHistory;
+        tone.tone += step.tone*static_cast<i32>(count);
+        tone.recycle += step.recycle*static_cast<i32>(count);
+        offset += count;
     }
+    for (unsigned ch = 0; ch < 2; ++ch)
+        for (unsigned i = 0; i < 32; ++i) diffused[ch][i] = wet[ch][i];
+    i32* const reverb = buffer.words + 2*kHistory;
+    i32* const diff = reverb + 4*kReverb;
+    const u32 rw = s.reverb_write, written = s.reverb_written;
+    if (written >= kDiffLengths[3]) {
+        diffuser<0,113,true>(diff,rw,written,diffused[0]);
+        diffuser<1,173,true>(diff,rw,written,diffused[0]);
+        diffuser<2,241,true>(diff,rw,written,diffused[1]);
+        diffuser<3,337,true>(diff,rw,written,diffused[1]);
+    } else {
+        diffuser<0,113,false>(diff,rw,written,diffused[0]);
+        diffuser<1,173,false>(diff,rw,written,diffused[0]);
+        diffuser<2,241,false>(diff,rw,written,diffused[1]);
+        diffuser<3,337,false>(diff,rw,written,diffused[1]);
+    }
+    if (written >= kLengths[3]) {
+        damping<0,1499,true>(s,reverb,rw,written,start.damping,step.damping,damped[0]);
+        damping<1,1877,true>(s,reverb,rw,written,start.damping,step.damping,damped[1]);
+        damping<2,2381,true>(s,reverb,rw,written,start.damping,step.damping,damped[2]);
+        damping<3,3011,true>(s,reverb,rw,written,start.damping,step.damping,damped[3]);
+    } else {
+        damping<0,1499,false>(s,reverb,rw,written,start.damping,step.damping,damped[0]);
+        damping<1,1877,false>(s,reverb,rw,written,start.damping,step.damping,damped[1]);
+        damping<2,2381,false>(s,reverb,rw,written,start.damping,step.damping,damped[2]);
+        damping<3,3011,false>(s,reverb,rw,written,start.damping,step.damping,damped[3]);
+    }
+    tank(reverb,rw,wet,diffused,damped,input,start,step);
+    s.reverb_write += 32;
+    s.reverb_written = written+32 < kReverb ? written+32 : kReverb;
+    output_block(s,0,input[0],left);
+    output_block(s,1,input[1],right);
 }
 }

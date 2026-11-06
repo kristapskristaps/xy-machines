@@ -88,6 +88,16 @@ Unmute it everywhere.
 - [ ] Rapid Size/Reverse/Shimmer automation does not chop off active grains or cause ticks.
 - [ ] Run on both sends together, with several stock voices and normal project playback; no crackles.
 
+## Block-rendering regression
+
+- [ ] Compare Glass garden and Cathedral with the accepted revision's recordings
+      at the same input and send settings: mix, intensity, grain timing and tail are unchanged.
+- [ ] Size, Reverse, Shimmer and Drift high, including every control at 99:
+      no boundary ticks, missing fragments or changed feedback when history wraps.
+- [ ] Abrupt parameter locks, both sends, and changing away and back remain smooth.
+- [ ] Collect a fresh default CPU readout for this exact revision; check both
+      mean and worst observed block against the 3.5% recommendation.
+
 ## Saving and loading
 
 - [ ] Save **qa**, power off and on, load it: the machine is there with every value as you left it, on

@@ -100,8 +100,8 @@ def main():
         write_json(folder / 'machine.json', metadata)
         collection.append({'path': str(folder)})
         probes.append(dict(id=ident, model=suffix, parameters=settings, purpose='Full-control CPU callback workload'))
-    collection += [{'path': str(out / 'extensions' / ident)} for ident in extensions]
-    write_json(out / 'collection.json', dict(schema=1, machines=collection))
+    extension_entries = [{'path': str(out / 'extensions' / ident)} for ident in extensions]
+    write_json(out / 'collection.json', dict(schema=1, machines=collection, extensions=extension_entries))
     (out / 'base-layout.json').write_bytes((package / 'layout.json').read_bytes())
     write_json(out / 'preparation.json', dict(base_package=str(package), base_firmware_sha256=digest(package / 'candidate/os.ldr'),
         sdk=str(sdk), sdk_commit=subprocess.check_output(['git', '-C', str(sdk), 'rev-parse', 'HEAD'], text=True).strip(),

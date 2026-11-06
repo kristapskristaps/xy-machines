@@ -61,25 +61,34 @@ against stale reads after initialization/reset. State fits the native effect
 slot. Disabled saturation and clean recorder stages use cheaper paths.
 
 **The CPU goal is at most 3.5% average and peak per stereo effect instance.
-This table-alignment revision still needs hardware measurement.** The preceding
-ring-storage revision `c99e837` measured 2.66–3.04% average with all controls
-enabled, with observed peaks of 4.51–5.58%. The CPU goal remains unmet. A compact
-quadratic-curve experiment increased hardware CPU, so this revision retains
-the preceding DSP and linear lookup.
+This composed-lookup revision still needs hardware measurement.** The preceding
+table-alignment revision `5c186b5`, tested before the custom synth sweeps,
+measured 2.65–3.04% average with all controls enabled, with observed peaks of
+4.78–5.68%. The goal remains unmet. Test order and delay-ring layout studies
+did not bring peaks under budget.
 
 The maximum delay remains 1500 frames. Two 2048-frame rings cover that delay,
-the four cubic taps and the 64-frame writer lead; the old 4096-frame rings
-retained unused history. Scratch falls from 32,800 to 16,416 bytes. The
-cross-revision callback comparison requires bit-exact audio and transport,
-checking retained history by age across the different physical ring sizes.
-The hiss recurrence now uses an unsigned 32-bit multiply instead of a wide
-product, preserving its exact modulo-32-bit sequence while freeing a register.
-Delay, cubic precision, recorder voicing, saturation, hiss, event depths and
-all control ranges are unchanged. This storage change is intended to reduce
-the working set; hardware results decide whether it improves timing.
-The saturation lookup now aligns its eight-byte base/delta pairs to eight bytes
-and its table to 32 bytes. Table values and callback arithmetic are unchanged;
-the callback comparison requires bit-exact audio and transport.
+the four cubic taps and the 64-frame writer lead, using 16,416 scratch bytes.
+The hiss recurrence uses an unsigned 32-bit multiply, preserving its exact
+modulo-32-bit sequence. Saturation lookup pairs have eight-byte alignment and
+tables have 32-byte alignment.
+
+At settled maximum Saturate, a second linear lookup composes drive, make-up,
+amount and the complementary record band. This halves the saturation stage's
+per-sample multiplies from six to three. It adds 8,200 bytes of shared read-only
+table data, without increasing per-send scratch. The original general lookup
+and sample ramps remain in use at other settings and while controls move.
+The fast path also accepts the control smoother's settled maximum a few integer
+LSBs below full scale. It changes no control ranges, filters, modulation,
+failures, hiss or transport timing.
+
+The composed curve's measured maximum error against its analytic target is
+1.81e-6 in normalized record-band units. Full callback comparisons against
+`5c186b5` cover 720,896 stereo blocks: the maximum measured difference is 4,960
+Q31 units (about -113 dBFS), with relative RMS below -116 dB in every case.
+Non-maximum and moving-control fixtures remain bit-exact. Saturation spectrum
+fixtures must stay within 0.5 dB of the preceding measurements. These are host
+quality checks, not hardware acceptance or a bound on every possible signal.
 
 Host timing remains advisory. The standard effect benchmark covers defaults;
 full-effect diagnostic copies enable every musical control at maximum and
@@ -96,7 +105,7 @@ From the collection root, after `./xy setup` and `./xy doctor`:
 .venv/bin/python machines/gentape/tools/render_examples.py --out local/gentape-audio-001
 .venv/bin/python machines/gentape/tools/quality.py --out local/gentape-quality.json
 .venv/bin/python machines/gentape/tools/benchmark.py --out local/gentape-timing.json
-.venv/bin/python machines/gentape/tools/compare_revision.py --before 933ddfd --out local/gentape-comparison.json
+.venv/bin/python machines/gentape/tools/compare_revision.py --before 5c186b5 --out local/gentape-comparison.json
 ```
 
 Choose a fresh audio output directory. The renderer compiles and runs the real
@@ -108,7 +117,7 @@ peak normalization; the DSP input level is unchanged. `examples.json` records se
 These are full-wet host examples; they do not emulate the stock source mixer.
 
 `quality.py` measures lookup error and out-of-harmonic spectral energy at three
-coherent high-drive tones. Its -75 dBc guard applies to those fixtures, with
+coherent high-drive tones. Its comparison guard applies to those fixtures, with
 modulation/noise/failures off, not all possible signals or settings. No host
 check attests native timing, project stability or hardware sound.
 

@@ -47,6 +47,22 @@ i32 shape(i32 input) {
     const CurveSegment &segment = tanh_curve[index];
     return segment.base + mul(segment.delta, static_cast<i32>((position & 1048575) << 11));
 }
+i32 maximum_change(i32 input) {
+    const u32 position = static_cast<u32>(input + one);
+    const CurveSegment &segment = full_curve[position >> 18];
+    return segment.base + mul(segment.delta, static_cast<i32>((position & 262143u) << 13));
+}
+void saturate_maximum(i32 *input, i32 *line, State &s, u32 channel) {
+    i32 record0 = s.record[channel][0], record1 = s.record[channel][1];
+    for (u32 i = 0; i < 64; ++i) {
+        const i32 clean = input[i] >> 4;
+        record0 = blend(record0, clean, 485819789);
+        record1 = blend(record1, record0, 485819789);
+        line[i] = clean + maximum_change(record1);
+    }
+    s.record[channel][0] = record0;
+    s.record[channel][1] = record1;
+}
 template <bool moving>
 void saturate(i32 *input, i32 *line, State &s, u32 channel, i32 drive_step, i32 makeup_step,
               i32 amount_step) {
@@ -72,6 +88,9 @@ void saturation_block(i32 *input, i32 *line, State &s, u32 channel, i32 drive_st
                       i32 amount_step) {
     if (drive_step || makeup_step || amount_step)
         saturate<true>(input, line, s, channel, drive_step, makeup_step, amount_step);
+    else if (s.amount >= full - 15 && s.amount == s.controls[2] && s.drive >= full_drive - 8 &&
+             s.makeup == full_makeup)
+        saturate_maximum(input, line, s, channel);
     else
         saturate<false>(input, line, s, channel, 0, 0, 0);
 }

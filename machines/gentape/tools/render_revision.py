@@ -33,7 +33,8 @@ def main():
         for name,kind,values in [
             ('01-musical-keys','keys',[.55,.35,.65,.25,.375,.5,.02,0]),
             ('02-damaged-recorder','mix',[.9,.75,.85,.85,.875,.7,.08,0]),
-            ('03-warbling-pad','pad',[.8,.6,.6,.5,.625,.65,.03,0])]:
+            ('03-warbling-pad','pad',[.8,.6,.6,.5,.625,.65,.03,0]),
+            ('04-full-controls','mix',[1,1,1,1,.375,1,1,0])]:
             dry=material(kind);before=process(dry,values,'before');after=process(dry,values,'after')
             save(name+'-old-then-new.wav',np.concatenate([before,np.zeros((RATE//2,2)),after]))
             save(name+'-new.wav',after)
@@ -46,7 +47,7 @@ def main():
             complete=dry*value+wet
             save(f'dry-{round(value*100):03}.wav',complete);segments += [complete,np.zeros((RATE//4,2))]
             report['dry_sweep'].append(dict(dry=value,complete_rms=float(np.sqrt(np.mean(complete**2))),wet_return_rms=float(np.sqrt(np.mean(wet**2)))))
-        save('04-dry-0-25-50-75-100.wav',np.concatenate(segments[:-1]))
+        save('05-dry-0-25-50-75-100.wav',np.concatenate(segments[:-1]))
     (a.out/'comparison.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))
 
 if __name__=='__main__':main()

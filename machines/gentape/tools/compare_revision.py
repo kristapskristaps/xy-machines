@@ -11,7 +11,7 @@ ROOT = MACHINE.parents[1]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--before', default='933ddfd')
+    parser.add_argument('--before', default='5c186b5')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     config = json.loads((ROOT / 'local/dev.json').read_text())
@@ -46,7 +46,7 @@ static void require(bool condition, const char* message) {
 int main() {
     const int full=2147483647;
     unsigned seed=2701;
-    for(unsigned test=0;test<10;++test) {
+    for(unsigned test=0;test<11;++test) {
         previous::State before; gentape::State after;
         previous::initialize(before); gentape::initialize(after);
         std::vector<int> oldmem(previous::buffer_words,0x60000000), newmem(gentape::buffer_words,0x60000000);
@@ -60,7 +60,8 @@ int main() {
             else if(test==8) { // Moving every control, with reset and model changes.
                 for(unsigned k=0;k<8;++k) {unsigned x=(b*(k*71+19))&131071;p[k]=int((x<65536?x:131071-x)*32767u);}
             }
-            else {for(unsigned k=0;k<8;++k)p[k]=b<256?full:0;}
+            else if(test==9) {for(unsigned k=0;k<8;++k)p[k]=b<256?full:0;}
+            else {for(unsigned k=0;k<7;++k)p[k]=full;p[4]=3*268435455u;p[2]=b<256?0:full;}
             for(unsigned i=0;i<64;++i) {
                 seed=seed*1664525u+1013904223u;
                 int l=static_cast<int>(seed)>>2;
@@ -89,14 +90,15 @@ int main() {
             }
         }
         const double relative=std::sqrt(error_energy/std::max(1.,signal_energy));
-        require(relative==0,"callback audio is not bit-exact");
-        require(max_error==0,"callback audio is not bit-exact");
+        if (test >= 4 && test <= 8) require(max_error==0,"Non-maximum or moving saturation changed");
+        require(relative<1e-5,"callback difference exceeds -100 dB relative RMS");
+        require(max_error<=16384,"callback difference exceeds -102 dBFS peak");
         // Compare retained audio by age; physical ring sizes may differ.
         const unsigned retained=std::min(1502u,unsigned(after.written));
         for(unsigned ch=0;ch<2;++ch) for(unsigned age=1;age<=retained;++age)
-            require(oldmem[ch*previous::line_words+((before.write-age)&(previous::line_frames-1))]
-                 == newmem[ch*gentape::line_words+((after.write-age)&(gentape::line_frames-1))],
-                    "retained delay history differs");
+            require(std::llabs(static_cast<long long>(oldmem[ch*previous::line_words+((before.write-age)&(previous::line_frames-1))])
+                 - newmem[ch*gentape::line_words+((after.write-age)&(gentape::line_frames-1))]) <= 1024,
+                    "retained delay history differs by more than -102 dBFS");
         std::printf("{\"case\":%u,\"blocks\":65536,\"failure_events\":%u,\"maximum_error_q31\":%lld,\"relative_rms_error\":%.12g,\"transport_exact\":true}\n",test,events,max_error,relative);
     }
 }

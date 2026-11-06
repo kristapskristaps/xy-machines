@@ -25,12 +25,16 @@ Press any encoder to switch pages.
 | Model | Clean, VHS, cassette or dictation recorder voicing |
 | Spread | Independent right-channel transport movement and failure variation |
 | Noise | Added hiss, independent of input; zero is silent |
-| Dry | Source dry level in the stock mixer |
+| Dry | Balanced fade from processed sound (0) to original source (100) |
 
 Defaults are clean, with coloration, modulation, failures and hiss off. Dry
 starts at zero: at full send, only the processed source remains. Raise Dry to
-blend the original source for chorus. The callback supplies the wet return;
-Dry does not duplicate the clean track inside the callback.
+blend the original source for chorus. At full send, Dry 0 is fully processed,
+50 is half processed and half original, and 100 is original only. The stock
+mixer supplies the original source; the callback fades its processed return
+by the complementary amount. Hiss fades too. This replaces the first
+prototype's additive Dry, which kept the wet return full and became louder
+as original audio was added. No clean track is duplicated inside the callback.
 
 The clean signal is delayed by 512 samples, approximately 11.61 ms. This delay
 provides room for transport modulation and is also present with all controls
@@ -39,24 +43,32 @@ off. Blending Dry therefore introduces the expected chorus/comb coloration.
 ## Sound design and cost
 
 The signal path is record-band saturation, a short stereo fractional delay,
-recorder EQ, shaped dropout gain and optional hiss. Four-point cubic Hermite
+recorder EQ, shaped dropout gain and optional hiss. Wow and Flutter use
+more expressive middle/upper ranges; Failure has deeper drops and larger snags. Four-point cubic Hermite
 interpolation keeps pitch movement smooth. Read positions and event envelopes
 ramp within each block; continuous controls and recorder changes are smoothed.
 
 The saturator uses two 1.8 kHz record poles, a densely interpolated tanh curve,
-inverse-drive compensation and the complementary upper band. It warms and
+gentle make-up gain and the complementary upper band. It warms and
 compresses the body of the sound while retaining detail. Shaping the nonlinear
 input limits foldback; this is not full-band fuzz or physical tape hysteresis.
 The recorder profiles are authored filter settings, not measured hardware EQs.
+They use a bandwidth pole and a low-band shelf/cut. The hiss generator has its
+own random state, so Noise does not change transport movement or failure timing.
 
 Audio is integer-only. The delay uses 32,800 bytes of per-send scratch, guarded
 against stale reads after initialization/reset. State fits the native effect
 slot. Disabled saturation and clean recorder stages use cheaper paths.
 
-**The CPU goal is at most 3.5% per stereo effect instance. Hardware qualification
-is pending.** Host instruction estimates are advisory, not cycles or a device
+**The CPU goal is at most 3.5% per stereo effect instance. This revision still
+needs hardware measurement.** The initial installed revision `4fe5772` measured
+4.42–4.43% average with its recorder models and a worst observed peak of 7.33%
+in one complete hardware capture. That failed the target. This revision reduces
+recorder processing and startup interpolation work; those earlier measurements
+do not qualify the changed code. Host instruction estimates are advisory, not cycles or a device
 percentage. The SDK sweep varies one control at a time from clean defaults;
 use the combined benchmark below as well. Neither establishes a hardware bound.
+Full-effect diagnostic copies keep Dry at 0, since Dry 100 now mutes the return.
 Two send instances incur two processing costs.
 
 ## Listen and check
@@ -86,6 +98,17 @@ check attests native timing, project stability or hardware sound.
 `tools/generate_tables.py` regenerates `tables.h` using only the Python standard
 library. The collection gallery can also build this effect with its existing
 local-audio/demo-loop player; no SDK browser effect support is required.
+
+For an old/new comparison and a Dry sweep using the documented source-mixer
+routing at full send:
+
+```sh
+.venv/bin/python machines/gentape/tools/render_revision.py --before 4fe5772 --out local/gentape-revision-001
+```
+
+`tools/audit_controls.cpp` renders steady tones and silence through each control,
+reporting pitch movement, level, stereo difference and failure activity. The
+sound tests also cover Dry endpoints/level and independent Noise randomness.
 
 Before device work, commit the chosen source and follow [QA.md](QA.md). Device
 installation and diagnostics require separate authorization. Catalog publication

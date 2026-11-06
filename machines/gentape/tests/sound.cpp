@@ -105,12 +105,53 @@ int main() {
             f->run();
         for (unsigned i = 0; i < 64; ++i) {
             require(linked.left[i] == linked.right[i], "linked stereo wandered apart");
-            require(dry0.left[i] == dry1.left[i] && dry0.right[i] == dry1.right[i],
-                    "Dry mixed source into callback");
+            require(!dry1.left[i] && !dry1.right[i], "Dry 100 must remove the processed return");
             difference += std::fabs((wide.left[i] - static_cast<double>(wide.right[i])) / 2147483648.);
         }
     }
     require(difference > 100, "Spread fails to create stereo variation");
+    // The native source mixer adds d*source at full send. The wet return must
+    // therefore scale by (1-d), including hiss, so Dry never doubles the signal.
+    for (double dry : {0.0, .25, .5, .75, 1.0}) {
+        Fixture f;
+        f.p[7] = control(dry);
+        double energy = 0;
+        unsigned count = 0;
+        for (unsigned b = 0; b < 600; ++b) {
+            for (unsigned i = 0; i < 64; ++i)
+                f.left[i] = f.right[i] = control(.18);
+            f.run();
+            if (b > 200)
+                for (unsigned i = 0; i < 64; ++i) {
+                    const double complete = f.left[i] / 2147483648. + .18 * dry;
+                    require(std::fabs(complete - .18) < .00002,
+                            "Dry crossfade changes settled correlated level");
+                    energy += complete * complete;
+                    ++count;
+                }
+        }
+        require(std::fabs(std::sqrt(energy / count) - .18) < .00002, "Dry introduces an additive gain boost");
+    }
+    Fixture noise_off, noise_on, noise_dry;
+    for (Fixture *f : {&noise_off, &noise_on, &noise_dry}) {
+        f->p[0] = control(.7);
+        f->p[1] = control(.5);
+        f->p[3] = control(.8);
+        f->p[5] = control(.6);
+    }
+    noise_on.p[6] = noise_dry.p[6] = control(1);
+    noise_dry.p[7] = control(1);
+    for (unsigned b = 0; b < 1000; ++b) {
+        for (Fixture *f : {&noise_off, &noise_on, &noise_dry}) {
+            f->zero();
+            f->run();
+        }
+        require(noise_off.state.random == noise_on.state.random &&
+                    noise_off.state.delay[0] == noise_on.state.delay[0],
+                "Noise changed transport movement or event timing");
+        for (int x : noise_dry.left)
+            require(x == 0, "Dry 100 leaves hiss in the return");
+    }
     // Every corner, fast automation, signed out-of-range controls, full-scale
     // alternating inputs and resets: also run under undefined/address sanitizers.
     Fixture stress;

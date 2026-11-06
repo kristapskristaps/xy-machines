@@ -10,15 +10,25 @@ const i32 one = 134217728; // Internal Q27 audio leaves headroom for
                            // interpolation and filters.
 const i32 full = 2147483647;
 const i32 base_delay = 512 * 65536;
+const i32 half = 1073741824;
 
 i32 mul(i32 a, i32 b) { return opxy::q31::multiply(a, b); }
 i32 blend(i32 a, i32 b, i32 fraction) { return a + mul(b - a, fraction); }
+i32 coefficient(i32 value, i32 target) {
+    const i32 difference = target - value;
+    return difference >= -32 && difference <= 32 ? target : blend(value, target, 134217728);
+}
 u32 random(State &s) {
     u32 x = s.random;
     x ^= x << 13;
     x ^= x >> 17;
     x ^= x << 5;
     return s.random = x;
+}
+i32 noise_audio(State &s) {
+    s.noise_random =
+        static_cast<u32>(opxy::q31::wide(static_cast<i32>(s.noise_random), 1664525)) + 1013904223u;
+    return static_cast<i32>(s.noise_random >> 4) - one;
 }
 i32 random_audio(State &s) { return static_cast<i32>(random(s) >> 4) - one; }
 i32 smooth_random(State &s, i32 *memory, i32 rate) {
@@ -63,6 +73,10 @@ i32 sample(const i32 *line, u32 write, u32 written, u32 age) {
 template <bool complete> i32 tap(const i32 *line, u32 write, u32 written, i32 delay) {
     const u32 age = static_cast<u32>(delay) >> 16;
     const i32 f = static_cast<i32>((static_cast<u32>(delay) & 65535) << 15);
+    if (!f)
+        return sample(line, write, written, age);
+    if (!complete && written < age - 1)
+        return 0;
     i32 a, b, c, d;
     if (complete || written >= age + 2) {
         const i32 *const p = line + ((write - age - 2) & (line_frames - 1));
@@ -93,42 +107,41 @@ i32 output(i32 value) {
     const i32 limit = one - 1;
     return value > limit ? full : value < -limit ? -full : value * 16;
 }
-__attribute__((noinline)) void color_block(i32 *out, State &s, u32 ch, i32 hp, i32 lp, i32 bump, i32 gain,
+// Two-pole recorder voicing: one bandwidth pole, one low-band shelf/cut.
+// The retained low-band gain is stored at half scale so every coefficient stays
+// positive and model changes interpolate safely. Gain and Dry are folded into
+// the block-rate gate target, avoiding another multiply per audio sample.
+__attribute__((noinline)) void color_block(i32 *out, State &s, u32 ch, i32 hp, i32 lp, i32 bass_gain,
                                            i32 gate_step, i32 hiss_step) {
-    i32 dc = s.dc[ch], low0 = s.low[ch][0], low1 = s.low[ch][1], bass = s.bass[ch];
-    i32 gate = s.gate[ch], hiss = s.hiss;
-    const i32 model_gain = gain * 8;
+    i32 low = s.low[ch][0], bass = s.dc[ch], gate = s.gate[ch], hiss = s.hiss;
     for (u32 i = 0; i < 64; ++i) {
         gate += gate_step;
         hiss += hiss_step;
-        dc = blend(dc, out[i], hp);
-        low0 = blend(low0, out[i] - dc, lp);
-        low1 = blend(low1, low0, lp);
-        bass = blend(bass, low1, 33300000);
-        i32 value = mul(mul(low1 + mul(bass, bump), model_gain) * 2, gate);
+        low = blend(low, out[i], lp);
+        bass = blend(bass, low, hp);
+        const i32 colored = ((low - bass) >> 1) + mul(bass, bass_gain);
+        i32 value = mul(colored, gate) * 4;
         if (hiss)
-            value += mul(random_audio(s), hiss * 16);
+            value += mul(noise_audio(s), hiss * 16);
         out[i] = output(value);
     }
-    s.dc[ch] = dc;
-    s.low[ch][0] = low0;
-    s.low[ch][1] = low1;
-    s.bass[ch] = bass;
+    s.low[ch][0] = low;
+    s.dc[ch] = bass;
 }
 
 void plain_block(i32 *out, State &s, u32 ch, i32 gate_step, i32 hiss_step) {
     i32 gate = s.gate[ch], hiss = s.hiss;
     const i32 last = out[63];
-    if (!hiss && !hiss_step && gate == full && !gate_step) {
+    if (!hiss && !hiss_step && gate == half && !gate_step) {
         for (u32 i = 0; i < 64; ++i)
             out[i] = output(out[i]);
     } else {
         for (u32 i = 0; i < 64; ++i) {
             gate += gate_step;
             hiss += hiss_step;
-            i32 value = mul(out[i], gate);
+            i32 value = mul(out[i], gate) * 2;
             if (hiss)
-                value += mul(random_audio(s), hiss * 16);
+                value += mul(noise_audio(s), hiss * 16);
             out[i] = output(value);
         }
     }
@@ -142,8 +155,10 @@ void plain_block(i32 *out, State &s, u32 ch, i32 gate_step, i32 hiss_step) {
 void initialize(State &state) {
     state = State();
     state.random = 0x6e746170;
+    state.noise_random = 0x91a527cd;
     state.delay[0] = state.delay[1] = base_delay;
-    state.gate[0] = state.gate[1] = full;
+    state.gate[0] = state.gate[1] = half;
+    state.bump = half;
     state.drive = 2 * one;
     state.makeup = full;
     state.gain = one;
@@ -165,21 +180,22 @@ void process(State &s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
     }
     for (u32 i = 0; i < 7; ++i)
         s.controls[i] = blend(s.controls[i], parameters[i] < 0 ? 0 : parameters[i], 134217728);
-    const i32 wow_amount = mul(s.controls[0], s.controls[0]);
-    const i32 flutter_amount = mul(s.controls[1], s.controls[1]);
-    const i32 sat = s.controls[2], sat_squared = mul(sat, sat);
-    const i32 fail = mul(s.controls[3], s.controls[3]);
+    const i32 wow_amount = mul(s.controls[0], full / 2 + s.controls[0] / 2);
+    const i32 flutter_amount = mul(s.controls[1], full / 2 + s.controls[1] / 2);
+    const i32 sat = s.controls[2], drive_amount = mul(sat, full / 2 + sat / 2);
+    const i32 fail = s.controls[3];
+    const i32 wet = full - (parameters[7] < 0 ? 0 : parameters[7]);
     const u32 model = parameters[4] < 0 ? 0 : (static_cast<u32>(parameters[4]) >> 29);
     const i32 spread = s.controls[5];
     const i32 noise = mul(s.controls[6], s.controls[6]);
-    const i32 drive = 2 * one + mul(5 * one, sat_squared);
-    // Inverse drive preserves small-signal gain in the record band.
+    const i32 drive = 2 * one + mul(5 * one, drive_amount);
+    // Gentle make-up restores body as the record band compresses; the
+    // complementary upper band keeps its original level.
     const i32 makeup =
-        static_cast<i32>(2147483647u / (16384u + (((static_cast<u32>(sat_squared) >> 16) * 5) >> 2))) * 16384;
+        static_cast<i32>(2147483647u / (16384u + ((static_cast<u32>(drive_amount) >> 16) * 3 / 4))) * 16384;
     const Model &model_data = models[model];
-    const i32 hp = blend(s.hp, model_data.hp, 134217728), lp = blend(s.lp, model_data.lp, 134217728);
-    const i32 bump = blend(s.bump, model_data.bump, 134217728),
-              gain = blend(s.gain, model_data.gain, 134217728);
+    const i32 hp = coefficient(s.hp, model_data.hp), lp = coefficient(s.lp, model_data.lp);
+    const i32 bump = coefficient(s.bump, model_data.bump), gain = coefficient(s.gain, model_data.gain);
     i32 wow[2], flutter[2];
     for (u32 ch = 0; ch < 2; ++ch) {
         wow[ch] = smooth_random(s, s.wow[ch], 22000000);
@@ -207,24 +223,26 @@ void process(State &s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
     }
     i32 target_delay[2], target_gate[2], step_delay[2], step_gate[2];
     for (u32 ch = 0; ch < 2; ++ch) {
-        const i32 drift = (mul(w[ch], wow_amount) / 2048) * 900;
-        const i32 twitch = (mul(f[ch], flutter_amount) / 2048) * 20;
-        const i32 snag = s.kind & 1 ? mul(event_envelope, 48 * 65536) : 0;
+        const i32 drift = (mul(w[ch], wow_amount) / 2048) * 1800;
+        const i32 twitch = (mul(f[ch], flutter_amount) / 2048) * 28;
+        const i32 snag = s.kind & 1 ? mul(event_envelope, 96 * 65536) : 0;
         target_delay[ch] = base_delay + drift + twitch + (s.kind & 2 ? -snag : snag);
         if (target_delay[ch] < 4 * 65536)
             target_delay[ch] = 4 * 65536;
         if (target_delay[ch] > 1500 * 65536)
             target_delay[ch] = 1500 * 65536;
-        const i32 loss = s.kind & 1 ? event_envelope / 5 : event_envelope - event_envelope / 8;
+        const i32 loss = s.kind & 1 ? event_envelope / 5 : event_envelope - event_envelope / 16;
         const i32 channel_loss = ch && spread ? mul(loss, full - spread / 2) : loss;
         // Flutter carries a little amplitude movement as well as pitch.
         target_gate[ch] =
             full - channel_loss - mul(mul(f[ch] < 0 ? -f[ch] : f[ch], flutter_amount), 250000000);
+        target_gate[ch] =
+            target_gate[ch] == full && wet == full ? gain * 8 : mul(mul(target_gate[ch], wet), gain * 8);
         step_delay[ch] = (target_delay[ch] - s.delay[ch]) / 64;
         step_gate[ch] = (target_gate[ch] - s.gate[ch]) / 64;
     }
     const i32 drive_step = (drive - s.drive) / 64, makeup_step = (makeup - s.makeup) / 64;
-    const i32 amount_step = (sat - s.amount) / 64, hiss = mul(noise, 600000);
+    const i32 amount_step = (sat - s.amount) / 64, hiss = mul(mul(noise, 600000), wet);
     const i32 hiss_step = (hiss - s.hiss) / 64;
     if (!sat && !s.amount) {
         for (u32 i = 0; i < 64; ++i) {
@@ -249,10 +267,10 @@ void process(State &s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
             delay_block<true>(out, line, s.write, s.written, s.delay[ch], step_delay[ch]);
         else
             delay_block<false>(out, line, s.write, s.written, s.delay[ch], step_delay[ch]);
-        if (!hp && lp == full && !bump && gain == one)
+        if (!hp && lp == full && bump == half && gain == one)
             plain_block(out, s, ch, step_gate[ch], hiss_step);
         else
-            color_block(out, s, ch, hp, lp, bump, gain, step_gate[ch], hiss_step);
+            color_block(out, s, ch, hp, lp, bump, step_gate[ch], hiss_step);
     }
     s.write = (s.write + 64) & (line_frames - 1);
     s.written = s.written + 64 < line_frames ? s.written + 64 : line_frames;
@@ -268,6 +286,7 @@ void process(State &s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
         s.delay[ch] = target_delay[ch];
         s.gate[ch] = target_gate[ch];
     }
-    // Dry is parameter 7 and belongs exclusively to the source mixer.
+    // The source mixer supplies Dry. The wet return fades by (1-Dry), making
+    // the complete send a level-balanced crossfade rather than an additive mix.
 }
 } // namespace gentape

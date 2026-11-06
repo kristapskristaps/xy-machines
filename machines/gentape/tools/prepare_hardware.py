@@ -2,7 +2,8 @@
 
 No device operations. The base package identifies the installed source set and
 layout. Existing source bytes must still match its compile report. Diagnostic
-copies change only the namespace/identity and parameter defaults, never DSP.
+copies change only the namespace/identity and parameter defaults, never DSP. Dry remains zero (fully wet) so the callback
+measurement exercises audible full-strength processing.
 """
 import argparse
 import hashlib
@@ -76,7 +77,8 @@ def main():
     for destination, data in files:
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(data)
-    collection = [{'path': str(out / 'sources' / ident)} for ident in roots]
+    replaced_ids = {'gentape', 'gttestclean', 'gttestvhs', 'gttestcass', 'gttestdict'}
+    collection = [{'path': str(out / 'sources' / ident)} for ident in roots if ident not in replaced_ids]
     collection.append({'path': str(MACHINE)})
     probes = []
     for index, suffix in enumerate(('clean', 'vhs', 'cass', 'dict')):
@@ -91,12 +93,12 @@ def main():
             (folder / name).write_text(renamed)
         definition = json.loads((MACHINE / 'definition.json').read_text())
         definition.update(id=ident, name='GT Test ' + suffix.title())
-        settings = [1, 1, 1, 1, (index + .5) / 4, 1, 1, 1]
+        settings = [1, 1, 1, 1, (index + .5) / 4, 1, 1, 0]
         for parameter, value in zip(definition['parameters'], settings):
             parameter['default'] = value
         write_json(folder / 'definition.json', definition)
         metadata = json.loads((MACHINE / 'machine.json').read_text())
-        metadata['description'] = 'Gen Tape CPU diagnostic: all controls full, model ' + suffix + '.'
+        metadata['description'] = 'Gen Tape CPU diagnostic: all effects full, Dry 0, model ' + suffix + '.'
         write_json(folder / 'machine.json', metadata)
         collection.append({'path': str(folder)})
         probes.append(dict(id=ident, model=suffix, parameters=settings, purpose='Full-control CPU callback workload'))
@@ -107,7 +109,8 @@ def main():
         sdk=str(sdk), sdk_commit=subprocess.check_output(['git', '-C', str(sdk), 'rev-parse', 'HEAD'], text=True).strip(),
         gentape_source=str(MACHINE), gentape_commit=commit,
         gentape_hashes={name:digest(MACHINE / name) for name in ('core.h', 'fx.cpp', 'tables.h', 'definition.json', 'machine.json')},
-        preserved_machines=list(roots), preserved_extensions=list(extensions), source_files_frozen=len(files),
+        preserved_machines=[ident for ident in roots if ident not in replaced_ids],
+        replaced_machines=[ident for ident in roots if ident in replaced_ids], preserved_extensions=list(extensions), source_files_frozen=len(files),
         preserved_layout_reservations=len(json.loads((package / 'layout.json').read_text())['machines']), probes=probes,
         device_operations=False, hardware_cpu_measured=False))
     print(out)

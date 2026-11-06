@@ -12,7 +12,9 @@ Install/flash/reboot and diagnostics require separate user authorization.
       and encoder-press page switching, with readable choices and values.
 - [ ] Confirm clean defaults; zero send has no effect contribution.
 - [ ] At full send and Dry 0, confirm no source dry remains. Raise Dry and listen
-      for chorus; confirm returning the send to zero restores the source.
+      for chorus; at Dry 100 confirm the return and hiss disappear and only the
+      original source remains, without the first prototype's additive level jump.
+      Confirm returning the send to zero restores the source.
 - [ ] Sweep every control slowly, rapidly and with parameter locks, including
       adjacent-step locks and transitions between every Model choice.
 
@@ -30,7 +32,8 @@ Install/flash/reboot and diagnostics require separate user authorization.
 - [ ] Spread 0 preserves identical channels for identical input with Noise 0;
       Spread adds stereo movement. Check stereo input, mono input and mono sum.
 - [ ] Noise 0 has no self-generated sound after the input/tail ends. Raising it
-      adds controlled hiss; turn it off again without a stuck tail.
+      adds controlled hiss without changing pitch movement or Failure timing;
+      Dry 100 removes hiss too. Turn Noise off again without a stuck tail.
 - [ ] Hot input and loud transients stay bounded without wraparound, runaway
       gain or crashes. Check quiet material and silence for residual tones.
 

@@ -10,6 +10,9 @@ in a separate sibling checkout. No firmware or device data is included.
   Rebound, Mando, Bitflip, X0X, and the five standalone Weave models.
 - `machines/hundekraft/`: all 25 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
+- `extensions/checkpoint/`: temporary scene store, recall and recovery through
+  Metronome + plus/minus/Record; see its [README](extensions/checkpoint/README.md)
+  for the required checkpoint SDK and opt-in build instructions.
 - `collection.json`: all 37 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK

@@ -42,9 +42,11 @@ machine data per state. Fewer machines may fit in a build. Each state's pattern
 data has a 384 KiB compressed limit; exceeding either capacity refuses the action
 without replacing the checkpoint or changing live patterns.
 
-```
-python ../open-xy/sdk.py test --extension .
-python ../open-xy/sdk.py build --machine <machine-folder> --extension . --stock-os <external-stock>/os.ldr --out <external-build-folder>
+Run from the xy-machines repository root, using a checkout with the checkpoint contract:
+
+```sh
+python /path/to/checkpoint-sdk/sdk.py test --extension extensions/checkpoint
+python /path/to/checkpoint-sdk/sdk.py build --machine <machine-folder> --extension extensions/checkpoint --stock-os <external-stock>/os.ldr --out <external-build-folder>
 ```
 
 The owner accepted the core store/recall/recovery workflow on hardware.

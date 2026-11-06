@@ -1,5 +1,10 @@
-name: Extension checks
-on: [push, pull_request, workflow_dispatch]
+name: Checkpoint extension checks
+on:
+  push:
+    paths: ['extensions/checkpoint/**', '.github/workflows/checkpoint.yml']
+  pull_request:
+    paths: ['extensions/checkpoint/**', '.github/workflows/checkpoint.yml']
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -8,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: extension
+          path: xy-machines
       - uses: actions/checkout@v4
         with:
           repository: kristapskristaps/open-xy
@@ -18,7 +23,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Private-data guard
-        working-directory: extension
+        working-directory: xy-machines
         run: python ../sdk/tools/check_private_files.py --tree HEAD
       - name: Extension contracts and gesture tests
-        run: python sdk/sdk.py test --extension extension
+        run: python sdk/sdk.py test --extension xy-machines/extensions/checkpoint

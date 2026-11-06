@@ -18,7 +18,7 @@ i32 add(i32 a, i32 b) { return a + b; }
 i32 bounded(i32 value) {
     return value > kSignalLimit ? kSignalLimit : value < -kSignalLimit ? -kSignalLimit : value;
 }
-i32 restore(i32 value) {
+__attribute__((always_inline)) inline i32 restore(i32 value) {
     // Fourfold wet gain, with a soft knee above half-scale at the return.
     // Keep feedback independent of the output gain, so decay stays stable.
     const i32 knee = 33554432;
@@ -252,14 +252,12 @@ __attribute__((noinline)) void damping(State& s, const i32* memory, u32 write, u
     s.damping[Line] = low;
 }
 
-__attribute__((noinline)) void tank(i32* memory, u32 write, i32 wet[2][32], i32 diffused[2][32],
-                                   i32 damped[4][32], i32 output[2][32],
+__attribute__((noinline)) void tank(i32* memory, u32 write, i32 diffused[2][32], i32 damped[4][32],
                                    const Coefficients& start, const Coefficients& step) {
-    i32 gain = start.gain, space = start.space, direct = start.direct;
+    i32 gain = start.gain;
+    const i32 gain_step = step.gain;
     for (unsigned i = 0; i < 32; ++i) {
-        gain += step.gain;
-        space += step.space;
-        direct += step.direct;
+        gain += gain_step;
         const i32 a = damped[0][i], b = damped[1][i], c = damped[2][i], d = damped[3][i];
         const i32 average = half(half(a))+half(half(b))+half(half(c))+half(half(d));
         const i32 sum = average+average;
@@ -269,10 +267,18 @@ __attribute__((noinline)) void tank(i32* memory, u32 write, i32 wet[2][32], i32 
         frame[1] = bounded(r+multiply(b-sum,gain));
         frame[2] = bounded(l+multiply(c-sum,gain));
         frame[3] = bounded(r+multiply(d-sum,gain));
-        const i32 room_l = (half(a)-half(c))*3;
-        const i32 room_r = (half(b)-half(d))*3;
-        output[0][i] = multiply(wet[0][i],direct)+multiply(room_l,space);
-        output[1][i] = multiply(wet[1][i],direct)+multiply(room_r,space);
+    }
+}
+
+__attribute__((noinline)) void space_mix(const i32* wet, const i32* first, const i32* second,
+                                        i32* output, const Coefficients& start, const Coefficients& step) {
+    i32 space = start.space, direct = start.direct;
+    const i32 space_step = step.space, direct_step = step.direct;
+    for (unsigned i = 0; i < 32; ++i) {
+        space += space_step;
+        direct += direct_step;
+        const i32 room = (half(first[i])-half(second[i]))*3;
+        output[i] = multiply(wet[i],direct)+multiply(room,space);
     }
 }
 
@@ -360,7 +366,9 @@ void process(State& s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
         damping<2,2381,false>(s,reverb,rw,written,start.damping,step.damping,damped[2]);
         damping<3,3011,false>(s,reverb,rw,written,start.damping,step.damping,damped[3]);
     }
-    tank(reverb,rw,wet,diffused,damped,input,start,step);
+    tank(reverb,rw,diffused,damped,start,step);
+    space_mix(wet[0],damped[0],damped[2],input[0],start,step);
+    space_mix(wet[1],damped[1],damped[3],input[1],start,step);
     s.reverb_write += 32;
     s.reverb_written = written+32 < kReverb ? written+32 : kReverb;
     output_block(s,0,input[0],left);

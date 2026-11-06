@@ -98,7 +98,7 @@
   ],
   "presets": {},
   "resources": {
-    "bufferBytes": 32800
+    "bufferBytes": 16416
   },
   "press": "page"
 }

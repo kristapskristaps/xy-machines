@@ -56,34 +56,31 @@ The recorder profiles are authored filter settings, not measured hardware EQs.
 They use a bandwidth pole and a low-band shelf/cut. The hiss generator has its
 own random state, so Noise does not change transport movement or failure timing.
 
-Audio is integer-only. The delay uses 32,800 bytes of per-send scratch, guarded
+Audio is integer-only. The delay uses 16,416 bytes of per-send scratch, guarded
 against stale reads after initialization/reset. State fits the native effect
 slot. Disabled saturation and clean recorder stages use cheaper paths.
 
 **The CPU goal is at most 3.5% average and peak per stereo effect instance.
-This optimization still needs hardware measurement.** The installed revision
-`02e6de3` measured 3.79–3.80% average with all controls enabled on the recorder
-models, and a worst observed peak of 6.68% in one complete capture. Clean with
-all controls enabled measured 3.41% average and 6.12% peak. Those results fail
-the target and do not qualify this changed code.
+This ring-storage revision still needs hardware measurement.** The faster
+preceding implementation `933ddfd` measured 2.65–2.99% average with all controls
+enabled, with peaks above 3.5%. A compact quadratic-curve experiment improved
+curve precision but increased hardware CPU, so this revision retains the
+preceding DSP and linear lookup.
 
-This revision packs each saturation-curve segment with its slope, omits unused
-curve tails beyond the full-scale driven signal range, skips
-unchanged per-sample control increments, folds the advancing delay writer into
-one read-phase accumulator, keeps the hiss RNG in a local register, and caches
-unchanged make-up gain and event reciprocals. Saturating output scaling removes
-data-dependent clipping branches. The saturation curve, cubic interpolation,
-filter settings and modulation/event trajectories retain their precision and
-ranges. The only intended audio difference is one Q31 bit at negative clipping.
+The maximum delay remains 1500 frames. Two 2048-frame rings cover that delay,
+the four cubic taps and the 64-frame writer lead; the old 4096-frame rings
+retained unused history. Scratch falls from 32,800 to 16,416 bytes. The
+cross-revision callback comparison requires bit-exact audio and transport,
+checking retained history by age across the different physical ring sizes.
+Delay, cubic precision, recorder voicing, saturation, hiss, event depths and
+all control ranges are unchanged. This storage change is intended to reduce
+the working set; hardware results decide whether it improves timing.
 
-`tools/compare_revision.py` compares complete callbacks with a committed
-reference over startup, resets, full-scale transients, low/high tones, DC,
-silence, all four models, failures and moving controls. It requires matching
-recorded delay audio, exact transport/noise sequences and at most one Q31 bit
-of output difference. Host timing remains advisory. The standard hardware
-effect benchmark covers defaults; full-effect diagnostic copies keep every
-musical control at maximum and Dry at 0 (fully wet), testing each model.
-Two send instances incur two processing costs.
+Host timing remains advisory. The standard effect benchmark covers defaults;
+full-effect diagnostic copies enable every musical control at maximum and
+keep Dry at 0 (fully wet), testing all four models. Startup-window and bypass
+probes are diagnostic studies and cannot qualify full-effect CPU. Every valid
+capture's observed peak is retained. Two sends incur two processing costs.
 
 ## Listen and check
 
@@ -94,7 +91,7 @@ From the collection root, after `./xy setup` and `./xy doctor`:
 .venv/bin/python machines/gentape/tools/render_examples.py --out local/gentape-audio-001
 .venv/bin/python machines/gentape/tools/quality.py --out local/gentape-quality.json
 .venv/bin/python machines/gentape/tools/benchmark.py --out local/gentape-timing.json
-.venv/bin/python machines/gentape/tools/compare_revision.py --before 02e6de3 --out local/gentape-comparison.json
+.venv/bin/python machines/gentape/tools/compare_revision.py --before 933ddfd --out local/gentape-comparison.json
 ```
 
 Choose a fresh audio output directory. The renderer compiles and runs the real

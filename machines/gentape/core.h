@@ -2,7 +2,8 @@
 #include <opxy/effect.hpp>
 
 namespace gentape {
-const opxy::u32 line_frames = 4096;
+// 1500-frame maximum delay + two cubic taps + 64-frame writer lead fits here.
+const opxy::u32 line_frames = 2048;
 const opxy::u32 line_words = line_frames + 4;
 const opxy::u32 buffer_words = 2 * line_words;
 struct State {

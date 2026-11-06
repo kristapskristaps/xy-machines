@@ -11,7 +11,7 @@ ROOT = MACHINE.parents[1]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--before', default='02e6de3')
+    parser.add_argument('--before', default='933ddfd')
     parser.add_argument('--out', type=Path, required=True)
     args = parser.parse_args()
     config = json.loads((ROOT / 'local/dev.json').read_text())
@@ -89,9 +89,14 @@ int main() {
             }
         }
         const double relative=std::sqrt(error_energy/std::max(1.,signal_energy));
-        require(relative<1e-8,"callback difference exceeds -160 dB relative RMS");
-        require(max_error<=1,"callback differs beyond its one-bit negative clipping endpoint");
-        require(oldmem==newmem,"recorded delay audio differs");
+        require(relative==0,"callback audio is not bit-exact");
+        require(max_error==0,"callback audio is not bit-exact");
+        // Compare retained audio by age; physical ring sizes may differ.
+        const unsigned retained=std::min(1502u,unsigned(after.written));
+        for(unsigned ch=0;ch<2;++ch) for(unsigned age=1;age<=retained;++age)
+            require(oldmem[ch*previous::line_words+((before.write-age)&(previous::line_frames-1))]
+                 == newmem[ch*gentape::line_words+((after.write-age)&(gentape::line_frames-1))],
+                    "retained delay history differs");
         std::printf("{\"case\":%u,\"blocks\":65536,\"failure_events\":%u,\"maximum_error_q31\":%lld,\"relative_rms_error\":%.12g,\"transport_exact\":true}\n",test,events,max_error,relative);
     }
 }

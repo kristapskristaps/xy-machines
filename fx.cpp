@@ -32,11 +32,9 @@ __attribute__((always_inline)) inline i32 restore(i32 value) {
         }
         value = negative ? -shaped : shaped;
     }
-    value = opxy::q31::add(value, value);
-    value = opxy::q31::add(value, value);
-    value = opxy::q31::add(value, value);
-    value = opxy::q31::add(value, value);
-    return opxy::q31::add(value, value);
+    // The knee bounds the result to +/-2^26; four gain bits fit exactly.
+    const i32 scaled = value * 16;
+    return opxy::q31::add(scaled,scaled);
 }
 i32 interpolate(i32 a, i32 b, u32 fraction) {
     const i32 weight = static_cast<i32>(fraction << 15);
@@ -132,8 +130,8 @@ __attribute__((noinline)) void grain_span(Grain& g, const i32* __restrict memory
     const u32 count = g.remaining < frames ? g.remaining : frames;
     u32 position = g.position, phase = g.phase;
     const u32 speed = static_cast<u32>(g.speed), increment = g.increment;
-    const opxy::u16 pan_l = static_cast<opxy::u16>(65536 - g.pan);
-    const opxy::u16 pan_r = static_cast<opxy::u16>(32768 + g.pan);
+    const i32 pan_l = (65536 - g.pan) * 32768;
+    const i32 pan_r = (32768 + g.pan) * 32768;
     for (u32 i = 0; i < count; ++i) {
         const u32 index = position >> 16;
         i32 l, r;
@@ -150,8 +148,9 @@ __attribute__((noinline)) void grain_span(Grain& g, const i32* __restrict memory
         const opxy::u16 arch = static_cast<opxy::u16>((static_cast<u32>(part) * complement) >> 13);
         const u32 squared = static_cast<u32>(arch) * arch >> 15;
         const opxy::u16 window = static_cast<opxy::u16>(squared < 32768 ? squared : 32767);
-        const i32 gain_l = static_cast<i32>(static_cast<u32>(window) * pan_l >> 2);
-        const i32 gain_r = static_cast<i32>(static_cast<u32>(window) * pan_r >> 2);
+        const i32 envelope = static_cast<i32>(window) * 16384;
+        const i32 gain_l = multiply(envelope,pan_l);
+        const i32 gain_r = multiply(envelope,pan_r);
         left[i] += multiply(l, gain_l);
         right[i] += multiply(r, gain_r);
         position = (position + speed) & 0x7fffffffu;
@@ -184,7 +183,25 @@ __attribute__((noinline)) void cloud_span(State& s, const i32* memory, i32 wet[2
         Grain& g = s.grains[j];
         if (!g.remaining) continue;
         const bool fractional = (g.position & 65535) || (static_cast<u32>(g.speed) & 65535);
-        if (s.written == kHistory && safe) {
+        bool ready = s.written == kHistory && safe;
+        if (safe && !ready) {
+            const u32 frames = g.remaining < count ? g.remaining : count;
+            const u32 end = (g.position + static_cast<u32>(g.speed)*(frames-1)) & 0x7fffffffu;
+            const u32 first_age = (s.write-(g.position>>16)) & (kHistory-1);
+            const u32 last_age = (s.write-(end>>16)) & (kHistory-1);
+            const u32 youngest = first_age < last_age ? first_age : last_age;
+            const u32 oldest = first_age > last_age ? first_age : last_age;
+            ready = oldest <= s.written;
+            // No initialized history in this span: advance the silent grain
+            // without evaluating its envelope. A fractional neighbor is newer.
+            if (youngest > s.written + (fractional ? 1u : 0u)) {
+                g.position = (g.position + static_cast<u32>(g.speed)*frames) & 0x7fffffffu;
+                g.phase += g.increment*frames;
+                g.remaining -= frames;
+                continue;
+            }
+        }
+        if (ready) {
             if (fractional) grain_span<true,true>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
             else grain_span<true,false>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
         } else {
@@ -212,9 +229,10 @@ __attribute__((noinline)) void capture(State& s, unsigned ch, i32* memory, u32 w
                                       const Coefficients& start, const Coefficients& step, u32 frames) {
     i32 low = s.tone_memory[ch], dc = s.dc[ch], feedback = 0;
     i32 tone = start.tone, recycle = start.recycle;
+    const i32 tone_step = step.tone, recycle_step = step.recycle;
     for (unsigned i = 0; i < frames; ++i) {
-        tone += step.tone;
-        recycle += step.recycle;
+        tone += tone_step;
+        recycle += recycle_step;
         low += multiply(wet[i]-low, tone);
         wet[i] = low;
         dc += multiply(low-dc, 4000000);
@@ -227,6 +245,29 @@ __attribute__((noinline)) void capture(State& s, unsigned ch, i32* memory, u32 w
 
 template<unsigned Line, unsigned Length, bool Ready>
 __attribute__((noinline)) void diffuser(i32* memory, u32 write, u32 written, i32* audio) {
+    if (Ready) {
+        unsigned offset = 0;
+        while (offset < 32) {
+            const u32 read = (write + offset - Length) & (kDiffuser-1);
+            const u32 at = (write + offset) & (kDiffuser-1);
+            u32 count = 32-offset;
+            if (count > kDiffuser-read) count = kDiffuser-read;
+            if (count > kDiffuser-at) count = kDiffuser-at;
+            const i32* source = memory + 4*read;
+            i32* destination = memory + 4*at;
+            i32* samples = audio + offset;
+            for (u32 i = 0; i < count; ++i) {
+                const i32 value = *samples;
+                const i32 out = source[Line]-half(value);
+                destination[Line] = bounded(value+half(out));
+                *samples++ = out;
+                source += 4;
+                destination += 4;
+            }
+            offset += count;
+        }
+        return;
+    }
     for (unsigned i = 0; i < 32; ++i) {
         const u32 cursor = write+i;
         const i32 delayed = Ready || written+i >= Length
@@ -242,6 +283,24 @@ template<unsigned Line, unsigned Length, bool Ready>
 __attribute__((noinline)) void damping(State& s, const i32* memory, u32 write, u32 written,
                                       i32 coefficient, i32 step, i32* output) {
     i32 low = s.damping[Line];
+    if (Ready) {
+        unsigned offset = 0;
+        while (offset < 32) {
+            const u32 at = (write+offset-Length) & (kReverb-1);
+            const u32 count = 32-offset < kReverb-at ? 32-offset : kReverb-at;
+            const i32* source = memory + 4*at + Line;
+            i32* samples = output + offset;
+            for (u32 i = 0; i < count; ++i) {
+                coefficient += step;
+                low += multiply(*source-low,coefficient);
+                *samples++ = low;
+                source += 4;
+            }
+            offset += count;
+        }
+        s.damping[Line] = low;
+        return;
+    }
     for (unsigned i = 0; i < 32; ++i) {
         coefficient += step;
         const i32 value = Ready || written+i >= Length

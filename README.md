@@ -87,6 +87,8 @@ use the SDK's Q31 operations. Rendering runs in short passes: input filtering,
 grains, tone/feedback capture, diffusion, reverb damping/mixing and output.
 Stereo samples and the four reverb lines are interleaved in scratch memory.
 Grain state stays local during a span; integer-speed grains skip interpolation.
+Initialized spans use unchecked reads as soon as their own history is ready;
+wholly uninitialized spans advance silently. Ring passes walk contiguous chunks.
 Near the live history writer, spans shorten to one frame to preserve feedback
 and wrap behavior. Gain and filter coefficients still ramp sample by sample.
 The six-grain capacity, four-line reverb, rate, mix and tail length are unchanged.
@@ -114,8 +116,11 @@ also mixed the return with an extra 2.3× wet gain; current demos use unity wet.
 Revision `6de273f` corrected return level and source mixing; initial device
 listening was reported much better. It measured **10.074% average** and
 **13.535% worst observed block** at defaults, still above the recommendation.
-The current block-rendering optimization preserves that revision's audio and
-still needs its own device CPU measurement. Full QA remains pending. Host
+Revision `163e278` preserved that revision's audio and measured **5.960% average**
+and **8.208% worst observed block** in one complete hardware capture at defaults.
+Both remain above the 3.5% recommendation. These callback measurements do not
+describe a full project or sweep other settings. Further ring-addressing and
+startup optimizations need a new measurement. Full QA remains pending. Host
 estimates cannot establish native cost or acceptance of a new revision.
 
 Build a profiling image from committed source. This SDK revision's effect-only

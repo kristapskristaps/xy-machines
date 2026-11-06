@@ -95,6 +95,8 @@ Unmute it everywhere.
 - [ ] Size, Reverse, Shimmer and Drift high, including every control at 99:
       no boundary ticks, missing fragments or changed feedback when history wraps.
 - [ ] Abrupt parameter locks, both sends, and changing away and back remain smooth.
+- [ ] Immediately after selecting or resetting Lustre, short and long grains with
+      Reverse/Shimmer/Drift high bloom smoothly, without old scratch or missing fragments.
 - [ ] Collect a fresh default CPU readout for this exact revision; check both
       mean and worst observed block against the 3.5% recommendation.
 

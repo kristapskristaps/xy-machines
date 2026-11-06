@@ -1,0 +1,8 @@
+{
+  "id": "checkpoint",
+  "name": "Performance checkpoint",
+  "description": "Hold Metronome: plus stores the current scene, minus recalls it, Record undoes the last recall. Playback keeps running.",
+  "note": "Temporary RAM checkpoint; reload affects shared patterns and linked sound sources.",
+  "claims": ["metronome_checkpoint"],
+  "actions": ["checkpoint", "notify"]
+}

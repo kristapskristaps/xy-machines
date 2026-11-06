@@ -61,11 +61,11 @@ against stale reads after initialization/reset. State fits the native effect
 slot. Disabled saturation and clean recorder stages use cheaper paths.
 
 **The CPU goal is at most 3.5% average and peak per stereo effect instance.
-This ring-storage revision still needs hardware measurement.** The faster
-preceding implementation `933ddfd` measured 2.65–2.99% average with all controls
-enabled, with peaks above 3.5%. A compact quadratic-curve experiment improved
-curve precision but increased hardware CPU, so this revision retains the
-preceding DSP and linear lookup.
+This table-alignment revision still needs hardware measurement.** The preceding
+ring-storage revision `c99e837` measured 2.66–3.04% average with all controls
+enabled, with observed peaks of 4.51–5.58%. The CPU goal remains unmet. A compact
+quadratic-curve experiment increased hardware CPU, so this revision retains
+the preceding DSP and linear lookup.
 
 The maximum delay remains 1500 frames. Two 2048-frame rings cover that delay,
 the four cubic taps and the 64-frame writer lead; the old 4096-frame rings
@@ -77,6 +77,9 @@ product, preserving its exact modulo-32-bit sequence while freeing a register.
 Delay, cubic precision, recorder voicing, saturation, hiss, event depths and
 all control ranges are unchanged. This storage change is intended to reduce
 the working set; hardware results decide whether it improves timing.
+The saturation lookup now aligns its eight-byte base/delta pairs to eight bytes
+and its table to 32 bytes. Table values and callback arithmetic are unchanged;
+the callback comparison requires bit-exact audio and transport.
 
 Host timing remains advisory. The standard effect benchmark covers defaults;
 full-effect diagnostic copies enable every musical control at maximum and

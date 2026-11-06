@@ -20,6 +20,21 @@ i32 bounded(i32 value) {
     return value > kSignalLimit ? kSignalLimit : value < -kSignalLimit ? -kSignalLimit : value;
 }
 i32 restore(i32 value) {
+    // Fourfold wet gain, with a soft knee above half-scale at the return.
+    // Keep feedback independent of the output gain, so decay stays stable.
+    const i32 knee = 33554432;
+    const bool negative = value < 0;
+    const i32 magnitude = negative ? -value : value;
+    if (magnitude > knee) {
+        i32 shaped = 2 * knee;
+        if (magnitude < 3 * knee) {
+            const i32 excess = magnitude - knee;
+            shaped = knee + excess - multiply(excess * 4, excess * 4);
+        }
+        value = negative ? -shaped : shaped;
+    }
+    value = opxy::q31::add(value, value);
+    value = opxy::q31::add(value, value);
     value = opxy::q31::add(value, value);
     value = opxy::q31::add(value, value);
     return opxy::q31::add(value, value);
@@ -111,7 +126,7 @@ Coefficients coefficients(const State& s) {
     const i32 extra = decay > 1288490188 ? decay - 1288490188 : 0;
     c.gain += multiply(extra, 188000000);
     c.space = s.controls[3];
-    c.direct = kOne - half(c.space);
+    c.direct = kOne - c.space;
     return c;
 }
 
@@ -172,8 +187,10 @@ void tick(State& s, i32* memory, i32 a, i32 b, const Coefficients& c) {
         tank[j * kReverb + (s.reverb_write & (kReverb - 1))] =
             bounded(add(half(j & 1 ? r : l), multiply(difference(taps[j], sum_half), c.gain)));
     }
-    const i32 room_l = difference(half(taps[0]), half(taps[2]));
-    const i32 room_r = difference(half(taps[1]), half(taps[3]));
+    // The tank's injection and stereo projection reduce its level. Restore
+    // that level before the Space crossfade; maximum Space is all reverb.
+    const i32 room_l = difference(half(taps[0]), half(taps[2])) * 3;
+    const i32 room_r = difference(half(taps[1]), half(taps[3])) * 3;
     s.output[0] = add(multiply(wet[0], c.direct), multiply(room_l, c.space));
     s.output[1] = add(multiply(wet[1], c.direct), multiply(room_r, c.space));
     ++s.reverb_write;

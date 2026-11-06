@@ -30,7 +30,7 @@ Record the machine commit, SDK commit, and firmware hash for each full pass.
 ## Its page and controls
 
 - [ ] Sweep Size, Swarm, Decay, Space, Shimmer, Reverse, Drift and Tone in both directions.
-      Size reads 60–360 ms; other controls read 0–100. No abrupt cuts or stuck grains.
+      Every continuous control reads 00–99, including Size (60–360 ms internally). No abrupt cuts or stuck grains.
 - [ ] Shimmer and Reverse affect newly launched grains, so changes may take a grain length to settle.
 - [ ] Fast turns: the value keeps up, no flicker or slowdown
 - [ ] Controls with an alternate (an encoder press, a second page): pressing switches, the page shows
@@ -38,7 +38,9 @@ Record the machine commit, SDK commit, and firmware hash for each full pass.
 - [ ] The page while playing and while stopped, and after leaving it and coming back: nothing stale,
       missing or drawn twice
 - [ ] With track 1's send at 0 the effect is silent; raising it brings the effect in smoothly
-- [ ] Track 1's dry sound stays present as the send rises; no doubled dry audio in the return.
+- [ ] With only send 15 active, raising it reduces the dry source; full send is fully wet.
+- [ ] Compare with the current renderer at send 0.75 and 1, using its unity wet mix.
+      The return is pronounced without needing another effect or an external gain boost.
 - [ ] Stop the sequencer while a note rings: the effect's tail ends naturally, with no click
 - [ ] The same effect on track 16, at the same time as on track 15: each keeps its own values
 
@@ -72,11 +74,13 @@ Unmute it everywhere.
 
 - [ ] Play a short pluck or sparse arpeggio. Size short makes little fragments; Size long makes a soft bloom.
 - [ ] Swarm high fills the gaps and raises the cloud level; Swarm low leaves distinct fragments.
-- [ ] Shimmer 100 produces octave-up grains; Reverse 100 plays fragments backwards. Try both together.
+- [ ] Shimmer 99 produces octave-up grains; Reverse 99 plays fragments backwards. Try both together.
 - [ ] Drift 0 is steady; raising it adds gentle pitch movement. Tone darkens and brightens the cloud.
-- [ ] Space adds a wide diffuse tail. Mono input spreads in stereo, without harsh ringing.
-- [ ] Decay 100 with all other controls high stays bounded and fades after the input stops.
-- [ ] Dial the Cathedral recipe (Decay/Space 100). A short phrase leaves a large, lush tail
+- [ ] Space 00 emphasizes grains; Space 99 is the diffuse reverb without a direct grain layer.
+      Mono input spreads in stereo, without harsh ringing.
+- [ ] Sweep send from zero to full on plucks, drums and chords: no harsh clipping or sudden jumps.
+- [ ] Decay 99 with all other controls high stays bounded and fades after the input stops.
+- [ ] Dial the Cathedral recipe (Decay/Space 99). A short phrase leaves a large, lush tail
       for tens of seconds; listen through at least 60 seconds for ringing or a persistent noise floor.
 - [ ] While that tail rings, lower Decay and Space: it changes smoothly without clicks or a hard cut.
 - [ ] Try each README recipe by ear on plucks, chords, bass and drums. Keep the same send level.

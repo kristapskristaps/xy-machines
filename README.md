@@ -9,7 +9,9 @@ its algorithms or phrase looper.
 
 Choose **lustre** on send 15 or 16 with **Shift + M1**, then raise an instrument's
 send. Start around a quarter send on a pluck, sparse chords, or an arpeggio.
-The source stays dry in the stock mixer; Lustre returns only the effect.
+The send moves from the clean source toward the effect. At full send the source
+is fully wet; Lustre returns only the effect and the stock mixer handles the dry
+level. Space moves from grain definition to a full diffuse reverb at maximum.
 
 Press any encoder to switch all four controls between the two pages.
 
@@ -18,7 +20,7 @@ Press any encoder to switch all four controls between the two pages.
 | 1 | Size | Grain length, 60–360 ms; longer grains reach further into the recent phrase |
 | 1 | Swarm | Overlap, from two to six simultaneous grains; denser and louder clouds |
 | 1 | Decay | Grain recirculation and reverb sustain; the upper range opens into a long hall |
-| 1 | Space | Diffuse stereo reverb, retaining a little of the grain definition |
+| 1 | Space | Crossfade from grain definition to a full diffuse stereo reverb |
 | 2 | Shimmer | Proportion of newly launched grains played one octave up |
 | 2 | Reverse | Proportion of newly launched grains played backwards |
 | 2 | Drift | Random detuning per grain, up to approximately half a semitone either way |
@@ -28,18 +30,25 @@ Size, Shimmer, Reverse and Drift take effect as new grains launch. Existing grai
 finish their envelopes; quick edits do not cut them off. Defaults leave Shimmer,
 Reverse and Drift at zero.
 
-These recipes use the values shown by the stock header (Size in milliseconds,
-all others 0–100). Effects do not have a native preset browser; the same recipes
-are included in `definition.json` for offline audition and reference.
+The stock send page shows **00–99 for every continuous control**, including Size.
+Size 00 means 60 ms and 99 means 360 ms; it does not show milliseconds. The
+following recipes use approximate on-device readings (a saved value can show one
+step lower because the stock header truncates fractions).
+Effects have no native preset browser; the normalized recipes also live in
+`definition.json` for offline audition and reference.
 
 | Recipe | Size | Swarm | Decay | Space | Shimmer | Reverse | Drift | Tone |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| init | 195 | 65 | 60 | 65 | 0 | 0 | 0 | 65 |
-| Glass garden | 210 | 85 | 72 | 80 | 35 | 10 | 20 | 72 |
-| Velvet tide | 315 | 95 | 85 | 95 | 8 | 30 | 30 | 42 |
-| Reverse stars | 246 | 70 | 70 | 65 | 55 | 85 | 12 | 80 |
-| Fireflies | 84 | 30 | 45 | 30 | 65 | 15 | 15 | 80 |
-| Cathedral | 330 | 100 | 100 | 100 | 18 | 20 | 25 | 65 |
+| init | 45 | 65 | 60 | 65 | 0 | 0 | 0 | 65 |
+| Glass garden | 50 | 85 | 72 | 80 | 35 | 10 | 20 | 72 |
+| Velvet tide | 85 | 95 | 85 | 95 | 8 | 30 | 30 | 42 |
+| Reverse stars | 62 | 70 | 70 | 65 | 55 | 85 | 12 | 80 |
+| Fireflies | 8 | 30 | 45 | 30 | 65 | 15 | 15 | 80 |
+| Cathedral | 90 | 99 | 99 | 99 | 18 | 20 | 25 | 65 |
+
+Use one send for comparison, with the other send at zero. Raising every control
+is not the Cathedral recipe: Shimmer and Reverse at 99 replace essentially all
+grains with octave-up, backwards fragments.
 
 For a large, lingering reverb, start with Cathedral. Its maximum Decay setting
 has a host-rendered T30 extrapolation of about 42 seconds on the broadband test
@@ -61,8 +70,11 @@ c++ -std=c++11 -O2 -I../open-xy/sdk/include tools/render.cpp -o ../open-xy/local
 The renderer accepts recipe numbers 0–5 in the table's order. Examples have four
 seconds dry, ten seconds with the effect, then eight seconds of tail. Cathedral
 (5) instead lets the tail ring for fifty seconds. Every recipe uses the same
-source and fixed playback gain. These are host
-renders of the actual callback, not a recording from the OP-XY.
+source and master playback gain. The optional fourth
+argument sets the isolated send weight (default `0.75`, or `1` for fully wet).
+The renderer scales the input by that send weight, attenuates dry by `1-send`,
+and mixes the actual callback return at unity. It applies no extra wet boost or
+per-file normalization. These are host renders, not recordings from the OP-XY.
 
 The effect uses six zero-ended, smoothly windowed grains, stereo history, four
 all-pass diffusers, and a damped four-line feedback reverb. Its network runs at
@@ -76,6 +88,10 @@ once per block reduce audio-loop work. Gain and filter coefficients ramp within
 each block to keep automation smooth. The six-grain capacity and four reverb
 lines are preserved; the CPU saving does not shorten the tail or lower the sample rate.
 
+The return has fourfold gain relative to the initial prototype, restored tank
+level, and a soft knee above half-scale. This output gain is outside the feedback
+loops, so it does not lengthen or destabilize the tail.
+
 No tempo sync, freeze, phrase recording, or Microcosm mode emulation is provided.
 The first fragments arrive after roughly one grain length; this is a blooming
 send rather than an immediate reverb. Both sends can run independent instances.
@@ -83,15 +99,16 @@ send rather than an immediate reverb. Both sends can run independent instances.
 ## Hardware validation
 
 Host tests cover dirty scratch, resets, output and stereo energy, tail decay,
-all controls, rapid automation, full-scale input and missing buffers. Hardware
-sound, controls, and CPU qualification remain pending. Host estimates vary with
-machine load; only a device measurement can establish its actual cost. The SDK
-prefers 30,000 instructions per effect block and warns at 48,000.
-Five paired local host runs gave a median estimate of about 22,000 at the slowest
-SDK control-sweep setting, down from about 35,000 for the original. The median of
-an additional sweep covering all 256 minimum/maximum control combinations was
-about 23,000. Individual timings can spike above the target under host scheduling;
-these estimates are guidance, not OP-XY CPU percentages or a hardware guarantee.
+all controls, rapid automation, full-scale input and missing buffers. The first
+hardware build (commit `b5ed40a`) measured **9.859% average** and **13.823% worst
+observed block** at defaults, above the 3.5% recommendation for each. Its wet
+return was reported too muted, and its stock readout uses 00–99 rather than the
+previous guide's units. That revision did not pass sound QA. Its rendered demos
+also mixed the return with an extra 2.3× wet gain; current demos use unity wet.
+
+The current gain, Space and source-mix corrections still need device listening
+and new CPU measurements. Host estimates are advisory and cannot establish the
+native cost or acceptance of a new revision.
 
 Build a profiling image from committed source. This SDK revision's effect-only
 collection fails an SDK startup compilation check; including the core FM synth

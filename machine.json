@@ -2,5 +2,6 @@
   "schema": 1,
   "sdk": "1.10",
   "kind": "effect",
+  "dryLevel": 0,
   "description": "A stereo granular bloom: soft overlapping grains, octave shimmer, reverse fragments and a diffuse reverb tail."
 }

@@ -10,7 +10,7 @@ void require(bool condition, const char* message) {
 }
 const double pi = 3.141592653589793;
 const double defaults[8] = {.45, .65, .6, .65, 0, 0, 0, .65};
-struct Result { double energy, late, final, side, peak; };
+struct Result { double energy, late, final, side, peak; unsigned first; };
 Result render(const double* settings, unsigned seed, bool silent, bool automate = false) {
     lustre::State state;
     lustre::initialize(state);
@@ -30,6 +30,7 @@ Result render(const double* settings, unsigned seed, bool silent, bool automate 
         for (unsigned i = 0; i < 64; ++i) {
             const double l = left[i] / 2147483648., r = right[i] / 2147483648.;
             const double power = l*l + r*r;
+            if (!result.first && power > 1e-10) result.first = block * 64 + i;
             result.energy += power;
             result.side += (l-r)*(l-r);
             if (block > 1400 && block < 2800) result.late += power;
@@ -50,9 +51,16 @@ int main() {
     const Result dirty = render(defaults, 0x98765432, false);
     require(clean.energy == dirty.energy, "scratch contents do not affect sound");
     require(clean.energy > 1, "defaults produce an audible wet signal");
+    require(clean.peak > .1, "default wet return is substantial on the pluck fixture");
     require(clean.side > clean.energy * .001, "mono input blooms into stereo");
     require(clean.late > .001, "reverb persists after the source ends");
     require(clean.final < clean.late * .001, "default tail decays");
+    double grains[8], room[8];
+    for (unsigned j = 0; j < 8; ++j) grains[j] = room[j] = defaults[j];
+    grains[3] = 0;
+    room[3] = 1;
+    const Result grain_only = render(grains, 0, false), room_only = render(room, 0, false);
+    require(room_only.first > grain_only.first + 2000, "full Space removes the direct grain layer");
     double extremes[8] = {1,1,1,1,1,1,1,1};
     const Result maximum = render(extremes, 0x12345678, false);
     require(maximum.peak < .99, "maximum settings retain headroom on the fixture");
@@ -91,5 +99,5 @@ int main() {
         lustre::process(state, {memory.data(),lustre::kBufferWords}, left, right, parameters);
         for (unsigned i = 0; i < 64; ++i) require(!left[i] && !right[i], "reset scratch stays silent");
     }
-    std::printf("PASS: dirty scratch, audible defaults, stereo bloom, fading tails, automation, state and missing buffer (peak %.4f)\n", maximum.peak);
+    std::printf("PASS: dirty scratch, wet level, Space crossfade, stereo bloom, fading tails, automation, state and missing buffer (default peak %.4f, maximum %.4f)\n", clean.peak, maximum.peak);
 }

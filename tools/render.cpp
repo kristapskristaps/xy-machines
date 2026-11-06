@@ -9,9 +9,11 @@ void word(std::FILE* f, unsigned value, unsigned bytes) {
     for (unsigned i = 0; i < bytes; ++i) std::fputc((value >> (i * 8)) & 255, f);
 }
 int main(int argc, char** argv) {
-    if (argc != 3) { std::fprintf(stderr, "usage: render output.wav preset(0..5)\n"); return 1; }
+    if (argc < 3 || argc > 4) { std::fprintf(stderr, "usage: render output.wav preset(0..5) [send 0..1, default .75]\n"); return 1; }
     const int preset = std::atoi(argv[2]);
     if (preset < 0 || preset > 5) return 1;
+    const double send = argc == 4 ? std::atof(argv[3]) : .75;
+    if (!(send >= 0 && send <= 1)) return 1;
     const double presets[6][8] = {
         {.45,.65,.6,.65,0,0,0,.65},
         {.5,.85,.72,.8,.35,.1,.2,.72},
@@ -44,14 +46,16 @@ int main(int argc, char** argv) {
             dry[i] = t < 14 ? .32 * env * (std::sin(6.283185307179586 * f * age) +
                 .26 * std::sin(6.283185307179586 * f * 2 * age) +
                 .12 * std::sin(6.283185307179586 * f * 3 * age)) : 0;
-            left[i] = right[i] = static_cast<opxy::i32>(dry[i] * 2147483647.);
+            left[i] = right[i] = static_cast<opxy::i32>(send * dry[i] * 2147483647.);
             if (t < 4) left[i] = right[i] = 0;
         }
         lustre::process(state, {memory.data(),lustre::kBufferWords}, left, right, parameters);
         for (unsigned i = 0; i < 64 && start + i < frames; ++i) {
             for (unsigned ch = 0; ch < 2; ++ch) {
-                // Common fixed gain across presets; no individual normalization.
-                const double value = .85 * (dry[i] + 2.3 * (ch ? right[i] : left[i]) / 2147483648.);
+                // Isolated stock-send model with dryLevel 0: attenuate the
+                // source by 1-send and add the actual wet return at unity.
+                const double dry_gain = start + i < 4 * 44100 ? 1 : 1-send;
+                const double value = .85 * (dry_gain * dry[i] + (ch ? right[i] : left[i]) / 2147483648.);
                 if (std::abs(value) > peak) peak = std::abs(value);
                 if (std::abs(value) >= 1) { std::fprintf(stderr, "clipped demo\n"); return 1; }
                 pcm.push_back(static_cast<short>(value * 32767));
@@ -67,6 +71,6 @@ int main(int argc, char** argv) {
     for (unsigned i = 0; i < pcm.size(); ++i) word(f,static_cast<unsigned>(pcm[i]) & 65535,2);
     const bool failed = std::ferror(f);
     std::fclose(f);
-    std::printf("Audition %d: dry 0..4s, effect 4..14s, tail 14..%us; peak %.3f\n",preset,seconds,peak);
+    std::printf("Audition %d: send %.2f, unity wet return; dry 0..4s, effect 4..14s, tail 14..%us; peak %.3f\n",preset,send,seconds,peak);
     return failed ? 1 : 0;
 }

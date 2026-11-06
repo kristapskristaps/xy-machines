@@ -72,6 +72,8 @@ the four cubic taps and the 64-frame writer lead; the old 4096-frame rings
 retained unused history. Scratch falls from 32,800 to 16,416 bytes. The
 cross-revision callback comparison requires bit-exact audio and transport,
 checking retained history by age across the different physical ring sizes.
+The hiss recurrence now uses an unsigned 32-bit multiply instead of a wide
+product, preserving its exact modulo-32-bit sequence while freeing a register.
 Delay, cubic precision, recorder voicing, saturation, hiss, event depths and
 all control ranges are unchanged. This storage change is intended to reduce
 the working set; hardware results decide whether it improves timing.

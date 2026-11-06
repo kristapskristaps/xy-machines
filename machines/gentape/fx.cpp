@@ -26,7 +26,7 @@ u32 random(State &s) {
     return s.random = x;
 }
 i32 noise_audio(u32 &seed) {
-    seed = static_cast<u32>(opxy::q31::wide(static_cast<i32>(seed), 1664525)) + 1013904223u;
+    seed = seed * 1664525u + 1013904223u;
     return static_cast<i32>(seed >> 4) - one;
 }
 i32 random_audio(State &s) { return static_cast<i32>(random(s) >> 4) - one; }

@@ -35,5 +35,6 @@
   "hkstutter": "A rhythmic repeat effect with adjustable rate, shape and chance. Freeze a fragment or add bursts of stuttering repeats.",
   "hktape": "A tape-style delay with darkening repeats and flutter. Adjust age, timing and feedback for worn, moving echoes.",
   "hkwarble": "A pitch modulation effect with adjustable rate, depth and tone. Add gentle movement or a more pronounced wobble.",
-  "hkwasher": "A swirling modulation effect. Change speed, depth and foam to move from subtle motion to a more turbulent wash."
+  "hkwasher": "A swirling modulation effect. Change speed, depth and foam to move from subtle motion to a more turbulent wash.",
+  "gentape": "Stereo tape color, from gentle cassette drift to worn VHS: independent wow and flutter, smooth saturation, four recorder voices and unpredictable tape failures."
 }

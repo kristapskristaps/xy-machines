@@ -1,6 +1,6 @@
 # XY Machines
 
-37 Open-XY machines: **21 synths, 15 send effects and 1 drum machine**.
+38 Open-XY machines: **21 synths, 16 send effects and 1 drum machine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
@@ -10,7 +10,7 @@ in a separate sibling checkout. No firmware or device data is included.
   Rebound, Mando, Bitflip, X0X, and the five standalone Weave models.
 - `machines/hundekraft/`: all 25 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 37 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 38 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK
   effects remain excluded from hardware test kits.
@@ -186,3 +186,4 @@ and documentation; it does not replace the licences of the machines.
 | crease | Crease | synth | [machines/crease](machines/crease/README.md) |
 | atlas | Atlas | synth | [machines/atlas](machines/atlas/README.md) |
 | x0x | X0X | drum | [machines/x0x](machines/x0x/README.md) |
+| gentape | Gen Tape | effect | [machines/gentape](machines/gentape/README.md) |

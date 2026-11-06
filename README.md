@@ -17,7 +17,7 @@ Press any encoder to switch all four controls between the two pages.
 | --- | --- | --- |
 | 1 | Size | Grain length, 60–360 ms; longer grains reach further into the recent phrase |
 | 1 | Swarm | Overlap, from two to six simultaneous grains; denser and louder clouds |
-| 1 | Decay | Grain recirculation and reverb sustain; feedback always loses energy |
+| 1 | Decay | Grain recirculation and reverb sustain; the upper range opens into a long hall |
 | 1 | Space | Diffuse stereo reverb, retaining a little of the grain definition |
 | 2 | Shimmer | Proportion of newly launched grains played one octave up |
 | 2 | Reverse | Proportion of newly launched grains played backwards |
@@ -39,6 +39,13 @@ are included in `definition.json` for offline audition and reference.
 | Velvet tide | 315 | 95 | 85 | 95 | 8 | 30 | 30 | 42 |
 | Reverse stars | 246 | 70 | 70 | 65 | 55 | 85 | 12 | 80 |
 | Fireflies | 84 | 30 | 45 | 30 | 65 | 15 | 15 | 80 |
+| Cathedral | 330 | 100 | 100 | 100 | 18 | 20 | 25 | 65 |
+
+For a large, lingering reverb, start with Cathedral. Its maximum Decay setting
+has a host-rendered T30 extrapolation of about 42 seconds on the broadband test
+fixture; brighter frequencies fade sooner. The feedback stays below unity, so
+it fades naturally. Lower Decay for quicker changes between chords. Defaults
+retain the original, shorter decay.
 
 ## Develop and audition
 
@@ -51,9 +58,10 @@ c++ -std=c++11 -O2 -I../open-xy/sdk/include tools/render.cpp -o ../open-xy/local
 ../open-xy/local/lustre-render ../open-xy/local/lustre-glass-garden.wav 1
 ```
 
-The renderer accepts recipe numbers 0–4 in the table's order. Each 22-second
-example has four seconds dry, ten seconds with the effect, then eight seconds of
-tail. Every recipe uses the same source and fixed playback gain. These are host
+The renderer accepts recipe numbers 0–5 in the table's order. Examples have four
+seconds dry, ten seconds with the effect, then eight seconds of tail. Cathedral
+(5) instead lets the tail ring for fifty seconds. Every recipe uses the same
+source and fixed playback gain. These are host
 renders of the actual callback, not a recording from the OP-XY.
 
 The effect uses six zero-ended, smoothly windowed grains, stereo history, four
@@ -62,6 +70,11 @@ all-pass diffusers, and a damped four-line feedback reverb. Its network runs at
 top end. It uses 335,872 bytes of per-send scratch, no audio-thread allocation,
 and less than the SDK's 472-byte state limit. Each line tracks valid history,
 so changing effects or resetting never exposes old scratch contents.
+Audio uses Q28 internally with guard bits for mixing, while coefficient products
+use the SDK's Q31 operations. Shared stereo tap checks and coefficients prepared
+once per block reduce audio-loop work. Gain and filter coefficients ramp within
+each block to keep automation smooth. The six-grain capacity and four reverb
+lines are preserved; the CPU saving does not shorten the tail or lower the sample rate.
 
 No tempo sync, freeze, phrase recording, or Microcosm mode emulation is provided.
 The first fragments arrive after roughly one grain length; this is a blooming
@@ -74,6 +87,11 @@ all controls, rapid automation, full-scale input and missing buffers. Hardware
 sound, controls, and CPU qualification remain pending. Host estimates vary with
 machine load; only a device measurement can establish its actual cost. The SDK
 prefers 30,000 instructions per effect block and warns at 48,000.
+Five paired local host runs gave a median estimate of about 22,000 at the slowest
+SDK control-sweep setting, down from about 35,000 for the original. The median of
+an additional sweep covering all 256 minimum/maximum control combinations was
+about 23,000. Individual timings can spike above the target under host scheduling;
+these estimates are guidance, not OP-XY CPU percentages or a hardware guarantee.
 
 Build a profiling image from committed source. This SDK revision's effect-only
 collection fails an SDK startup compilation check; including the core FM synth

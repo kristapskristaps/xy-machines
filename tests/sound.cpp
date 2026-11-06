@@ -76,10 +76,12 @@ int main() {
     // A reset must discard the previous effect's tail without a bulk clear.
     std::vector<opxy::i32> memory(lustre::kBufferWords, 0x55555555);
     for (unsigned j = 0; j < 8; ++j) parameters[j] = 0x7fffffff;
-    for (unsigned block = 0; block < 2500; ++block) {
+    for (unsigned block = 0; block < 18000; ++block) {
         for (unsigned i = 0; i < 64; ++i) {
-            left[i] = (block + i) & 1 ? 0x7fffffff : -0x7fffffff - 1;
-            right[i] = (block + i) & 2 ? 0x7fffffff : -0x7fffffff - 1;
+            // Slow full-scale square waves excite the tank instead of being
+            // removed by the input's anti-alias filter; finish with silence.
+            left[i] = block < 9000 ? ((block / 8) & 1 ? 0x7fffffff : -0x7fffffff - 1) : 0;
+            right[i] = block < 9000 ? ((block / 13) & 1 ? 0x7fffffff : -0x7fffffff - 1) : 0;
         }
         lustre::process(state, {memory.data(),lustre::kBufferWords}, left, right, parameters);
     }

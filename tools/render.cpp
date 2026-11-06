@@ -9,19 +9,21 @@ void word(std::FILE* f, unsigned value, unsigned bytes) {
     for (unsigned i = 0; i < bytes; ++i) std::fputc((value >> (i * 8)) & 255, f);
 }
 int main(int argc, char** argv) {
-    if (argc != 3) { std::fprintf(stderr, "usage: render output.wav preset(0..4)\n"); return 1; }
+    if (argc != 3) { std::fprintf(stderr, "usage: render output.wav preset(0..5)\n"); return 1; }
     const int preset = std::atoi(argv[2]);
-    if (preset < 0 || preset > 4) return 1;
-    const double presets[5][8] = {
+    if (preset < 0 || preset > 5) return 1;
+    const double presets[6][8] = {
         {.45,.65,.6,.65,0,0,0,.65},
         {.5,.85,.72,.8,.35,.1,.2,.72},
         {.85,.95,.85,.95,.08,.3,.3,.42},
         {.62,.7,.7,.65,.55,.85,.12,.8},
-        {.08,.3,.45,.3,.65,.15,.15,.8}
+        {.08,.3,.45,.3,.65,.15,.15,.8},
+        {.9,1,1,1,.18,.2,.25,.65}
     };
     // All files share the same source. 0..4 s dry; 4..14 s dry+wet;
     // 14..22 s wet only, with the last source note at 13.5 s.
-    const unsigned frames = 22 * 44100;
+    const unsigned seconds = preset == 5 ? 64 : 22;
+    const unsigned frames = seconds * 44100;
     const double notes[] = {220, 261.625565, 329.627557, 493.883301, 440, 329.627557, 293.664768, 391.995436};
     std::vector<opxy::i32> memory(lustre::kBufferWords, 0x12345678);
     lustre::State state;
@@ -65,6 +67,6 @@ int main(int argc, char** argv) {
     for (unsigned i = 0; i < pcm.size(); ++i) word(f,static_cast<unsigned>(pcm[i]) & 65535,2);
     const bool failed = std::ferror(f);
     std::fclose(f);
-    std::printf("Audition %d: dry 0..4s, effect 4..14s, tail 14..22s; peak %.3f\n",preset,peak);
+    std::printf("Audition %d: dry 0..4s, effect 4..14s, tail 14..%us; peak %.3f\n",preset,seconds,peak);
     return failed ? 1 : 0;
 }

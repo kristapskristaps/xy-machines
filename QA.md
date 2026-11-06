@@ -76,6 +76,9 @@ Unmute it everywhere.
 - [ ] Drift 0 is steady; raising it adds gentle pitch movement. Tone darkens and brightens the cloud.
 - [ ] Space adds a wide diffuse tail. Mono input spreads in stereo, without harsh ringing.
 - [ ] Decay 100 with all other controls high stays bounded and fades after the input stops.
+- [ ] Dial the Cathedral recipe (Decay/Space 100). A short phrase leaves a large, lush tail
+      for tens of seconds; listen through at least 60 seconds for ringing or a persistent noise floor.
+- [ ] While that tail rings, lower Decay and Space: it changes smoothly without clicks or a hard cut.
 - [ ] Try each README recipe by ear on plucks, chords, bass and drums. Keep the same send level.
 - [ ] While a long tail sounds, change to a stock effect and back. No old sound or burst leaks through.
 - [ ] Rapid Size/Reverse/Shimmer automation does not chop off active grains or cause ticks.

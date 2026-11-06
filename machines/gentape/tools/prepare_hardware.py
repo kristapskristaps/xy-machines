@@ -100,7 +100,7 @@ def main():
         write_json(folder / 'machine.json', metadata)
         collection.append({'path': str(folder)})
         probes.append(dict(id=ident, model=suffix, parameters=settings, purpose='Full-control CPU callback workload'))
-    collection += [{'extension': str(out / 'extensions' / ident)} for ident in extensions]
+    collection += [{'path': str(out / 'extensions' / ident)} for ident in extensions]
     write_json(out / 'collection.json', dict(schema=1, machines=collection))
     (out / 'base-layout.json').write_bytes((package / 'layout.json').read_bytes())
     write_json(out / 'preparation.json', dict(base_package=str(package), base_firmware_sha256=digest(package / 'candidate/os.ldr'),

@@ -1,0 +1,9 @@
+{
+  "id": "autotune",
+  "name": "Auto Tune",
+  "description": "Corrects single-note vocals and instruments on Aux 5. Choose a key, scale and retune speed for the mic, headset or line input.",
+  "note": "One note at a time, with about 15 ms of base delay.",
+  "claims": [],
+  "actions": [],
+  "live_input": {"controls": true}
+}

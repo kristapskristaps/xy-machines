@@ -1163,6 +1163,38 @@
         "tools/render.cpp": "3cee8ce56dd67c72ee0213781aad6d80ec673fa8f338716a6e208c3eebc65629"
       },
       "history_import_commit": "abfdad2a421be8b7282d7d9b68bff8a219fda035"
+    },
+    {
+      "id": "gentape",
+      "source": "xy-machines",
+      "commit": "1dcde2fd769bc8868f0d6ec187ecbce51ca7d2da",
+      "refs": {
+        "refs/heads/codex/gentape-composed-linear": "1dcde2fd769bc8868f0d6ec187ecbce51ca7d2da"
+      },
+      "source_status": [],
+      "destination": "machines/gentape",
+      "files": {
+        ".gitignore": "63c2cad6f95a7c734fe5072293998a93412fdf36aa6f18ac96ffc278531dbea9",
+        "AGENTS.md": "37c7e67c6fca5b21ca4741ad87255251a620eff62b72277b724174622781dec3",
+        "LICENSE": "afac4d20ab410b587b9dd19a83cafab2d256579d34cdc92bf1ea8b8a5a694e2a",
+        "QA.md": "fa80fc47e2392e5fd54059d3d17c4fd624d5358c22209db5a01306701a42fe19",
+        "README.md": "be5d17d28b06addd89a08367b56edd191a9c48292589cc846e5e24805782e5dd",
+        "core.h": "2656c45e4f039ddb5257b1f267c0f6869d576c7b8e7a9ba30dc7b1c09a84f775",
+        "definition.json": "e7d891e698791c06c09e0c26caa3e0eb0dc9ecd5811524b14b5021fdc399e32a",
+        "fx.cpp": "f7f020498ddf99f6ce9e6ed1d9430b15ef5c4f10b0846efec02ec429d1891b40",
+        "machine.json": "28ba821d7140807a9701138072c18e03eaa0375c470a641c5c7f34f70096ec39",
+        "tables.h": "a46fb87ce26ed632d69b7e0445df577ec2f020695b8a2b27e068c7a75653108e",
+        "tests/sound.cpp": "1a62bdd460b12818e7d5ba7a3b034769aba157248bfc0496eb78c89a390b9419",
+        "tools/audit_controls.cpp": "b82df3b981b6c7d535ad77da360f08b92a358872df79f3a8a2e25d4bda805780",
+        "tools/benchmark.py": "96b184737cf9b613656bdffd9682aa88584b79a35c1658254728e15eb0386159",
+        "tools/compare_revision.py": "cc974755daed4767fa9b81f6e48aa102f1d3f8df411de830c88a1c9c308afb54",
+        "tools/generate_tables.py": "207ee0b78e1d48dc6e87472455d62b1080a36347badad1b3340834746ad464a4",
+        "tools/prepare_hardware.py": "e6ff6a9a444e4dc8b3d6db43eeb75e10d04e35d8b236bb8110f66fc5fbddfd3b",
+        "tools/quality.py": "78144a4751c572bee5202aac032f3d5e53205871d8e4df1d8b40512041eafbcb",
+        "tools/render.cpp": "ed46fc05b294811d2acfdd204cfff0266e06442cafed1f9af2500fec1f2334bf",
+        "tools/render_examples.py": "4a93a32edd04675b4fddf8c85203a5a733f7da28886de9ab6ec38ada4766f379",
+        "tools/render_revision.py": "e0e0fc9a06356cffbde48bf292d77aa63abe4d3c84bd3d6876bd42e48993b40a"
+      }
     }
   ]
 }

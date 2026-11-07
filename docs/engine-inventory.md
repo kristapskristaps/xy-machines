@@ -1,6 +1,6 @@
 # Engine inventory
 
-38 source engines: 21 synths, 16 effects and 1 drum machine. This is source availability, not a release list or a promise that all engines fit together. The combined Weave engine is retired; its source remains in Git history. HK effects remain excluded from the default builder/test selection.
+The collection has 39 source engines, including 21 synths, 17 effects and 1 drum machine. This is source availability, not a release list or a promise that all engines fit together. The combined Weave engine is retired; its source remains in Git history. HK effects remain excluded from the default builder/test selection.
 
 ## Synths
 
@@ -38,6 +38,7 @@
 
 | Name | ID | Source |
 | --- | --- | --- |
+| Gen Tape | `gentape` | [machines/gentape](../machines/gentape/README.md) |
 | HK Clouds | `hkclouds` | [machines/hundekraft/hkclouds](../machines/hundekraft/hkclouds/README.md) |
 | HK Crush | `hkcrush` | [machines/hundekraft/hkcrush](../machines/hundekraft/hkcrush/README.md) |
 | HK Father | `hkfather` | [machines/hundekraft/hkfather](../machines/hundekraft/hkfather/README.md) |

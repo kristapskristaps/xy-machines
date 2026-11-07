@@ -39,6 +39,9 @@
     },
     {
       "path": "../machines/lustre"
+    },
+    {
+      "path": "../machines/gentape"
     }
   ]
 }

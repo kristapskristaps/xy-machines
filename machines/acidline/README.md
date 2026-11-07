@@ -1,8 +1,7 @@
 # Acidline
 
 A mono acid voice with a four-stage 303 ladder, band-limited saw/triangle/square,
-linked drive and clipping, an octave sub and darkening. The monochrome display
-shows a twisting fluid membrane, suspended bead clusters and small bubbles.
+linked drive and clipping, an octave sub and darkening. The monochrome display shows a signal etched into a metal plate.
 
 ## Playing and slide
 
@@ -47,23 +46,24 @@ can use parameter locks on Flow, Bite, Burn or Sweep.
 
 ## Display
 
-Four quarter-turned tiles surround an aperture. The cutout repeats at a
-quarter scale in the centre. Each outer tile carries one encoder grey.
+Two incisions run between contact rails on a metal plate. A new note bends
+the lead groove and sends a bright spark and two dimmer traces down it. The
+second incision stays in the plate as an octave echo.
 
 | Sound control | Animation |
 | --- | --- |
-| Flow | Opens the upper-left corner of the aperture |
-| Bite | Pulls the upper-right tile inward |
-| Burn | Turns the lower-right tile |
-| Sweep | Shifts the bright tile outward and sets its note travel |
-| Length | Scales the outlined tile and sets the note's settling time |
-| Shape | Switches the cutout profile |
-| Body | Enlarges the lower-right tile |
-| Shade | Shrinks the bright tile |
+| Flow | Moves where the first fold opens in the groove |
+| Bite | Deepens the groove's repeated bends |
+| Burn | Cuts small pits into the bends |
+| Sweep | Bends the live groove farther on an attack |
+| Length | Extends the return bend and the time the spark travels |
+| Shape | Changes the groove between saw teeth, triangles and square steps |
+| Body | Separates the octave incision from the lead |
+| Shade | Darkens the octave incision and softens the main groove |
 
-Only the bright tile moves on a note. Every control changes the drawing on the
-next frame, even at rest. Reduced motion keeps the aperture still between
-encoder turns.
+At rest, both incisions follow the controls and the sparks are extinguished.
+Reduced motion keeps the same stationary drawing. A note moves at most the
+lead outline and the three sparks. The spark is driven by note activity.
 
 ## DSP budget and validation
 

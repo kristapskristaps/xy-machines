@@ -28,7 +28,11 @@ Input midpoint() {
 
 unsigned changes(const Frame& before, const Frame& after) {
     unsigned count = 0;
-    for (unsigned node = page_header_nodes; node < Frame::node_count; ++node)
+    for (unsigned path = 0; path < Frame::path_count; ++path) {
+        count += before.nodes[path].shade != after.nodes[path].shade ||
+                 std::memcmp(before.paths[path].points, after.paths[path].points, sizeof(before.paths[path].points)) != 0;
+    }
+    for (unsigned node = Frame::path_count + page_header_nodes; node < Frame::node_count; ++node)
         count += std::memcmp(&before.nodes[node], &after.nodes[node], sizeof(before.nodes[node])) != 0;
     return count;
 }
@@ -64,26 +68,26 @@ int main() {
     input.note_on_serial++;
     input.held_notes = 1;
     render(state, input, current);
-    require(changes(idle, current) == 1, "FAIL note attack should move just the bright tile");
+    require(changes(idle, current) == 2, "FAIL note attack should bend the lead trace and start its spark");
 
     for (unsigned tick = 0; tick < 32; ++tick) {
         previous = current;
         render(state, input, current);
-        require(changes(previous, current) <= 1, "FAIL held note redraws more than one stage node");
+        require(changes(previous, current) <= 4, "FAIL held note redraws more than the lead trace and its sparks");
     }
-    require(changes(idle, current) == 1 && changes(previous, current) == 0,
-            "FAIL held tile should settle away from its idle position");
+    require(changes(idle, current) == 4 && changes(previous, current) == 0,
+            "FAIL held note should settle with the lead trace and sparks active");
     input.note_on_serial++;
     previous = current;
     render(state, input, current);
-    require(changes(previous, current) == 1, "FAIL retrigger should move the tile immediately");
+    require(changes(previous, current) > 0, "FAIL retrigger should restart the trace immediately");
 
     input.held_notes = 0;
     input.note_off_serial++;
     for (unsigned tick = 0; tick < 32; ++tick) {
         previous = current;
         render(state, input, current);
-        require(changes(previous, current) <= 1, "FAIL release redraws more than one stage node");
+        require(changes(previous, current) <= 4, "FAIL release redraws more than the lead trace and its sparks");
     }
     require(changes(idle, current) == 0, "FAIL release does not settle at rest");
 
@@ -117,5 +121,5 @@ int main() {
         require(state.header.page == alternate, "FAIL header does not follow the control page");
     }
 
-    std::puts("PASS eight immediate control mappings; one-node note motion and stable idle");
+    std::puts("PASS eight immediate control mappings; bounded note motion and stable idle");
 }

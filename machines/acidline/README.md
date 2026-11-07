@@ -47,27 +47,24 @@ can use parameter locks on Flow, Bite, Burn or Sweep.
 
 ## Display
 
-A monochrome liquid surface crosses the screen in six overlapping folds. Eight
-continuous cubic layers build each fold from dark body shading to narrow moving
-reflections. Smooth authored surfaces replace the previous cross-section mesh;
-small pearl cores have separate specular glints, with bubbles around them.
+A monochrome flow cell shows the signal passing through an inlet, a valve, a
+heated reservoir and an outlet. The case and channel are fixed artwork.
 
 | Sound control | Animation |
 | --- | --- |
-| Flow | Advection speed |
-| Bite | Fold frequency, pinching and twist |
-| Burn | Reflected-light intensity |
-| Sweep | Curl amplitude and fold rotation |
-| Length | Note-pulse persistence, fold spacing and bubble trails |
-| Shape | Rounded, double-wave or creased fold profile |
-| Body | Liquid volume and pearl size |
-| Shade | Surface darkness and highlight contrast |
+| Flow | Inlet position along the channel |
+| Bite | Gap between the two valve jaws |
+| Burn | Size of the heating element |
+| Sweep | Droplet position and note excursion |
+| Length | Inlet size and time for the droplet to settle |
+| Shape | Saw, triangle or square symbol beneath the valve |
+| Body | Reservoir size |
+| Shade | Angle and darkness of the outlet baffle |
 
-Note attacks swell the folds. Idle animation settles; track changes reset it;
-reduced motion shows a static composition. Both control pages remain visible
-through the shared header. The scene uses 116 retained nodes; all geometry and
-lighting stay outside the audio callback. Tests compare actual surface/particle
-node transforms and shading for all eight controls, excluding header text.
+Each control changes the drawing on the next frame, even at rest. A note lifts
+the droplet and it settles as the attack fades. Reduced motion keeps it on the
+channel. Both control pages remain visible through the shared header. The
+stage has ten bound nodes, and the note animation moves one.
 
 ## DSP budget and validation
 
@@ -78,12 +75,10 @@ more high-note distortion aliasing. See [NOTICE.md](NOTICE.md) for attribution.
 Stable output controls select specialized loops before processing samples.
 There is no output lookup-cache rebuild on automation and no new slide DSP loop.
 
-The last qualified preceding design measured **9.323%**, above the requested
-**3.5%** maximum. This revision has **no hardware CPU measurement**. The host
-estimate remains above the SDK's advisory 15,000-instruction target; it cannot
-qualify the 3.5% requirement. Keep this revision experimental until a full control
-sweep on the exact built revision passes that ceiling. Device installation,
-reboot, slide listening and profiling require separate user authorization.
+The previous catalog revision measured **3.975%** average at Shape Square
+and a **4.778%** peak. The new screen needs a device responsiveness check and
+a revision-bound hardware run before a catalog release. The callback timing
+excludes the display.
 
 From the XY Machines root:
 

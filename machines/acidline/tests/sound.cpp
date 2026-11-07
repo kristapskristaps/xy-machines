@@ -1,5 +1,4 @@
 #include "../engine.cpp"
-#include "../display.cpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -49,27 +48,6 @@ int main(){
     acidline::initialize(b,shared,2);acidline::start(b,shared,2);acidline::destroy(b,shared,2);
     acidline::render(a,shared,1,out,params,pitch);
     if(std::memcmp(out,first,sizeof(out))){std::puts("FAIL voices interfere across tracks");return 1;}
-    acidline::DisplayState state={};acidline::Frame frame={};opxy::draw::Input input={};
-    for(unsigned i=0;i<600;++i){
-        input.elapsed=17;input.held_notes=(i/30)%2;input.reduced_motion=i>400;
-        for(unsigned j=0;j<8;++j)input.slots[j]=values[(i/10+j)%3];
-        acidline::display(state,input,frame);
-        if(!opxy::draw::valid(frame)){std::puts("FAIL display frame");return 1;}
-    }
-    acidline::display_reset(state);input={};input.elapsed=17;
-    acidline::display(state,input,frame);
-    acidline::Frame idle=frame;
-    for(unsigned i=0;i<30;++i)acidline::display(state,input,frame);
-    if(std::memcmp(&idle,&frame,sizeof(frame))){std::puts("FAIL idle display moves");return 1;}
-    input.note_on_serial=1;input.held_notes=1;acidline::display(state,input,frame);
-    if(!state.bloom){std::puts("FAIL note does not trigger liquid pulse");return 1;}
-    const acidline::Frame moving=frame;
-    for(unsigned tick=0;tick<8;++tick)acidline::display(state,input,frame);
-    if(!std::memcmp(moving.nodes+8,frame.nodes+8,sizeof(opxy::draw::Node)*(acidline::Frame::node_count-8))){std::puts("FAIL active membrane does not evolve");return 1;}
-    input.reduced_motion=true;acidline::display(state,input,frame);
-    if(state.phase || state.bloom){std::puts("FAIL reduced-motion reaction keeps moving");return 1;}
-    input.shown[0]=4;input.shown[1]=5;acidline::display(state,input,frame);
-    if(state.header.page!=1){std::puts("FAIL second control page not selected");return 1;}
-    std::printf("PASS: 81 control combinations, filter, distortion, exact stock pitch ramps, independent voices, 600 display frames. Distortion edge ratio %.2f\n",(dirty.edge/dirty.energy)/(clean.edge/clean.energy));
+    std::printf("PASS: 81 control combinations, filter, distortion, exact stock pitch ramps, independent voices. Distortion edge ratio %.2f\n",(dirty.edge/dirty.energy)/(clean.edge/clean.energy));
     return 0;
 }

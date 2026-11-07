@@ -7,6 +7,7 @@ class XYEffect extends AudioWorkletProcessor {
     this.right = new Int32Array(this.api.memory.buffer, this.api.xy_right(), 64);
     this.parameters = new Int32Array(this.api.memory.buffer, this.api.xy_parameters(), 8);
     this.dryIndex = options.dryIndex;
+    this.dryLevel = options.dryLevel ?? 1;
     this.send = .7; this.bypass = false; this.bpm = 120; this.playing = false;
     this.frames = 0; this.reports = 0; this.active = true;
     this.api.xy_reset();
@@ -23,7 +24,8 @@ class XYEffect extends AudioWorkletProcessor {
     const output = outputs[0], input = inputs[0];
     if (!output?.[0]) return true;
     let peak = 0, wetPeak = 0;
-    const dry = 1 - this.send * (1 - this.parameters[this.dryIndex] / 2147483647);
+    const sourceDry = this.dryIndex === undefined ? this.dryLevel : this.parameters[this.dryIndex] / 2147483647;
+    const dry = 1 - this.send * (1 - sourceDry);
     for (let offset = 0; offset < output[0].length; offset += 64) {
       for (let i = 0; i < 64; i++) {
         const l = input?.[0]?.[offset+i] ?? 0, r = input?.[1]?.[offset+i] ?? l;

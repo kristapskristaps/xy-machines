@@ -54,7 +54,13 @@ def check(root):
             manifest = json.loads((folder / 'manifest.json').read_text())
             require(manifest['description'] == record['description'], 'Player and catalog descriptions differ')
             require(hashlib.sha256((folder / 'effect.wasm').read_bytes()).hexdigest() == manifest['wasm_sha256'], 'Changed effect audio payload')
-            require(0 <= manifest['dryIndex'] < len(manifest['definition']['parameters']), 'Invalid effect dry control')
+            if 'dryIndex' in manifest:
+                require('dryLevel' not in manifest and type(manifest['dryIndex']) is int and
+                        0 <= manifest['dryIndex'] < len(manifest['definition']['parameters']),
+                        'Invalid effect dry control')
+            else:
+                level = manifest.get('dryLevel')
+                require(type(level) in (int, float) and 0 <= level <= 1, 'Invalid fixed effect dry level')
             continue
         manifest = json.loads((folder / 'preview/manifest.json').read_text())
         require(manifest['description'] == record['description'], 'Player and catalog descriptions differ')

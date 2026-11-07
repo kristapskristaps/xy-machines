@@ -39,8 +39,13 @@ void xy_process(unsigned bpm,unsigned ticks,unsigned playing){{
                '-Wl,--max-memory=2097152', '-Wl,-z,stack-size=65536']
     command += ['-Wl,--export=' + name for name in ('xy_left', 'xy_right', 'xy_parameters', 'xy_reset', 'xy_process')]
     subprocess.run(command + ['-o', str(wasm)], check=True)
-    dry = next(i for i, parameter in enumerate(definition['parameters']) if parameter['id'] == item['metadata']['dryParameter'])
-    manifest = dict(kind='effect', definition=definition, description=description, dryIndex=dry,
+    metadata = item['metadata']
+    if 'dryParameter' in metadata:
+        dry = {'dryIndex': next(i for i, parameter in enumerate(definition['parameters'])
+                                if parameter['id'] == metadata['dryParameter'])}
+    else:
+        dry = {'dryLevel': metadata.get('dryLevel', 1)}
+    manifest = dict(kind='effect', definition=definition, description=description, **dry,
                     sample_rate=44100, wasm_sha256=hashlib.sha256(wasm.read_bytes()).hexdigest())
     (target / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     for name in ('app.mjs', 'worklet.mjs', 'demo.mjs', 'style.css'):

@@ -17,7 +17,7 @@ for (const machine of machines) {
   const module = await WebAssembly.compile(bytes);
   assert.deepEqual(WebAssembly.Module.imports(module), []);
   await import(pathToFileURL(path.join(folder, 'worklet.mjs')));
-  const processor = new Processor({processorOptions:{module, dryIndex:manifest.dryIndex}});
+  const processor = new Processor({processorOptions:{module, dryIndex:manifest.dryIndex, dryLevel:manifest.dryLevel}});
   const values = manifest.definition.parameters.map(p => Math.round(p.default * 2147483647));
   while (values.length < 8) values.push(0);
   processor.message({type:'controls', values});
@@ -38,6 +38,14 @@ for (const machine of machines) {
     for (let i = 0; i < 64; i++) wetEnergy += (processor.left[i]/2147483648)**2 + (processor.right[i]/2147483648)**2;
   }
   assert(wetEnergy > .000001, machine.id + ' has no wet signal');
+  if (manifest.dryLevel === 0) {
+    processor.message({type:'master', send:1, bpm:120, bypass:false, playing:true});
+    processor.process(input, output);
+    for (let i = 0; i < 64; i++) {
+      assert.equal(output[0][0][64+i], Math.fround(processor.left[i]/2147483648), machine.id + ' full-send left return');
+      assert.equal(output[0][1][64+i], Math.fround(processor.right[i]/2147483648), machine.id + ' full-send right return');
+    }
+  }
   processor.message({type:'master', send:.7, bpm:120, bypass:true, playing:true});
   processor.process(input, output);
   assert.deepEqual(output, input, machine.id + ' stereo dry comparison');

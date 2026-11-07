@@ -34,7 +34,7 @@ async function audio() {
       if (digest !== manifest.wasm_sha256) throw Error('The effect download is incomplete. Reload to try again.');
       const module = await WebAssembly.compile(bytes);
       if (disposed) return;
-      node = new AudioWorkletNode(context, 'xy-effect', {numberOfInputs:1, numberOfOutputs:1, outputChannelCount:[2], channelCount:2, channelCountMode:'explicit', processorOptions:{module, dryIndex:manifest.dryIndex}});
+      node = new AudioWorkletNode(context, 'xy-effect', {numberOfInputs:1, numberOfOutputs:1, outputChannelCount:[2], channelCount:2, channelCountMode:'explicit', processorOptions:{module, dryIndex:manifest.dryIndex, dryLevel:manifest.dryLevel}});
       gain = context.createGain(); gain.gain.value = +$('volume').value;
       node.connect(gain).connect(context.destination);
       node.port.onmessage = ({data}) => {

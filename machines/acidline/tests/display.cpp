@@ -64,7 +64,7 @@ int main() {
     input.note_on_serial++;
     input.held_notes = 1;
     render(state, input, current);
-    require(changes(idle, current) == 1, "FAIL note attack should move just the smallest fold");
+    require(changes(idle, current) == 1, "FAIL note attack should move just the bright tile");
 
     for (unsigned tick = 0; tick < 32; ++tick) {
         previous = current;
@@ -72,11 +72,11 @@ int main() {
         require(changes(previous, current) <= 1, "FAIL held note redraws more than one stage node");
     }
     require(changes(idle, current) == 1 && changes(previous, current) == 0,
-            "FAIL held fold should settle above its idle position");
+            "FAIL held tile should settle away from its idle position");
     input.note_on_serial++;
     previous = current;
     render(state, input, current);
-    require(changes(previous, current) == 1, "FAIL retrigger should lift the fold immediately");
+    require(changes(previous, current) == 1, "FAIL retrigger should move the tile immediately");
 
     input.held_notes = 0;
     input.note_off_serial++;

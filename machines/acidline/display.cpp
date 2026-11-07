@@ -6,7 +6,7 @@ using opxy::i32;
 using opxy::u32;
 using namespace opxy::draw;
 
-constexpr u32 folds_per_wave = 4;
+constexpr u32 tiles_per_shape = 4;
 
 void update_pulse(DisplayState& state, const Input& input, i32 length) {
     const bool same_track = state.initialized && state.track == input.track;
@@ -50,20 +50,21 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     const i32 shade_amount = input.slots[7] >> 21;
     update_pulse(state, input, length);
 
-    // Each waveform repeats at four scales. Keep the other two sets parked off screen.
-    const u32 first = page_header_nodes + shape * folds_per_wave;
+    const u32 first = page_header_nodes + shape * tiles_per_shape;
     for (u32 node = page_header_nodes; node < Frame::node_count; ++node) {
-        if (node < first || node >= first + folds_per_wave)
+        if (node < first || node >= first + tiles_per_shape)
             hide(frame, node);
     }
 
-    place(frame, first, 170 * unit + 36 * flow, 139 * unit, 1152 + length / 4, 0, keep);
-    place(frame, first + 1, 247 * unit - 16 * bite, 137 * unit - 18 * bite, 896, 0, keep);
-    place(frame, first + 2, 278 * unit, 131 * unit, 576 + body / 4, 0, keep);
-    turn(frame, first + 2, rotation(-90 + 270 * burn / unit));
+    place(frame, first, 237 * unit - 14 * flow, 122 * unit - 6 * flow, 880 + length / 5, 0, keep);
 
-    const i32 excursion = state.pulse * (9 + 12 * sweep_amount / unit);
-    place(frame, first + 3, 314 * unit + 40 * sweep_amount, 127 * unit - excursion,
-          576 - shade_amount / 4, 0, keep);
+    place(frame, first + 1, 253 * unit - 10 * bite, 114 * unit + 9 * bite, unit, 0, keep);
+
+    place(frame, first + 2, 244 * unit, 130 * unit, 880 + body / 5, 0, keep);
+    turn(frame, first + 2, rotation(-75 + 150 * burn / unit));
+
+    const i32 excursion = state.pulse * (4 + 4 * sweep_amount / unit);
+    place(frame, first + 3, 236 * unit - 6 * sweep_amount - excursion,
+          130 * unit + 7 * sweep_amount + excursion, unit - shade_amount / 4, 0, keep);
 }
 }

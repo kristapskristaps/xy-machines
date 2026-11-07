@@ -47,25 +47,23 @@ can use parameter locks on Flow, Bite, Burn or Sweep.
 
 ## Display
 
-Four nested copies of the selected oscillator waveform form a stepped pattern.
-The saw and triangle edges repeat a small rise and reset within larger folds.
-The square uses the same idea with rectangular steps.
+Four quarter-turned tiles surround an aperture. The cutout repeats at a
+quarter scale in the centre. Each outer tile carries one encoder grey.
 
 | Sound control | Animation |
 | --- | --- |
-| Flow | Slides the largest waveform along the stack |
-| Bite | Draws the first echo closer and raises it |
-| Burn | Tilts the middle fold |
-| Sweep | Shifts the smallest fold outward and sets its note excursion |
-| Length | Enlarges the largest fold and sets the note's settling time |
-| Shape | Switches the whole pattern between saw, triangle and square |
-| Body | Enlarges the middle fold |
-| Shade | Shrinks the smallest fold |
+| Flow | Opens the upper-left corner of the aperture |
+| Bite | Pulls the upper-right tile inward |
+| Burn | Turns the lower-right tile |
+| Sweep | Shifts the bright tile outward and sets its note travel |
+| Length | Scales the outlined tile and sets the note's settling time |
+| Shape | Switches the cutout profile |
+| Body | Enlarges the lower-right tile |
+| Shade | Shrinks the bright tile |
 
-A note lifts the smallest fold, which settles as the attack fades. The other
-folds hold their positions during note motion. Every control changes the
-drawing on the next frame, even at rest. The shared header shows both pages,
-and reduced motion keeps the pattern still between encoder turns.
+Only the bright tile moves on a note. Every control changes the drawing on the
+next frame, even at rest. Reduced motion keeps the aperture still between
+encoder turns.
 
 ## DSP budget and validation
 

@@ -37,10 +37,9 @@ transient DSP/voice state are outside this checkpoint. Saves/autosaves do not
 move it; they still save the working project normally. The checkpoint itself
 disappears on power-off.
 
-The SDK reserves about 1 MiB for two compressed states and up to 64 KiB of SDK
-machine data per state. Fewer machines may fit in a build. Each state's pattern
-data has a 384 KiB compressed limit; exceeding either capacity refuses the action
-without replacing the checkpoint or changing live patterns.
+Checkpoint storage counts against the builder's module budget. The selected SDK
+sets the storage size and capture limits. If a capture exceeds available space,
+the operation leaves the previous checkpoint and live patterns intact.
 
 Run from the xy-machines repository root, using a checkout with the checkpoint contract:
 

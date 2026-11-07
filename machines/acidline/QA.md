@@ -37,7 +37,7 @@ Controls to exercise: **Flow**, **Bite**, **Burn**, **Sweep**, **Length**, **Sha
       silence at the ends; the value shown reads in its unit (Hz, ms, %, a name)
 - [ ] Choice controls move one choice per detent, both directions, and wrap or stop as the page says
 - [ ] Fast turns: the value keeps up, no flicker or slowdown
-- [ ] With playback stopped, each control immediately moves its part of the flow cell.
+- [ ] With playback stopped, each control immediately moves its part of the waveform pattern.
       During a held note, compare the on-screen response with the change in sound.
 - [ ] Controls with an alternate (an encoder press, a second page): pressing switches, the page shows
       which is active, and each keeps its own value

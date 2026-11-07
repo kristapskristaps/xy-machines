@@ -6,18 +6,7 @@ using opxy::i32;
 using opxy::u32;
 using namespace opxy::draw;
 
-enum StageNode : u32 {
-    inlet = page_header_nodes,
-    upper_valve,
-    lower_valve,
-    saw_glyph,
-    triangle_glyph,
-    square_glyph,
-    reservoir,
-    heater,
-    droplet,
-    outlet,
-};
+constexpr u32 folds_per_wave = 4;
 
 void update_pulse(DisplayState& state, const Input& input, i32 length) {
     const bool same_track = state.initialized && state.track == input.track;
@@ -44,7 +33,7 @@ inline void display_reset(DisplayState& state) {
 
 inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& frame) {
     const char* const titles[8] = {"Flow", "Bite", "Burn", "Sweep", "Length", "Shape", "Body", "Shade"};
-    const char* const waves[3] = {"Saw", "Tri", "Square"};
+    const char* const waves[3] = {"saw", "tri", "sqr"};
     const u32 shape = (static_cast<u32>(input.slots[5]) >> 16) * 3 >> 15;
     char values[8][header_capacity] = {};
     for (u32 slot = 0; slot < 8; ++slot)
@@ -61,24 +50,20 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     const i32 shade_amount = input.slots[7] >> 21;
     update_pulse(state, input, length);
 
-    place(frame, inlet, 76 * unit + 44 * flow, 127 * unit, 3 * unit / 4 + 3 * length / 4, 0, stroke);
-
-    const i32 valve_gap = 18 * unit - 11 * bite;
-    place(frame, upper_valve, 170 * unit, 127 * unit - valve_gap, unit, 1, fill_and_stroke);
-    place(frame, lower_valve, 170 * unit, 127 * unit + valve_gap, unit, 1, fill_and_stroke);
-    for (u32 glyph = saw_glyph; glyph <= square_glyph; ++glyph) {
-        if (glyph == saw_glyph + shape)
-            place(frame, glyph, 170 * unit, 171 * unit, unit, 0, keep);
-        else
-            hide(frame, glyph);
+    // Each waveform repeats at four scales. Keep the other two sets parked off screen.
+    const u32 first = page_header_nodes + shape * folds_per_wave;
+    for (u32 node = page_header_nodes; node < Frame::node_count; ++node) {
+        if (node < first || node >= first + folds_per_wave)
+            hide(frame, node);
     }
 
-    place(frame, reservoir, 243 * unit, 128 * unit, 3 * unit / 4 + body, 2, stroke);
-    place(frame, heater, 243 * unit, 128 * unit, unit / 2 + burn, 2, fill_and_stroke);
+    place(frame, first, 170 * unit + 36 * flow, 139 * unit, 1152 + length / 4, 0, keep);
+    place(frame, first + 1, 247 * unit - 16 * bite, 137 * unit - 18 * bite, 896, 0, keep);
+    place(frame, first + 2, 278 * unit, 131 * unit, 576 + body / 4, 0, keep);
+    turn(frame, first + 2, rotation(-90 + 270 * burn / unit));
 
-    const i32 excursion = state.pulse * (8 + 12 * sweep_amount / unit);
-    place(frame, droplet, 307 * unit + 42 * sweep_amount, 127 * unit - excursion, unit, 3, fill_and_stroke);
-    place(frame, outlet, 394 * unit, 127 * unit, unit, 4 + static_cast<u32>(shade_amount) / 128, fill_and_stroke);
-    turn(frame, outlet, rotation(-280 + 560 * shade_amount / unit));
+    const i32 excursion = state.pulse * (9 + 12 * sweep_amount / unit);
+    place(frame, first + 3, 314 * unit + 40 * sweep_amount, 127 * unit - excursion,
+          576 - shade_amount / 4, 0, keep);
 }
 }

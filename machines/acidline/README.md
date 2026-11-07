@@ -47,24 +47,25 @@ can use parameter locks on Flow, Bite, Burn or Sweep.
 
 ## Display
 
-A monochrome flow cell shows the signal passing through an inlet, a valve, a
-heated reservoir and an outlet. The case and channel are fixed artwork.
+Four nested copies of the selected oscillator waveform form a stepped pattern.
+The saw and triangle edges repeat a small rise and reset within larger folds.
+The square uses the same idea with rectangular steps.
 
 | Sound control | Animation |
 | --- | --- |
-| Flow | Inlet position along the channel |
-| Bite | Gap between the two valve jaws |
-| Burn | Size of the heating element |
-| Sweep | Droplet position and note excursion |
-| Length | Inlet size and time for the droplet to settle |
-| Shape | Saw, triangle or square symbol beneath the valve |
-| Body | Reservoir size |
-| Shade | Angle and darkness of the outlet baffle |
+| Flow | Slides the largest waveform along the stack |
+| Bite | Draws the first echo closer and raises it |
+| Burn | Tilts the middle fold |
+| Sweep | Shifts the smallest fold outward and sets its note excursion |
+| Length | Enlarges the largest fold and sets the note's settling time |
+| Shape | Switches the whole pattern between saw, triangle and square |
+| Body | Enlarges the middle fold |
+| Shade | Shrinks the smallest fold |
 
-Each control changes the drawing on the next frame, even at rest. A note lifts
-the droplet and it settles as the attack fades. Reduced motion keeps it on the
-channel. Both control pages remain visible through the shared header. The
-stage has ten bound nodes, and the note animation moves one.
+A note lifts the smallest fold, which settles as the attack fades. The other
+folds hold their positions during note motion. Every control changes the
+drawing on the next frame, even at rest. The shared header shows both pages,
+and reduced motion keeps the pattern still between encoder turns.
 
 ## DSP budget and validation
 

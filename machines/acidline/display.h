@@ -2,7 +2,7 @@
 #include <opxy/page_header.hpp>
 
 namespace acidline {
-using Frame = opxy::draw::Frame<0, 0, 18, 16, 12>;
+using Frame = opxy::draw::Frame<0, 0, 20, 16, 1>;
 
 struct DisplayState {
     opxy::draw::PageHeader header;

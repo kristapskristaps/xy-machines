@@ -79,16 +79,19 @@ per-file normalization. These are host renders, not recordings from the OP-XY.
 The effect uses six zero-ended, smoothly windowed grains, stereo history, four
 all-pass diffusers, and a damped four-line feedback reverb. Its network runs at
 22.05 kHz with filtered input and interpolated output: expect a warm, softened
-top end. It uses 335,872 bytes of per-send scratch, no audio-thread allocation,
+top end. It uses 301,664 bytes of per-send scratch, no audio-thread allocation,
 and less than the SDK's 472-byte state limit. Each line tracks valid history,
 so changing effects or resetting never exposes old scratch contents.
 Audio uses Q28 internally with guard bits for mixing, while coefficient products
 use the SDK's Q31 operations. Rendering runs in short passes: input filtering,
 grains, tone/feedback capture, diffusion, reverb damping/mixing and output.
-Stereo samples and the four reverb lines are interleaved in scratch memory.
-Grain state stays local during a span; integer-speed grains skip interpolation.
+Stereo history is interleaved. Each diffuser and reverb delay uses a ring sized
+to its exact delay, with a short mirrored prefix for contiguous block reads and
+writes. Grain state stays local during a span. Integer-speed grains skip
+interpolation, and a contiguous forward grain walks a history pointer.
 Initialized spans use unchecked reads as soon as their own history is ready;
-wholly uninitialized spans advance silently. Ring passes walk contiguous chunks.
+wholly uninitialized spans advance silently. The room starts when the first wet
+signal arrives. Blocks within the return knee use direct linear scaling.
 Near the live history writer, spans shorten to one frame to preserve feedback
 and wrap behavior. Gain and filter coefficients still ramp sample by sample.
 The six-grain capacity, four-line reverb, rate, mix and tail length are unchanged.
@@ -119,8 +122,8 @@ listening was reported much better. It measured **10.074% average** and
 Revision `163e278` preserved that revision's audio and measured **5.960% average**
 and **8.208% worst observed block** in one complete hardware capture at defaults.
 Both remain above the 3.5% recommendation. These callback measurements do not
-describe a full project or sweep other settings. Further ring-addressing and
-startup optimizations need a new measurement. Full QA remains pending. Host
+describe a full project or sweep other settings. The compact delay layout,
+contiguous grain paths and linear return need a new measurement. Full QA remains pending. Host
 estimates cannot establish native cost or acceptance of a new revision.
 
 Build a profiling image from committed source. This SDK revision's effect-only

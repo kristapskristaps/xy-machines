@@ -1,5 +1,5 @@
 // Audio signatures from accepted commit 6de273f. Covers startup, history wraps,
-// feedback, silence, all-max controls, automation and the reverb clock wrapping.
+// feedback, silence, all-max controls, automation and all eight delay heads wrapping.
 #include "../fx.cpp"
 #include <cstdio>
 #include <cstdlib>
@@ -15,7 +15,12 @@ void require(bool condition, unsigned test, unsigned long long actual) {
 unsigned long long stream(unsigned test) {
     lustre::State state;
     lustre::initialize(state);
-    if (test == 5) state.reverb_write = 0xfffffff0u;
+    if (test == 5) {
+        for (unsigned i = 0; i < 4; ++i) {
+            state.room_position[i] = lustre::kRoomLengths[i]-16;
+            state.diffuser_position[i] = lustre::kDiffuserLengths[i]-16;
+        }
+    }
     std::vector<opxy::i32> memory(lustre::kBufferWords, 0x34567812);
     const double presets[4][8] = {
         {.45,.65,.6,.65,0,0,0,.65}, {.5,.85,.72,.8,.35,.1,.2,.72},

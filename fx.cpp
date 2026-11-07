@@ -9,8 +9,7 @@ using opxy::q31::half;
 using opxy::q31::multiply;
 const i32 kOne = opxy::q31::maximum;
 const i32 kSignalLimit = 268435456;
-const u32 kLengths[4] = {1499, 1877, 2381, 3011};
-const u32 kDiffLengths[4] = {113, 173, 241, 337};
+const i32 kReturnKnee = 33554432;
 
 // Audio uses Q28, leaving three guard bits for sums and differences. Only
 // scratch writes and the Q31 return need limiting; coefficients remain Q31.
@@ -21,14 +20,13 @@ i32 bounded(i32 value) {
 __attribute__((always_inline)) inline i32 restore(i32 value) {
     // Fourfold wet gain, with a soft knee above half-scale at the return.
     // Keep feedback independent of the output gain, so decay stays stable.
-    const i32 knee = 33554432;
     const bool negative = value < 0;
     const i32 magnitude = negative ? -value : value;
-    if (magnitude > knee) {
-        i32 shaped = 2 * knee;
-        if (magnitude < 3 * knee) {
-            const i32 excess = magnitude - knee;
-            shaped = knee + excess - multiply(excess * 4, excess * 4);
+    if (magnitude > kReturnKnee) {
+        i32 shaped = 2 * kReturnKnee;
+        if (magnitude < 3 * kReturnKnee) {
+            const i32 excess = magnitude - kReturnKnee;
+            shaped = kReturnKnee + excess - multiply(excess * 4, excess * 4);
         }
         value = negative ? -shaped : shaped;
     }
@@ -82,14 +80,6 @@ struct Coefficients {
         return {(end.tone-tone)/32, (end.recycle-recycle)/32, (end.damping-damping)/32,
                 (end.gain-gain)/32, (end.space-space)/32, (end.direct-direct)/32};
     }
-    void advance(const Coefficients& step) {
-        tone += step.tone;
-        recycle += step.recycle;
-        damping += step.damping;
-        gain += step.gain;
-        space += step.space;
-        direct += step.direct;
-    }
 };
 
 Coefficients coefficients(const State& s) {
@@ -123,7 +113,15 @@ inline void history_pair<true>(const i32* memory, u32 index, u32, u32, i32& l, i
     r = memory[2*index+1];
 }
 
-template<bool Ready, bool Fractional>
+inline i32 grain_envelope(u32 phase) {
+    const opxy::u16 part = static_cast<opxy::u16>(phase >> 17);
+    const opxy::u16 complement = static_cast<opxy::u16>(32768 - part);
+    const opxy::u16 arch = static_cast<opxy::u16>((static_cast<u32>(part) * complement) >> 13);
+    const u32 squared = static_cast<u32>(arch) * arch >> 15;
+    return static_cast<i32>(squared < 32768 ? squared : 32767) * 16384;
+}
+
+template<bool Ready, bool Fractional, bool Contiguous = false>
 __attribute__((noinline)) void grain_span(Grain& g, const i32* __restrict memory,
                                          u32 write, u32 written, u32 frames,
                                          i32* __restrict left, i32* __restrict right) {
@@ -137,26 +135,41 @@ __attribute__((noinline)) void grain_span(Grain& g, const i32* __restrict memory
         i32 l, r;
         history_pair<Ready>(memory,index,write,written,l,r);
         if (Fractional) {
-            const u32 next = (index + 1) & (kHistory - 1);
+            const u32 next = Contiguous ? index+1 : (index+1) & (kHistory-1);
             i32 next_l, next_r;
             history_pair<Ready>(memory,next,write,written,next_l,next_r);
             l = interpolate(l,next_l,position & 65535);
             r = interpolate(r,next_r,position & 65535);
         }
-        const opxy::u16 part = static_cast<opxy::u16>(phase >> 17);
-        const opxy::u16 complement = static_cast<opxy::u16>(32768 - part);
-        const opxy::u16 arch = static_cast<opxy::u16>((static_cast<u32>(part) * complement) >> 13);
-        const u32 squared = static_cast<u32>(arch) * arch >> 15;
-        const opxy::u16 window = static_cast<opxy::u16>(squared < 32768 ? squared : 32767);
-        const i32 envelope = static_cast<i32>(window) * 16384;
+        const i32 envelope = grain_envelope(phase);
         const i32 gain_l = multiply(envelope,pan_l);
         const i32 gain_r = multiply(envelope,pan_r);
         left[i] += multiply(l, gain_l);
         right[i] += multiply(r, gain_r);
-        position = (position + speed) & 0x7fffffffu;
+        position += speed;
+        if (!Contiguous) position &= 0x7fffffffu;
         phase += increment;
     }
-    g.position = position;
+    g.position = position & 0x7fffffffu;
+    g.phase = phase;
+    g.remaining -= count;
+}
+
+__attribute__((noinline)) void forward_grain(Grain& g, const i32* __restrict source,
+                                              u32 count, i32* __restrict left,
+                                              i32* __restrict right) {
+    u32 phase = g.phase;
+    const u32 increment = g.increment;
+    const i32 pan_l = (65536-g.pan)*32768;
+    const i32 pan_r = (32768+g.pan)*32768;
+    for (u32 i = 0; i < count; ++i) {
+        const i32 envelope = grain_envelope(phase);
+        left[i] += multiply(source[0],multiply(envelope,pan_l));
+        right[i] += multiply(source[1],multiply(envelope,pan_r));
+        source += 2;
+        phase += increment;
+    }
+    g.position = (g.position+(count<<16)) & 0x7fffffffu;
     g.phase = phase;
     g.remaining -= count;
 }
@@ -169,7 +182,13 @@ bool history_safe(const State& s, u32 frames) {
         const u32 end = (g.position + static_cast<u32>(g.speed) * (count-1)) & 0x7fffffffu;
         const u32 first_age = (s.write-(g.position>>16)) & (kHistory-1);
         const u32 last_age = (s.write-(end>>16)) & (kHistory-1);
-        if (first_age < 64 || last_age < 64 || first_age > kHistory-64 || last_age > kHistory-64)
+        // The base sample and its interpolation neighbor must lie outside
+        // every history slot this span will write.
+        const bool fractional = (g.position & 65535) || (static_cast<u32>(g.speed) & 65535);
+        const u32 minimum_age = fractional ? 2 : 1;
+        const u32 maximum_age = kHistory-frames;
+        if (first_age < minimum_age || last_age < minimum_age ||
+            first_age > maximum_age || last_age > maximum_age)
             return false;
         if ((g.speed < 0 && last_age < first_age) || (g.speed > 0 && last_age > first_age))
             return false;
@@ -183,11 +202,12 @@ __attribute__((noinline)) void cloud_span(State& s, const i32* memory, i32 wet[2
         Grain& g = s.grains[j];
         if (!g.remaining) continue;
         const bool fractional = (g.position & 65535) || (static_cast<u32>(g.speed) & 65535);
+        const u32 frames = g.remaining < count ? g.remaining : count;
+        const u32 index = g.position >> 16;
         bool ready = s.written == kHistory && safe;
         if (safe && !ready) {
-            const u32 frames = g.remaining < count ? g.remaining : count;
             const u32 end = (g.position + static_cast<u32>(g.speed)*(frames-1)) & 0x7fffffffu;
-            const u32 first_age = (s.write-(g.position>>16)) & (kHistory-1);
+            const u32 first_age = (s.write-index) & (kHistory-1);
             const u32 last_age = (s.write-(end>>16)) & (kHistory-1);
             const u32 youngest = first_age < last_age ? first_age : last_age;
             const u32 oldest = first_age > last_age ? first_age : last_age;
@@ -201,9 +221,18 @@ __attribute__((noinline)) void cloud_span(State& s, const i32* memory, i32 wet[2
                 continue;
             }
         }
-        if (ready) {
-            if (fractional) grain_span<true,true>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
-            else grain_span<true,false>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
+        if (ready && !fractional && g.speed == 65536 && frames <= kHistory-index) {
+            forward_grain(g,memory+2*index,frames,wet[0]+offset,wet[1]+offset);
+        } else if (ready && fractional) {
+            const u32 end = g.position+static_cast<u32>(g.speed)*(frames-1);
+            const u32 limit = (kHistory-1)<<16;
+            // The unsigned end check also rejects crossing either ring edge.
+            if (g.position < limit && end < limit)
+                grain_span<true,true,true>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
+            else
+                grain_span<true,true>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
+        } else if (ready) {
+            grain_span<true,false>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
         } else {
             if (fractional) grain_span<false,true>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
             else grain_span<false,false>(g,memory,s.write,s.written,count,wet[0]+offset,wet[1]+offset);
@@ -227,129 +256,124 @@ __attribute__((noinline)) void input_block(State& s, unsigned ch, const i32* inp
 __attribute__((noinline)) void capture(State& s, unsigned ch, i32* memory, u32 write,
                                       const i32* input, i32* wet,
                                       const Coefficients& start, const Coefficients& step, u32 frames) {
-    i32 low = s.tone_memory[ch], dc = s.dc[ch], feedback = 0;
+    i32 low = s.tone_memory[ch], dc = s.dc[ch];
     i32 tone = start.tone, recycle = start.recycle;
     const i32 tone_step = step.tone, recycle_step = step.recycle;
+    i32* destination = memory+2*write+1-ch;
     for (unsigned i = 0; i < frames; ++i) {
         tone += tone_step;
         recycle += recycle_step;
         low += multiply(wet[i]-low, tone);
         wet[i] = low;
         dc += multiply(low-dc, 4000000);
-        feedback = multiply(low-dc, recycle);
-        memory[2 * ((write+i) & (kHistory-1)) + 1-ch] = bounded(half(input[i]) + feedback);
+        const i32 feedback = multiply(low-dc, recycle);
+        *destination = bounded(half(input[i]) + feedback);
+        destination += 2;
     }
     s.tone_memory[ch] = low;
     s.dc[ch] = dc;
 }
 
-template<unsigned Line, unsigned Length, bool Ready>
-__attribute__((noinline)) void diffuser(i32* memory, u32 write, u32 written, i32* audio) {
-    if (Ready) {
-        unsigned offset = 0;
-        while (offset < 32) {
-            const u32 read = (write + offset - Length) & (kDiffuser-1);
-            const u32 at = (write + offset) & (kDiffuser-1);
-            u32 count = 32-offset;
-            if (count > kDiffuser-read) count = kDiffuser-read;
-            if (count > kDiffuser-at) count = kDiffuser-at;
-            const i32* source = memory + 4*read;
-            i32* destination = memory + 4*at;
-            i32* samples = audio + offset;
-            for (u32 i = 0; i < count; ++i) {
-                const i32 value = *samples;
-                const i32 out = source[Line]-half(value);
-                destination[Line] = bounded(value+half(out));
-                *samples++ = out;
-                source += 4;
-                destination += 4;
-            }
-            offset += count;
-        }
-        return;
+// Sync the mirror only when a write touches the beginning or crosses the end.
+__attribute__((noinline)) u32 advance_delay(i32* delay, u32 position, u32 length) {
+    const u32 end = position+kFrames;
+    if (position < kMirror) {
+        for (u32 i = position; i < kMirror; ++i) delay[length+i] = delay[i];
     }
-    for (unsigned i = 0; i < 32; ++i) {
-        const u32 cursor = write+i;
-        const i32 delayed = Ready || written+i >= Length
-            ? memory[4 * ((cursor-Length) & (kDiffuser-1)) + Line] : 0;
-        const i32 value = audio[i];
-        const i32 out = delayed-half(value);
-        memory[4 * (cursor & (kDiffuser-1)) + Line] = bounded(value+half(out));
-        audio[i] = out;
+    if (end < length) return end;
+    const u32 overflow = end-length;
+    for (u32 i = 0; i < overflow; ++i) delay[i] = delay[length+i];
+    return overflow;
+}
+
+u32 wait_for_delay(u32 written, u32 length) {
+    return written < length ? length-written : 0;
+}
+
+template<bool Ready>
+__attribute__((noinline)) void diffuse_pair(i32* first, i32* second,
+                                            const i32* input, i32* output,
+                                            u32 first_wait, u32 second_wait) {
+    for (u32 i = 0; i < kFrames; ++i) {
+        const i32 value = input[i];
+        const i32 delayed_first = Ready || i >= first_wait ? first[i] : 0;
+        const i32 middle = delayed_first-half(value);
+        first[i] = bounded(value+half(middle));
+        const i32 delayed_second = Ready || i >= second_wait ? second[i] : 0;
+        const i32 out = delayed_second-half(middle);
+        second[i] = bounded(middle+half(out));
+        output[i] = out;
     }
 }
 
-template<unsigned Line, unsigned Length, bool Ready>
-__attribute__((noinline)) void damping(State& s, const i32* memory, u32 write, u32 written,
-                                      i32 coefficient, i32 step, i32* output) {
-    i32 low = s.damping[Line];
-    if (Ready) {
-        unsigned offset = 0;
-        while (offset < 32) {
-            const u32 at = (write+offset-Length) & (kReverb-1);
-            const u32 count = 32-offset < kReverb-at ? 32-offset : kReverb-at;
-            const i32* source = memory + 4*at + Line;
-            i32* samples = output + offset;
-            for (u32 i = 0; i < count; ++i) {
-                coefficient += step;
-                low += multiply(*source-low,coefficient);
-                *samples++ = low;
-                source += 4;
-            }
-            offset += count;
-        }
-        s.damping[Line] = low;
-        return;
-    }
-    for (unsigned i = 0; i < 32; ++i) {
+template<bool Ready>
+__attribute__((noinline)) void damping(const i32* source, i32& state, i32 coefficient,
+                                      i32 step, i32* output, u32 wait) {
+    i32 low = state;
+    for (u32 i = 0; i < kFrames; ++i) {
         coefficient += step;
-        const i32 value = Ready || written+i >= Length
-            ? memory[4 * ((write+i-Length) & (kReverb-1)) + Line] : 0;
-        low += multiply(value-low, coefficient);
+        const i32 value = Ready || i >= wait ? source[i] : 0;
+        low += multiply(value-low,coefficient);
         output[i] = low;
     }
-    s.damping[Line] = low;
+    state = low;
 }
 
-__attribute__((noinline)) void tank(i32* memory, u32 write, i32 diffused[2][32], i32 damped[4][32],
-                                   const Coefficients& start, const Coefficients& step) {
-    i32 gain = start.gain;
-    const i32 gain_step = step.gain;
-    for (unsigned i = 0; i < 32; ++i) {
+__attribute__((noinline)) void tank(i32* const* delay, i32 diffused[2][32], i32 damped[4][32],
+                                   i32 gain, i32 gain_step) {
+    i32* a_delay = delay[0];
+    i32* b_delay = delay[1];
+    i32* c_delay = delay[2];
+    i32* d_delay = delay[3];
+    for (u32 i = 0; i < kFrames; ++i) {
         gain += gain_step;
         const i32 a = damped[0][i], b = damped[1][i], c = damped[2][i], d = damped[3][i];
         const i32 average = half(half(a))+half(half(b))+half(half(c))+half(half(d));
         const i32 sum = average+average;
         const i32 l = half(diffused[0][i]), r = half(diffused[1][i]);
-        i32* frame = memory + 4 * ((write+i) & (kReverb-1));
-        frame[0] = bounded(l+multiply(a-sum,gain));
-        frame[1] = bounded(r+multiply(b-sum,gain));
-        frame[2] = bounded(l+multiply(c-sum,gain));
-        frame[3] = bounded(r+multiply(d-sum,gain));
+        a_delay[i] = bounded(l+multiply(a-sum,gain));
+        b_delay[i] = bounded(r+multiply(b-sum,gain));
+        c_delay[i] = bounded(l+multiply(c-sum,gain));
+        d_delay[i] = bounded(r+multiply(d-sum,gain));
     }
 }
 
-__attribute__((noinline)) void space_mix(const i32* wet, const i32* first, const i32* second,
-                                        i32* output, const Coefficients& start, const Coefficients& step) {
-    i32 space = start.space, direct = start.direct;
+__attribute__((noinline)) i32 space_mix(const i32* wet, const i32* first, const i32* second,
+                                       i32* output, const Coefficients& start, const Coefficients& step) {
+    i32 space = start.space, direct = start.direct, peak = 0;
     const i32 space_step = step.space, direct_step = step.direct;
-    for (unsigned i = 0; i < 32; ++i) {
+    for (unsigned i = 0; i < kFrames; ++i) {
         space += space_step;
         direct += direct_step;
         const i32 room = (half(first[i])-half(second[i]))*3;
-        output[i] = multiply(wet[i],direct)+multiply(room,space);
+        const i32 sample = multiply(wet[i],direct)+multiply(room,space);
+        output[i] = sample;
+        const i32 magnitude = sample < 0 ? -sample : sample;
+        if (magnitude > peak) peak = magnitude;
     }
+    return peak;
 }
 
+template<bool Linear>
 __attribute__((noinline)) void output_block(State& s, unsigned ch, const i32* input, i32* output) {
-    i32 previous = s.output[ch];
-    for (unsigned i = 0; i < 32; ++i) {
+    i32 previous = half(s.output[ch]);
+    for (unsigned i = 0; i < kFrames; ++i) {
         const i32 next = input[i];
-        output[2*i] = restore(half(previous)+half(next));
-        output[2*i+1] = restore(next);
-        previous = next;
+        const i32 current = half(next);
+        const i32 middle = previous+current;
+        output[2*i] = Linear ? middle*32 : restore(middle);
+        output[2*i+1] = Linear ? next*32 : restore(next);
+        previous = current;
     }
-    s.output[ch] = previous;
+    s.output[ch] = input[kFrames-1];
+}
+
+void output(State& s, unsigned ch, const i32* input, i32* channel, i32 peak) {
+    // Both endpoints are below the knee, so each interpolated sample is too.
+    if (peak <= kReturnKnee && s.output[ch] >= -kReturnKnee && s.output[ch] <= kReturnKnee)
+        output_block<true>(s,ch,input,channel);
+    else
+        output_block<false>(s,ch,input,channel);
 }
 }
 
@@ -386,6 +410,7 @@ void process(State& s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
     while (offset < 32) {
         if (!s.countdown) launch(s);
         u32 count = s.countdown < 32-offset ? s.countdown : 32-offset;
+        if (count > kHistory-s.write) count = kHistory-s.write;
         const bool safe = history_safe(s,count);
         if (!safe) count = 1;
         cloud_span(s,buffer.words,wet,offset,count,safe);
@@ -398,39 +423,51 @@ void process(State& s, opxy::Buffer buffer, opxy::Channel left, opxy::Channel ri
         tone.recycle += step.recycle*static_cast<i32>(count);
         offset += count;
     }
-    for (unsigned ch = 0; ch < 2; ++ch)
-        for (unsigned i = 0; i < 32; ++i) diffused[ch][i] = wet[ch][i];
-    i32* const reverb = buffer.words + 2*kHistory;
-    i32* const diff = reverb + 4*kReverb;
-    const u32 rw = s.reverb_write, written = s.reverb_written;
-    if (written >= kDiffLengths[3]) {
-        diffuser<0,113,true>(diff,rw,written,diffused[0]);
-        diffuser<1,173,true>(diff,rw,written,diffused[0]);
-        diffuser<2,241,true>(diff,rw,written,diffused[1]);
-        diffuser<3,337,true>(diff,rw,written,diffused[1]);
-    } else {
-        diffuser<0,113,false>(diff,rw,written,diffused[0]);
-        diffuser<1,173,false>(diff,rw,written,diffused[0]);
-        diffuser<2,241,false>(diff,rw,written,diffused[1]);
-        diffuser<3,337,false>(diff,rw,written,diffused[1]);
+    // A fresh room fed only zero has no filter or delay history to advance.
+    if (!s.reverb_written) {
+        i32 signal = 0;
+        for (unsigned i = 0; i < kFrames; ++i) signal |= wet[0][i] | wet[1][i];
+        if (!signal) {
+            for (unsigned i = 0; i < opxy::block_frames; ++i) left[i] = right[i] = 0;
+            return;
+        }
     }
-    if (written >= kLengths[3]) {
-        damping<0,1499,true>(s,reverb,rw,written,start.damping,step.damping,damped[0]);
-        damping<1,1877,true>(s,reverb,rw,written,start.damping,step.damping,damped[1]);
-        damping<2,2381,true>(s,reverb,rw,written,start.damping,step.damping,damped[2]);
-        damping<3,3011,true>(s,reverb,rw,written,start.damping,step.damping,damped[3]);
-    } else {
-        damping<0,1499,false>(s,reverb,rw,written,start.damping,step.damping,damped[0]);
-        damping<1,1877,false>(s,reverb,rw,written,start.damping,step.damping,damped[1]);
-        damping<2,2381,false>(s,reverb,rw,written,start.damping,step.damping,damped[2]);
-        damping<3,3011,false>(s,reverb,rw,written,start.damping,step.damping,damped[3]);
+    i32* const reverb = buffer.words+2*kHistory;
+    i32* const diff = reverb+kRoomWords;
+    const u32 written = s.reverb_written;
+    i32* diff_delay[4], *room_delay[4];
+    for (unsigned line = 0; line < 4; ++line) {
+        diff_delay[line] = diff+delay_offset(kDiffuserLengths,line)+s.diffuser_position[line];
+        room_delay[line] = reverb+delay_offset(kRoomLengths,line)+s.room_position[line];
     }
-    tank(reverb,rw,diffused,damped,start,step);
-    space_mix(wet[0],damped[0],damped[2],input[0],start,step);
-    space_mix(wet[1],damped[1],damped[3],input[1],start,step);
-    s.reverb_write += 32;
-    s.reverb_written = written+32 < kReverb ? written+32 : kReverb;
-    output_block(s,0,input[0],left);
-    output_block(s,1,input[1],right);
+    if (written >= kDiffuserLengths[3]) {
+        diffuse_pair<true>(diff_delay[0],diff_delay[1],wet[0],diffused[0],0,0);
+        diffuse_pair<true>(diff_delay[2],diff_delay[3],wet[1],diffused[1],0,0);
+    } else {
+        diffuse_pair<false>(diff_delay[0],diff_delay[1],wet[0],diffused[0],
+                            wait_for_delay(written,kDiffuserLengths[0]),wait_for_delay(written,kDiffuserLengths[1]));
+        diffuse_pair<false>(diff_delay[2],diff_delay[3],wet[1],diffused[1],
+                            wait_for_delay(written,kDiffuserLengths[2]),wait_for_delay(written,kDiffuserLengths[3]));
+    }
+    for (unsigned line = 0; line < 4; ++line) {
+        if (written >= kRoomLengths[line])
+            damping<true>(room_delay[line],s.damping[line],start.damping,step.damping,damped[line],0);
+        else
+            damping<false>(room_delay[line],s.damping[line],start.damping,step.damping,damped[line],
+                           kRoomLengths[line]-written);
+    }
+    tank(room_delay,diffused,damped,start.gain,step.gain);
+    const i32 left_peak = space_mix(wet[0],damped[0],damped[2],input[0],start,step);
+    const i32 right_peak = space_mix(wet[1],damped[1],damped[3],input[1],start,step);
+    for (unsigned line = 0; line < 4; ++line) {
+        s.diffuser_position[line] = advance_delay(diff+delay_offset(kDiffuserLengths,line),
+                                                  s.diffuser_position[line],kDiffuserLengths[line]);
+        s.room_position[line] = advance_delay(reverb+delay_offset(kRoomLengths,line),
+                                              s.room_position[line],kRoomLengths[line]);
+    }
+    const u32 room_ready = kRoomLengths[3];
+    s.reverb_written = written+kFrames < room_ready ? written+kFrames : room_ready;
+    output(s,0,input[0],left,left_peak);
+    output(s,1,input[1],right,right_peak);
 }
 }

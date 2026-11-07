@@ -111,6 +111,9 @@
     },
     {
       "path": "machines/x0x"
+    },
+    {
+      "path": "machines/lustre"
     }
   ]
 }

@@ -108,6 +108,11 @@ send rather than an immediate reverb. Both sends can run independent instances.
 
 ## Hardware validation
 
+The measured [Lustre v1.0.0 release](https://github.com/kristapskristaps/xy-machines/releases/tag/lustre-v1.0.0)
+pins the original standalone commit. It measured 3.606% average and 5.737% peak
+on the OP-XY at defaults. This inventory copy declares SDK 1.9 for the collection
+pin and retains the release's DSP, controls and resources.
+
 Host tests cover dirty scratch, resets, output and stereo energy, tail decay,
 all controls, rapid automation, full-scale input and missing buffers. The first
 hardware build (commit `b5ed40a`) measured **9.859% average** and **13.823% worst
@@ -121,10 +126,8 @@ listening was reported much better. It measured **10.074% average** and
 **13.535% worst observed block** at defaults, still above the recommendation.
 Revision `163e278` preserved that revision's audio and measured **5.960% average**
 and **8.208% worst observed block** in one complete hardware capture at defaults.
-Both remain above the 3.5% recommendation. These callback measurements do not
-describe a full project or sweep other settings. The compact delay layout,
-contiguous grain paths and linear return need a new measurement. Full QA remains pending. Host
-estimates cannot establish native cost or acceptance of a new revision.
+The measurements cover the default callback workload. Full device QA,
+including a recorded Cathedral tail, remains pending.
 
 Build a profiling image from committed source. This SDK revision's effect-only
 collection fails an SDK startup compilation check; including the core FM synth
@@ -139,5 +142,5 @@ python ../open-xy/sdk.py build --machine . \
 `PRIVATE` must point outside every checkout. Device operations require a separate
 instruction. Run [QA.md](QA.md) as a complete pass before publication, and collect
 the [revision-bound CPU readout](https://github.com/etcetc000/open-xy/blob/staging/docs/profiling.md).
-The SDK checkout and catalog are unchanged. See [AGENTS.md](AGENTS.md) for the
-machine development rules. Original implementation; [MIT licensed](LICENSE).
+See the [collection development guide](../../docs/development.md) for the
+repository workflow. Original implementation, [MIT licensed](LICENSE).

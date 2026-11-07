@@ -1,19 +1,19 @@
 # XY Machines
 
-37 Open-XY machines: **21 synths, 15 send effects and 1 drum machine**.
+38 Open-XY machines: **21 synths, 16 send effects and 1 drum machine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
 - `machines/<id>/`: Vader, Halo, Acidline,
-  Rebound, Mando, Bitflip, X0X, and the five standalone Weave models.
+  Rebound, Mando, Bitflip, Lustre, X0X, and the five standalone Weave models.
 - `machines/hundekraft/`: all 25 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
 - `extensions/checkpoint/`: temporary scene store, recall and recovery through
   Metronome + plus/minus/Record; see its [README](extensions/checkpoint/README.md)
   for the required checkpoint SDK and opt-in build instructions.
-- `collection.json`: all 37 machine paths. `collections/hundekraft.json` and
+- `collection.json`: all 38 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
   `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK
   effects remain excluded from hardware test kits.

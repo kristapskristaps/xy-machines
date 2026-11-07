@@ -1,6 +1,6 @@
 # Engine inventory
 
-37 source engines: 21 synths, 15 effects and 1 drum machine. This is source availability, not a release list or a promise that all engines fit together. The combined Weave engine is retired; its source remains in Git history. HK effects remain excluded from the default builder/test selection.
+38 source engines: 21 synths, 16 effects and 1 drum machine. This is source availability, not a release list or a promise that all engines fit together. The combined Weave engine is retired; its source remains in Git history. HK effects remain excluded from the default builder/test selection.
 
 ## Synths
 
@@ -52,4 +52,5 @@
 | HK Warble | `hkwarble` | [machines/hundekraft/hkwarble](../machines/hundekraft/hkwarble/README.md) |
 | HK Washer | `hkwasher` | [machines/hundekraft/hkwasher](../machines/hundekraft/hkwasher/README.md) |
 | Halo | `halo` | [machines/halo](../machines/halo/README.md) |
+| Lustre | `lustre` | [machines/lustre](../machines/lustre/README.md) |
 | Rebound | `rebound` | [machines/rebound](../machines/rebound/README.md) |

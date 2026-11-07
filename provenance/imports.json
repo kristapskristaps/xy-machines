@@ -1135,6 +1135,34 @@
         "tools/preset_export.cpp": "f5c60412ae30298d4c1c6fa4e9b71eba1673db75fb49ec55dd9df2b37e6911d3"
       },
       "history_import_commit": "306cc4892c062b4b416fa8228a50ed6c4847e511"
+    },
+    {
+      "id": "lustre",
+      "source": "lustre",
+      "commit": "0be9209c559c2322cb472e35b5582e46e7c74056",
+      "refs": {
+        "refs/heads/codex/lustre": "0be9209c559c2322cb472e35b5582e46e7c74056"
+      },
+      "source_status": [],
+      "destination": "machines/lustre",
+      "files": {
+        ".github/workflows/machine.yml": "4614a004355ba5afd0a341258330bc6988d43e3167ab13de17e328170d44af5b",
+        ".gitignore": "63c2cad6f95a7c734fe5072293998a93412fdf36aa6f18ac96ffc278531dbea9",
+        "AGENTS.md": "92c4051c59a2d51cc1279354eddd051a70f658270fc845819bb62ce14388398e",
+        "LICENSE": "afac4d20ab410b587b9dd19a83cafab2d256579d34cdc92bf1ea8b8a5a694e2a",
+        "QA.md": "06c8f87a6b851749b012a8219bf8712a68e517575895a315697f119f805c982d",
+        "README.md": "927f2e6850edba22df4130b1f5016140e21eb4d7e73293e1ea9781097134e49d",
+        "core.h": "5355f3586b96b9260bd8dba95151986f99dc83fa624dd6bc7760fb7b23970043",
+        "definition.json": "780b35cbe73ff0cbab03bc243f02e4f80239b540806c3c15c0089cf4ad65518f",
+        "fx.cpp": "1eb7dc4ffb74e64dc77abf186a5c243e751e8612bc480859d592b7923d5013cb",
+        "machine.json": "a2e5143b8c62de830e6423d1a787a46c4b640d65464474d328272e73155bd20d",
+        "tests/numerics.cpp": "5630a395db08abac5c871ad1f58be11b23f668b1f590d3cfc32000eb18a1207e",
+        "tests/sound.cpp": "ed1860a852d1b684ee6710f2399749a1dd1e8f0816ad123cf0a44104629d5134",
+        "tests/streaming.cpp": "6b229254bf375d0971eecbd1aa7b53974bf9711c97cb5817cab272ff799761e5",
+        "tests/tail.cpp": "38212f1ede7f9cf1632877358c347baa6fd75fe42a8e4465b626303874227976",
+        "tools/render.cpp": "3cee8ce56dd67c72ee0213781aad6d80ec673fa8f338716a6e208c3eebc65629"
+      },
+      "history_import_commit": "abfdad2a421be8b7282d7d9b68bff8a219fda035"
     }
   ]
 }

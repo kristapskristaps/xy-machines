@@ -159,11 +159,16 @@ class Tuner {
     static constexpr i32 double_delay = 336;
     static constexpr u32 history_ready = delay + double_delay + 656;
     static constexpr u32 chromatic = 0xfff;
+    static constexpr u32 max_voices = 3;
+
+    struct Voice { u32 phase; i32 speed; };
+    struct Voicing { u32 count; i32 degrees[max_voices]; };
 
     PitchTracker tracker_;
     Stereo history_[ring_mask + 2];
-    u32 cursor_, filled_, phase_, harmony_phase_;
-    i32 period_, speed_, wet_, harmony_speed_, harmony_gain_;
+    Voice harmony_[max_voices];
+    u32 cursor_, filled_, phase_;
+    i32 period_, speed_, wet_, harmony_gain_;
     u32 pitch_classes_, amount_, harmony_mode_, harmony_blend_, harmony_voice_;
     bool hard_;
 
@@ -202,15 +207,16 @@ class Tuner {
         return has_low && (!has_high || period >= midpoint) ? low : high;
     }
 
-    i32 harmony_shift(i32 period, u32 lead) const {
-        if (harmony_voice_ == 3) return 270;  // Approximately seven cents for the double.
-        const i32 direction = harmony_voice_ == 1 ? 1 : -1;
-        i32 interval = 4;
-        if (pitch_classes_ != chromatic) {
+    i32 harmony_shift(i32 period, u32 lead, i32 degree) const {
+        if (!degree) return 270;  // Approximately seven cents for the double.
+        const i32 direction = degree > 0 ? 1 : -1;
+        const u32 degrees = static_cast<u32>(degree * direction);
+        i32 interval = degrees == 2 ? 4 : degrees == 4 ? 7 : 12;
+        if (pitch_classes_ != chromatic && degrees < 7) {
             u32 steps = 0;
-            for (i32 distance = 1; distance <= 7; ++distance) {
+            for (i32 distance = 1; distance < 12; ++distance) {
                 const u32 pitch_class = (static_cast<i32>(lead) + 12 + direction * distance) % 12;
-                if ((pitch_classes_ & (1u << pitch_class)) && ++steps == 2) {
+                if ((pitch_classes_ & (1u << pitch_class)) && ++steps == degrees) {
                     interval = distance;
                     break;
                 }
@@ -232,6 +238,18 @@ class Tuner {
                 q31::add(q31::multiply(a.right, inverse), q31::multiply(b.right, weight))};
     }
 
+    static i32 fade_weight(i32 frames) {
+        const i32 weight = frames * (q31::maximum / fade_frames);
+        const i32 squared = q31::multiply(weight, weight);
+        return q31::add(squared, 2 * q31::multiply(squared, q31::maximum - weight));
+    }
+
+    static i32 phase_speed(i32 shift, i32 period) {
+        // Downscale before the product so that an octave-up voice fits in i32.
+        const i32 reciprocal = static_cast<i32>(0x80000000u / (period >> 8));
+        return shift * (reciprocal >> 4) / 8;
+    }
+
     Stereo read(u32 cursor, i32 delay_q16) const {
         const u32 newer = cursor - (static_cast<u32>(delay_q16) >> 16);
         const i32 weight = (delay_q16 & 65535) << 15;
@@ -246,25 +264,38 @@ class Tuner {
         return blend(read(cursor, tap), read(cursor, tap - period), weight);
     }
 
-    void render_shifted(i32* stereo, u32 count, i32 period_step) {
+    void render_shifted(i32* stereo, u32 count, i32 period_step, i32 target_speed) {
         i32 period = period_;
+        i32 speed = speed_;
         u32 phase = phase_;
+        const i32 speed_step = (target_speed - speed) / static_cast<i32>(block_frames);
         for (u32 frame = 0; frame < count; ++frame) {
             period += period_step;
             const Stereo output = shifted_sample(cursor_ + frame, period, phase, delay);
             *stereo++ = output.left;
             *stereo++ = output.right;
-            phase -= static_cast<u32>(speed_);
+            speed += speed_step;
+            phase -= static_cast<u32>(speed);
         }
         phase_ = phase;
         period_ = period;
+        speed_ = count == block_frames ? target_speed : speed;
     }
 
     void render_harmony(i32* stereo, i32 period, i32 period_step, i32 detected, u32 lead, bool voiced) {
+        static constexpr Voicing presets[] = {
+            {0, {}},            // off
+            {1, {2}},           // third up
+            {1, {-2}},          // third down
+            {1, {0}},           // double
+            {2, {-2, 2}},       // thirds
+            {2, {2, 4}},        // triad
+            {2, {-7, 7}},       // octaves
+            {3, {-7, 2, 4}},    // choir
+        };
         if (!harmony_gain_ && harmony_voice_ != harmony_mode_) {
             harmony_voice_ = harmony_mode_;
-            harmony_phase_ = 0;
-            harmony_speed_ = 0;
+            for (auto& voice : harmony_) voice = {};
         }
         const bool active = voiced && filled_ == history_ready && harmony_voice_ &&
             harmony_voice_ == harmony_mode_ && harmony_blend_;
@@ -272,23 +303,33 @@ class Tuner {
         const i32 distance = target - harmony_gain_;
         const i32 next = distance > -8 && distance < 8 ? target : harmony_gain_ + distance / 4;
         if (!harmony_gain_ && !next) return;
+        const Voicing& preset = presets[harmony_voice_];
         if (active) {
-            const i32 reciprocal = static_cast<i32>(0x80000000u / (period >> 8));
-            const i32 speed = harmony_shift(detected, lead) * (reciprocal >> 4) / 8;
-            harmony_speed_ += (speed - harmony_speed_) / 4;
+            for (u32 i = 0; i < preset.count; ++i) {
+                auto& voice = harmony_[i];
+                const i32 speed = phase_speed(harmony_shift(detected, lead, preset.degrees[i]), period);
+                voice.speed += (speed - voice.speed) / 4;
+            }
         }
+        const i32 voice_weight = q31::maximum / static_cast<i32>(preset.count);
         i32 gain = harmony_gain_ * (1 << 19);
         const i32 gain_step = (next - harmony_gain_) * (1 << 13);
-        const i32 base_delay = delay + (harmony_voice_ == 3 ? double_delay : 0);
+        const i32 base_delay = delay + (preset.degrees[0] == 0 ? double_delay : 0);
         for (u32 frame = 0; frame < block_frames; ++frame) {
             gain += gain_step;
             period += period_step;
-            const Stereo harmony = shifted_sample(cursor_ + frame, period, harmony_phase_, base_delay);
+            Stereo harmony = {};
+            for (u32 i = 0; i < preset.count; ++i) {
+                auto& voice = harmony_[i];
+                const Stereo sample = shifted_sample(cursor_ + frame, period, voice.phase, base_delay + 43 * i);
+                harmony.left = q31::add(harmony.left, q31::multiply(sample.left, voice_weight));
+                harmony.right = q31::add(harmony.right, q31::multiply(sample.right, voice_weight));
+                voice.phase -= static_cast<u32>(voice.speed);
+            }
             const Stereo lead_sample = {stereo[0], stereo[1]};
             const Stereo output = blend(lead_sample, harmony, gain);
             *stereo++ = output.left;
             *stereo++ = output.right;
-            harmony_phase_ -= static_cast<u32>(harmony_speed_);
         }
         harmony_gain_ = next;
     }
@@ -300,8 +341,9 @@ public:
         tracker_.reset();
         cursor_ = filled_ = phase_ = 0;
         period_ = speed_ = wet_ = 0;
-        harmony_phase_ = harmony_voice_ = 0;
-        harmony_speed_ = harmony_gain_ = 0;
+        harmony_voice_ = 0;
+        harmony_gain_ = 0;
+        for (auto& voice : harmony_) voice = {};
     }
 
     void prepare(u32 mode, u32 retune, u32 amount, u32 automatic_mask,
@@ -309,7 +351,7 @@ public:
         constexpr u32 major = 0xab5, minor = 0x5ad;
         const bool was_tracking = tracking();
         amount_ = mode ? amount : 0;
-        harmony_mode_ = harmony_mode;
+        harmony_mode_ = harmony_mode < 8 ? harmony_mode : 0;
         harmony_blend_ = harmony_blend;
         if (was_tracking && !tracking()) reset();
         if (!amount_) wet_ = speed_ = phase_ = 0;
@@ -341,11 +383,12 @@ public:
         const i32 initial_period = period_;
         const u32 note = pitched ? target_note(detected) : 0;
         const bool voiced = pitched && amount_;
-        if (amount_) {
+        i32 target_speed = speed_;
+        if (voiced) {
             const i32 target = note_periods()[note];
-            const i32 shift = voiced ? ((detected - target) * 4096 / (target >> 4)) * static_cast<i32>(amount_) / 15 : 0;
-            const i32 speed = voiced ? shift * static_cast<i32>(0x80000000u / (period_ >> 8)) / 128 : 0;
-            speed_ = hard_ ? speed : speed_ + (speed - speed_) / 4;
+            const i32 shift = ((detected - target) * 4096 / (target >> 4)) * static_cast<i32>(amount_) / 15;
+            const i32 speed = phase_speed(shift, period_);
+            target_speed = hard_ ? speed : speed_ + (speed - speed_) / 4;
         }
         // The cursor is block-aligned. All taps look backward and the ring is
         // longer than the furthest tap plus a block, so writing the block first
@@ -357,12 +400,12 @@ public:
         const u32 next = (cursor_ + block_frames) & ring_mask;
         if (!next) history_[0] = history_[ring_mask + 1];
 
-        const u32 fade_step = hard_ ? 4 : 1;
+        const u32 fade_step = hard_ ? 2 : 1;
         const i32 to_edge = voiced ? fade_frames - wet_ : wet_;
         const u32 fade_length = to_edge ? (static_cast<u32>(to_edge) - 1) / fade_step : 0;
         const u32 mixed = fade_length < block_frames ? fade_length : block_frames;
         const u32 shifted = voiced ? block_frames : mixed;
-        if (shifted) render_shifted(stereo, shifted, period_step);
+        if (shifted) render_shifted(stereo, shifted, period_step, target_speed);
         if (pitched && !amount_) period_ += period_step * block_frames;
 
         const i32 wet_step = voiced ? static_cast<i32>(fade_step) : -static_cast<i32>(fade_step);
@@ -371,7 +414,7 @@ public:
             wet += wet_step;
             const Stereo dry = history_[((cursor_ + frame - delay) & ring_mask) + 1];
             const Stereo tuned = {stereo[frame * 2], stereo[frame * 2 + 1]};
-            const Stereo output = blend(dry, tuned, wet * (q31::maximum / fade_frames));
+            const Stereo output = blend(dry, tuned, fade_weight(wet));
             stereo[frame * 2] = output.left;
             stereo[frame * 2 + 1] = output.right;
         }

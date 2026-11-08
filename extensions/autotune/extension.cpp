@@ -15,7 +15,9 @@ constexpr const char* scales[] = {
     "F# minor", "G minor", "G# minor", "A minor", "Bb minor", "B minor",
 };
 constexpr const char* speeds[] = {"smooth", "hard"};
-constexpr const char* harmonies[] = {"off", "third up", "third down", "double"};
+constexpr const char* harmonies[] = {
+    "off", "third up", "third down", "double", "thirds", "triad", "octaves", "choir",
+};
 constexpr const char* blend[] = {"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%"};
 constexpr const char* dynamics_modes[] = {"off", "soft"};
 }
@@ -26,7 +28,7 @@ extern constexpr live_input::Controls input_controls = {
 };
 extern constexpr live_input::ExtraControls input_extra_controls = {
     {"harmony", "blend", "compress", "de-ess"},
-    {{harmonies, 4}, {blend, 8}, {dynamics_modes, 2}, {dynamics_modes, 2}},
+    {{harmonies, sizeof(harmonies) / sizeof(*harmonies)}, {blend, 8}, {dynamics_modes, 2}, {dynamics_modes, 2}},
 };
 
 void prepare_input(u32 mode, u32 retune, u32 amount, u32 automatic_mask,

@@ -174,6 +174,63 @@ bool harmonizes(double lead, double expected, double unwanted, u32 choice) {
         expect(harmony.power() > wrong.power() * 6.0, "harmony follows the chosen scale or double");
 }
 
+bool stacks_harmonies(u32 choice, Bin* voices, u32 count) {
+    constexpr double c4 = 261.625565;
+    reset_input();
+    prepare_input(0, 0, 15, 0xab5, {{choice, 7, 0, 0}});
+    Bin lead(c4);
+    for (u32 start = 0; start < 81920; start += block_frames) {
+        i32 stereo[2 * block_frames];
+        for (u32 frame = 0; frame < block_frames; ++frame) {
+            const double phase = tau * c4 * (start + frame) / sample_rate;
+            stereo[2 * frame] = 0;
+            stereo[2 * frame + 1] = static_cast<i32>(1000000 * std::sin(phase));
+        }
+        process_input(stereo);
+        if (start < 16384) continue;
+        for (u32 frame = 0; frame < block_frames; ++frame) {
+            const i32 sample = stereo[2 * frame + 1];
+            lead.add(sample, start + frame);
+            for (u32 i = 0; i < count; ++i) voices[i].add(sample, start + frame);
+        }
+    }
+    for (u32 i = 0; i < count; ++i)
+        if (!expect(voices[i].power() > lead.power() * 0.15, "each stacked voice is audible")) return false;
+    return true;
+}
+
+bool hard_lock_has_no_sharp_edge() {
+    constexpr i32 amplitude = 1000000;
+    i32 snap_peak = 0, relock_peak = 0;
+    for (u32 trial = 0; trial < 8; ++trial) {
+        reset_input();
+        double phase = trial * tau / 8;
+        i32 previous = 0, older = 0;
+        for (u32 block = 0; block < 238; ++block) {
+            prepare_input(block < 96 ? 3 : 4, 1, 15, 0);
+            i32 stereo[2 * block_frames];
+            for (u32 frame = 0; frame < block_frames; ++frame) {
+                phase += tau * (block < 160 ? 309.0 : 383.0) / sample_rate;
+                const i32 sample = static_cast<i32>(amplitude * std::sin(phase));
+                stereo[2 * frame] = stereo[2 * frame + 1] = sample;
+            }
+            process_input(stereo);
+            for (u32 frame = 0; frame < block_frames; ++frame) {
+                const i32 sample = stereo[2 * frame];
+                // Second difference highlights a sharp edge without counting
+                // the steady slope of a sine as a click.
+                const i32 edge = std::abs(sample - 2 * previous + older);
+                if (block >= 96 && block < 104 && edge > snap_peak) snap_peak = edge;
+                if (block >= 170 && edge > relock_peak) relock_peak = edge;
+                older = previous;
+                previous = sample;
+            }
+        }
+    }
+    return expect(snap_peak < 2600, "Hard retune changes target without a sharp edge") &&
+        expect(relock_peak < 5500, "Hard retune reacquires a new note without a sharp edge");
+}
+
 double dynamics_level(double frequency, i32 amplitude, const live_input::ExtraValues& extra) {
     reset_input();
     prepare_input(0, 0, 15, 0, extra);
@@ -219,6 +276,15 @@ int main() {
     ok &= harmonizes(329.627557, 391.995436, 415.304698, 1); // E to G in C major.
     ok &= harmonizes(329.627557, 261.625565, 277.182631, 2); // E to C.
     ok &= harmonizes(440.0, 441.812744, 444.0, 3);
+    Bin thirds[] = {Bin(220.0), Bin(329.627557)};
+    Bin triad[] = {Bin(329.627557), Bin(391.995436)};
+    Bin octaves[] = {Bin(130.812783), Bin(523.251131)};
+    Bin choir[] = {Bin(130.812783), Bin(329.627557), Bin(391.995436)};
+    ok &= stacks_harmonies(4, thirds, 2);
+    ok &= stacks_harmonies(5, triad, 2);
+    ok &= stacks_harmonies(6, octaves, 2);
+    ok &= stacks_harmonies(7, choir, 3);
+    ok &= hard_lock_has_no_sharp_edge();
     ok &= expect(dynamics_level(220, 3000000, {{0, 0, 1, 0}}) <
                  dynamics_level(220, 3000000, {}) * 0.68, "compressor tames loud vowels");
     ok &= expect(dynamics_level(220, 500000, {{0, 0, 1, 0}}) ==

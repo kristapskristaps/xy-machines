@@ -20,8 +20,10 @@ both channels of the 3.5 mm input. Unpitched sounds pass through with the same
    notes. Tune **Off** or Amount **0%** bypasses lead correction.
 
 Tune starts at Off, Retune at Smooth and Amount at 100%. Hard scans for
-pitch faster and accepts a wider range of voiced input. Amount controls
-how far the pitch moves toward its target.
+pitch faster and accepts a wider range of voiced input. It slews each new
+pitch shift over one 64-frame block, about 1.5 ms, and eases the transition
+between dry and tuned audio. Amount controls how far the pitch moves
+toward its target.
 
 While holding **Shift** on M1, press **M1** to switch to the vocal effects
 page. Its four encoders control **Harmony**, **Blend**, **Compress** and
@@ -29,12 +31,17 @@ page. Its four encoders control **Harmony**, **Blend**, **Compress** and
 Mic. Releasing Shift dismisses the overlay and returns it to the first
 page for the next use. Tuning and vocal effects settings last for the current session.
 
-- **Harmony** adds one voice a diatonic third up or down. With Tune Off it
-  follows Brain, and with Chromatic or an unavailable Brain scale it uses
-  a major third. **Double** adds a slightly delayed, detuned copy. The
-  extra voice fades when pitch tracking loses a voiced note.
-- **Blend** mixes in the extra voice from 0 to 70%. Try Third Up at 20%
-  with a small amount of the stock reverb send.
+- **Harmony** offers Third Up, Third Down, Double, Thirds, Triad, Octaves
+  and Choir. Thirds surrounds the lead with a third above and below.
+  Triad adds a third and fifth above. Octaves adds an octave on either
+  side. Choir adds a low octave plus the upper third and fifth for four
+  parts including the lead. Double adds a slightly delayed, detuned copy.
+  With Tune Off, the scale follows Brain. Chromatic or an unavailable
+  Brain scale uses fixed major thirds and perfect fifths. The extra voices
+  fade when pitch tracking loses a voiced note.
+- **Blend** mixes the harmony stack in from 0 to 70%. Try Third Up at
+  20% for a soft backing vocal or Choir at 60–70% for a more pronounced
+  chord. Both work with the stock reverb send.
 - **Compress** reduces loud peaks. **De-ess** softens bright consonants.
   Both work with Tune and Harmony off. All four controls start off or at
   zero.

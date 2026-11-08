@@ -33,6 +33,9 @@ Use headphones for the microphone check.
     check the harmony moves from F to G. Try Third Down and Double. Check
     the lead stays clear on breaths and consonants and that a source change
     clears the previous voice. Repeat with Tune Off.
+    Try Thirds, Triad, Octaves and Choir with higher Blend. On C4, Choir
+    should add C3, E4 and G4. Confirm Hard tuning still snaps quickly when
+    moving across notes and that the transitions sound clean.
 11. Turn harmony off and compare the two dynamics controls independently
     on quiet vowels, loud vowels and sibilants. Then use both together with
     Hard tuning and harmony while a busy project plays. Time the complete

@@ -1,4 +1,34 @@
-# Auto Tune v0.1.0 hardware measurements
+# Auto Tune hardware measurements
+
+## Vocal FX
+
+**Choir is CPU-high**, especially with Hard tuning, Compress and De-ess enabled.
+The table reports DSP time as a share of the stock 580,352-cycle audio block
+budget. Each workload ran for 1,500 blocks of 64 frames on an OP-XY with OS
+1.2.1, optimized Checkpoint and a 4 MiB layout. The timer covered control
+preparation and Vocal FX processing on private state. Stock mixing, routing
+and project playback were outside the measurement.
+
+| Workload | Average | Worst observed block |
+| --- | ---: | ---: |
+| Choir at 70% Blend, Tune Off, stereo phrase | 5.711% | 8.836% |
+| Hard + Choir, stereo phrase | 7.056% | 11.496% |
+| Hard + Choir + dynamics, stereo low vowel | 7.933% | 12.091% |
+| Hard + Choir + dynamics, mono low vowel through the stereo renderer | 7.800% | 13.178% |
+| Hard + Choir + dynamics, mono low vowel through the mono fast path | 6.748% | 9.793% |
+| Hard + Choir + dynamics, mono loud phrase through the mono fast path | 6.719% | 11.727% |
+
+The fixed-key workloads use C major, 100% Tune Amount and 70% Harmony Blend.
+Dynamics uses Compress and De-ess at Soft. The two mono low-vowel runs use
+identical input. The fast path requires identical left and right samples in
+the delay history. Its use with the built-in mic on the device remains
+unconfirmed.
+
+Measured DSP revision `4893e10c08bc755deec91c21676012de06a5323a`.
+Diagnostic firmware SHA-256
+`cea8bf9287d34a54a79f3082defaf77e39db0251caff35462f84f92b6b678a01`.
+
+## v0.1.0 pitch correction
 
 Measured on OP-XY OS 1.2.1. Each workload timed 1,500 stereo blocks of 64 samples
 on a private instance of the production tuner. Percentages use the stock
@@ -22,8 +52,7 @@ The diagnostic used the combined development image with optimized Checkpoint and
 a 4 MiB reservation. Its DSP sources match this release by SHA-256. The
 diagnostic verified the native squared-distance result against the scalar
 calculation at all 81 lags before timing. These measurements apply to the
-tagged pitch-correction release. Harmony, doubling and dynamics require
-their own device measurements.
+tagged pitch-correction release.
 
 | Input | SHA-256 |
 | --- | --- |

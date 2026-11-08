@@ -2,7 +2,7 @@
   "id": "autotune",
   "name": "Auto Tune",
   "description": "Tunes, harmonizes and doubles vocals on Aux 5, with light compression and de-essing for the mic, headset or line input.",
-  "note": "One note at a time, with about 15 ms of base delay.",
+  "note": "CPU-high with Choir, especially with Hard tuning and dynamics. About 15 ms base delay.",
   "claims": [],
   "actions": [],
   "live_input": {"controls": true, "extra_controls": true}

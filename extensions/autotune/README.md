@@ -38,7 +38,8 @@ page for the next use. Tuning and vocal effects settings last for the current se
   parts including the lead. Double adds a slightly delayed, detuned copy.
   With Tune Off, the scale follows Brain. Chromatic or an unavailable
   Brain scale uses fixed major thirds and perfect fifths. The extra voices
-  fade when pitch tracking loses a voiced note.
+  fade when pitch tracking loses a voiced note. **Choir is CPU-high**,
+  especially with Hard tuning, Compress and De-ess enabled.
 - **Blend** mixes the harmony stack in from 0 to 70%. Try Third Up at
   20% for a soft backing vocal or Choir at 60–70% for a more pronounced
   chord. Both work with the stock reverb send.

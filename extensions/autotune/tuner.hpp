@@ -179,6 +179,7 @@ class Tuner {
     Stereo harmony_mix_[block_frames];
     Voice harmony_[max_voices];
     u32 cursor_, filled_, phase_;
+    u32 mono_frames_;
     i32 period_, speed_, wet_, harmony_gain_;
     i32 note_period_, harmony_period_;
     u32 note_;
@@ -251,11 +252,12 @@ class Tuner {
         return ((period - target) / 16) * 4096 / (target >> 8);
     }
 
+    template <bool Mono = false>
     static Stereo blend_weighted(Stereo a, Stereo b, i32 weight) {
         const i32 inverse = q31::maximum - weight;
         // The nonnegative weights sum to Q31 maximum, so neither sum can saturate.
-        return {q31::multiply(a.left, inverse) + q31::multiply(b.left, weight),
-                q31::multiply(a.right, inverse) + q31::multiply(b.right, weight)};
+        const i32 left = q31::multiply(a.left, inverse) + q31::multiply(b.left, weight);
+        return {left, Mono ? left : q31::multiply(a.right, inverse) + q31::multiply(b.right, weight)};
     }
 
     static Stereo blend(Stereo a, Stereo b, i32 weight) {
@@ -275,24 +277,27 @@ class Tuner {
         return static_cast<i32>(0x80000000u / (period >> 8)) >> 4;
     }
 
+    template <bool Mono>
     Stereo read(u32 cursor, i32 delay_q16) const {
         // The unsigned shift wraps negative offsets by 65536 samples, a
         // multiple of the ring size.
         const u32 newer = cursor - (static_cast<u32>(delay_q16) >> 16);
         const i32 weight = (delay_q16 & 65535) << 15;
         const Stereo* samples = history_ + (newer & ring_mask);
-        return weight ? blend_weighted(samples[1], samples[0], weight) : samples[1];
+        return weight ? blend_weighted<Mono>(samples[1], samples[0], weight) : samples[1];
     }
 
+    template <bool Mono>
     Stereo shifted_sample(u32 cursor, i32 period, u32 phase) const {
         // The two reads stay one period apart and exchange roles at the phase wrap.
         const i32 weight = static_cast<i32>(phase >> 1);
-        if (!weight) return read(cursor, 0);
+        if (!weight) return read<Mono>(cursor, 0);
         const i32 tap = q31::multiply(weight, period);
-        const Stereo second = read(cursor, tap - period);
-        return weight == q31::maximum ? second : blend_weighted(read(cursor, tap), second, weight);
+        const Stereo second = read<Mono>(cursor, tap - period);
+        return weight == q31::maximum ? second : blend_weighted<Mono>(read<Mono>(cursor, tap), second, weight);
     }
 
+    template <bool Mono>
     void render_shifted(i32* stereo, u32 count, i32 period_step, i32 target_speed) {
         i32 period = period_;
         i32 speed = speed_;
@@ -300,9 +305,9 @@ class Tuner {
         const i32 speed_step = (target_speed - speed) / static_cast<i32>(block_frames);
         for (u32 frame = 0; frame < count; ++frame) {
             period += period_step;
-            const Stereo output = shifted_sample(cursor_ + frame - delay, period, phase);
+            const Stereo output = shifted_sample<Mono>(cursor_ + frame - delay, period, phase);
             *stereo++ = output.left;
-            *stereo++ = output.right;
+            *stereo++ = Mono ? output.left : output.right;
             speed += speed_step;
             phase -= static_cast<u32>(speed);
         }
@@ -311,17 +316,19 @@ class Tuner {
         speed_ = count == block_frames ? target_speed : speed;
     }
 
-    template <bool Accumulate>
+    template <bool Mono, bool Accumulate>
     void render_voice(Voice& voice, u32 cursor, i32 period, i32 period_step, i32 weight) {
         u32 phase = voice.phase;
         const u32 speed = static_cast<u32>(voice.speed);
         for (u32 frame = 0; frame < block_frames; ++frame) {
             period += period_step;
-            const Stereo sample = shifted_sample(cursor + frame, period, phase);
-            const Stereo weighted = {q31::multiply(sample.left, weight), q31::multiply(sample.right, weight)};
+            const Stereo sample = shifted_sample<Mono>(cursor + frame, period, phase);
+            const i32 left = q31::multiply(sample.left, weight);
+            const Stereo weighted = {left, Mono ? left : q31::multiply(sample.right, weight)};
             if (Accumulate) {
                 const Stereo previous = harmony_mix_[frame];
-                harmony_mix_[frame] = {previous.left + weighted.left, previous.right + weighted.right};
+                const i32 sum = previous.left + weighted.left;
+                harmony_mix_[frame] = {sum, Mono ? sum : previous.right + weighted.right};
             } else {
                 harmony_mix_[frame] = weighted;
             }
@@ -330,9 +337,34 @@ class Tuner {
         voice.phase = phase;
     }
 
+    template <bool Mono>
+    void mix_harmony(i32* stereo, i32 period, i32 period_step, const Voicing& preset, i32 next) {
+        // The sum of all voice weights is at most Q31 maximum.
+        static constexpr i32 voice_weights[] = {q31::maximum, q31::maximum / 2, q31::maximum / 3};
+        const i32 voice_weight = voice_weights[preset.count - 1];
+        const u32 base_cursor = cursor_ - delay - (preset.degrees[0] == 0 ? double_delay : 0);
+        // Render a block per voice so phase, speed and the tap base stay local
+        // to the inner loop. The sum still accumulates in preset order.
+        render_voice<Mono, false>(harmony_[0], base_cursor, period, period_step, voice_weight);
+        for (u32 i = 1; i < preset.count; ++i)
+            render_voice<Mono, true>(harmony_[i], base_cursor - 43 * i, period, period_step, voice_weight);
+
+        i32 gain = harmony_gain_ * (1 << 19);
+        const i32 gain_step = (next - harmony_gain_) * (1 << 13);
+        // A ramp to zero reaches it at the last frame, which already holds the lead.
+        const u32 mixed = next ? block_frames : block_frames - 1;
+        for (u32 frame = 0; frame < mixed; ++frame) {
+            gain += gain_step;
+            const Stereo lead = {stereo[0], stereo[1]};
+            const Stereo output = blend_weighted<Mono>(lead, harmony_mix_[frame], gain);
+            *stereo++ = output.left;
+            *stereo++ = Mono ? output.left : output.right;
+        }
+    }
+
     // Keep the voice loops out of the lead renderer's register allocation.
     __attribute__((noinline))
-    void render_harmony(i32* stereo, i32 period, i32 period_step, i32 detected, u32 lead, bool voiced) {
+    void render_harmony(i32* stereo, i32 period, i32 period_step, i32 detected, u32 lead, bool voiced, bool mono) {
         static constexpr Voicing presets[] = {
             {0, {}},            // off
             {1, {2}},           // third up
@@ -368,36 +400,20 @@ class Tuner {
                 voice.speed += (speed - voice.speed) / 4;
             }
         }
-        // The sum of all voice weights is at most Q31 maximum.
-        static constexpr i32 voice_weights[] = {q31::maximum, q31::maximum / 2, q31::maximum / 3};
-        const i32 voice_weight = voice_weights[preset.count - 1];
-        const u32 base_cursor = cursor_ - delay - (preset.degrees[0] == 0 ? double_delay : 0);
-        // Render a block per voice so phase, speed and the tap base stay local
-        // to the inner loop. The sum still accumulates in preset order.
-        render_voice<false>(harmony_[0], base_cursor, period, period_step, voice_weight);
-        for (u32 i = 1; i < preset.count; ++i)
-            render_voice<true>(harmony_[i], base_cursor - 43 * i, period, period_step, voice_weight);
-
-        i32 gain = harmony_gain_ * (1 << 19);
-        const i32 gain_step = (next - harmony_gain_) * (1 << 13);
-        // A ramp to zero reaches it at the last frame, which already holds the lead.
-        const u32 mixed = next ? block_frames : block_frames - 1;
-        for (u32 frame = 0; frame < mixed; ++frame) {
-            gain += gain_step;
-            const Stereo lead_sample = {stereo[0], stereo[1]};
-            const Stereo output = blend_weighted(lead_sample, harmony_mix_[frame], gain);
-            *stereo++ = output.left;
-            *stereo++ = output.right;
-        }
+        if (mono) mix_harmony<true>(stereo, period, period_step, preset, next);
+        else mix_harmony<false>(stereo, period, period_step, preset, next);
         harmony_gain_ = next;
     }
 
     bool tracking() const { return amount_ || (harmony_mode_ && harmony_blend_); }
 
 public:
+    enum class Stage { pitch_input, lead, harmony, pitch_search };
+
     void reset() {
         tracker_.reset();
         cursor_ = filled_ = phase_ = 0;
+        mono_frames_ = 0;
         period_ = speed_ = wet_ = 0;
         note_period_ = harmony_period_ = 0;
         harmony_voice_ = 0;
@@ -430,9 +446,11 @@ public:
         }
     }
 
-    void process(i32* stereo) {
+    template <bool AllowMono = true, typename Timing>
+    void process(i32* stereo, Timing& timing) {
         if (!tracking()) return;
         tracker_.push_block(stereo);
+        timing.end(Stage::pitch_input);
         const i32 detected = tracker_.period();
         const i32 desired_period = detected << 4;
         const i32 distance = desired_period - period_;
@@ -458,18 +476,30 @@ public:
         // longer than the furthest tap plus a block, so writing the block first
         // preserves the same history for every read.
         Stereo* write = history_ + cursor_ + 1;
+        i32 unequal = 0;
         for (u32 frame = 0; frame < block_frames; ++frame) {
             write[frame] = {stereo[frame * 2], stereo[frame * 2 + 1]};
+            if (AllowMono) unequal |= write[frame].left ^ write[frame].right;
         }
         const u32 next = (cursor_ + block_frames) & ring_mask;
         if (!next) history_[0] = history_[ring_mask + 1];
+        // Every tap must see identical channels, including when the source
+        // becomes mono again after a stereo block.
+        if (AllowMono) {
+            if (unequal) mono_frames_ = 0;
+            else if (mono_frames_ <= ring_mask) mono_frames_ += block_frames;
+        }
+        const bool mono = AllowMono && mono_frames_ > ring_mask;
 
         const u32 fade_step = hard_ ? 2 : 1;
         const i32 to_edge = voiced ? fade_frames - wet_ : wet_;
         const u32 fade_length = to_edge ? (static_cast<u32>(to_edge) - 1) / fade_step : 0;
         const u32 mixed = fade_length < block_frames ? fade_length : block_frames;
         const u32 shifted = voiced ? block_frames : mixed;
-        if (shifted) render_shifted(stereo, shifted, period_step, target_speed);
+        if (shifted) {
+            if (mono) render_shifted<true>(stereo, shifted, period_step, target_speed);
+            else render_shifted<false>(stereo, shifted, period_step, target_speed);
+        }
         if (pitched && !amount_) period_ += period_step * block_frames;
 
         const i32 wet_step = voiced ? static_cast<i32>(fade_step) : -static_cast<i32>(fade_step);
@@ -491,12 +521,21 @@ public:
             }
         }
         wet_ = mixed == block_frames ? wet : voiced ? fade_frames : 0;
+        timing.end(Stage::lead);
         if ((harmony_mode_ && harmony_blend_) || harmony_gain_)
-            render_harmony(stereo, initial_period, period_step, detected, note, pitched);
+            render_harmony(stereo, initial_period, period_step, detected, note, pitched, mono);
+        timing.end(Stage::harmony);
         cursor_ = next;
         filled_ += block_frames;
         if (filled_ > history_ready) filled_ = history_ready;
         tracker_.advance(hard_);
+        timing.end(Stage::pitch_search);
+    }
+
+    template <bool AllowMono = true>
+    void process(i32* stereo) {
+        struct Untimed { void end(Stage) {} } timing;
+        process<AllowMono>(stereo, timing);
     }
 };
 

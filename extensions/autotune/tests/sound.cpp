@@ -1,6 +1,7 @@
 #include "extension.cpp"
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 
 namespace {
 using namespace opxy;
@@ -199,6 +200,33 @@ bool stacks_harmonies(u32 choice, Bin* voices, u32 count) {
     return true;
 }
 
+bool mono_matches_stereo_renderer() {
+    static Tuner optimized, reference;
+    for (u32 harmony = 1; harmony <= 7; ++harmony) {
+        optimized.reset();
+        reference.reset();
+        for (u32 block = 0; block < 576; ++block) {
+            const u32 tune = block < 288 ? 3 : 0;
+            optimized.prepare(tune, 1, 15, 0xab5, harmony, 7);
+            reference.prepare(tune, 1, 15, 0xab5, harmony, 7);
+            i32 stereo[2 * block_frames], expected[2 * block_frames];
+            for (u32 frame = 0; frame < block_frames; ++frame) {
+                const i32 left = tone(131.0, block * block_frames + frame) / 512;
+                stereo[2 * frame] = left;
+                stereo[2 * frame + 1] = block >= 200 && block < 240 ? left / 2 : left;
+            }
+            // A single unequal sample must also invalidate the delay history.
+            if (block == 400) stereo[1] ^= 1;
+            std::memcpy(expected, stereo, sizeof(stereo));
+            optimized.process(stereo);
+            reference.process<false>(expected);
+            if (!expect(std::memcmp(stereo, expected, sizeof(stereo)) == 0,
+                        "mono and stereo rendering agree through channel changes")) return false;
+        }
+    }
+    return true;
+}
+
 bool hard_lock_has_no_sharp_edge() {
     constexpr i32 amplitude = 1000000;
     i32 snap_peak = 0, relock_peak = 0;
@@ -269,6 +297,7 @@ int main() {
     ok &= tunes(313.0, 329.627557, true, 3, 1, 15, 0, 8192);  // Quiet voice after the mixer.
     ok &= tunes(432.0, 436.266667, true, 2, 1, 8);
     ok &= hard_flattens_vibrato();
+    ok &= mono_matches_stereo_renderer();
     ok &= noise_and_reset(0, 1);
     ok &= noise_and_reset(1, 512);
     ok &= noise_and_reset(0, 512, {{1, 4, 0, 0}});

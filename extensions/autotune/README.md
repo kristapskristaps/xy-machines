@@ -17,19 +17,36 @@ both channels of the 3.5 mm input. Unpitched sounds pass through with the same
 5. Set **Tune** to your beat's major or natural minor key. **Auto** follows
    the current Brain scale and uses Chromatic when Brain has no valid scale.
 6. For an obvious correction, select **Hard** and **100%**, then slide between
-   notes. Turn Tune to **Off** or Amount to **0%** to hear the direct input.
+   notes. Tune **Off** or Amount **0%** bypasses lead correction.
 
-Tune starts at Off, Retune at Smooth and Amount at 100%. Choices last until
-reboot. Hard scans for pitch faster and accepts a wider range of voiced
-input. The Amount control sets how far the pitch moves toward its target.
+Tune starts at Off, Retune at Smooth and Amount at 100%. Hard scans for
+pitch faster and accepts a wider range of voiced input. Amount controls
+how far the pitch moves toward its target.
+
+While holding **Shift** on M1, press **M1** to switch to the vocal effects
+page. Its four encoders control **Harmony**, **Blend**, **Compress** and
+**De-ess**. Press M1 again while holding Shift to return to Tune and Tilt
+Mic. Releasing Shift dismisses the overlay and returns it to the first
+page for the next use. Tuning and vocal effects settings last for the current session.
+
+- **Harmony** adds one voice a diatonic third up or down. With Tune Off it
+  follows Brain, and with Chromatic or an unavailable Brain scale it uses
+  a major third. **Double** adds a slightly delayed, detuned copy. The
+  extra voice fades when pitch tracking loses a voiced note.
+- **Blend** mixes in the extra voice from 0 to 70%. Try Third Up at 20%
+  with a small amount of the stock reverb send.
+- **Compress** reduces loud peaks. **De-ess** softens bright consonants.
+  Both work with Tune and Harmony off. All four controls start off or at
+  zero.
 
 Correction covers what Aux 5 sends to the mix and FX. The sampler's raw mic
 and line inputs use their own path.
 
 ## Build and check
 
-Use an Open-XY SDK checkout that supports live input and the paired Q15 distance
-helper. From the XY Machines root, run the extension checks.
+Use an Open-XY SDK checkout that supports the second live input control page
+and the paired Q15 distance helper. From the XY Machines root, run the extension
+checks.
 
 ```sh
 python /path/to/open-xy/sdk.py test --extension extensions/autotune

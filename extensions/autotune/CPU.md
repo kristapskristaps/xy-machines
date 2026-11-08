@@ -1,4 +1,4 @@
-# Auto Tune hardware measurements
+# Auto Tune v0.1.0 hardware measurements
 
 Measured on OP-XY OS 1.2.1. Each workload timed 1,500 stereo blocks of 64 samples
 on a private instance of the production tuner. Percentages use the stock
@@ -21,8 +21,9 @@ in Hard mode produced the highest observed peak, 5.423%.
 The diagnostic used the combined development image with optimized Checkpoint and
 a 4 MiB reservation. Its DSP sources match this release by SHA-256. The
 diagnostic verified the native squared-distance result against the scalar
-calculation at all 81 lags before timing. Full live-input QA on a submission
-build remains pending.
+calculation at all 81 lags before timing. These measurements apply to the
+tagged pitch-correction release. Harmony, doubling and dynamics require
+their own device measurements.
 
 | Input | SHA-256 |
 | --- | --- |

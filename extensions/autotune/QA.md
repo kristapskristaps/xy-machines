@@ -25,3 +25,15 @@ Use headphones for the microphone check.
    Verify that a 432 Hz input remains at 432 Hz in the raw recording.
 8. Run the test with a busy project playing and check for audio dropouts.
    Record device CPU measurements separately if diagnostic support is available.
+9. Hold Shift on Aux 5 M1 and press M1. Check Harmony, Blend, Compress and
+   De-ess in encoder order. Press M1 again to return to Tune and Tilt Mic.
+   Release Shift on the effects page, then hold it again to check that the
+   overlay opens on Tune and Tilt Mic.
+10. With Brain in C major, set Third Up and Blend to 20%. Sing D and E to
+    check the harmony moves from F to G. Try Third Down and Double. Check
+    the lead stays clear on breaths and consonants and that a source change
+    clears the previous voice. Repeat with Tune Off.
+11. Turn harmony off and compare the two dynamics controls independently
+    on quiet vowels, loud vowels and sibilants. Then use both together with
+    Hard tuning and harmony while a busy project plays. Time the complete
+    vocal chain on the device.

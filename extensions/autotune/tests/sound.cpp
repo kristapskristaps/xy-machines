@@ -105,9 +105,9 @@ bool hard_flattens_vibrato() {
     return false;
 }
 
-bool noise_and_reset(u32 retune, i32 attenuation) {
+bool noise_and_reset(u32 retune, i32 attenuation, const live_input::ExtraValues& extra = {}) {
     reset_input();
-    prepare_input(2, retune, 15, 0);
+    prepare_input(2, retune, 15, 0, extra);
     u32 noise = 42;
     i32 ring[2048] = {};
     i32 stereo[2 * block_frames];
@@ -136,6 +136,62 @@ bool noise_and_reset(u32 retune, i32 attenuation) {
     }
     return true;
 }
+
+struct Bin {
+    double frequency, real = 0, imaginary = 0;
+    explicit Bin(double hz) : frequency(hz) {}
+    void add(i32 value, u32 frame) {
+        const double phase = tau * frequency * frame / sample_rate;
+        real += value * std::cos(phase);
+        imaginary += value * std::sin(phase);
+    }
+    double power() const { return real * real + imaginary * imaginary; }
+};
+
+bool harmonizes(double lead, double expected, double unwanted, u32 choice) {
+    reset_input();
+    prepare_input(0, 0, 15, 0xab5, {{choice, 3, 0, 0}});
+    Bin melody(lead), harmony(expected), wrong(unwanted);
+    bool stereo_ok = true;
+    for (u32 start = 0; start < 81920; start += block_frames) {
+        i32 stereo[2 * block_frames];
+        for (u32 frame = 0; frame < block_frames; ++frame) {
+            stereo[2 * frame] = 0;
+            stereo[2 * frame + 1] = tone(lead, start + frame) / 512;
+        }
+        process_input(stereo);
+        if (start < 16384) continue;
+        for (u32 frame = 0; frame < block_frames; ++frame) {
+            stereo_ok &= stereo[2 * frame] == 0;
+            melody.add(stereo[2 * frame + 1], start + frame);
+            harmony.add(stereo[2 * frame + 1], start + frame);
+            wrong.add(stereo[2 * frame + 1], start + frame);
+        }
+    }
+    return expect(stereo_ok, "harmony preserves channel separation") &&
+        expect(harmony.power() > melody.power() * 0.03 && melody.power() > harmony.power(),
+               "one audible harmony with the lead still in front") &&
+        expect(harmony.power() > wrong.power() * 6.0, "harmony follows the chosen scale or double");
+}
+
+double dynamics_level(double frequency, i32 amplitude, const live_input::ExtraValues& extra) {
+    reset_input();
+    prepare_input(0, 0, 15, 0, extra);
+    double energy = 0;
+    for (u32 start = 0; start < 16384; start += block_frames) {
+        i32 stereo[2 * block_frames];
+        for (u32 frame = 0; frame < block_frames; ++frame) {
+            const double phase = tau * frequency * (start + frame) / sample_rate;
+            stereo[2 * frame] = static_cast<i32>(amplitude * std::sin(phase));
+            stereo[2 * frame + 1] = 0;
+        }
+        process_input(stereo);
+        if (start >= 8192)
+            for (u32 frame = 0; frame < block_frames; ++frame)
+                energy += static_cast<double>(stereo[2 * frame]) * stereo[2 * frame];
+    }
+    return std::sqrt(energy);
+}
 }
 
 int main() {
@@ -158,6 +214,19 @@ int main() {
     ok &= hard_flattens_vibrato();
     ok &= noise_and_reset(0, 1);
     ok &= noise_and_reset(1, 512);
+    ok &= noise_and_reset(0, 512, {{1, 4, 0, 0}});
+    ok &= harmonizes(293.664768, 349.228231, 369.994423, 1); // D to F, a minor third.
+    ok &= harmonizes(329.627557, 391.995436, 415.304698, 1); // E to G in C major.
+    ok &= harmonizes(329.627557, 261.625565, 277.182631, 2); // E to C.
+    ok &= harmonizes(440.0, 441.812744, 444.0, 3);
+    ok &= expect(dynamics_level(220, 3000000, {{0, 0, 1, 0}}) <
+                 dynamics_level(220, 3000000, {}) * 0.68, "compressor tames loud vowels");
+    ok &= expect(dynamics_level(220, 500000, {{0, 0, 1, 0}}) ==
+                 dynamics_level(220, 500000, {}), "compressor leaves quiet vowels intact");
+    ok &= expect(dynamics_level(9500, 300000, {{0, 0, 0, 1}}) <
+                 dynamics_level(9500, 300000, {}) * 0.8, "de-esser reduces the high band");
+    ok &= expect(dynamics_level(220, 300000, {{0, 0, 0, 1}}) ==
+                 dynamics_level(220, 300000, {}), "de-esser leaves vowels intact");
     i32 dry[2 * block_frames], output[2 * block_frames];
     for (u32 i = 0; i < 2 * block_frames; ++i) dry[i] = output[i] = tone(432, i);
     prepare_input(0, 1, 15, 0);

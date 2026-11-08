@@ -32,7 +32,15 @@ class PitchTracker {
     u32 difference_sum_, previous_sum_, older_sum_;
     i32 previous_difference_, older_difference_;
 
-    bool snapshot() {
+    void normalize(const i32* channel, u32 output, u32 count, i32 center, u32 shift, i32 gain) {
+        for (u32 i = 0; i < count; ++i) {
+            const i32 centered = (channel[i] - center) >> shift;
+            const i16 sample = static_cast<i16>(q15::product(centered, gain) >> 8);
+            snapshot_[output + i] = shifted_snapshot_[output + i + 1] = sample;
+        }
+    }
+
+    __attribute__((noinline)) bool snapshot() {
         if (filled_ < snapshot_size) return false;
         const u32 first = position_ - snapshot_size;
         const i32 left = left_[first & ring_mask], right = right_[first & ring_mask];
@@ -56,10 +64,12 @@ class PitchTracker {
         while ((range >> shift) > 4095) ++shift;
         const i32 gain = (511 << 8) / (((range >> shift) + 1) / 2);
         // Both alignments let the distance loop read two adjacent samples at a time.
-        for (u32 i = 0; i < snapshot_size; ++i) {
-            const i16 sample = static_cast<i16>((((channel[(first + i) & ring_mask] - center) >> shift) * gain) >> 8);
-            snapshot_[i] = shifted_snapshot_[i + 1] = sample;
-        }
+        // The range check and normalization keep both multiply operands within i16.
+        const u32 start = first & ring_mask;
+        const u32 contiguous = ring_mask + 1 - start;
+        const u32 count = contiguous < snapshot_size ? contiguous : snapshot_size;
+        normalize(channel + start, 0, count, center, shift, gain);
+        normalize(channel, count, snapshot_size - count, center, shift, gain);
         return true;
     }
 
@@ -161,7 +171,7 @@ class Tuner {
     static constexpr u32 chromatic = 0xfff;
     static constexpr u32 max_voices = 3;
 
-    struct Voice { u32 phase; i32 speed; };
+    struct Voice { u32 phase; i32 speed, shift; };
     struct Voicing { u32 count; i32 degrees[max_voices]; };
 
     PitchTracker tracker_;
@@ -170,6 +180,8 @@ class Tuner {
     Voice harmony_[max_voices];
     u32 cursor_, filled_, phase_;
     i32 period_, speed_, wet_, harmony_gain_;
+    i32 note_period_, harmony_period_;
+    u32 note_;
     u32 pitch_classes_, amount_, harmony_mode_, harmony_blend_, harmony_voice_;
     bool hard_;
 
@@ -187,7 +199,7 @@ class Tuner {
         return notes;
     }
 
-    u32 target_note(i32 period) const {
+    u32 find_target_note(i32 period) const {
         const i32* notes = note_periods();
         constexpr u32 last = 84 - 36;
         u32 low = 0, high = last;
@@ -206,6 +218,14 @@ class Tuner {
         const i32 center = (notes[low] + notes[high]) / 2;
         const i32 midpoint = center - (span * span) / (center / 32);
         return has_low && (!has_high || period >= midpoint) ? low : high;
+    }
+
+    u32 target_note(i32 period) {
+        if (period != note_period_) {
+            note_ = find_target_note(period);
+            note_period_ = period;
+        }
+        return note_;
     }
 
     i32 harmony_shift(i32 period, u32 lead, i32 degree) const {
@@ -269,8 +289,8 @@ class Tuner {
         const i32 weight = static_cast<i32>(phase >> 1);
         if (!weight) return read(cursor, 0);
         const i32 tap = q31::multiply(weight, period);
-        if (weight == q31::maximum) return read(cursor, tap - period);
-        return blend_weighted(read(cursor, tap), read(cursor, tap - period), weight);
+        const Stereo second = read(cursor, tap - period);
+        return weight == q31::maximum ? second : blend_weighted(read(cursor, tap), second, weight);
     }
 
     void render_shifted(i32* stereo, u32 count, i32 period_step, i32 target_speed) {
@@ -310,6 +330,8 @@ class Tuner {
         voice.phase = phase;
     }
 
+    // Keep the voice loops out of the lead renderer's register allocation.
+    __attribute__((noinline))
     void render_harmony(i32* stereo, i32 period, i32 period_step, i32 detected, u32 lead, bool voiced) {
         static constexpr Voicing presets[] = {
             {0, {}},            // off
@@ -323,6 +345,7 @@ class Tuner {
         };
         if (!harmony_gain_ && harmony_voice_ != harmony_mode_) {
             harmony_voice_ = harmony_mode_;
+            harmony_period_ = 0;
             for (auto& voice : harmony_) voice = {};
         }
         const bool active = voiced && filled_ == history_ready && harmony_voice_ &&
@@ -333,10 +356,15 @@ class Tuner {
         if (!harmony_gain_ && !next) return;
         const Voicing& preset = presets[harmony_voice_];
         if (active) {
+            if (detected != harmony_period_) {
+                for (u32 i = 0; i < preset.count; ++i)
+                    harmony_[i].shift = harmony_shift(detected, lead, preset.degrees[i]);
+                harmony_period_ = detected;
+            }
             const i32 reciprocal = phase_reciprocal(period);
             for (u32 i = 0; i < preset.count; ++i) {
                 auto& voice = harmony_[i];
-                const i32 speed = harmony_shift(detected, lead, preset.degrees[i]) * reciprocal / 8;
+                const i32 speed = voice.shift * reciprocal / 8;
                 voice.speed += (speed - voice.speed) / 4;
             }
         }
@@ -371,6 +399,7 @@ public:
         tracker_.reset();
         cursor_ = filled_ = phase_ = 0;
         period_ = speed_ = wet_ = 0;
+        note_period_ = harmony_period_ = 0;
         harmony_voice_ = 0;
         harmony_gain_ = 0;
         for (auto& voice : harmony_) voice = {};
@@ -386,13 +415,18 @@ public:
         if (was_tracking && !tracking()) reset();
         if (!amount_) wet_ = speed_ = phase_ = 0;
         hard_ = retune == 1;
+        u32 pitch_classes;
         if (mode >= 3 && mode <= 26) {
             const u32 root = (mode - 3) % 12;
             const u32 intervals = mode <= 14 ? major : minor;
-            pitch_classes_ = ((intervals << root) | (intervals >> (12 - root))) & chromatic;
+            pitch_classes = ((intervals << root) | (intervals >> (12 - root))) & chromatic;
         } else {
             const u32 mask = automatic_mask & chromatic;
-            pitch_classes_ = mode <= 1 && mask ? mask : chromatic;
+            pitch_classes = mode <= 1 && mask ? mask : chromatic;
+        }
+        if (pitch_classes != pitch_classes_) {
+            pitch_classes_ = pitch_classes;
+            note_period_ = harmony_period_ = 0;
         }
     }
 

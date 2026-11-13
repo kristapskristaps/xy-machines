@@ -1,0 +1,144 @@
+{
+  "source_commit": "16ee2c863de8552ea9769f83ca869e4b5010c1ba",
+  "catalog_ready": false,
+  "full_twelve_bank_boot_confirmed": false,
+  "seven_machine_bank_boot_confirmed": true,
+  "seven_machine_capture_reports": 342,
+  "capture_protocol_errors": 0,
+  "measurements": [
+    {
+      "id": "acidline",
+      "cpu": {
+        "benchmark": "opxy-synth-c8-sweep-v1",
+        "commit": "16ee2c863de8552ea9769f83ca869e4b5010c1ba",
+        "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+        "runs": 1,
+        "block_percent": 3.982605,
+        "midpoint_percent": 3.72015,
+        "combined_percent": 2.81529,
+        "worst_setting": {
+          "control": 5,
+          "label": "Shape",
+          "value": 1789569705,
+          "option": "Square"
+        },
+        "collection_sha256": "9d484556b54cbdf18ea6ca5e9325bc012ff24ab30a0cffb5272e8eb7f7957aed"
+      },
+      "status": "over CPU target"
+    },
+    {
+      "id": "halo",
+      "cpu": {
+        "benchmark": "opxy-effect-callback-v1",
+        "commit": "16ee2c863de8552ea9769f83ca869e4b5010c1ba",
+        "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+        "runs": 1,
+        "block_percent": 3.210498,
+        "collection_sha256": "9d484556b54cbdf18ea6ca5e9325bc012ff24ab30a0cffb5272e8eb7f7957aed"
+      },
+      "status": "meets CPU target"
+    },
+    {
+      "id": "mando",
+      "cpu": {
+        "benchmark": "opxy-synth-c8-sweep-v1",
+        "commit": "16ee2c863de8552ea9769f83ca869e4b5010c1ba",
+        "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+        "runs": 1,
+        "block_percent": 3.714046,
+        "midpoint_percent": 3.062486,
+        "combined_percent": 3.068589,
+        "worst_setting": {
+          "control": 3,
+          "label": "Waves",
+          "value": 1342177279,
+          "option": "P S"
+        },
+        "collection_sha256": "9d484556b54cbdf18ea6ca5e9325bc012ff24ab30a0cffb5272e8eb7f7957aed"
+      },
+      "status": "over CPU target"
+    },
+    {
+      "id": "rebound",
+      "cpu": {
+        "benchmark": "opxy-effect-callback-v1",
+        "commit": "16ee2c863de8552ea9769f83ca869e4b5010c1ba",
+        "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+        "runs": 1,
+        "block_percent": 2.418555,
+        "collection_sha256": "9d484556b54cbdf18ea6ca5e9325bc012ff24ab30a0cffb5272e8eb7f7957aed"
+      },
+      "status": "meets CPU target"
+    },
+    {
+      "id": "vader",
+      "cpu": {
+        "benchmark": "opxy-synth-c8-sweep-v1",
+        "commit": "16ee2c863de8552ea9769f83ca869e4b5010c1ba",
+        "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+        "runs": 1,
+        "block_percent": 3.878843,
+        "midpoint_percent": 3.010605,
+        "combined_percent": 2.236973,
+        "worst_setting": {
+          "control": 2,
+          "label": "Drive",
+          "value": 805306367
+        },
+        "collection_sha256": "9d484556b54cbdf18ea6ca5e9325bc012ff24ab30a0cffb5272e8eb7f7957aed"
+      },
+      "status": "over CPU target"
+    },
+    {
+      "id": "westfold",
+      "cpu": {
+        "benchmark": "opxy-synth-c8-sweep-v1",
+        "commit": "16ee2c863de8552ea9769f83ca869e4b5010c1ba",
+        "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+        "runs": 1,
+        "block_percent": 9.04097,
+        "midpoint_percent": 8.867018,
+        "combined_percent": 4.080262,
+        "worst_setting": {
+          "control": 3,
+          "label": "Decay",
+          "value": 2147483647
+        },
+        "collection_sha256": "9d484556b54cbdf18ea6ca5e9325bc012ff24ab30a0cffb5272e8eb7f7957aed"
+      },
+      "status": "over CPU target"
+    }
+  ],
+  "x0x": {
+    "publishable": false,
+    "reason": "SDK refuses saturated kit/ceiling workloads",
+    "heaviest_single_voice_diagnostic_percent": 15.564202,
+    "heaviest_model": 9,
+    "level": 64,
+    "voices_at_saturated_ceiling": 32
+  },
+  "unmeasured": [
+    "weave_analog",
+    "weave_chords",
+    "weave_grain",
+    "weave_shaper",
+    "weave_waves"
+  ],
+  "manual_QA": "pending: sound/panel/locks/LFO/pattern/scenes/save-load checklist",
+  "saved_ids_preserved": 37,
+  "new_id_reservations": 5,
+  "firmware_boot_partition_written": false,
+  "presets_transferred": false,
+  "installed_listening_generation": 173,
+  "installed_listening_machines": [
+    "acidline",
+    "halo",
+    "mando",
+    "rebound",
+    "vader",
+    "westfold",
+    "x0x"
+  ],
+  "installed_listening_boot_verified": true,
+  "diagnostic_running": false
+}

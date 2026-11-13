@@ -1,0 +1,19 @@
+{
+  "cpu": {
+    "benchmark": "opxy-drum-callback-v1",
+    "commit": "d07d8c9677b692ca044b01ed8d9018c05e9064a8",
+    "firmware_sha256": "881167fb726a3020d0e4ed00591776bfeb554a842ef79b91e30ed9141e61eb7d",
+    "runs": 1,
+    "block_percent": 4.347295,
+    "midpoint_percent": 4.275578,
+    "kit_percent": 20.505074,
+    "choke_percent": 6.005951,
+    "ceiling_percent": 33.199054,
+    "worst_model": {
+      "run": "voice",
+      "voices": 1,
+      "model": 0,
+      "level": 127
+    }
+  }
+}

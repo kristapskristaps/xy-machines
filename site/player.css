@@ -1,0 +1,2 @@
+/* Keep the exported instrument screen at its native ratio on every browser. */
+#screen{aspect-ratio:480/220}#screen>svg{width:100%;height:100%}.wordmark{font-size:17px}header{padding:12px 24px}.notes{font-size:12px}body{min-width:280px}

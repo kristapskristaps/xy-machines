@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "machines": [
+    {
+      "path": "../machines/tandem"
+    },
+    {
+      "path": "../machines/atlas"
+    },
+    {
+      "path": "../machines/choir"
+    },
+    {
+      "path": "../machines/sift"
+    },
+    {
+      "path": "../machines/crease"
+    }
+  ]
+}

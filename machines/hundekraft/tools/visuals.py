@@ -27,7 +27,7 @@ BUDGETS={
  'fmbell':(64,0),'sid':(0,0),'mbira':(112,0),'oxbow':(0,0),'eva':(0,0),
  'arc':(150,0),'mixtur':(145,8),'washer':(85,0),'crush':(160,0),'tape':(120,20),
  'warble':(100,12),'plate':(140,0),'snowglobe':(0,0),'father':(85,0),'reverb':(0,0),
- 'clouds':(65,4),'hail':(170,24),'stutter':(160,8),'palme':(110,20),'in_a_room':(180,8),'granular':(140,8),
+ 'clouds':(65,4),'hail':(170,24),'stutter':(160,8),'palme':(110,20),'in_a_room':(180,8),
 }
 ACCENTS={
  'wavetable':{'coil':'red'},'taffy':{'spark':'orange'},'elg':{'aurora':'blue'},

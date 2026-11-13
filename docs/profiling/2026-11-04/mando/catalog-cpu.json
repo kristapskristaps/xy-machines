@@ -1,0 +1,18 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "49ccadf53bc4ddff5ed009d86139269349aef1ba",
+    "firmware_sha256": "0b5b9570f04d0028d3c19a9a373ff91a12a6f288cd18179ab931b198f52c0809",
+    "runs": 2,
+    "block_percent": 3.450065,
+    "midpoint_percent": 2.855726,
+    "combined_percent": 2.816815,
+    "worst_setting": {
+      "control": 3,
+      "label": "Waves",
+      "value": 805306367,
+      "option": "S P"
+    },
+    "collection_sha256": "800f721707300d42c4e48c2ab960d4483078a51264847b4e44b8361031a29730"
+  }
+}

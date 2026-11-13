@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "sdk": "1.6",
+  "kind": "synth",
+  "description": "A wavetable atlas with three-dimensional scanning and a crushed auxiliary. Extracted from Weave.",
+  "icon": "M5 14 L20 6 L35 14 L20 22 Z M5 21 L20 29 L35 21 M5 28 L20 36 L35 28",
+  "presets": "presets"
+}

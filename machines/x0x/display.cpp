@@ -82,11 +82,10 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
         state.hit_duration = clamp(opxy::i32(decay_ms(model,raw_control(input.slots[decay]))*1024/1000),128,1536);
     } else if (hit) {
         state.age = 0;
-        const bool known = input.trigger_key >= 53 && input.trigger_key < 77 && input.trigger_model < model_count;
-        state.hit_model = known ? input.trigger_model : model;
-        const opxy::i32* values = known ? input.trigger_controls : input.slots;
-        state.hit_family = family_index(state.hit_model,raw_control(values[style]));
-        state.hit_duration = clamp(opxy::i32(decay_ms(state.hit_model,raw_control(values[decay]))*1024/1000),128,1536);
+        // Public drawing input identifies the selected pad, not the played pad.
+        state.hit_model = model;
+        state.hit_family = family;
+        state.hit_duration = clamp(opxy::i32(decay_ms(model,raw_control(input.slots[decay]))*1024/1000),128,1536);
     } else {
         state.age = clamp(state.age + clamp(input.elapsed, 0, 103), 0, 2048);
     }
@@ -97,7 +96,7 @@ inline void display(DisplayState& state, const opxy::draw::Input& input, Frame& 
     if (changed || hit || state.age < 256 || previous_age < 256 ||
         (previous_age < state.hit_duration) != (state.age < state.hit_duration))
         instrument_animation(frame,state.hit_model,state.hit_family,state.age,state.hit_duration,input.reduced_motion != 0,input.note_serial);
-    // Selection stays readable while the drummer follows sequenced hits.
+    // Selection and animation use the public selected-pad snapshot.
     place(frame,family_node+family,22*unit,84*unit,unit,0,keep);
     place(frame,drummer_node+drummer_layers+model,22*unit,68*unit,1280,0,keep);
 }

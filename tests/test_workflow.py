@@ -59,11 +59,17 @@ class WorkflowTests(unittest.TestCase):
     def test_stage_rejects_unexpected_remote_path(self):
         self.check_stage(unexpected=True)
 
-    def check_stage(self, tamper=False, unexpected=False):
+    def test_sdk_packaged_presets_are_verified_and_excluded_by_default(self):
+        self.check_stage(preset=True)
+        self.check_stage(preset=True, tamper_preset=True)
+
+    def check_stage(self, tamper=False, unexpected=False, preset=False, tamper_preset=False):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             package = root / 'package'; package.mkdir()
             contents = {'os.ldr': b'non-firmware test text', 'content/op1_factory.json': b'{}'}
+            if preset:
+                contents['content/presets/probe/default.json'] = b'{}'
             if unexpected:
                 contents['../other.txt'] = b'not an install path'
             manifest = {'profiling': True, 'files': {}}
@@ -74,13 +80,15 @@ class WorkflowTests(unittest.TestCase):
             (package / 'layout.json').write_text('{}')
             if tamper:
                 (package / 'candidate/os.ldr').write_text('changed')
+            if tamper_preset:
+                (package / 'candidate/content/presets/probe/default.json').write_text('changed')
             prior = root / 'prior.json'
             prior.write_text(json.dumps({'files': {'os.ldr': manifest['files']['candidate/os.ldr']}}))
             args = argparse.Namespace(package=str(package), out=str(root / 'stage'), against=str(prior), presets=False)
             module = types.ModuleType('tooling.profile_report')
             module.package_data = lambda _: (manifest, {}, {})
             with patch.dict(sys.modules, {'tooling.profile_report': module}), patch.object(sys, 'path', sys.path.copy()):
-                if tamper or unexpected:
+                if tamper or unexpected or tamper_preset:
                     with self.assertRaises(ValueError):
                         dev.stage(args, root / 'sdk')
                     self.assertFalse((root / 'stage/install-manifest.json').exists())
@@ -93,6 +101,7 @@ class WorkflowTests(unittest.TestCase):
                     self.assertFalse(record['needs_firmware_flash'])
                     self.assertIn('no boot-partition write', (root / 'stage/INSTALL.md').read_text())
                     self.assertEqual((root / 'stage/files/os.ldr').read_bytes(), contents['os.ldr'])
+                    self.assertFalse((root / 'stage/files/content/presets').exists())
 
     def test_build_requires_clean_source_before_starting_sdk(self):
         with patch.object(dev.subprocess, 'check_output', return_value=' M machines/a/engine.cpp\n'), patch.object(dev, 'sdk_command') as sdk:

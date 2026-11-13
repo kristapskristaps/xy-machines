@@ -1,0 +1,16 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "b6c7af888eabd7ffb63e22a0c9c1d30074a2db1b",
+    "firmware_sha256": "3a6a97840a7a7e36c7cd64d66e61f330a04cef90eca323afc8e424773c990c3f",
+    "runs": 1,
+    "block_percent": 5.09041,
+    "midpoint_percent": 5.084306,
+    "combined_percent": 4.951553,
+    "worst_setting": {
+      "control": 3,
+      "label": "Lo fi",
+      "value": 1073741823
+    }
+  }
+}

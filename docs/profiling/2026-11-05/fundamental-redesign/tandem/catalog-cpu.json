@@ -1,0 +1,16 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "d07d8c9677b692ca044b01ed8d9018c05e9064a8",
+    "firmware_sha256": "881167fb726a3020d0e4ed00591776bfeb554a842ef79b91e30ed9141e61eb7d",
+    "runs": 1,
+    "block_percent": 2.726787,
+    "midpoint_percent": 2.580301,
+    "combined_percent": 2.55436,
+    "worst_setting": {
+      "control": 0,
+      "label": "Harmonic",
+      "value": 1879048191
+    }
+  }
+}

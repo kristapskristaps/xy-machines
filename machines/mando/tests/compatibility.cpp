@@ -1,5 +1,7 @@
 #include "../engine.cpp"
+#include "reference/engine.cpp"
 #include <cstdio>
+#include <cstdlib>
 namespace {
 const opxy::i32 patches[8][8] = { {1331439861, 0, 0, 0, 0, 1073741824, 1073741824, 0},
 {1030792151, 322122547, 386547056, 0, 257698038, 1116691496, 1073741824, 858993459},
@@ -10,21 +12,21 @@ const opxy::i32 patches[8][8] = { {1331439861, 0, 0, 0, 0, 1073741824, 107374182
 {1309965025, 2018634628, 171798692, 0, 0, 0, 1073741824, 2147483647},
 {2147483647, 0, 0, 0, 515396075, 1073741824, 1073741824, 0} };
 opxy::u32 fingerprint(unsigned patch) {
-    mando::Voice voice = {}; mando::Shared shared;
+    mando_legacy::Voice voice = {}; mando_legacy::Shared shared;
     opxy::i32 parameters[8], output[64]; opxy::u32 pitch[64];
     opxy::u32 hash = 2166136261u, seed = 9137u + patch;
     const opxy::u32 notes[] = {0u, 3185120u, 5356534u, 10713067u, 42852281u, 171409123u, 685636492u};
     for (unsigned j = 0; j < 8; ++j) parameters[j] = patches[patch][j];
-    mando::initialize(voice, shared, 1);
+    mando_legacy::initialize(voice, shared, 1);
     for (unsigned block = 0; block < 256; ++block) {
-        if (block % 128 == 0) mando::start(voice, shared, 1);
+        if (block % 128 == 0) mando_legacy::start(voice, shared, 1);
         if (block >= 128 && block % 8 == 0) for (unsigned j = 0; j < 8; ++j) {
             seed = seed * 1664525u + 1013904223u;
             parameters[j] = static_cast<opxy::i32>(seed >> 1);
         }
         for (unsigned i = 0; i < 64; ++i)
             pitch[i] = notes[(block / 16) % 7] + (block & 1u ? i * 12345u : 0u);
-        mando::render(voice, shared, 1, output, parameters, pitch);
+        mando_legacy::render(voice, shared, 1, output, parameters, pitch);
         for (unsigned i = 0; i < 64; ++i) hash = (hash ^ static_cast<opxy::u32>(output[i])) * 16777619u;
     }
     return hash;
@@ -32,15 +34,26 @@ opxy::u32 fingerprint(unsigned patch) {
 }
 
 int main() {
-    // The expanded table must preserve the old integer interpolant everywhere,
-    // including both boundaries of the fast range and the overload fallback.
+    // The saturation lookup must remain within8Q14LSB of the old integer interpolant everywhere,
+    // including both lookup regions and the overload rail.
     for (int x = -131200; x <= 131200; ++x) {
         const unsigned a = static_cast<unsigned>(x < 0 ? -x : x);
         const int positive = a >= 131072 ? 16384
             : mando::dsp::linear(mando::tables::tanh_q14, a, 8);
         const int expected = x < 0 ? -positive : positive;
-        if (mando::dsp::saturate(x) != expected) {
-            std::puts("FAIL: saturation curve changed"); return 1;
+        // Compatibility with the previous two-region prepared transfer,
+        // independently reconstructed from the original Q14 curve.
+        const unsigned point = a < 32768u ? ((a + 8u) >> 4) * 16u
+            : 32768u + ((a - 32768u + 64u) >> 7) * 128u;
+        const int prepared = a <= 512u ? static_cast<int>(a)
+            : a >= 131072u ? 16384
+            : mando::dsp::linear(mando::tables::tanh_q14, point, 8);
+        if (mando::dsp::saturate(x) != (x < 0 ? -prepared : prepared)) {
+            std::puts("FAIL: prepared transfer compatibility"); return 1;
+        }
+        if ((a <= 512u && mando::dsp::saturate(x) != x) ||
+            std::abs(mando::dsp::saturate(x)-expected) > 8) {
+            std::puts("FAIL: saturation quantization exceeds8Q14LSB"); return 1;
         }
     }
     // Captured from the auditioned B filter experiment before CPU optimization.
@@ -58,20 +71,20 @@ int main() {
     const int coefficients[] = {35, 8192, 16384, 16385, 22800};
     const int inputs[] = {-32768, -16384, -1, 0, 1, 16384, 32768};
     for (int z : states) for (int r : residues) for (int g : coefficients) for (int input : inputs) {
-        mando::Voice packed = {};
+        mando_legacy::Voice packed = {};
         packed.ladder[0] = z / 2 * 32768 + r;
         const int charge = (input - z) * g + r;
         const int v = charge >> 15;
-        const int next = mando::dsp::clamp(z + 2 * v, -32768, 32768);
+        const int next = mando_legacy::dsp::clamp(z + 2 * v, -32768, 32768);
         const int expected = next / 2 * 32768 + (charge & 32767);
-        const mando::dsp::Ladder filter(g, 0);
+        const mando_legacy::dsp::Ladder filter(g, 0);
         if (filter.stage<0, true>(packed, input) != z + v || packed.ladder[0] != expected) {
             std::puts("FAIL: original stage recurrence changed"); return 1;
         }
     }
-    mando::Voice boundary = {};
-    const mando::dsp::Ladder quarter(16384, 2147483647);
-    const mando::dsp::Ladder above(16385, 2147483647);
+    mando_legacy::Voice boundary = {};
+    const mando_legacy::dsp::Ladder quarter(16384, 2147483647);
+    const mando_legacy::dsp::Ladder above(16385, 2147483647);
     if (quarter.needs_limits(boundary) || !above.needs_limits(boundary)) {
         std::puts("FAIL: coefficient limit boundary"); return 1;
     }
@@ -85,7 +98,7 @@ int main() {
     // worst-case fractional charge and arbitrary bounded initial pole states.
     opxy::u32 seed = 729;
     for (unsigned trial = 0; trial < 2048; ++trial) {
-        mando::Voice limited = {}, fast = {};
+        mando_legacy::Voice limited = {}, fast = {};
         for (unsigned j = 0; j < 4; ++j) {
             seed = seed * 1664525u + 1013904223u;
             const opxy::i32 half = static_cast<opxy::i32>(seed % 24577) - 12288;
@@ -93,7 +106,7 @@ int main() {
         }
         fast = limited;
         const opxy::i32 g = trial & 1u ? 16384 : 35 + static_cast<opxy::i32>(seed % 16350);
-        const mando::dsp::Ladder filter(g, static_cast<opxy::i32>(seed >> 1));
+        const mando_legacy::dsp::Ladder filter(g, static_cast<opxy::i32>(seed >> 1));
         if (filter.needs_limits(fast)) { std::puts("FAIL: bounded state rejected"); return 1; }
         for (unsigned i = 0; i < 64; ++i) {
             seed = seed * 1664525u + 1013904223u;

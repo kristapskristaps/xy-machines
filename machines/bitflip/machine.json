@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "sdk": "1.8",
+  "kind": "synth",
+  "description": "Eight chip voices for pulse leads, triangle bass, game arpeggios, FM bells, metallic hits and digital noise.",
+  "icon": "M8 4h32v36H8z M14 10h20v12H14z M14 30h4v6h-4z M24 30h4v6h-4z",
+  "presetDefaults": {
+    "amp": {
+      "attack": 128,
+      "decay": 0,
+      "sustain": 32767,
+      "release": 13000
+    }
+  },
+  "presets": "presets"
+}

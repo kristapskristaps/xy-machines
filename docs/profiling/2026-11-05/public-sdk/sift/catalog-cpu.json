@@ -1,0 +1,16 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "d8246183f45d556a176f1b37c9b8dd29ae2d5ee0",
+    "firmware_sha256": "d9cece5592a8bda9c47fec8f03b7b0b4d08c99eec0417119a92a88eb9eaaf339",
+    "runs": 1,
+    "block_percent": 2.615396,
+    "midpoint_percent": 2.589456,
+    "combined_percent": 2.160678,
+    "worst_setting": {
+      "control": 3,
+      "label": "Body",
+      "value": 536870911
+    }
+  }
+}

@@ -5,11 +5,12 @@ This machine is `machines/x0x`. Follow the repository root AGENTS.md and
 `SDK_REPOSITORY` and `SDK_REVISION` pin its SDK; use the clean checkout
 configured by `./xy setup`, without modifying or resetting other checkouts.
 
-X0X needs the drum `parameterEdit` callback, drawing ABI 5 played-pad
-snapshots and bounded sample-free drum presets. Preserve these requirements
-when changing the SDK dependency. Use `./xy test x0x --native` and
-`./xy preview x0x --watch` from the repository root. Its full 24-pad audition
-is documented in README.md.
+The user approved the public-SDK release: ordinary Style editing, selected-pad
+activity animation, and one builder-bundled init preset. Do not reintroduce a
+dependency on SDK PR #422. The seven authored 24-pad kits are preserved under
+`preset-packs/x0x/` at the collection root and remain separately handled; public
+SDK builder validation does not accept their packed pad records as factory presets.
+Use `./xy test x0x --native` and the auditions documented in README.md.
 
 Keep type, style, choke group and both control pages per pad. Preserve all 47
 valid type/style combinations, 7-bit controls, saved IDs and the seven kits.

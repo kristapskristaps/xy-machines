@@ -1,0 +1,87 @@
+name: Machine gallery
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'tools/build_site.py'
+      - 'tools/effect_site.py'
+      - 'tools/check_effect_site.mjs'
+      - 'tools/check_site.py'
+      - 'tools/serve_site.py'
+      - 'collection.json'
+      - 'SDK_REVISION'
+      - 'SDK_REPOSITORY'
+      - 'machines/**'
+      - '.github/workflows/pages.yml'
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'tools/*site.py'
+      - 'tools/check_effect_site.mjs'
+      - 'collection.json'
+      - 'SDK_REVISION'
+      - 'SDK_REPOSITORY'
+      - 'machines/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: machine-gallery-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: xy-machines
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read SDK pin
+        id: sdk
+        working-directory: xy-machines
+        run: python tools/ci_sdk.py
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.sdk.outputs.repository }}
+          ref: ${{ steps.sdk.outputs.revision }}
+          path: open-xy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+      - name: Install preview compiler
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang lld
+          python -m pip install numpy==2.3.5
+      - name: Test gallery export and workflow helpers
+        working-directory: xy-machines
+        run: python -m unittest discover -s tests
+      - name: Export machine catalog and auditions
+        working-directory: xy-machines
+        run: python tools/build_site.py --sdk ../open-xy --cxx clang++ --out local/pages
+      - name: Verify public artifact
+        working-directory: xy-machines
+        run: python tools/check_site.py --site local/pages
+      - name: Exercise every effect audition
+        working-directory: xy-machines
+        run: node tools/check_effect_site.mjs local/pages
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: xy-machines/local/pages
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - uses: actions/deploy-pages@v5
+        id: deployment

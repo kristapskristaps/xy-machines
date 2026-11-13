@@ -1,0 +1,17 @@
+{
+  "cpu": {
+    "benchmark": "opxy-synth-c8-sweep-v1",
+    "commit": "1fa86cf9f4f2a610050283244c594c928333b57d",
+    "firmware_sha256": "2f2776fcf107a24791c1f0b0310c0eb9b39979f0aa0aee6bf3e828e70eebb516",
+    "runs": 3,
+    "block_percent": 2.545205,
+    "midpoint_percent": 2.534524,
+    "combined_percent": 2.133211,
+    "worst_setting": {
+      "control": 3,
+      "label": "Body",
+      "value": 536870911
+    },
+    "report": "https://github.com/kristapskristaps/xy-machines/releases/tag/collection-v1.0.0"
+  }
+}

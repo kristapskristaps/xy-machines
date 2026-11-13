@@ -1,0 +1,13 @@
+import {readFileSync} from 'node:fs';
+import {pathToFileURL} from 'node:url';
+const [sdk, wasm, manifest] = process.argv.slice(2);
+const {PreviewDisplay} = await import(pathToFileURL(`${sdk}/sdk/browser/display.mjs`));
+const {createControls, shownControls} = await import(pathToFileURL(`${sdk}/sdk/browser/controls.mjs`));
+const metadata = JSON.parse(readFileSync(manifest));
+const controls = createControls(metadata.definition);
+const input = shownControls(controls.q31(controls.defaults()), [0, 1, 2, 3]);
+const module = await WebAssembly.compile(readFileSync(wasm));
+const display = new PreviewDisplay(module);
+let frame;
+for (let tick = 0; tick < 32; tick++) frame = display.tick(input, 32, tick ? 1 : 0, 0, false, {held_notes:1, note_off_serial:0});
+process.stdout.write(JSON.stringify(Array.from(frame)));

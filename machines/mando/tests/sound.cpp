@@ -38,7 +38,7 @@ double magnitude(const std::vector<double>& samples, double frequency, double ra
 double gain(double hz, double resonance) {
     mando::Voice voice = {};
     const int position = static_cast<int>(std::log2(400.0 / 30) * 32 * 65536);
-    const mando::dsp::Ladder filter(mando::dsp::pole(position), q(resonance));
+    const mando::dsp::Filter filter(mando::dsp::pole(position), q(resonance));
     double re = 0, im = 0;
     const unsigned count = 32768;
     for (unsigned i = 0; i < count * 2; ++i) {
@@ -64,11 +64,11 @@ int main() {
     require(std::abs(cutoff_position(p, increment(130.8127826)) - pivot - 32 * 65536) < 256, "full tracking doubles cutoff per octave");
     p[7] = 0;
     require(cutoff_position(p, increment(32.7)) == cutoff_position(p, increment(523.25)), "zero tracking is pitch independent");
-    require(gain(40, 0) > .96, "low frequencies pass through the ladder");
+    require(gain(40, 0) > .96, "low frequencies pass through the filter");
     const double g800 = gain(800, 0), g1600 = gain(1600, 0);
     require(g800 / g1600 > 10, "four-pole high frequency rolloff exceeds 20 dB per octave");
     require(gain(400, .9) > gain(400, 0) * 5, "resonance creates a peak at cutoff");
-    std::printf("Ladder: gain at 40 Hz %.3f, 800/1600 Hz slope %.2f dB/oct\n", gain(40, 0), 20 * std::log10(g800 / g1600));
+    std::printf("Filter: gain at 40 Hz %.3f, 800/1600 Hz slope %.2f dB/oct\n", gain(40, 0), 20 * std::log10(g800 / g1600));
 
     // Coherent high-pitch test: the third harmonic is above Nyquist and must
     // disappear in the mip oscillator rather than fold back into the spectrum.
@@ -87,8 +87,8 @@ int main() {
     const std::vector<double> shaped = render(driven_parameters, driven_hz);
     const double shaped_fundamental = magnitude(shaped, driven_hz);
     const double folded_third = magnitude(shaped, 44100 - 3 * driven_hz);
-    require(folded_third < shaped_fundamental * .0005,
-            "final ladder pole suppresses the driven folded third below -66 dBc");
+    require(folded_third < shaped_fundamental * .001 && folded_third < .00001,
+            "driven folded third stays below -60dBc and -100dBFS");
 
     p[0] = q(1); p[5] = 0;
     const std::vector<double> a = render(p, 55);
@@ -119,7 +119,7 @@ int main() {
             for (unsigned i = 0; i < 64; ++i) pitch[i] = increment(hz);
             render(voice, shared, 1, output, p, pitch);
             for (unsigned i = 0; i < 64; ++i) require(output[i] >= -peak && output[i] <= peak, "corner stability");
-            for (unsigned j = 0; j < 4; ++j) require(std::abs(2 * (voice.ladder[j] >> 15)) <= 2 * unity, "bounded ladder state");
+            for (unsigned j = 0; j < 6; ++j) require(voice.history[j]>=-67108864&&voice.history[j]<=67108864, "bounded four-pole histories");
         }
     }
     for (unsigned b = 0; b < 2048; ++b) {
@@ -140,6 +140,6 @@ int main() {
     start(voice, shared, 1); render(voice, shared, 1, before, p, pitch);
     start(voice, shared, 1); render(voice, shared, 1, output, p, pitch);
     for (unsigned i = 0; i < 64; ++i) require(before[i] == output[i], "retrigger resets every audio state");
-    std::printf("%s: tuning, oscillator spectra, ladder response, controls, 256 corners, automation and retrigger\n", failures ? "FAIL" : "PASS");
+    std::printf("%s: tuning, oscillator spectra, four-pole response, controls, 256 corners, automation and retrigger\n", failures ? "FAIL" : "PASS");
     return failures ? 1 : 0;
 }

@@ -17,6 +17,5 @@ void drum_select(Voice&, Shared&, opxy::u32 owner, opxy::u32 model);
 const char* model_name(opxy::u32 model);
 const char* parameter_name(opxy::u32 model, opxy::u32 slot);
 opxy::u32 parameter_count(opxy::u32 model);
-opxy::u32 edit_parameter(opxy::u32 model, opxy::u32 slot, opxy::u32 value, opxy::i32 delta);
 bool finished(const Voice&, const Shared&);
 }

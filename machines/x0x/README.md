@@ -15,11 +15,16 @@ new collection/SDK build or measure whole-project CPU.
 ## SDK
 
 Use the collection root's `SDK_REPOSITORY` and `SDK_REVISION`, configured by
-`./xy setup`. X0X requires the draft drum `parameterEdit` callback for one
-Style choice per encoder detent, drawing ABI 5 played-pad snapshots for
-sequencer animation, and bounded sample-free drum preset records. The pinned
-SDK includes these interfaces, native memory reductions and exact pad decoding.
-Windows release-host qualification remains pending.
+`./xy setup`. The release targets the unmodified public SDK, pinned to official
+`main` commit `71566d29f0087c793f392e9c09768ae3c866a379` (SDK 1.9). It does not
+require PR #422, custom `parameterEdit`, played-pad drawing fields or bundled
+sample-free pad records. Drum DSP, 24 independent pads and eight voices remain.
+
+The public builder includes one init preset with neutral track offsets. It
+uses `drum_defaults` to supply the 808 Classic pad mapping. The seven authored
+24-pad kits are preserved separately at [preset-packs/x0x](../../preset-packs/x0x/README.md),
+not presented as builder-bundled presets. Public-SDK hardware save/reload and
+CPU qualification remain pending; existing device presets are not deleted.
 
 ## Controls
 
@@ -40,7 +45,7 @@ The screen shows a baby-faced Grogu drummer with Wayfarer-style sunglasses,
 long ears and a wrapped robe,
 in grayscale with small blue/red accents on the kit. A separate label shows
 the selected drum and its 606/707/808/909 style, including single-family sounds;
-sequencer hits animate the played drum without changing that selection label.
+track activity animates the selected drum without changing that selection label.
 The parameter bar gives labels 50 pixels and values 70 pixels within each
 encoder column, with 17px active values and 12px inactive values. All
 18 drum types have their own band-style emblem printed on the kick head. All
@@ -52,10 +57,10 @@ the hands as the joints rebound at different rates. The 606 snaps, 707 steps,
 808 rolls back smoothly and 909 recoils sharply. Movement settles within
 0.2 seconds, with hit brightness following the pad's decay. Reduced motion
 keeps static feedback. Entering a track or browsing a type/style establishes a
-still pose instead of inventing a hit. Drawing follows the latest played pad on the track, including sequencer hits,
-while the header and encoders stay on the selected pad. It uses drawing ABI 5
-trigger snapshots; simultaneous hits between display frames can coalesce, and
-GUI control snapshots are not a history of audio-side step locks.
+still pose instead of inventing a hit. The public display snapshot identifies the selected pad, not the pad that a
+sequencer hit played. Its artwork reacts to track note activity using that
+selection; it cannot identify a different playing drum. Selected labels and
+controls remain stable. This is an intentional public-API limitation.
 Run `python artwork/drummer.py` to regenerate the vector scene, pivots and contact
 poses. The same C++ animates the browser and native display; no bitmap is loaded
 by the machine.
@@ -66,7 +71,7 @@ low/mid/high conga and tambourine. The default mapping is in `models.h`.
 
 Style selects the available 606, 707, 808 and 909 families for that type. For
 example, kick offers all four; ride offers 707/909, and congas offer 808.
-Style uses consistent family positions across drum types. A missing family
+Style uses ordinary one-unit encoder edits and consistent family positions across drum types. Each family occupies a 32-value zone, so crossing to another family can take several detents; saved raw values are unchanged. A missing family
 uses the next available family, or the last available one if none is higher.
 Single-family types leave the style position blank. Tune has an exact zero centre and a ±12-semitone
 range. Decay shows milliseconds or seconds and controls the sound envelope. Sampled
@@ -103,17 +108,16 @@ helps compare tuning, envelopes and hat choke groups while playing.
 The Kit menu offers 808 Classic, 606 Dry, 707 Studio, 909 Club, Night Wire,
 Warehouse and Soft Machines. Loading one resets all 24 audition pads; each
 pad remains independently editable. `python machines/x0x/tools/generate_presets.py --sdk ../xy-machines-sdk` rebuilds
-the audition bank and the matching device files in `presets/`. Device presets
+the audition bank, the builder init in `presets/`, and separate files under `preset-packs/x0x/`. The separate device kits
 store all 24 pads with neutral track parameters, keeping model selection and
 both pages freely editable. Their open/closed hats share choke group 1.
 
 The browser uses the full C++ engine, including the 707 and 909 recordings,
 and the actual C++ display. It is not a device/project-storage simulator.
-This branch declares `parameterEdit` and maps each Style detent directly to
-the next available family, in either direction, using the same saved raw-value
-encoding. For example, ride steps directly between 707 and 909. Other controls
-retain their unit steps. The draft SDK integration checks all 4,608 combinations
-of model, stored Style value and direction through its real pad editor.
+The audition's family buttons can jump between available families. Device
+Style edits use the public SDK's ordinary one-unit stepping rather than that
+browser shortcut. Host integration checks verify raw-value boundaries and
+preservation of the established saved-family encoding.
 
 The integration checks also exercise the real SDK pad editor and native audio adapter:
 
@@ -138,14 +142,14 @@ preset words. These checks use the pinned SDK's existing stock-boundary doubles.
 ## Hardware validation
 
 Build into a fresh folder outside every checkout using the SDK's
-[build guide](https://github.com/etcetc000/open-xy/blob/sdk/drum-synthesis/docs/build.md).
+[build guide](https://github.com/etcetc000/open-xy/blob/main/docs/build.md).
 A development package can test pad selection, Shift config, both control pages,
 copy/paste, project save/reload, preset save/reload and the individual drum sounds.
 Installation/device diagnostics require a separate user instruction. Do not
 replace an existing custom collection without preserving its layout and machines.
 
 Before publishing the finished sound engine, follow
-[hardware profiling](https://github.com/etcetc000/open-xy/blob/sdk/drum-synthesis/docs/profiling.md)
+[hardware profiling](https://github.com/etcetc000/open-xy/blob/main/docs/profiling.md)
 and collect revision-bound CPU evidence. A host check or successful build
 proves neither hardware acceptance nor measured CPU cost.
 
@@ -157,32 +161,52 @@ share one increment calculation across their identical oscillators. The cache
 and cached clap constants use 152 additional bytes per voice (1,216 bytes for
 eight voices). The native kit supports eight simultaneous voices; additional
 hits use the SDK's voice stealing, while all 24 pads and 47 type/style sounds
-remain available. The cached settings preserve
-the working sound output: `tests/waveforms.cpp` checks 47 captured fingerprints,
-covering every control value, unchanged blocks, live edits and model changes.
+remain available. The original 47 captured waveform fingerprints still
+authenticate frozen legacy helpers. Current renders are compared quantitatively for level and normalized
+edge energy across every control value, live edit and model change.
 The retained display also reuses settled poses between triggers and updates
 their brightness when a tail ends.
 
 Exact reciprocal arithmetic replaces signed division in the sample loop.
-The harmonic sum uses one public fractional DSP multiply over its proven
-range; the 606 oscillator combines consecutive divisions by 23 and 6 into
-one division by 138. Smaller /3 and /6 signals keep their single-word
-reciprocals. Clap bursts use a bounded remainder and a corrected
-reciprocal; PCM clap delay is cached with its controls. These preserve integer
-rounding and the original output samples. `tests/arithmetic.cpp` exhaustively
+The three-partial square sources use 1025-point interpolated tables instead of
+three sine interpolations for every oscillator. Their exhaustive phase-grid
+comparison differs by less than 0.1% RMS. Smaller /3 and /6 signals keep their
+single-word reciprocals. Clap bursts use a bounded remainder and a corrected
+reciprocal; PCM clap delay is cached with its controls. These divisions retain
+their original integer rounding. `tests/arithmetic.cpp` exhaustively
 checks each supported division range, every Drive sample/control pair and every
 supported clap ratio.
 
+Proven bounded products preserve both operands as signed16 through the native
+compiler. This covers oscillator/stem interpolation slopes, source envelope and
+body gains, bounded noise differences, attack/amplitude, the limited DC feedback
+state and all three analytic Drive products. Negative products retain the
+original truncation toward zero; this adds no precision or sound change beyond
+the synthesized stems. Full-scale low-pass/PCM differences and gains above 32767
+keep their original wider arithmetic. Exhaustive Drive tests and 423 paired
+PCM/full-state scenes authenticate equivalence to the stem-only revision.
+The complete PCM callback is compiled separately once per block to keep the
+native generated kernels bounded; outlining adds one call per PCM block.
+
 PCM and synthesized sources select separate sample loops once per callback.
-The 808 spectral filters multiply nonnegative magnitudes through the public
-DSP primitive and restore each term's sign before summing. Constant coefficients
-stay inlined, including the zero terms. This preserves the previous signed
-truncation, coefficient values and filter response, with no new voice state or
-tables. Arithmetic tests check every bounded sample against every coefficient.
+The 808 hats/cymbal read three periodic synthesized stems: bell, bright and air.
+They were rendered from the preceding six rectangular oscillators and five
+spectral filters, not sampled from a drum machine. Three Character anchors
+retain different oscillator ratios; intermediate values crossfade adjacent
+anchors. Each half-second loop rounds oscillator frequencies to the nearest
+2 Hz and includes a duplicate interpolation endpoint. Envelopes, attack, decay,
+tone/body balances and drive stay live. Tune resamples the stems, so filter
+centres now transpose with oscillator pitch. The finite loops and Character
+crossfade change beating and phase compared with the former live generator.
+
+The nine i16 stems occupy 396918 bytes, plus 4100 bytes for the square shapes.
+Voice capacity and the 332-byte voice state are unchanged. This is a deliberate
+sound/performance tradeoff; a fresh device sweep must meet 3.5% before acceptance.
 
 `tools/benchmark.cpp` reports host nanoseconds per sample for all 47 sounds,
 with steady controls or a changing Tone control (`changing` argument). Compile
-it with `-O2`, the SDK include path, `dsp/tables.cpp` and `dsp/sample_data.cpp`.
+it with `-O2`, the SDK include path, `dsp/tables.cpp`, `dsp/sample_data.cpp` and
+`dsp/metal_stems.cpp`.
 For a paired comparison against the preceding collection revision, run from
 the repository root:
 
@@ -190,28 +214,31 @@ the repository root:
 python machines/x0x/tools/benchmark.py --cxx /path/to/clang++ --blocks 4000
 ```
 
-It checks identical output and complete voice state at every block across
-423 scenarios: all 47 sounds, default/minimum/maximum controls, retriggers,
-Tone automation and all-control automation. Five timing repeats alternate
-order. Timed voices restart when retired, so silence-only callbacks do not
-dominate short sounds; the separate equivalence pass still exercises retirement
-and inactive callbacks.
-Host measurements do not capture the Blackfin compiler's software-divider
-cost. Compare native hardware callback workloads before claiming an OP-XY CPU
-improvement. Historical standalone measurements do not qualify the reorganized
-collection revision; measure its exact package before catalog submission.
+It reports whether output/state are identical and compares 423 host scenarios:
+all 47 sounds, default/minimum/maximum controls, retriggers, Tone automation and
+all-control automation. Intentional stem/table changes mean equivalence is not
+required; sound checks live in the machine tests. Timed voices restart after
+retirement, so silence callbacks do not dominate short sounds. Host timings
+cannot qualify this revision's hardware CPU or catalog acceptance.
+
+The original 47 waveform and 18 metallic-state hashes have not been replaced.
+They authenticate frozen reference helpers; current audio must retain RMS
+level and normalized edge energy within a factor of two across those scenes.
+The 808 default spectral centroid must stay within 25% and its upper-band
+proportion within 43% of the live reference, alongside the original high-band
+and fundamental-suppression checks. Broader timbre and device listening still
+need evaluation at the revision being measured.
 
 - 606: swept tonal oscillators for kick/toms, dual-tone/noise snare and a six-oscillator
   metallic source for hats/cymbal.
 - 808: sine kick with pitch fall, tonal/noise snare, burst clap, tuned toms and
   congas, rim/claves, metallic hats/cymbal, dual-oscillator cowbell and maracas.
-  Hats/cymbal use six band-limited rectangular oscillators, with upper-overtone
-  bands near 3.44/7.1 kHz and separate high-pass branches. The cymbal has three
-  spectral branches with different envelope shapes, rather than added white
-  noise. Tone balances the high bands; Bell shapes the cymbal's lower strike.
-  These lightweight filters follow the spectral architecture described by
+  Hats/cymbal use pre-rendered six-oscillator spectral branches, with the
+  cymbal's bell/bright/air envelopes mixed independently rather than adding
+  white noise. Tone balances the high bands; Bell shapes the lower strike.
+  The source generator follows the architecture described by
   [Werner, Abel and Smith (2014)](https://www.icmc14-smc14.net/images/proceedings/OS24-B10-TheTR-808Cymbal.pdf),
-  with original code and coefficients, rather than their complete circuit model.
+  with original code and coefficients.
 - 707: all 15 original recordings, including the two kick and snare variants.
   Body blends the variants on those two voices. Other controls shape pitch,
   envelope, onset, spectral balance and transient/body character.
@@ -236,11 +263,22 @@ logarithmic curve and decoded/interpolated at playback. See
 `python assets/generate.py --cache <external-cache>` with ffmpeg installed;
 `python dsp/generate_tables.py` rebuilds the fixed-point math tables.
 `python dsp/generate_metallic.py` rebuilds the 808 spectral filter coefficients.
+Compile `tools/generate_stems.cpp` with the SDK include path and `dsp/tables.cpp`
+to an external executable, then redirect its output to `dsp/metal_stems.cpp` to
+regenerate the synthesized stems and square tables.
 
 The envelope lookup uses 85 knots spaced more closely at short durations,
 saving 5,812 bytes compared with a uniform four-millisecond table.
 `tests/envelopes.cpp` checks all 6,141 supported millisecond durations: the
 coefficient-derived decay time stays within 0.35% of the requested time.
+
+Feed-forward Q15 products round to nearest, with half-count ties toward positive.
+Recursive low-pass updates and DC feedback retain truncation toward zero so
+quiet tails terminate. `tools/rounded_quality.py` compares 423 renders against
+the committed truncating renderer and checks complete releases for all 47 voices.
+Across those renders, maximum waveform RMS difference is 1.96% above -80dBFS
+and maximum level change is 0.105dB; default steady voices stay below 0.73%
+RMS difference and 0.023dB. These are sound comparisons, not hardware timings.
 
 `tests/sound.cpp` checks all 47 combinations, 323 shaping controls with a substantial measured waveform change,
 gain-normalized distinctions between all available family pairs, character/body
@@ -251,7 +289,8 @@ isolation. `tests/metallic.cpp` checks upper-band energy and suppression of the
 generator. These tests establish neither circuit accuracy nor device CPU cost.
 
 To render a four-kit demonstration and a timed catalogue of all 47 sounds,
-compile `audition/render.cpp` with `dsp/tables.cpp`, `dsp/sample_data.cpp` and the
+compile `audition/render.cpp` with `dsp/tables.cpp`, `dsp/sample_data.cpp`,
+`dsp/metal_stems.cpp` and the
 SDK include directory, then run the executable with two external WAV output
 paths. The demo plays 606, 707, 808 and 909 for eight seconds each. The catalogue
 prints its timestamps. Both use the actual machine DSP and per-pad defaults.

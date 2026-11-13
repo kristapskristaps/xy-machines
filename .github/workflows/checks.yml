@@ -44,13 +44,13 @@ jobs:
       - name: Build first-release synth auditions
         working-directory: xy-machines
         run: |
-          for machine in acidline mando matter subvista vader weave westfold; do
+          for machine in acidline mando vader tandem atlas choir sift crease bitflip; do
             python ../open-xy/sdk.py preview --machine "machines/$machine" --out "local/release-previews/$machine" --cxx clang++
           done
       - name: Upload first-release synth auditions
         uses: actions/upload-artifact@v7
         with:
-          name: first-ten-synth-previews
+          name: release-synth-previews
           path: xy-machines/local/release-previews
           if-no-files-found: error
   native:

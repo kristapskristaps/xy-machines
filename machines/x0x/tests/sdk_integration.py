@@ -31,9 +31,10 @@ int main() {
     require(sdk_drum_values(track, &model, raw) && model == x0x::kick && raw[1] == 64);
     edit(4, 1); // Shift + black: kick -> snare
     require(sdk_drum_values(track, &model, raw) && model == x0x::snare);
-    edit(0, 1); // One detent: 808 -> 909, independent of type
+    const u8 initial_style=raw[0];
+    edit(0, 1); // Public SDK edits one raw unit, retaining the family encoding.
     edit(1, 7);
-    require(sdk_drum_values(track, &model, raw) && x0x::family_index(model, raw[0]) == 3 && raw[1] == 71);
+    require(sdk_drum_values(track, &model, raw) && raw[0]==initial_style+1 && raw[1] == 71);
     key = 54;
     require(sdk_drum_values(track, &model, raw) && model == x0x::snare && raw[1] == 64);
     for (u32 encoder = 0; encoder < 4; ++encoder) {
@@ -48,7 +49,7 @@ int main() {
     key = 53;
     require(sdk_drum_values(track, &model, raw) && model == x0x::snare && raw[1] == 71);
     key = 55;
-    edit(0, -1); // One detent: default 808 clap -> 707 clap.
+    edit(0, -32); // Public raw-value edit: default 808 clap -> 707 clap.
     require(sdk_drum_values(track, &model, raw) && x0x::family_index(model, raw[0]) == 1);
     edit(4, -2); // Clap -> kick, preserving the same requested family.
     require(sdk_drum_values(track, &model, raw) && model == x0x::kick && x0x::family_index(model, raw[0]) == 1);
@@ -104,26 +105,22 @@ int main() {
     }
     track = 7; key = 76; shown(0,1,2,3);
     for (u32 m = 0; m < x0x::model_count; ++m) for (u32 value = 0; value < 128; ++value) {
-        u32 options[4], size = 0, position = 0;
-        for (u32 f = 0; f < 4; ++f) if (x0x::family_masks[m] & (1u << f)) {
-            if (x0x::family_index(m,value) == f) position = size;
-            options[size++] = f;
-        }
         for (i32 direction = -1; direction <= 1; direction += 2) {
             u8 initial[8] = {u8(value),64,48,64,0,64,64,0};
             require(drum_pack(m,initial,regions[7][23]+1,codec));
             reinterpret_cast<u8*>(regions[7][23])[24] = drum_mark(0);
             edit(0,direction);
             require(sdk_drum_values(track,&model,raw) && model == m);
-            const i32 next = i32(position)+direction;
-            const u32 expected = options[next < 0 ? 0 : next >= i32(size) ? size-1 : u32(next)];
-            require(x0x::family_index(m,raw[0]) == expected);
+            const i32 next=i32(value)+direction;
+            const u32 expected=x0x::control_name(m,0)[0]
+                ? u32(next<0?0:next>127?127:next) : value;
+            require(raw[0]==expected);
             for (u32 slot=1;slot<x0x::parameter_count(m);++slot) require(raw[slot] == initial[slot]);
         }
     }
     require(regions[7][23][0] == 123456 && regions[7][23][5] == 987654);
     check_presets();
-    std::puts("PASS: X0X + SDK editor: one-detent styles, per-pad type, both pages, eight tracks, choke, copy, lossless preset words and seven editable kits");
+    std::puts("PASS: X0X + SDK editor: unit-step styles, per-pad type, both pages, eight tracks, choke, copy, lossless preset words and seven separately stored editable kits");
 }
 '''
 
@@ -140,7 +137,7 @@ console.log(JSON.stringify(kits.map(kit=>({id:kit.id,pads:kitPads(kit)}))));"""
     cpp_array = lambda values: '{'+','.join(map(str,values))+'}'
     banks = []
     for kit in browser:
-        preset = json.loads((machine/'presets'/(kit['id']+'.json')).read_text())
+        preset = json.loads((machine.parents[1]/'preset-packs/x0x/content/presets/x0x'/(kit['id']+'.json')).read_text())
         if preset['engine']['params'] != [16384]*8 or len(preset['regions']) != 24:
             raise ValueError('A kit needs neutral track offsets and 24 stored pads')
         rows = []
@@ -169,8 +166,8 @@ void check_presets() {
             u8 model, values[8]; require(sdk_drum_values(track,&model,values));
             require(model == kit[p].model && sdk_drum_choke_choice(track) == kit[p].choke);
             for (u32 s = 0; s < x0x::parameter_count(model); ++s) require(values[s] == kit[p].raw[s]);
-            // Loaded kit styles remain freely editable at one detent/choice.
-            const u32 next = x0x::stepped_value(model,0,values[0],1);
+            // Separately stored kits retain editable raw Style values on the public SDK.
+            const u32 next = x0x::control_name(model,0)[0] && values[0]<127 ? values[0]+1 : values[0];
             const u32 event[] = {1000,1,0}; sdk_drum_edit(key,0,event,0);
             require(sdk_drum_values(track,&model,values) && values[0] == next);
             for (u32 s = 1; s < x0x::parameter_count(model); ++s) require(values[s] == kit[p].raw[s]);
@@ -202,7 +199,6 @@ def main():
     entry = '{reinterpret_cast<const char*>(34), ready, x0x::model_count, defaults, label, name, count}'
     if fixture.count(entry) != 1:
         raise ValueError('SDK GUI fixture changed; check the registered editor callback')
-    fixture = fixture.replace(entry, entry[:-1] + ', 0, nullptr, nullptr, x0x::edit_parameter}')
     with tempfile.TemporaryDirectory(prefix="x0x-sdk-integration-") as temporary:
         scratch = Path(temporary)
         stock = (platform / "stock.hpp").read_text().replace(

@@ -33,7 +33,7 @@ are rejected. Default hardware outputs use the OS's OPXY-SDK private directory.
 
 Use the official Open-XY browser app with the published catalog plus this
 repository's private machines. Local versions take precedence if IDs overlap.
-The rejected HK effects and HK Granular are excluded; their sources remain intact.
+The rejected HK effects are excluded; their sources remain intact.
 Catalog extensions are included in the optional extension picker.
 
 ```sh
@@ -97,7 +97,7 @@ before a build; **Build ZIP** is available without direct USB transfer.
 
 New machines get SDK source/tests/docs and an inventory entry. Effects use
 `--kind effect` and four controls. The SDK does not scaffold sample engines;
-use upstream Timestretch and HK Granular as the worked examples.
+use upstream Timestretch as the worked example.
 
 The synth preview prints a free localhost URL. Enable audio and play. Save C++,
 artwork or metadata: watch mode builds a fresh authenticated snapshot and reloads
@@ -115,12 +115,12 @@ to build only. It serves the SDK allowlist, never the source checkout.
 No IDs means the complete inventory. Changed-file selection includes staged,
 unstaged and untracked machine sources. Inventory/SDK-pin changes select all.
 Normal tests skip the slower CPU sweep; `--cpu` enables its host estimate.
-Native effects are linked with Subvista because SDK startup requires an engine.
+Native effects are linked with Tandem because SDK startup requires an engine.
 Temporary native modules are not installable OS images.
 
 The SDK browser workbench supports synths and drums and uses an audition gate;
 it does not emulate native mono/glide, stock envelopes, filters or sends.
-Effects/sample engines use the same test/build commands plus existing auditions:
+Effects use the same test/build commands plus existing auditions:
 
 - Hundekraft: see `machines/hundekraft/README.md` for its live stereo effect
   workbench, A/B, test phrases and local audio files.
@@ -128,10 +128,6 @@ Effects/sample engines use the same test/build commands plus existing auditions:
 - X0X: see `machines/x0x/README.md` for the 24-pad drum audition, seven kits and independent pad controls.
 - Rebound: `machines/rebound/tools/audition.cpp` renders clean ping-pong and
   above-unity feedback rides; see its README for the compile/render commands.
-- Vapour: `machines/vapour/tools/audition.cpp` renders stereo clouds and
-  Freeze/transposition/resume; see its README for the compile/render commands.
-- HK Granular's audition is a recording; native sample assignment still needs
-  hardware validation.
 
 Pass the pinned SDK path to specialist tools where supported. No browser or
 recording establishes hardware CPU or native display acceptance.
@@ -201,6 +197,39 @@ the synthetic whole-voice metric excludes graphics and total project scheduling.
 Use `--all` instead of `--machine vader` to generate every included machine's
 report from the same capture batch. Repeating `--machine` selects a subset of
 reports without repeating the hardware capture batch.
+
+## Public machine gallery
+
+GitHub Pages serves the [machine gallery](https://kristapskristaps.github.io/xy-machines/).
+`.github/workflows/pages.yml` builds it from `collection.json` and the pinned SDK
+on changes to main. Synths and drums use the SDK's authenticated WebAssembly
+previews. Effects use collection-owned fixed-memory WebAssembly bridges around
+their unchanged C++ callbacks. Each effect player offers three synthesized demo
+loops, browser-local audio loading, dry comparison, send/volume and tail controls.
+The export includes
+licenses and pinned source links, strips local build metadata, and contains no
+native objects, firmware, stock assets or device data.
+
+Keep `site/descriptions.json` in sync with the inventory. Its descriptions
+explain sounds and controls to musicians and appear in both cards and players;
+source history and porting details belong in the machine documentation.
+The gallery separates standalone XY Machines from Hundekraft workshop ports.
+Keep `site/origins.json` updated for upstream attribution and original-version
+links; every Hundekraft port must have an entry.
+
+To inspect a fresh static export locally:
+
+```sh
+python tools/build_site.py --out local/gallery-001
+python tools/check_site.py --site local/gallery-001
+node tools/check_effect_site.mjs local/gallery-001
+python tools/serve_site.py --site local/gallery-001
+```
+
+The localhost server uses a hashed file allowlist and the same `/xy-machines/`
+URL prefix as GitHub Pages. Opening a machine creates one audition iframe;
+closing it unloads the audio context. Generated modules remain ignored under
+`local/`; GitHub Actions uploads only the verified static export.
 
 ## Parallel work and final checks
 

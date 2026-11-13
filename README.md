@@ -1,29 +1,38 @@
 # XY Machines
 
-37 Open-XY machines: **19 synths, 1 drum machine, 16 send effects and 1 sample engine**.
+39 Open-XY machines with **21 synths, 17 send effects and 1 drum machine**.
 This is a source collection with independent machine releases. The SDK stays
 in a separate sibling checkout. No firmware or device data is included.
 
 ## Layout
 
-- `machines/<id>/`: Vader, Weave, Matter, Vapour, Halo, Westfold, Acidline,
-  Subvista, Rebound, Mando, and X0X.
-- `machines/hundekraft/`: all 26 Hundekraft ports, retaining their collection
+- `machines/<id>/`: Vader, Halo, Acidline,
+  Rebound, Mando, Bitflip, Lustre, Gen Tape, X0X, and the five standalone Weave models.
+- `machines/hundekraft/`: all 25 Hundekraft ports, retaining their collection
   scripts, audition sources, original attribution and per-machine folders.
-- `collection.json`: all 37 machine paths. `collections/hundekraft.json` and
+- `extensions/checkpoint/`: temporary scene store, recall and recovery through
+  Metronome + plus/minus/Record; see its [README](extensions/checkpoint/README.md)
+  for the required checkpoint SDK and opt-in build instructions.
+- `collection.json`: all 39 machine paths. `collections/hundekraft.json` and
   `collections/standalone.json` select the two groups.
-  `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK effects
-  and HK Granular remain excluded from hardware test kits.
+  `collections/hundekraft-test.json` selects the 12 HK synths; rejected HK
+  effects remain excluded from hardware test kits.
 - `provenance/`: source commits, branch/tag references, original file hashes,
   snapshot records and the documentation/tooling-only layout adaptations.
 
 An inventory does not imply that all machines fit one firmware image. Use a
 subset and preserve your device's existing layout when building firmware.
 
+The five extracted Weave models are **Tandem** (Analog), **Atlas** (Waves),
+**Choir** (Chords), **Sift** (Grain), and **Crease** (Shaper).
+[Split-model notes](docs/weave-standalone.md) cover their source, controls,
+animations and validation; [the full engine inventory](docs/engine-inventory.md)
+is available for review.
+
 ## First release candidates
 
-The first release group is **Acidline, Halo, Mando, Matter, Rebound, Subvista,
-Vader, Vapour, Weave and Westfold**. Its source selection is
+The first release group is **Acidline, Halo, Mando, Rebound,
+and Vader**. Its source selection is
 [collections/first-release.json](collections/first-release.json). These are
 release candidates; catalog publication follows final source-bound hardware
 qualification and the required SDK integration.
@@ -32,11 +41,15 @@ See the [hardware CPU measurements](docs/profiling/2026-11-03/README.md) for
 matched optimization comparisons, combined-source readouts and remaining integration work.
 
 Each machine has its own README, license, controls and audition instructions.
-The seven synth previews are available in the **first-ten-synth-previews**
-artifact of a successful [Collection checks](https://github.com/kristapskristaps/xy-machines/actions/workflows/checks.yml)
-run. Download it and serve one preview folder with the pinned SDK's
-`tools/serve_harness.py --preview <folder>`. Halo, Rebound and Vapour provide
-local effect auditions in their READMEs; projects save their send settings.
+The [machine gallery](https://kristapskristaps.github.io/xy-machines/) lists the
+current source collection with browser auditions for synths, drums and effects.
+Play a keyboard, explore presets, or try an effect on three demo loops or your
+own audio. Files stay in your browser. The gallery rebuilds from `main` through
+GitHub Actions; it publishes browser modules and artwork, never firmware.
+
+The CI **release-synth-previews** artifact remains available for local audition
+with the pinned SDK's `tools/serve_harness.py --preview <folder>`. Specialist
+effect auditions are documented in their machine READMEs.
 
 Use per-machine release tags such as `halo-v1.0.0`. Multiple machine tags may
 point to one qualified commit, with each catalog entry selecting its own folder.
@@ -64,11 +77,11 @@ and explicit `profile` commands are described in the guide; previews/tests never
 contact a device. Existing machines' DSP and artwork are unchanged by these tools.
 
 Use Python 3.12, Node 22.12+, NumPy 2.3.5 and Clang with wasm32 support.
-The SDK is pinned by `SDK_REPOSITORY` and `SDK_REVISION` to a tested integration
-branch in `kristapskristaps/open-xy`. It combines current upstream staging, the
-existing builder workflow, X0X's per-pad encoder stepping and played-pad drawing
-snapshots, compact native state, and exact drum-control decoding. These SDK
-changes remain a development draft; Windows release-host qualification is pending.
+The SDK is pinned by `SDK_REPOSITORY` and `SDK_REVISION` to official
+`etcetc000/open-xy` main commit `71566d29f0087c793f392e9c09768ae3c866a379`.
+X0X uses its public drum API with ordinary Style edits, selected-pad activity
+animation and a builder-compatible init preset. Its seven full kit presets
+are retained in `preset-packs/x0x/` separately. No custom SDK PR is required.
 Other local SDK checkouts remain independent.
 
 ```sh
@@ -83,7 +96,7 @@ On Homebrew macOS, add `--cxx /opt/homebrew/opt/llvm/bin/clang++` to host checks
 Native checks need the SDK's pinned Blackfin tools (`python sdk.py toolchain fetch`
 from the SDK checkout). They compile each machine into an external temporary
 directory, without stock firmware or device operations. Each effect is paired
-with the small Subvista synth because SDK startup requires at least one engine.
+with the small Tandem synth because SDK startup requires at least one engine.
 `--native` runs both
 host and native checks. For one machine, use the SDK directly:
 
@@ -139,9 +152,8 @@ and documentation; it does not replace the licences of the machines.
 
 | ID | Name | Kind | Folder |
 | --- | --- | --- | --- |
-| x0x | X0X | drum | [machines/x0x](machines/x0x/README.md) |
 | acidline | Acidline | synth | [machines/acidline](machines/acidline/README.md) |
-| mando | Mando | synth | [machines/mando](machines/mando/README.md) |
+| bitflip | Bitflip | synth | [machines/bitflip](machines/bitflip/README.md) |
 | halo | Halo | effect | [machines/halo](machines/halo/README.md) |
 | hkarc | HK Arc | synth | [machines/hundekraft/hkarc](machines/hundekraft/hkarc/README.md) |
 | hkclouds | HK Clouds | effect | [machines/hundekraft/hkclouds](machines/hundekraft/hkclouds/README.md) |
@@ -150,7 +162,6 @@ and documentation; it does not replace the licences of the machines.
 | hkeva | HK EVA | synth | [machines/hundekraft/hkeva](machines/hundekraft/hkeva/README.md) |
 | hkfather | HK Father | effect | [machines/hundekraft/hkfather](machines/hundekraft/hkfather/README.md) |
 | hkfmbell | HK FM Bell | synth | [machines/hundekraft/hkfmbell](machines/hundekraft/hkfmbell/README.md) |
-| hkgranular | HK Granular | sample | [machines/hundekraft/hkgranular](machines/hundekraft/hkgranular/README.md) |
 | hkhail | HK HAIL | effect | [machines/hundekraft/hkhail](machines/hundekraft/hkhail/README.md) |
 | hkinaroom | HK In a room | effect | [machines/hundekraft/hkinaroom](machines/hundekraft/hkinaroom/README.md) |
 | hkmbira | HK MBIRA | synth | [machines/hundekraft/hkmbira](machines/hundekraft/hkmbira/README.md) |
@@ -169,10 +180,14 @@ and documentation; it does not replace the licences of the machines.
 | hkwarble | HK Warble | effect | [machines/hundekraft/hkwarble](machines/hundekraft/hkwarble/README.md) |
 | hkwasher | HK Washer | effect | [machines/hundekraft/hkwasher](machines/hundekraft/hkwasher/README.md) |
 | hkwavetable | HK Wavetable | synth | [machines/hundekraft/hkwavetable](machines/hundekraft/hkwavetable/README.md) |
-| matter | Matter | synth | [machines/matter](machines/matter/README.md) |
+| mando | Mando | synth | [machines/mando](machines/mando/README.md) |
 | rebound | Rebound | effect | [machines/rebound](machines/rebound/README.md) |
-| subvista | Subvista | synth | [machines/subvista](machines/subvista/README.md) |
 | vader | Vader | synth | [machines/vader](machines/vader/README.md) |
-| vapour | Vapour | effect | [machines/vapour](machines/vapour/README.md) |
-| weave | Weave | synth | [machines/weave](machines/weave/README.md) |
-| westfold | Westfold | synth | [machines/westfold](machines/westfold/README.md) |
+| tandem | Tandem | synth | [machines/tandem](machines/tandem/README.md) |
+| choir | Choir | synth | [machines/choir](machines/choir/README.md) |
+| sift | Sift | synth | [machines/sift](machines/sift/README.md) |
+| crease | Crease | synth | [machines/crease](machines/crease/README.md) |
+| atlas | Atlas | synth | [machines/atlas](machines/atlas/README.md) |
+| x0x | X0X | drum | [machines/x0x](machines/x0x/README.md) |
+| lustre | Lustre | effect | [machines/lustre](machines/lustre/README.md) |
+| gentape | Gen Tape | effect | [machines/gentape](machines/gentape/README.md) |

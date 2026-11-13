@@ -117,32 +117,45 @@ Open the printed localhost URL, enable audio, select a low octave and play.
 Tests cover clean-sub purity, fundamental retention, DC, high-register alias
 energy, pitch-drop settling, transient decay, deterministic retrigger, all 256
 control corners and the display's note, idle, track and reduced-motion behavior.
-An independent frozen V2 renderer also verifies bit-identical audio across
-59 million samples of long notes, control changes, glides and retriggers,
-plus two million pitch-band selections. The optimized renderer reuses identical
-waveform lookups, replaces integer division with an exact corrected reciprocal,
-and stops click and pitch-sweep work only after it can no longer affect audio.
-Quantized-identical waveform banks share storage: all 216 mode/drive/band slots
-now reference 162 distinct arrays through a constant pointer grid. Every original
-sample is preserved, with about 53 KiB less native storage and no added voice
-state. Frozen bank fingerprints check each original slot independently of the
-renderer, which shares the generated tables.
+An independent frozen V2 renderer checks 59 million samples across long notes,
+control changes, glides and retriggers, plus two million exact pitch-band
+selections. The settled-drive path caches the blended waveform per voice after
+two consecutive blocks select the same drive and pitch band. Moving Drive,
+pitch-band transitions and clean sine notes keep their direct paths. Retrigger
+invalidates the cache. Phase, envelopes, controls and audible click state retain
+their previous behavior.
+
+Moving the blends before phase interpolation changes integer rounding slightly;
+audio is no longer bit-identical. Tests permit at most four waveform units before
+the filter and eight output units at full Boost. The 59-million-sample comparison
+observed a maximum difference of two output units (65,536 Q31) and RMS difference
+of approximately 2,551 Q31. The cache adds 1,048 bytes per voice; eight-voice
+capacity, saved controls, presets and display are unchanged. The native module
+uses about 230 KiB, including its SDK adapter.
+
+Each new stable waveform requires one 513-point cache construction. Include this
+transition, rapid retriggers and moving controls in hardware profiling; sustained
+speed does not establish the worst block cost. In paired host timing the driven
+Dark Lord and Death Star presets improved roughly 9–10%; the median over the
+whole 510-scenario grid was nearly unchanged. These are development candidates,
+not a measured device CPU reduction or qualification below 3.5%.
+
+Quantized-identical source banks still share storage: 216 mode/drive/band slots
+reference 162 distinct arrays, saving about 53 KiB. Frozen bank fingerprints
+check every original slot independently of the renderer.
 
 From the collection root, compare with the preceding revision:
 
 ```sh
-python machines/vader/tools/benchmark.py --cxx /path/to/clang++ --blocks 2000
-python machines/vader/tools/benchmark.py --cxx /path/to/clang++ --full-grid --verify-only
+python machines/vader/tools/benchmark.py --cached-rounding --cxx /path/to/clang++ --blocks 2000
+python machines/vader/tools/benchmark.py --cached-rounding --cxx /path/to/clang++ --full-grid --verify-only
 ```
 
-The paired benchmark covers 510 scenarios: defaults, eight presets, control
-sweeps, page corners at six pitches and control/pitch motion. The wider check
-adds all 256 eight-control corners, for 2,046 scenarios. Each compares audio and
-complete voice state every block for 256 blocks; six long-hold cases instead
-compare 4,096 blocks with delayed Punch edits and pitch-drop reactivation.
-Both compare 4,096 display frames and states. Five timing repeats alternate
-before/after order. These are host checks; device profiling determines native
-CPU cost.
+The paired benchmark covers 510 scenarios; the wider check covers 2,046.
+It requires exact non-filter voice state, bounded filter/audio rounding and
+4,096 identical display frames. Five timing repeats alternate before/after
+order. Omitting `--cached-rounding` requires fully bit-identical audio and state
+and is useful for later exact changes against a matching baseline.
 
 Regenerate the checked-in analytic tables with `python tools/generate_tables.py`.
 The SDK adapters own voice allocation and registration; callbacks allocate no

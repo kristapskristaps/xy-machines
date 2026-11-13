@@ -1,0 +1,14 @@
+{
+  "source_revision": "957afdbac6f2ef9916991366e24517f1483dc0e4",
+  "source_model": 7,
+  "adaptation": true,
+  "upstream": "https://github.com/pichenettes/eurorack",
+  "files": {
+    "LICENSE": "4767aae1af28af0da220804d064fc2f3d5c8af7d0adea7967ee0454e741f760f",
+    "VENDOR.md": "f0248b3d1049909950dd2e4f1228a2854e9f19acc42ec778f88bd6fbb4d78507",
+    "macro.cpp": "1adad5179d0615480fc3b6c91f4fc0569704697b89d75dd39a55fc868a16424d",
+    "macro.h": "222666d61cbdbad7420c98f1e48f490390fb3cd3604f18873c8a61f85e1a45dd",
+    "macro_tables.h": "66b6f3fa113719664d82a781bf2a9586fb89782b5edb1f1b19160ed613a625f1",
+    "types.h": "3a2b731a2fa1d60329789a2568ba2cd8bad72ea29916cf061217f076d7ec058c"
+  }
+}

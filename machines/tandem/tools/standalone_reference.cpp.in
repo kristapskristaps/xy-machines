@@ -1,0 +1,25 @@
+#include "@SOURCE@"
+#include "@CASES@"
+#include <cstdio>
+#include <cstring>
+int main(){
+ unsigned long long pcm_values[45],state_values[45];
+ for(unsigned scene=0;scene<split_cases::count;++scene){
+  weave::Voice v={};weave::Shared shared;weave::initialize(v,shared,scene+1);weave::start(v,shared,scene+1);
+  unsigned long long pcm=14695981039346656037ull,state=pcm;
+  for(unsigned block=0;block<96;++block){
+   opxy::i32 p[8]={},four[4],out[64];opxy::u32 pitch[64];split_cases::parameters(scene,block,four);
+   p[0]=static_cast<opxy::i32>((2ull*@MODEL@+1)*2147483647ull/30);
+   for(unsigned i=0;i<4;++i)p[i+1]=four[i];
+   for(unsigned i=0;i<64;++i)pitch[i]=split_cases::pitch(scene,block,i);
+   if(scene==43 && block%11==0)weave::start(v,shared,scene+1);
+   weave::render(v,shared,scene+1,out,p,pitch);
+   for(auto sample:out)pcm=split_cases::hash(pcm,static_cast<opxy::u32>(sample));
+  }
+  const auto& model=v.oscillator.e.@MEMBER@;
+  for(unsigned i=0;i<sizeof(model)/4;++i){opxy::u32 word;std::memcpy(&word,reinterpret_cast<const unsigned char*>(&model)+4*i,4);state=split_cases::hash(state,word);}
+  pcm_values[scene]=pcm;state_values[scene]=state;
+ }
+ std::puts("// Frozen optimized Weave 957afdbac6f2ef9916991366e24517f1483dc0e4; generated independently.\n#pragma once");
+ for(unsigned which=0;which<2;++which){std::printf("static const unsigned long long reference_%s[45]={\n",which?"state":"pcm");for(unsigned i=0;i<45;++i)std::printf("%lluull,%s",which?state_values[i]:pcm_values[i],i%3==2?"\n":"");std::puts("};");}
+}

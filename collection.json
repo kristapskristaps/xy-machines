@@ -5,6 +5,9 @@
       "path": "machines/acidline"
     },
     {
+      "path": "machines/bitflip"
+    },
+    {
       "path": "machines/halo"
     },
     {
@@ -27,9 +30,6 @@
     },
     {
       "path": "machines/hundekraft/hkfmbell"
-    },
-    {
-      "path": "machines/hundekraft/hkgranular"
     },
     {
       "path": "machines/hundekraft/hkhail"
@@ -89,28 +89,34 @@
       "path": "machines/mando"
     },
     {
-      "path": "machines/matter"
-    },
-    {
       "path": "machines/rebound"
-    },
-    {
-      "path": "machines/subvista"
     },
     {
       "path": "machines/vader"
     },
     {
-      "path": "machines/vapour"
+      "path": "machines/tandem"
     },
     {
-      "path": "machines/weave"
+      "path": "machines/choir"
     },
     {
-      "path": "machines/westfold"
+      "path": "machines/sift"
+    },
+    {
+      "path": "machines/crease"
+    },
+    {
+      "path": "machines/atlas"
     },
     {
       "path": "machines/x0x"
+    },
+    {
+      "path": "machines/lustre"
+    },
+    {
+      "path": "machines/gentape"
     }
   ]
 }

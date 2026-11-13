@@ -14,7 +14,7 @@ Read the SDK's authoring, UX, API, build and profiling guides before machine wor
    compiler. Setup never resets an existing SDK or another chat's changes.
 3. Use `./xy new <id> --name "Name" --controls 8` for a new synth, or add
    `--kind effect` for an effect. It creates tests/docs and updates the inventory
-   without nested Git repositories. Sample engines use the HK Granular/Timestretch API examples;
+   without nested Git repositories. Sample engines use the upstream Timestretch API examples;
    the SDK does not scaffold them. Preserve saved IDs and control contracts.
 4. Edit the machine's C++, metadata, artwork, presets and machine-local tests.
    Run `./xy test <id>` for quick checks. `./xy test --changed` includes staged,
@@ -26,7 +26,7 @@ Read the SDK's authoring, UX, API, build and profiling guides before machine wor
    The default chooses a free port; never stop another chat's server.
 6. Run `./xy test <id> --native` before hardware work. Add `--cpu` for DSP
    performance changes; this is an advisory host estimate, not Blackfin timing.
-   Effect native checks include Subvista because the SDK startup check needs an engine.
+   Effect native checks include Tandem because the SDK startup check needs an engine.
 
 The SDK browser workbench supports synths and drum machines. Effects/sample engines use the same
 test/build commands plus their specialist auditions listed in the development
@@ -39,7 +39,7 @@ Use `./xy browser` for the cached official builder with catalog and private
 machines. `./xy browser --refresh --stock-os <external original OS>` exports a
 fresh pool and runs all SDK kit checks; a failed export never replaces the
 cached builder. Catalog extensions are preserved and local machine IDs take
-precedence. Exclude the rejected HK effects and HK Granular. Read the browser
+precedence. Exclude the rejected HK effects. Read the browser
 section of docs/development.md before changing this workflow. Keep all native
 objects, stock content, kits and site output outside every checkout. Use the
 upstream browser's transfer implementation; do not add another device writer.
@@ -86,7 +86,7 @@ upstream browser's transfer implementation; do not add another device writer.
 - Work in this repository. The original sibling repositories and the original
   `open-xy-hundekraft` folder are independent working copies used by other chats;
   do not move, reset, commit, clean or overwrite their work as part of this repo.
-- Standalone machines live in `machines/<id>`. The 26 Hundekraft ports live
+- Standalone machines live in `machines/<id>`. The 25 Hundekraft ports live
   in `machines/hundekraft/<id>` with their original collection tools and notices.
   Each folder containing `machine.json` is an independently releasable machine.
   New machines belong in `machines/<id>` without a nested Git repository.

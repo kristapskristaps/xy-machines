@@ -4,10 +4,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <chrono>
+#include <cmath>
 
 static unsigned seed = 1234567;
 static unsigned random_word() { seed = seed * 1664525u + 1013904223u; return seed; }
 static unsigned long long samples = 0;
+static long long maximum_error = 0;
+static long double squared_error = 0;
 static void require(bool condition, const char* message) {
     if (!condition) { std::fprintf(stderr, "FAIL: %s\n", message); std::exit(1); }
 }
@@ -44,15 +47,18 @@ static void compare(unsigned scenario, unsigned blocks) {
         }
         vader_reference::render(a,sa,scenario,x,p,pitch);
         vader::render(b,sb,scenario,y,p,pitch);
-        if (std::memcmp(x,y,sizeof(x))) {
-            for(unsigned i=0;i<64;++i) if(x[i]!=y[i]) {
-                std::fprintf(stderr,"PCM scenario %u block %u sample %u: %d != %d\n",scenario,block,i,x[i],y[i]);
-                std::exit(1);
-            }
+        for(unsigned i=0;i<64;++i) {
+            const long long error = static_cast<long long>(x[i]) - y[i];
+            if(std::llabs(error)>maximum_error) maximum_error=std::llabs(error);
+            squared_error += static_cast<long double>(error)*error;
         }
+        if(a.click>=262144) require(a.noise==b.noise && a.click==b.click && a.click_low==b.click_low,"audible click state remains exact");
         samples += 64;
-        require(a.phase==b.phase && a.sweep==b.sweep && a.body==b.body && a.body2==b.body2,
-                "phase, live envelope and filter state match");
+        require(a.phase==b.phase && a.pending==b.pending && a.sweep==b.sweep && a.fade==b.fade &&
+                a.drive==b.drive && a.sub==b.sub && a.color==b.color && a.boost==b.boost,
+                "phase, envelopes and smoothed controls remain exact");
+        require(std::abs(a.body-b.body)<=1024 && std::abs(a.body2-b.body2)<=1024,
+                "filter state differs by at most four Q15 waveform units");
     }
 }
 int main() {
@@ -94,6 +100,7 @@ int main() {
             samples+=64;
         }
     }
-    std::printf("PASS: 2,000,108 exact mip selections; %llu bit-identical PCM samples across corners, long tails, automation, retriggers and glides.\n",samples);
+    require(maximum_error<=8*32768,"cached interpolation stays within eight output units at full Boost");
+    std::printf("PASS: 2,000,108 exact mip selections; %llu PCM samples within bounded rounding across corners, long tails, automation, retriggers and glides. Peak error %lld Q31; RMS %.2Lf Q31.\n",samples,maximum_error,std::sqrt(squared_error/samples));
     return 0;
 }

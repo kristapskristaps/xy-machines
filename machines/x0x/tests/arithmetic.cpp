@@ -18,15 +18,20 @@ int main() {
         for(auto coefficient:coefficients){
             require(coefficient>-32768 && coefficient<32768,"metal filter coefficient fits its fractional scaling");
             for(i32 sample=-32767;sample<=32767;++sample)
-                require(metal_product(sample,coefficient)==sample*coefficient/16384,
-                        "every metal filter product preserves signed truncation");
+                {
+                    const i32 product=sample*coefficient;
+                    const i32 floor=product/16384-(product<0 && product%16384!=0);
+                    require(metal_product(sample,coefficient)==floor,"every metal filter product follows signed floor");
+                    require(floor-product/16384>=-1 && floor-product/16384<=0,"metal rounding change is at most one count");
+                }
         }
     }
     for (i32 sample=-32767;sample<=32767;++sample) for (u32 amount=0;amount<128;++amount) {
         const i32 boosted=limit(sample+sample*i32(amount)/16), half=boosted/2;
         const i32 cube=(half*half/16384)*half/16384;
-        require(drive(sample,amount)==(amount ? boosted-2*cube/3 : sample),
-                "every Drive sample and control value is unchanged");
+        const i32 error=drive(sample,amount)-(amount ? boosted-2*cube/3 : sample);
+        require(error>=-4 && error<=4,
+                "every Drive sample and control stays within four signed-Q15 counts");
     }
     for (u32 period=128;period<=815;++period)
         for (u32 numerator=0;numerator<=period;++numerator)

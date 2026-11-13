@@ -1,93 +1,83 @@
 # Acidline
 
-An acid synth for Open-XY: band-limited saw/triangle/square, a resonant four-pole
-filter, a pluck envelope, soft clipping and an octave-down sine sub. Stock OP-XY supplies pitch,
-portamento, velocity, amplitude envelopes and mixing.
+A mono acid voice with a four-stage 303 ladder, band-limited saw/triangle/square,
+linked drive and clipping, an octave sub and darkening. The monochrome display shows a signal etched into a metal plate.
 
-## Mono playback
+## Playing and slide
 
-The default and all five named factory presets select stock **mono** play mode.
-This is mono independently on each track: using Acidline on another track does
-not steal the first track's voice. Existing projects retain their saved play
-mode; load an updated factory preset or switch M2 / Shift play mode to mono
-once. Loading a preset replaces its sound settings, so save an edited sound
-first. The machine API does not lock the stock play-mode menu: selecting poly
-manually enables overlapping voices and multiplies DSP cost again.
+All six native factory presets select stock **legato** and stock portamento amount
+**1800** (a raw preset value, not milliseconds). Existing projects retain their
+saved play mode and portamento; load a new preset or edit M2 + Shift to use these
+settings. Save edited sounds before loading a factory preset.
 
-Stock portamento follows the supplied sample-by-sample pitch ramp. No second
-glide, global voice lock, velocity detector or internal amplitude gate is added.
-Use parameter locks on Cutoff, Env Amt, Reso or Distort for filter accents.
-The 16-slot DSP pool remains available for independent tracks and stock fades;
-it is not a per-track polyphony setting.
+Overlap notes for connected phrases; leave gaps for fresh attacks. XY also has a
+Portamento step component for selective pitch glides. Acidline consumes the stock
+sample-by-sample pitch ramp exactly and never adds a second glide. A pitch change
+without a new start preserves its internal filter-envelope decay; a new start
+retriggers it. Tests establish this machine-side behavior, **not** whether stock
+Legato supplies the necessary callbacks for every sequenced overlap. That needs
+an on-device listening test. This is a stock-legato slide candidate, not a claim
+of complete TB-303 sequencer/circuit emulation. The public synth API has no
+explicit slide/tie/gate flag; if stock restarts tied voices, proper suppression
+needs a separate SDK API change rather than a pitch-change heuristic.
 
-## Controls and display
+## Performance controls
 
-Press any encoder to switch the complete page. The SDK's shared two-page
-header shows both rows and highlights the active row. The original six saved
-slots keep their order; Sub and Damp use the two previously unused slots.
+Press any encoder to switch pages. Saved indices and parameter IDs are preserved.
 
-| Encoder | Page 1 | Page 2 |
+| Encoder | Main page | Second page |
 | --- | --- | --- |
-| 1 | Cutoff | Decay |
-| 2 | Reso | Wave |
-| 3 | Distort | Sub |
-| 4 | Env Amt | Damp |
+| 1 | **Flow**: opens the filter across its logarithmic range | **Length**: short pluck to long filter decay |
+| 2 | **Bite**: resonance, bass compensation and extra envelope sweep | **Shape**: Saw / Triangle / Square |
+| 3 | **Burn**: pre-filter drive, soft clipping and linked darkening | **Body**: octave-down sine blend |
+| 4 | **Sweep**: filter movement within the headroom above Flow | **Shade**: bright edge to dark low-pass |
 
-Wave now selects **Saw / Triangle / Square** with a named readout, rather than
-morphing continuously between saw and pulse. Existing low/high settings still
-select saw/square, but intermediate saved values now select one of the three
-shapes. Waveform changes crossfade over one audio block.
+Bite adds up to one quarter of the unused envelope depth. Burn adds up to one
+quarter of the remaining darkening range. These couplings are computed once per
+block. Length still controls the contour independently. The main page is the
+performance surface; the second page shapes the underlying voice. These are real
+sound changes, including for existing projects. Control slots have not been
+removed or reordered, and factory raw sound values remain intact.
 
-Sub blends in a sine exactly one octave below the supplied pitch, including
-stock glide. At full Sub the main and sub each contribute half, preserving
-output headroom. Sub bypasses its lookup when off. Damp is a post-distortion
-low-pass: zero bypasses it, turning clockwise increasingly darkens the sound.
-Both new controls default off; the bass factory presets demonstrate them.
+Each track retains its own stock mono/legato behavior. The 16-slot DSP pool
+supports independent tracks and stock fades; it is not per-track polyphony.
+Stock supplies amplitude envelopes, velocity, mixing and effects. Filter accents
+can use parameter locks on Flow, Bite, Burn or Sweep.
 
-A laboratory bench holds a red triangular Erlenmeyer flask, a blue round-bottom
-reaction flask and a slender green test tube. Their liquid outlines and bubble
-positions follow their different vessel profiles. All three are connected
-by a recirculating glass pipe network. Coloured fluid packets travel through
-the pipes while notes sound; cutoff controls flow speed. Turning valves, two
-pressure gauges and droplets respond to the controls and
-note pulses. The apparatus sits against a tiled lab wall with pump housings
-and an instrument cabinet. Cutoff,
-resonance and distortion change the liquid levels. Notes trigger ripples,
-bubbles and short vapour bursts; held notes keep the reaction active. Idle
-motion settles, track changes reset activity, and reduced motion removes the
-continuous movement. Display work is separate from the audio callback.
+## Display
 
-## DSP and control shaping
+Two incisions run between contact rails on a metal plate. A new note bends
+the lead groove and sends a bright spark and two dimmer traces down it. The
+second incision stays in the plate as an octave echo.
 
-The base cutoff spans 35 Hz to 14 kHz logarithmically. Env Amt uses the remaining
-cutoff range above that base, so high Cutoff/Env settings no longer hit an early
-ceiling. Decay spans roughly 30 ms to 1.4 s, with more room for short acid plucks.
-Resonance brings in squelch earlier and applies a gradual body compensation so
-raising it does not simply remove the bass.
+| Sound control | Animation |
+| --- | --- |
+| Flow | Moves where the first fold opens in the groove |
+| Bite | Deepens the groove's repeated bends |
+| Burn | Cuts small pits into the bends |
+| Sweep | Bends the live groove farther on an attack |
+| Length | Extends the return bend and the time the spark travels |
+| Shape | Changes the groove between saw teeth, triangles and square steps |
+| Body | Separates the octave incision from the lead |
+| Shade | Darkens the octave incision and softens the main groove |
 
-Distort links pre-filter drive to a smooth post-filter soft clipper. Low settings
-add edge, the middle pushes the resonant filter harder, and the top becomes
-compressed and gritty. Post-clip gain has a gentler range than before. Damp
-rolls the main sound down toward 220 Hz at its dark end; the octave sub stays
-clean beneath it. Factory presets are revoiced around these curves. Existing
-saved controls keep their indices but sound different with the revised DSP.
+At rest, both incisions follow the controls and the sparks are extinguished.
+Reduced motion keeps the same stationary drawing. A note moves at most the
+lead outline and the three sparks. The spark is driven by note activity.
 
-The oscillator, nonlinear four-pole filter and soft clipping run at 88.2 kHz.
-The 31-tap half-band FIR returns 44.1 kHz output. Oversampling and filter stages
-are retained. Fixed-point blending uses the public SDK fractional multiply,
-which provides the Blackfin DSP instruction through the platform boundary.
-Coefficient products and gain targets are prepared per block. The filter's
-saturation retains the bounded, division-free reciprocal calculation.
+## DSP budget and validation
 
-Hardware midpoint comparisons measured **11.772% per whole voice** for the
-preceding division-free revision and **10.611%** for the retuned DSP at
-`e4004ef` (about 9.9% less). These synthetic single-voice midpoint runs exclude
-graphics and do not measure a live project or maximum polyphony. Both exceed
-the SDK's recommended 3.5%; a full control sweep is still needed before catalog
-submission. Mono avoids the polyphonic voice stacking previously observed on
-dense sixteenth-note patterns; several independent tracks still add load.
+This candidate uses the experimental 44.1 kHz Open303 ladder adaptation and its
+150 Hz feedback high-pass, replacing the old 88.2 kHz TPT filter/FIR. It is an
+intentional sound change: a darker ladder response, different resonance and
+more high-note distortion aliasing. See [NOTICE.md](NOTICE.md) for attribution.
+Stable output controls select specialized loops before processing samples.
+There is no output lookup-cache rebuild on automation and no new slide DSP loop.
 
-## Development
+The previous catalog revision measured **3.975%** average at Shape Square
+and a **4.778%** peak. The new screen needs a device responsiveness check and
+a revision-bound hardware run before a catalog release. The callback timing
+excludes the display.
 
 From the XY Machines root:
 
@@ -97,42 +87,16 @@ node --test machines/acidline/tests/presets.test.mjs
 ./xy preview acidline --watch
 ```
 
-The C++ tests cover control extremes, peak bounds, filter attenuation,
-monotonic symmetric soft clipping, waveform spectra, octave-down sub,
-damping, exact stock pitch ramps, independent DSP states, display bounds,
-both header pages, idle/reduced-motion behavior, full-convolution equivalence
-and spectral alias rejection. Preset tests check stock mono mode and unchanged
-sound parameters. The optional dedicated acid sequencer under `audition/`
-provides its own simple mono gate and glide; it does not emulate stock's
-allocator or envelopes.
+Tests cover control extremes, headroom, independent voices, spectral behavior,
+control sweet spots, exact supplied pitch ramps, tied contour continuity,
+detached retriggers, display validity, idle/reduced motion and both pages.
+Frozen historical renderer hashes remain unchanged. Sound comparisons apply the
+same macro targets to the old filter before comparing level and spectral edge;
+no old reference hashes were replaced to admit the new design.
 
-Use the root browser workflow to refresh the cached builder after source
-changes. The retuned revision still needs wider device listening tests and a complete
-revision-bound control sweep before publication.
-Host/native checks do not establish real-time hardware headroom. Keep firmware
-and stock content outside every checkout; device operations require a separate
-user instruction.
+The browser has a simple audition gate and does not reproduce stock Legato,
+portamento, allocation, envelopes or device CPU. Use the dedicated acid audition
+for its simulated tie/glide pattern; it too is test equipment, not stock firmware.
 
-Stable saw, triangle and square settings select their own render loop once per
-block; waveform transitions retain the original morphing path. The soft clip
-computes its magnitude before the polynomial, preserving the original curve
-with fewer signed-rounding corrections. `tests/equivalence.cpp` checks 73
-original audio/state fingerprints across controls, retriggers, pitch ramps and
-live modulation. The 2x oversampling and filter arithmetic remain intact.
-
-The filter and damping coefficient ramps use Q31 directly, avoiding repeated
-sample scaling inside the oversampled loop. Wavetable interpolation and DC
-removal use the same public fractional multiply with their original rounding.
-These changes add no tables or voice state. Compare against the preceding
-collection revision with:
-
-```sh
-python machines/acidline/tools/benchmark.py --cxx /path/to/clang++
-```
-
-The paired host benchmark verifies matching audio and final voice state across
-207 control/pitch scenarios, then alternates timing order for five repetitions.
-It reports host render times, not device CPU. Measure the optimized revision
-with a full hardware control sweep before catalog publication.
-
-MIT; see LICENSE. DSP, tables and browser audition are original to this work.
+MIT; see LICENSE and NOTICE.md. Keep firmware and stock content outside all
+checkouts. Hardware acceptance and revision-bound CPU qualification remain pending.

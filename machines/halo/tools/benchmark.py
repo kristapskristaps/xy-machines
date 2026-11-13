@@ -117,7 +117,7 @@ int main() {
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--baseline', default='8641aec')
+    parser.add_argument('--baseline', required=True)
     parser.add_argument('--sdk', type=Path)
     parser.add_argument('--cxx', default='c++')
     parser.add_argument('--blocks', type=int, default=2000)
@@ -131,6 +131,9 @@ def main():
     if not (sdk / 'sdk/include/opxy/effect.hpp').is_file():
         parser.error('Pass --sdk with an Open-XY SDK checkout.')
     baseline = subprocess.check_output(['git', 'rev-parse', '--verify', args.baseline+'^{commit}'], cwd=REPO, text=True).strip()
+    baseline_core = subprocess.check_output(['git','show',baseline+':machines/halo/core.h'],cwd=REPO,text=True)
+    if ('struct Cic' in baseline_core) != ('struct Cic' in (MACHINE/'core.h').read_text()):
+        parser.error('Different Halo topology: use tests/space.cpp for plate/FDN comparisons, not exact-state timing.')
     definition = json.loads((MACHINE / 'definition.json').read_text())
     defaults = [round(p['default']*MAX) for p in definition['parameters']]
     settings = [defaults]; labels = ['default']
@@ -143,7 +146,8 @@ def main():
     settings += [[0]*8, [MAX]*8]; labels += ['all zero', 'all maximum']
     with tempfile.TemporaryDirectory(prefix='halo-benchmark-') as directory:
         scratch = Path(directory); before = scratch/'before'; before.mkdir()
-        for name in ('core.h', 'tables.h', 'fx.cpp'):
+        names = subprocess.check_output(['git','ls-tree','--name-only',baseline+':machines/halo'],cwd=REPO,text=True).splitlines()
+        for name in (n for n in names if n.endswith('.h') or n == 'fx.cpp'):
             content = subprocess.check_output(['git', 'show', baseline+':machines/halo/'+name], cwd=REPO, text=True)
             (before/name).write_text(content.replace('namespace halo {', 'namespace halo_before {'))
         source = SOURCE.replace('@BEFORE@', json.dumps(str(before/'fx.cpp'))).replace('@AFTER@', json.dumps(str(MACHINE/'fx.cpp')))

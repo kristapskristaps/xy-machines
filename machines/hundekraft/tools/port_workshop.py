@@ -503,7 +503,6 @@ def write_machine(spec,index,shim):
     record['description']='Hundekraft '+title+' DSP port for private OP-XY testing.'
     record['sdk']='1.6'
     record.pop('identity',None)
-    if kind=='sample':record['base']='sampler'
     if kind=='effect':record['dryParameter']='dry'
     (folder/'machine.json').write_text(json.dumps(record,indent=2)+'\n')
     (folder/'definition.json').write_text(json.dumps(definition,indent=2)+'\n')

@@ -30,8 +30,8 @@
       2621,
       7864
     ],
-    "playmode": "mono",
-    "portamento.amount": 0,
+    "playmode": "legato",
+    "portamento.amount": 1800,
     "portamento.type": 0,
     "transpose": 0,
     "tuning.root": 0,

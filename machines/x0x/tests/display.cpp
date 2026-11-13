@@ -130,24 +130,15 @@ int main() {
         require(frame.nodes[body_node+input.model].shade == 1,"browsing a family stays still");
     }
     require(count == 47,"complete animated sound inventory");
-    // A sequencer hit can be a different instrument/family from the pad being
-    // edited. It changes the drummer and emblem, never the selected header.
+    // Public SDK: track activity animates the selected pad; it does not expose
+    // which other pad a sequencer hit played. Selection/header remain stable.
     display_reset(state); input = {}; input.model = kick;
-    input.slots[style] = 0x50000000; input.slots[decay] = 0x30000000;
-    display(state,input,frame);
-    input.trigger_key = 54; input.trigger_model = snare;
-    input.trigger_controls[style] = 0x70000000;
-    input.trigger_controls[decay] = 0x40000000;
-    ++input.note_serial; display(state,input,frame);
-    require(frame.nodes[body_node+snare].shade == 9 && state.hit_family == 3,
-            "sequencer animates the actual played drum and family");
-    require(!std::strcmp(frame.header[0],"808"),"sequencer does not replace selected pad controls");
-    require(frame.nodes[family_node+2].x == 22*1024 && frame.nodes[family_node+2].y == 84*1024,
-            "selected family is a separate readable label rather than a ring around the emblem");
-    require(frame.nodes[drummer_node+drummer_layers+kick].x == 22*1024 &&
-            frame.nodes[drummer_node+drummer_layers+snare].x == opxy::draw::hidden_x*1024,
-            "selected drum label stays on the edited pad during sequencer hits");
-    input.elapsed = 17; display(state,input,frame);
-    require(state.hit_model == snare && state.age == 17,"played drum pose persists between display frames");
+    input.slots[style]=0x50000000;input.slots[decay]=0x30000000;
+    display(state,input,frame);++input.note_serial;display(state,input,frame);
+    require(state.hit_model==kick && state.hit_family==2,"track activity keeps selected-pad identity");
+    require(!std::strcmp(frame.header[0],"808"),"activity does not replace selected controls");
+    require(frame.nodes[body_node+kick].shade==9,"selected-pad artwork reacts to activity");
+    input.elapsed=17;display(state,input,frame);
+    require(state.hit_model==kick && state.age==17,"selected-pad pose persists between frames");
     std::puts("PASS: captions, both pages, Shift config, all 47 distinct type/style trigger animations, retrigger, rest and reduced motion");
 }
